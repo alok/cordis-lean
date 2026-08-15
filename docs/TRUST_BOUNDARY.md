@@ -1,5 +1,7 @@
 # Trust boundary
 
+<!-- markdownlint-disable MD013 MD029 -->
+
 CORDIS Lean proves properties of typed, pure Lean values. It does not by itself prove that a
 model response, JSON parser, TypeScript Harness process, operating-system resource, or remote
 service behaves like those values. This document marks the exact perimeter.
@@ -17,28 +19,34 @@ The intended tool path crosses several different assurance levels:
 ```text
 model bytes
   -- trusted parser/encoding --> Lean.Json
-  -- checked Codec.decode --> typed input
-  -- checked admission + supplied proofs --> AuthorizedCall
+  -- checked ToolWire.decode/admission + supplied proofs --> AuthorizedCall
   -- indexed View.execute --> request-indexed Reply
   -- proved pure VerifiedTool contract --> abstract successor Model
+  -- proved request-indexed AST encoding --> Lean.Json
   -- trusted renderer/transport --> external bytes and effects
 ```
 
 Only the middle, in-memory Lean segment is inside the theorem boundary. A production adapter
 must justify every arrow into or out of it.
 
-The protocol has a separate one-way result:
+The local protocol has both typed erasure and witness-reconstructing validation:
 
 ```text
 typed Trace -- erase --> RuntimeEvent list -- replayRaw --> erased endpoint
              \_________________ proved _________________/
 
-arbitrary RuntimeEvent list -- applyRaw/replayRaw --> RuntimeState or ValidationError
-                              \________ checked ________/
+local RuntimeEvent list -- validateTrace --> ValidationError
+                         |
+                         +--> ValidatedTrace
+                              { finish, intrinsic Trace, erase_eq }
+                                      |
+                                      +-- ValidatedTrace.replays --> erased endpoint
 ```
 
-There is no theorem that every accepted raw list reconstructs an existential typed `Trace`, and
-there is no theorem relating either Lean list to a persisted DeepSeek Harness session.
+Successful `validateEvent` and `validateTrace` calls therefore do reconstruct intrinsic
+witnesses for the exact local six-event vocabulary. This is not a translation from the complete
+DeepSeek Harness event union, and no theorem relates either Lean representation to a persisted
+Harness session.
 
 ## What is proved
 
@@ -57,9 +65,15 @@ to a larger real-world interpretation without a refinement proof.
   provider map.
 - `Registry.setEffect_commute` proves equality of two fixed, distinct-key registry-update
   sequences, including their composed recovery functions.
+- `Effect.IndependentAt.seq_applied_eq` proves equality of both orders when supplied with a
+  same-successor and pointwise same-recovery certificate at one predecessor.
+- `CertifiedTwoBatch.execute_order_irrelevant` proves that either of two certified pure
+  evaluation orders yields the same proof-carrying effect and model-ordered result pair;
+  `execute_recovers` proves either outcome recovers that predecessor.
 
 These results do not prove that an inverse recovers an arbitrary state, that arbitrary effects
-are independent, or that external side effects are reversible.
+are independent, or that external side effects are reversible. The two-call evaluator performs
+no `IO`, launches no tasks, and proves no concurrency or safe-parallel-execution property.
 
 ### Dependent calls and tool contracts
 
@@ -74,12 +88,33 @@ are independent, or that external side effects are reversible.
   result, and abstract successor state.
 - `ToolCatalog.signature` preserves those dependencies when adapting a verified tool to the
   generic API.
+- A successful `ToolWire.validate` returns an `AuthorizedCall` whose exact operation, decoded
+  input, precondition, and required-capability evidence survived the checked boundary.
+- `ToolWire.decode_encoded_result` and `decode_encoded_certified_result` prove one-way
+  `Lean.Json` AST round trips for the selected request's failure/output type.
 - `Decision.tighten` has proved deny-absorbing, allow-identity, commutative, associative, and
   idempotent laws.
 
 These are anti-confusion and contract-carrying results. They do not prove that the declared
 precondition, capabilities, postcondition, or abstract `Model` faithfully describe the outside
 world.
+
+### Exact-subject policy traces
+
+- `SubjectPolicyState` retains the same exact subject through proposal, decision, dispatch, and
+  subject-indexed settlement.
+- `SubjectPolicyTransition.denied_cannot_dispatch` proves there is no dispatch constructor from
+  a denied state, while `dispatched_lease_absent` proves dispatch consumed that subject's exact
+  call-ID lease in the returned pool.
+- `SubjectPolicyTrace.dispatchCount_le_one` and `cannot_dispatch_twice` prove at-most-once
+  dispatch along one explicitly threaded trace.
+- `dispatchCount_to_completed` proves that a trace from proposal to a completed result crosses
+  dispatch exactly once, and `denied_dispatchCount_eq_zero` proves that a trace starting denied
+  has no dispatch edge.
+
+These are path properties of a pure indexed value. Lean values, including pre-consumption lease
+pools and policy states, can be duplicated. The theorems do not provide global exactly-once
+execution, atomic mutation, mutual exclusion between workers, persistence, or retry safety.
 
 ### Session protocol
 
@@ -89,6 +124,10 @@ world.
 - `Event.noOrphanResult` proves that a typed result names a call pending in its predecessor.
 - `applyRaw_eraseEvent` and `replayRaw_eraseTrace` prove that erasing a typed execution is
   accepted by the Lean runtime validator at its statically known endpoint.
+- `validateEvent` and `validateTrace` reconstruct intrinsic witnesses tied by `erase_eq` to the
+  exact raw event or list they accepted.
+- `ValidatedEvent.applies` and `ValidatedTrace.replays` prove those reconstructed witnesses are
+  accepted by `applyRaw`/`replayRaw` at their intrinsic endpoints.
 - `Trace.erase_append` proves that typed trace composition erases to list append.
 
 These are properties of `Cordis.RuntimeEvent`, not of the complete, merge-extensible Harness
@@ -97,6 +136,8 @@ event union or its persistence backend.
 ### Local lifecycle
 
 - The `Transition` indices permit only the encoded local phase edges.
+- `State.inactive` retains a modeled current state; the `unload` constructor's endpoint is
+  exactly `.inactive origin outcome`.
 - Each `iterate` transition extends the indexed undo stack with one witnessed `Effect`.
 - `Transition.unload_recovers` proves exact recovery of the activation origin for the local
   stack carried by an `unload` constructor.
@@ -117,24 +158,85 @@ ordering, resolution-coherence, progress, or confluence theorems.
 The theorem begins and ends with `Lean.Json`. It is neither a parser theorem nor a JSON Schema
 theorem.
 
+### Bounded text streams
+
+- Typed `Stream.Chunk` values consume one explicit text-chunk budget unit and cannot start from
+  a finished state.
+- `Stream.replayRaw_eraseTrace` proves the local raw mirror accepts every erased typed stream at
+  its indexed endpoint.
+- `Stream.replay_completeTrace` proves that the deterministic finite text trace finishes with
+  the exact left-to-right concatenation of its source strings.
+- The executable validator rejects budget exhaustion, text after finish, and double finish.
+
+This is a `String`-level model with only text and finish messages. It is not the pinned
+Harness's richer [block/reasoning/tool-call/usage stream protocol][harness-llm-stream] and does
+not cover byte decoding, token indexes, network transport, provider exceptions, cancellation,
+or persistence.
+
+### Deterministic local Harness records
+
+- Every `Harness.RunnerState` carries `replayProof`, showing that its log over the local
+  six-variant event vocabulary replays from `.ready 0` to its stored local protocol state.
+- `Harness.CallEvidence` retains either the exact failed admission equation or the exact
+  admitted dependent call, provider completion, execution equation, lease issue, and
+  exact-subject policy trace for that call.
+- For admitted provider successes, `CallEvidence.encodedResult` uses the operation and request
+  retained by the dependent call; the `ToolWire` codec theorem proves the resulting AST decodes
+  to that exact result.
+- `Harness.CallBoundary` and `callBoundaries` project the in-memory runtime log to its ordered
+  call/result IDs, while `recordBoundaries` produces one exact adjacent call/result pair for
+  every audit record.
+- The six-index `Harness.RecordChain` jointly threads the initial model, next numeric call ID,
+  records, final model, final lease pool, and boundary projection. Each appended record starts
+  at the preceding modeled successor and lease pool and contributes its next ID and exact
+  call/result pair.
+- `RecordChain.length_eq_nextCall`, `RecordChain.ids_eq_range`,
+  `RecordChain.boundaries_eq_records`, and `RecordChain.leases_threaded` prove the corresponding
+  record count, ordered ID range, boundary equality, and lease continuity from
+  `LeasePool.empty` to the indexed final pool.
+- `RunnerState.history` specializes that chain to `RunnerState.leases` and
+  `callBoundaries RunnerState.log`. The public `RunnerState.callBoundaries_eq_records` and
+  `RunnerState.leases_threaded` theorems expose those two correspondences directly.
+- `RunnerState.dispatch` explicitly constructs an allow/dispatch/settle policy trace for each
+  admitted call. Rejected admissions still receive a matching local result event but have no
+  admitted subject and no dispatch trace.
+- Structural turn/step events use the private `emitNonBoundary` helper, which requires proof
+  that an event is not a call boundary. The private settlement helper returns the call event,
+  result event, appended record, successor model and lease pool, and extended certificates in
+  one new `RunnerState`; it exposes no intermediate state containing only a call.
+
+These facts are one joint invariant of the pure local state: replay fixes the protocol endpoint,
+while `history` fixes the model/ID/record/lease chain and the log's call/result projection.
+Settlement is atomic only in the sense that one pure Lean result contains all those updates.
+It is not an external transaction and does not make tool side effects, storage, or retries
+atomic.
+
+This runner is pure, deterministic, sequential, counter-specific, and credential-free. It is
+not the pinned TypeScript Harness and proves no asynchronous scheduling, real tool `IO`,
+approval flow, cancellation, persistence, or crash behavior.
+
 ## What is checked but not proved
 
 Executable rejection is valuable, but it is not a refinement theorem.
 
-| Boundary | Check performed | Missing theorem or guarantee |
-| --- | --- | --- |
-| `Codec.decode` | Rejects JSON AST constructors or lengths outside each decoder's accepted shape. | No proof that accepted values are exactly the values denoted by `schema`, and no completeness result for arbitrary JSON. |
-| `Protocol.applyRaw` | Checks phase, turn/step numbers, duplicate calls, orphan results, and pending calls for six event variants. | No soundness theorem producing a typed event, no completeness theorem for arbitrary accepted logs, and no Harness equivalence. |
-| `Registry.setAt` | Uses dependent equality transport so a value cannot be installed at a differently typed key. | No runtime aliasing, notification, or mutable-store semantics are modeled. |
-| `View.resolve` | Requires `needs op` before a binding can be requested. | Construction of the view and completeness of its registry snapshot remain obligations. |
-| `ToolSpec.Invocation` | Requires proof fields before dispatch through the dependent API. | The origin and adequacy of the propositions are not certified by the structure itself. |
-| `EmissionClass` | Records a classification. | No behavior is enforced from the label. |
-| `Lifecycle.Withdrawable` | Quantifies over a supplied finite list of supplied consumer records. | The list is not proved to enumerate a live registry, and its Boolean `installed` fields are not linked to lifecycle states. |
+| Boundary                                   | Check performed                                                                                                                                                                                                                      | Missing theorem or guarantee                                                                                                                                                                     |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Codec.decode`                             | Rejects JSON AST constructors or lengths outside each decoder's accepted shape.                                                                                                                                                      | No proof that accepted values are exactly the values denoted by `schema`, and no completeness result for arbitrary JSON.                                                                         |
+| `ToolWire.validate`                        | Resolves a name, checks declaration, decodes the selected input, and requires `certifyAdmission` evidence before returning a dependent call.                                                                                         | The supplied resolver, codecs, propositions, capability source, and admission procedure are not proved equivalent to a deployed registry or authenticated policy.                                |
+| `Protocol.validateEvent` / `validateTrace` | Checks the six local event variants and returns exact intrinsic witnesses for successful inputs.                                                                                                                                     | No translation or equivalence to the full Harness event union; no theorem equates every successful erased `replayRaw` call with witness reconstruction.                                          |
+| `Stream.applyRaw`                          | Checks one text/finish protocol, explicit chunk budget, and terminal-state discipline.                                                                                                                                               | No witness reconstruction for arbitrary accepted raw streams and no equivalence to Harness `StreamChunk` assembly or persistence.                                                                |
+| `CertifiedTwoBatch`                        | Requires same-successor, pointwise same-recovery, and result-stability certificate fields before either order is permitted.                                                                                                          | The certificate is supplied, exactly two pure calls are modeled, and no actual concurrency or external-effect safety follows.                                                                    |
+| `Registry.setAt`                           | Uses dependent equality transport so a value cannot be installed at a differently typed key.                                                                                                                                         | No runtime aliasing, notification, or mutable-store semantics are modeled.                                                                                                                       |
+| `View.resolve`                             | Requires `needs op` before a binding can be requested.                                                                                                                                                                               | Construction of the view and completeness of its registry snapshot remain obligations.                                                                                                           |
+| `ToolSpec.Invocation`                      | Requires proof fields before dispatch through the dependent API.                                                                                                                                                                     | The origin and adequacy of the propositions are not certified by the structure itself.                                                                                                           |
+| `EmissionClass`                            | Records a classification.                                                                                                                                                                                                            | No behavior is enforced from the label.                                                                                                                                                          |
+| `Lifecycle.Withdrawable`                   | Quantifies over a supplied finite list of supplied consumer records.                                                                                                                                                                 | The list is not proved to enumerate a live registry, and its Boolean `installed` fields are not linked to lifecycle states.                                                                      |
+| `Harness.RunnerState`                      | Sequential reference functions construct `replayProof` and a six-index `RecordChain` tying model history, IDs, records, final leases, and `callBoundaries log`; public theorems expose boundary/record equality and lease threading. | The boundary projection erases coordinates and has no full Harness translation; there is no refinement to TypeScript Harness, real I/O, parallel scheduling, durable storage, or crash recovery. |
 
 When an adapter such as `ToolWire` is used, textual resolution, decoding, and admission can
 fail closed before an `AuthorizedCall` is constructed. The adapter still supplies its resolver,
-codecs, decidability procedures, and proof-producing `admit` implementation. Its existence does
-not prove correspondence to a deployed Harness registry.
+codecs, decidability procedures, and proof-producing `certifyAdmission` implementation. Its
+existence does not prove correspondence to a deployed Harness registry.
 
 ## Trusted base and assumptions
 
@@ -150,6 +252,12 @@ validate an external runtime.
 The source also has to be in the build and public-import surface actually shipped. A theorem in
 an unimported module remains a valid Lean theorem, but it is not evidence that a particular demo,
 binary, test target, or TypeScript adapter used it.
+
+At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example, and local
+Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`. Those facts establish the current Lean
+build surface and finite executable checks, not deployment or upstream interoperability.
+`Cordis/AxiomAudit.lean` runs `#print axioms` for selected declarations; its report is scoped to
+that list and does not validate the compiler, runtime, or external systems.
 
 ### JSON, text, and transport
 
@@ -169,6 +277,11 @@ satisfying it decodes.
 
 `Effect State`, `ToolSpec Model Capability`, and the registry operate over types chosen by the
 integrator. Their proofs cover only facts represented in those types.
+
+`CertifiedTwoBatch` additionally assumes a proof that two modeled effects have equal successors,
+pointwise-equal composed recovery functions, and stable pure results. That certificate does not
+authorize parallel execution of files, processes, databases, HTTP calls, or any other real
+effects.
 
 For a file write, process launch, database transaction, HTTP request, email, or credential use,
 the integrator must separately establish that:
@@ -216,6 +329,18 @@ The pinned Harness performs much more dynamically:
 The Lean `Decision` algebra proves none of those implementation facts, and the pinned
 TypeScript source is evidence, not an imported or verified artifact.
 
+The exact-subject policy lifecycle improves the local statement: an admitted subject remains
+the same indexed value through settlement, and one threaded trace dispatches at most once. It
+does not make `LeasePool` linear. Copying the same pure pre-consumption pool or state can create
+two separately valid traces, so a production runner still needs atomic storage, idempotency,
+mutual exclusion, and restart semantics.
+
+The repository's local `Cordis.Harness` constructs one such allow/dispatch/settle trace for every
+admitted counter call and retains its dependent completion. Its joint history also threads the
+local record leases and equates record pairs with the in-memory log's boundary projection. This
+is evidence about that pure Lean function only, not about the pinned TypeScript policy runtime
+or an external exactly-once mechanism.
+
 ### Runtime registry and lifecycle
 
 The paper's §5 implementation and the pinned CORDIS source dynamically resolve providers,
@@ -225,6 +350,8 @@ notify dependents, commit views, and await teardown. See the standalone
 
 The local Lean lifecycle instead assumes:
 
+- inactive states retain the modeled recovered value, and `unload` returns specifically to the
+  activation origin;
 - the `Consumer` list is a complete and current snapshot;
 - `installed : Bool` tells the truth;
 - each `CommittedView.resolve` value denotes the intended provider;
@@ -233,7 +360,9 @@ The local Lean lifecycle instead assumes:
 - executing `UndoStack.recover` is the intended real recovery operation.
 
 It does not model notification races, promises, cleanup exceptions, re-entrant disposal,
-fairness, dynamic consumer insertion, or a changing consumer snapshot.
+fairness, dynamic consumer insertion, a changing consumer snapshot, or global orchestration.
+Retaining the recovered inactive model closes the local endpoint ambiguity; it does not supply
+the paper's multi-fiber registry or interleaving theorem.
 
 ### Session log and durability
 
@@ -247,7 +376,11 @@ separate services.
 Consequently:
 
 - a Lean `RuntimeEvent` is not a Harness `SessionEvent`;
-- `replayRaw_eraseTrace` is not a storage or crash-recovery theorem;
+- `validateTrace` reconstructs an intrinsic witness only for Lean's six local event variants;
+- `ValidatedTrace.replays` and `replayRaw_eraseTrace` are not storage or crash-recovery
+  theorems;
+- `RunnerState.callBoundaries_eq_records` covers only the call/result-ID projection of one
+  in-memory local log; it is not a persistence, payload, or external-effect theorem;
 - it does not prove sequence numbers, timestamps, surface source references, observer
   containment, flushes, or durable writes;
 - Lean's step numbering and pending-call rules differ from the pinned companion; and
@@ -269,13 +402,21 @@ claim is inferred between them.
 Without additional proofs or tests, do not state that:
 
 - CORDIS Lean formalizes the entire paper;
-- `setEffect_commute` proves paper Definition 19, Theorem 20, Corollary 21, or safe parallel
-  scheduling;
+- `setEffect_commute` or `CertifiedTwoBatch.execute_order_irrelevant` proves paper Definition
+  19, Theorem 20, Corollary 21, or safe parallel scheduling;
 - `unload_recovers` proves paper Theorem 61 or Corollary 62 for interleaved fibers;
 - the lifecycle guard proves paper Theorem 63, deadlock freedom, or termination;
-- retaining one field on one edge proves the complete Theorem 64;
-- `replayRaw_eraseTrace` proves that arbitrary accepted logs are typed, or that Harness logs are
-  durable and valid;
+- retaining the inactive recovered model or one committed view on one edge proves the complete
+  Theorem 64;
+- `validateTrace` accepts or types arbitrary full Harness logs, or that `ValidatedTrace.replays`
+  makes those logs durable and valid;
+- exact-subject `dispatchCount_le_one` provides global exactly-once execution across duplicated
+  states, workers, retries, or crashes;
+- the pure two-call batch executes tools concurrently or makes external effects safe to reorder;
+- pure `RunnerState` call/result/record settlement is a durable transaction, makes external tool
+  I/O atomic, or provides process-wide exactly-once execution;
+- the local `Cordis.Harness` verifies or is behaviorally equivalent to DeepSeek Harness;
+- the bounded text stream verifies Harness block assembly, provider streaming, or chunk storage;
 - a `Codec` schema is verified, parser-safe, or wire-compatible with Harness;
 - a `VerifiedTool` verifies arbitrary real I/O;
 - an emission label provides compensation, idempotence, or sandboxing;
@@ -289,29 +430,33 @@ that edge. Examples include:
 
 1. prove decoder soundness/completeness against a formal schema semantics, then verify the
    chosen parser/renderer or constrain the adapter to a certified one;
-2. make raw protocol validation return a dependent witness and prove both soundness and
-   completeness for the accepted event subset;
+2. if `replayRaw` and `validateTrace` remain separate public acceptance APIs, prove their exact
+   success/error relationship for the local event subset;
 3. define an explicit translation from pinned Harness events to Lean events and prove or
    property-test its stated refinement, including every documented divergence;
-4. formalize the paper's global fiber registry, independence certificates, iterator semantics,
-   and transition relation before claiming Theorems 59, 61–64, 66, or 73;
+4. formalize the paper's global fiber registry, operation-level independence and interleaving
+   semantics, recursive iterator semantics, and global transition relation before claiming
+   Theorems 59, 61–64, 66, or 73;
 5. connect capability evidence to an authenticated policy source and OS-enforced sandbox;
 6. prove each real backend refines its `ToolSpec`, including failure, cancellation, and external
-   emission semantics; and
-7. add crash, persistence, cancellation, and concurrency tests at the real TypeScript/Lean
-   adapter boundary.
+   emission semantics;
+7. bind call leases to an atomic durable store before claiming process-wide exactly-once
+   behavior;
+8. add crash, persistence, cancellation, streaming, and concurrency tests at the real
+   TypeScript/Lean adapter boundary.
 
 Until then, the conservative reading is the correct one: Lean certifies the pure kernel facts,
 the validators check a bounded dynamic surface, and adapters plus the external world remain
 trusted.
 
-[paper-pdf]: https://github.com/cordiverse/paper/blob/948a07b369c62adb3b12e102458be5c18dfb69b9/paper.pdf
+[paper-pdf]: https://raw.githubusercontent.com/cordiverse/paper/948a07b369c62adb3b12e102458be5c18dfb69b9/paper.pdf
 [cordis-fiber]: https://github.com/cordiverse/cordis/blob/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4/packages/core/src/fiber.ts#L78-L485
 [cordis-reflect]: https://github.com/cordiverse/cordis/blob/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4/packages/core/src/reflect.ts#L61-L227
 [harness-vendor]: https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/vendor/README.md#L9-L49
 [harness-tools]: https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/core/tools/src/index.ts#L211-L269
 [harness-tools-view]: https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/core/tools/src/index.ts#L1031-L1284
 [harness-tools-execute]: https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/core/tools/src/index.ts#L1328-L1530
-[harness-tool-scheduler]: https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/core/agent-loop/src/tool-calls.ts#L1-L289
+[harness-llm-stream]: https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/llm/llm/src/types.ts#L283-L303
+[harness-tool-scheduler]: https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/core/agent-loop/src/tool-calls.ts
 [harness-session-append]: https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/core/session/src/index.ts#L564-L655
 [harness-session-invariant]: https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/core/session/src/invariant.ts#L1-L250

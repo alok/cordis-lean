@@ -1,74 +1,75 @@
-# CORDIS Lean: proof-carrying agent-harness specification
+# CORDIS Lean: delivered finite reference-kernel specification
 
-Status: implementation target for Linear issue ALOK-824
+<!-- markdownlint-disable MD013 -->
+
+Status: delivered `v0.1.0` finite reference kernel for Linear issue ALOK-824
 
 Repository: `cordis-lean`
 
 Lean toolchain: `leanprover/lean4:v4.33.0`
 
-## 1. Purpose
+## 1. Delivered result and claim boundary
 
-CORDIS Lean is a small executable kernel for building agent harnesses whose APIs,
-capabilities, reversible effects, and event transitions are checked by Lean's type
-system. It implements the central ideas of CORDIS and applies them to the current
-DeepSeek Harness architecture.
+CORDIS Lean is an executable, credential-free Lean kernel for finite
+proof-carrying agent-harness executions. The delivered implementation combines:
 
-The core design claim is:
+- request-indexed APIs and tool contracts;
+- committed capability views and reversible dependent-registry updates;
+- exact and observational recovery for modeled state;
+- a certified pure two-call reordering theorem;
+- proof-carrying `Lean.Json` AST codecs for inputs and dependent results;
+- indexed session, policy, stream, and lifecycle transitions;
+- raw event validation that reconstructs intrinsic typed traces;
+- a deterministic counter harness supporting finite steps and turns;
+- exact-subject policy evidence, request-indexed encoded results, replay proofs,
+  and one joint call-history certificate tying model state, leases, IDs,
+  records, and log boundaries together; and
+- executable adversarial tests plus an explicit headline-theorem axiom audit.
+
+The central design claim remains:
 
 > An API is a dependent type signature, not a stringly registry plus a runtime
 > convention.
 
-A tool request determines its response type. A component's declared dependency set
-determines which operations its context can call. A state transition determines the
-only legal successor state. An effect produces both its successor and a recovery
-function, together with a proof that recovery returns to the original state.
+An operation selects its request type, and the request selects its response
+type. A component view requires evidence that an operation was declared. A
+typed transition determines its legal successor. A modeled reversible effect
+returns a captured inverse and proof that applying it to the produced state
+recovers the indexed predecessor.
 
-The implementation must be useful as software as well as as a formal model. It will
-include an executable mock agent loop, dynamic JSON validation at the untrusted model
-boundary, adversarial tests, and theorem-level checks of the invariants used by the
-runner.
+The scope is intentionally finite and local. `v0.1.0` is not a line-by-line
+formalization of the CORDIS paper, a full CORDIS implementation port, an
+asynchronous or distributed scheduler, or a semantic-equivalence proof for the
+DeepSeek TypeScript Harness. Names and event shapes inherited from those
+sources do not imply complete behavioral compatibility.
 
 ## 2. Primary sources and pinned snapshots
 
-The source material is intentionally pinned because all three upstream repositories
-describe themselves as active or unstable.
+The interpretation is pinned because all upstream projects are active:
 
-| Source | Snapshot used | Role in this project |
-| --- | --- | --- |
-| [CORDIS paper](https://github.com/cordiverse/paper) | `948a07b369c62adb3b12e102458be5c18dfb69b9` | Effect/coeffect calculus, component lifecycle, recovery and ordering theorems |
-| [CORDIS implementation](https://github.com/cordiverse/cordis) | `8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4` | Concrete `Context`, `Fiber`, registry, lifecycle, isolation, and interception behavior |
-| [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) | `47f943859bef60e4160492346772ded9b24f765a` | Tool registry, session log, model/tool loop, ordered results, cancellation, and plugin seams |
+| Source                                                              | Snapshot used                                                                                                                                 | Role in this project                                                                                      |
+| ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| [CORDIS paper](https://github.com/cordiverse/paper)                 | [`948a07b369c62adb3b12e102458be5c18dfb69b9`](https://github.com/cordiverse/paper/commit/948a07b369c62adb3b12e102458be5c18dfb69b9)             | Effect/coeffect interpretation, component lifecycle, recovery, and ordering obligations.                  |
+| [CORDIS implementation](https://github.com/cordiverse/cordis)       | [`8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4`](https://github.com/cordiverse/cordis/commit/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4)            | Concrete context, fiber, registry, lifecycle, isolation, and interception reference.                      |
+| [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) | [`47f943859bef60e4160492346772ded9b24f765a`](https://github.com/deepseek-ai/deepseek-harness/commit/47f943859bef60e4160492346772ded9b24f765a) | Turn/step/tool-call/result vocabulary, ordered result behavior, cancellation concepts, and adapter seams. |
 
-The Harness snapshot's vendor manifest pins its production CORDIS dependency more
-specifically to CORDIS `v4.0.0-rc.7` / loader `v1.0.0-rc.5` at
-`56b3d4f725681cf4556c1a8695a709cc3b6eed74`, plus DeepSeek's CORDIS plugins at
-`abb0a307cb1d3b0947f455d590cf5ba922d4caa4`. The newer CORDIS head above is used to
-understand the evolving standalone implementation; compatibility is never inferred
-between these snapshots.
+The Harness vendor manifest more specifically pins its production CORDIS
+dependency to CORDIS `v4.0.0-rc.7` and loader `v1.0.0-rc.5` at
+[`56b3d4f725681cf4556c1a8695a709cc3b6eed74`](https://github.com/cordiverse/cordis/commit/56b3d4f725681cf4556c1a8695a709cc3b6eed74),
+plus DeepSeek CORDIS plugins at
+`abb0a307cb1d3b0947f455d590cf5ba922d4caa4`. The newer standalone CORDIS
+snapshot is interpretive context only. Compatibility between these snapshots
+is never inferred.
 
-The paper snapshot is the 88-page draft titled *A Programming Paradigm for
-Spatiotemporal Composability*, dated 2026-08-13. The source snapshot was read both as
-extracted text and rendered pages; in particular, the tracked-effect recovery diagram,
-the lifecycle transition diagram, and the implementation lifecycle algorithm were
-checked visually.
+The paper snapshot is the 88-page draft titled _A Programming Paradigm for
+Spatiotemporal Composability_, dated 2026-08-13. The implementation here
+selects a finite subset of its ideas and marks the rest as future work.
 
-Local prior-work search found no CORDIS implementation or target-name collision. Two
-nearby projects are references only:
+## 3. Delivered semantics
 
-- `~/LeanTool` contains a useful Lean compiler-feedback and property-test loop, but its
-  Python/JSON boundary is not a proof-carrying CORDIS API.
-- `~/vericoding-posttraining/env/bench/Hilbert` contains untracked DeepSeek-Prover
-  plumbing, but its Lean protocol layer consists mainly of opaque `IO String`-style
-  signatures.
+### 3.1 Modeled reversible effects and finite reordering
 
-Both checkouts are dirty and remain untouched.
-
-## 3. Source-to-Lean interpretation
-
-### 3.1 Revertible effects
-
-The paper's witnessed effect returns a successor state, an inverse, and a witness that
-the inverse recovers the predecessor. Lean represents that witness directly:
+`Cordis.Effect` represents a modeled reversible step as:
 
 ```lean
 structure Applied (State : Type u) (before : State) where
@@ -79,26 +80,29 @@ structure Applied (State : Type u) (before : State) where
 def Effect (State : Type u) := (before : State) -> Applied State before
 ```
 
-Sequential composition must install inverses in reverse order. The library must prove:
+Sequential composition executes forward functions left to right and captured
+inverses right to left. The implementation proves identity laws,
+associativity, sequential recovery, accumulator recovery, and indexed
+`UndoStack` recovery. The observational variant replaces equality with a
+`Setoid` relation and requires each inverse to respect that relation.
 
-1. identity is a left and right identity extensionally;
-2. sequential composition preserves exact recovery;
-3. a folded accumulator recovers the initial state;
-4. recovery is LIFO by construction, not by a test or comment.
+`Cordis.Batch` delivers the finite ordering result as a batch of exactly two
+heterogeneous pure calls. Its certificate is stronger than forward
+commutation:
 
-An observational variant generalizes equality to a `Setoid`. It must require the undo
-map to respect observational equivalence and prove recovery up to that equivalence.
+1. both orders reach the same modeled successor;
+1. both orders expose extensionally equal composed recovery functions; and
+1. each call's result is stable when the other effect is evaluated first.
 
-The paper's independence condition is stronger than forward commutation. A certificate
-must also show that each effect's inverse (and, for iterators, its continuation) is
-stable under the other effect's forward and inverse transformations. Arbitrary-removal
-and parallel-scheduling theorems may consume only this stronger certificate. Mere
-commutativity is sufficient only for typed disjoint-key operations whose inverse-yield
-stability is separately proved.
+Given that evidence, model and swapped evaluation produce the same
+proof-carrying `BatchOutcome`, retain results in declared model order, and
+recover the same predecessor. This is a semantic reordering theorem, not task
+creation, wall-clock overlap, `IO`, or async scheduling. The deterministic
+counter harness still dispatches calls sequentially in model order.
 
-### 3.2 Dependent APIs and coeffects
+### 3.2 Dependent APIs, registries, and lifecycle
 
-The API universe is an indexed family:
+The API universe is a dependent family:
 
 ```lean
 structure Signature where
@@ -107,37 +111,40 @@ structure Signature where
   Response : (op : Op) -> Request op -> Type w
 ```
 
-`Response op request` may itself contain proofs. This is the main strengthening over
-the TypeScript harness's `name : string`, `arguments : unknown`, and output JSON schema.
-For example, a bounded counter operation may return a value paired with a proof that it
-equals the requested transition and remains within the declared limit.
+`SomeCall` stores a decoded operation and matching request.
+`AuthorizedCall` additionally carries membership in a `Needs` predicate, and
+`Reply call` stores only the response type selected by that exact call.
+`View.execute` preserves the dependency between call and reply.
 
-A component never receives an unrestricted context. Given a predicate or finite set
-`Needs : sig.Op -> Prop`, it receives a view whose call operation requires a proof of
-`Needs op`:
+A `View` is a committed resolution witness: resolving an operation requires a
+proof that it is declared, returns a nominally identified provider, and proves
+that provider is present in the indexed registry. `Cordis.Registry` supplies
+typed set/install/withdraw operations, exact local inverses, recovery theorems,
+and strong commutation of distinct-key updates.
 
-```lean
-call : (op : sig.Op) -> Needs op ->
-  (request : sig.Request op) -> Exec (sig.Response op request)
+`Cordis.Lifecycle` implements a finite synchronous state machine:
+
+```text
+inactive -> reloading -> active -> unloading -> inactive
 ```
 
-Therefore an undeclared access is unrepresentable in well-typed component code. Runtime
-lookup remains necessary to turn an untrusted or dynamically assembled registry into a
-view, but successful resolution returns a value carrying the satisfaction proof.
+Reload iterations extend an indexed undo stack while retaining one committed
+view. Diversion can move partial activation to unloading. Unload requires a
+`Withdrawable` guard and proves both exact modeled recovery and impossibility
+when an installed consumer still relies on the provider. The lifecycle is a
+generic finite model; it is not wired to hot-module acquisition, asynchronous
+fiber draining, or a production plugin loader.
 
-The coeffect layer must provide:
+### 3.3 Tool contracts and the JSON AST boundary
 
-- heterogeneous provider storage indexed by operation;
-- a `Satisfies registry Needs` proposition;
-- a committed view whose provider identities cannot drift during one activation;
-- reversible install/replace/remove operations;
-- proofs that operations on distinct keys commute;
-- explicit provider identity rather than merely structural value equality.
+`ToolSpec` makes `Input`, request-dependent `Output` and `Failure`,
+preconditions, postconditions, capability requirements, and an emission class
+part of the tool contract. A `ToolSpec.Invocation` carries the accepted
+precondition and authority proofs. Only a `VerifiedTool` can construct a
+`CertifiedOutcome` containing the result, successor state, and exact
+postcondition proof.
 
-### 3.3 Codecs and the untrusted model boundary
-
-DeepSeek model output is dynamic JSON. It cannot be trusted merely because a schema was
-shown to the model. Every wire type therefore supplies a proof-carrying codec:
+Every wire value uses a proof-carrying codec:
 
 ```lean
 structure Codec (alpha : Type u) where
@@ -147,216 +154,342 @@ structure Codec (alpha : Type u) where
   roundtrip : forall value, decode (encode value) = .ok value
 ```
 
-A raw call contains a textual name and raw JSON. Validation resolves the name, decodes
-the corresponding request, and returns an existential dependent call:
+The delivered primitive/composite codecs cover unit, Boolean, string, natural
+number, product, and list values, with structured paths for nested decode
+errors.
 
-```lean
-structure SomeCall (sig : Signature) where
-  op : sig.Op
-  request : sig.Request op
-```
-
-Only `SomeCall` enters the typed executor. A successful executor result packages the
-matching `sig.Response call.op call.request`; it is impossible to attach another tool's
-result type to the call. Invalid names, malformed JSON, schema mismatches, duplicate
-call identifiers, and results without pending calls are rejected as data at the edge.
-
-### 3.4 Session protocol
-
-The current DeepSeek Harness persists an append-only event log with turn, step,
-tool-call, and tool-result boundaries. Its TypeScript implementation validates these
-relations dynamically. CORDIS Lean defines them as an indexed transition system:
-
-```lean
-inductive SessionState where
-  | ready (nextTurn : Nat)
-  | turn (turn nextStep : Nat)
-  | step (turn step : Nat) (pending : List CallId)
-
-inductive Event : SessionState -> SessionState -> Type
-```
-
-Required constructors and invariants:
-
-- `turnStart` uses exactly the next turn number;
-- `stepStart` uses exactly the next step number;
-- `toolCall` adds a fresh call identifier;
-- `toolResult` requires membership in the pending-call set and removes it;
-- `stepEnd` requires no pending calls;
-- `turnEnd` requires no open step;
-- a typed `Trace start finish` composes only matching transitions.
-
-The tool policy layer additionally distinguishes proposed, allowed, dispatched, and
-settled calls. Its transition type must rule out execution before allow/approval and
-must produce exactly one durable terminal result for every accepted call.
-
-The dynamic validator must reconstruct a typed transition or return a structured error.
-The static driver uses only the typed constructors. The project must prove that erasing a
-typed trace and replay-validating it succeeds and ends in the erased terminal state.
-
-### 3.5 Component lifecycle
-
-The component layer follows the paper's `Inactive -> Reloading -> Active -> Unloading`
-machine. It distinguishes two notions that ordinary plugin APIs often conflate:
-
-1. a provider has stopped accepting new consumers; and
-2. its external resources have actually been recovered.
-
-Withdrawal must hide a provider before its inverse is applied, wait until no installed
-dependent resolves to it, and only then recover its effects. Activation commits one
-dependency view and uses that same view throughout its iterator.
-
-The executable kernel targets a finite registry and synchronous effect steps first. It
-must still encode the lifecycle states, committed views, diversion, and dependency guard
-explicitly enough to establish:
-
-- well-formedness preservation for every implemented transition;
-- activation only when all declared dependencies resolve;
-- fixed provider bindings during one active episode;
-- recovery of a partially completed activation;
-- no provider recovery while an installed dependent still resolves to it.
-
-Async scheduling and hot-module acquisition are adapter concerns. Their completion and
-cancellation events may be fed into the same typed state machine, but the Lean kernel
-does not claim to prove fairness of an operating-system scheduler.
-
-### 3.6 Harness runner
-
-The reference executable models the DeepSeek turn/step loop:
-
-1. start a turn;
-2. start a model step;
-3. accept raw assistant tool calls;
-4. validate calls against the typed API;
-5. schedule calls subject to an explicit independence certificate;
-6. execute providers;
-7. commit results in original model order;
-8. close the step only after every call has a result;
-9. either begin another model step or close the turn.
-
-The first backend is deterministic and local. It exercises the complete harness without
-credentials or network access. An OpenAI-compatible DeepSeek bridge may be added as an
-optional adapter, but it is outside the proof kernel and no API key may be stored in the
-repository.
-
-## 4. Trust boundary
-
-The following facts are proven inside Lean:
-
-- composition of accepted effects recovers the modeled state;
-- a component can call only declared operations through `View`;
-- request and response types correspond to the selected operation;
-- encoded values round-trip through their codec;
-- accepted protocol transitions preserve the session invariant;
-- results correspond to pending calls and all calls settle before step close;
-- provider withdrawal obeys the modeled dependency guard;
-- the deterministic reference providers satisfy their stated postconditions.
-
-The following remain explicit trusted assumptions or validation boundaries:
-
-- `IO`, HTTP, filesystems, subprocesses, clocks, signals, and model providers may behave
-  differently from the modeled state;
-- parsing/decoding rejects malformed data, but a schema shown to a language model does
-  not force the model to obey it;
-- a certificate about an external effect is only as strong as the observation used to
-  construct it;
-- irreversible emissions outside the controlled state cannot be undone; compensation is
-  not exact recovery;
-- native plugins can bypass a capability view unless the host also supplies process or
-  language-level isolation;
-- scheduler fairness, process termination, and remote service availability are not
-  logical theorems of the kernel.
-
-Every adapter must name which external facts it trusts. The README and API documentation
-must not turn a modeled guarantee into a claim about arbitrary real-world side effects.
-
-## 5. Planned modules
-
-| Module | Responsibility |
-| --- | --- |
-| `Cordis.Effect` | Exact and observational recovery, composition, accumulators |
-| `Cordis.Codec` | Proof-carrying JSON codecs and structured decode errors |
-| `Cordis.Api` | Dependent signatures, calls, replies, providers, restricted views |
-| `Cordis.Registry` | Heterogeneous coeffect store, satisfaction, committed bindings |
-| `Cordis.Protocol` | Indexed session transitions, typed traces, dynamic validation |
-| `Cordis.Component` | Declared needs/provisions and lifecycle transitions |
-| `Cordis.Harness` | Typed model/tool runner and ordered result commitment |
-| `Cordis.Examples.Counter` | Stateful proof-carrying reference tool |
-| `Cordis.Examples.MockAgent` | Deterministic end-to-end agent session |
-| `Tests` | Executable algebraic, adversarial, codec, protocol, and harness tests |
-
-The public umbrella module is `Cordis`. `Main` runs the demonstrator; `Tests` is a
-separate executable used by the build/test gate.
-
-## 6. Proof obligations and acceptance gates
-
-### Effect algebra
-
-- identity recovery;
-- sequential recovery;
-- associativity up to extensional equality;
-- accumulator recovery;
-- disjoint-key effects commute;
-- certified parallel batches have the same modeled outcome regardless of permitted
-  execution order.
-
-### API/coeffect layer
-
-- registry resolution produces a view only when every need is satisfied;
-- a committed view resolves each need to the recorded provider identity;
-- set/install recovery restores the exact prior registry;
-- distinct-key registry updates commute;
-- the call/reply dependent pair cannot be mismatched.
-
-### Protocol and lifecycle
-
-- typed transitions preserve structural well-formedness;
-- no result without a pending call;
-- no duplicate live call identifier;
-- no step closes with a pending call;
-- erased typed traces validate successfully;
-- partial activation recovery returns to the prior modeled state;
-- an active component has a satisfaction proof for its committed needs;
-- a provider is not recovered while a dependent remains bound to it.
-
-### Runtime validation
-
-- unknown tool names fail closed;
-- malformed and schema-invalid JSON fail closed;
-- valid codec output decodes to the original value;
-- tool implementation failures become typed error results and still settle the call;
-- model-order result commitment is stable even when certified executions are evaluated
-  in another order;
-- replay rejects turn/step numbering errors and orphaned/duplicate results.
-
-### Repository gates
-
-The work is complete only when all of the following pass:
+`ToolWire` provides operation-specific input codecs and request-dependent
+output and failure codecs. The result codec uses these tagged representations:
 
 ```text
+[false, encoded failure]
+[true, encoded output]
+```
+
+It proves round-trip recovery for the exact
+`Except (Failure input) (Output input)` and can encode the actual result inside
+a `CertifiedOutcome`. `ToolWire.validate` fails closed on unknown names,
+undeclared tools, malformed AST shapes, rejected contracts, and missing
+capabilities before it constructs an `AuthorizedCall`.
+
+All codec theorems begin with an already constructed `Lean.Json` AST. Byte
+parsing, text encodings, rendering, transport, storage, and the behavior of an
+external schema consumer are outside the theorem boundary.
+
+The delivered counter catalog contains:
+
+- `counter_read`, a pure read requiring the read capability; and
+- `counter_increment`, an internally reversible increment requiring the write
+  capability and a proof that the request limit is not crossed.
+
+The counter wire supplies `Nat` output codecs and `String` failure codecs for
+both operations.
+
+### 3.4 Indexed session protocol and typed raw-trace reconstruction
+
+The session state distinguishes:
+
+```text
+ready(nextTurn)
+turn(turn, nextStep)
+step(turn, step, pendingCallIds)
+```
+
+Typed `Event` constructors enforce exact turn/step numbers, fresh call IDs,
+pending membership for results, an empty pending set at step close, and an open
+turn at turn close. Typed traces compose only when adjacent state indices
+match.
+
+The runtime mirror validates `RuntimeEvent` values and reports structured
+errors for wrong phase, turn/step mismatches, duplicate calls, orphan results,
+and pending calls at step close. The dynamic boundary does more than compute a
+runtime state:
+
+- `validateEvent` reconstructs an intrinsic `Event` whose erasure is the exact
+  raw event;
+- `validateTrace` reconstructs an intrinsic typed `Trace` whose erasure is the
+  exact raw list;
+- `validateRuntimeTrace` starts from the index represented by a runtime state;
+  and
+- `ValidatedEvent.applies` and `ValidatedTrace.replays` prove that the
+  reconstructed witness executes to its indexed endpoint.
+
+Thus typed-trace erasure and raw-to-typed reconstruction are both delivered for
+finite in-memory event lists.
+
+`Cordis.Stream` separately models a bounded assistant text stream. Each typed
+text chunk consumes one budget unit and appends exactly its fragment; only an
+open state can finish. Consequently text after finish and double finish are
+unrepresentable. Its raw validator returns `budgetExhausted` or
+`alreadyFinished`, and its erasure/replay theorems reconstruct exact
+left-to-right concatenation and the terminal result. Tool-call payload parsing,
+network streaming, byte decoding, backpressure, and cancellation are outside
+this subsystem.
+
+### 3.5 Exact-subject policy and the deterministic harness
+
+`LeasePool` maintains a duplicate-free list of available call IDs. Issuing a
+live ID fails, successful consumption removes that ID, and a consumed lease
+cannot be consumed again without reissue.
+
+`SubjectPolicyState` retains the exact dependent subject through:
+
+```text
+proposed -> decided -> dispatched -> settled
+```
+
+Dispatch exists only from `allow` and consumes the lease associated with the
+same call ID. A non-allow decision can settle only as a rejection. A completion
+has type `Completed subject`, so the terminal value remains indexed by the
+exact proposed subject. For one explicitly threaded `SubjectPolicyTrace`, the
+phase strictly advances, dispatch occurs at most once, a completed trace
+dispatches exactly once, and a denied trace dispatches zero times.
+
+The counter `Harness` integrates that stronger policy type rather than merely
+testing it in isolation. Each admitted `CallEvidence` retains:
+
+- the exact `AuthorizedCall` returned by raw validation;
+- the equality witnessing that validation result;
+- lease issue and consumption evidence;
+- the provider completion type indexed by that exact call;
+- the equality witnessing provider execution; and
+- an exact-subject policy trace ending in that completion.
+
+Rejected admission retains the structured admission error and proof that raw
+validation returned it. Rejections preserve the model and emit a matching tool
+result event so the session protocol cannot be left with an orphaned pending
+call. Successful provider completions retain the request-indexed tagged JSON
+result; admission rejection and provider-level execution failure do not
+fabricate an encoded provider result.
+
+`RunnerState` contains both its current runtime protocol state and a proof that
+replaying the complete append-only in-memory log from `ready 0` yields that
+state. Its history field has the stronger joint type:
+
+```lean
+RecordChain initialModel nextCall records model leases (callBoundaries log)
+```
+
+It supports:
+
+- one or more steps inside a turn;
+- one or more turns inside a session;
+- session-wide monotonically allocated call IDs; and
+- sequential model-order dispatch and record commitment.
+
+`RecordChain initial nextCall records final leases boundaries` is initialized
+as `RecordChain initial 0 [] initial .empty []`. Its append constructor requires
+each record's `before` model to equal the preceding model endpoint and each
+record's `leasesBefore` to equal the preceding lease endpoint. The successor
+indices are that record's `after` model and `leasesAfter` pool. The same
+constructor requires `record.id.value = nextCall` and appends exactly
+`[call record.id, result record.id]` to the boundary index.
+
+Consequently:
+
+- the record count equals `nextCall`;
+- record IDs equal `List.range nextCall`;
+- `LeasesThreaded .empty records leases` holds; and
+- for every `RunnerState`,
+  `callBoundaries log = recordBoundaries records`.
+
+The public generic `RunnerState.emit` operation has been removed. The remaining
+non-boundary emitter is private and requires
+`RuntimeEvent.callBoundary? event = none`. Tool-call and tool-result events are
+created only inside the private settlement transition. That transition first
+validates both events, then returns one immutable `RunnerState` containing the
+adjacent call/result pair, corresponding record, successor model, successor
+lease pool, extended joint history, and replay proof. Failure returns an error
+without exposing an intermediate runner state with only the call boundary.
+
+This is atomicity of one pure `Except RunnerError RunnerState` transition. It
+does not establish a filesystem or database transaction, crash-safe
+persistence, multi-process exclusion, or external exactly-once execution.
+
+The static `certifiedTwoCallTrace` exercises the intrinsic protocol API; its
+erasure replay theorem reaches the exact terminal state. Separately,
+`runMultiTurn` and the tests exercise raw multi-step/multi-turn logs and
+reconstruct them as typed traces.
+
+The credential-free demo starts at counter `2`, executes read, increment by `3`
+under limit `10`, read, and an unknown call, then ends at counter `5` and
+`ready 1`. It stores four ordered records and 12 replay-certified protocol
+events. The first three records contain one policy dispatch and an encoded
+result; the unknown call contains no dispatch and no encoded result. The demo
+and multi-turn tests also check the exact boundary/record equality and consume
+the empty-to-final lease-threading certificate.
+
+## 4. Delivered module map
+
+| Module                        | Delivered responsibility                                                                                                                                                                          |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Cordis.Api`                  | Dependent API signatures, provider identity, registries, needs, committed bindings/views, authorized calls, and call-indexed replies.                                                             |
+| `Cordis.Effect`               | Exact and observational effects, LIFO composition, identities, associativity, accumulators, and indexed undo stacks.                                                                              |
+| `Cordis.Codec`                | `Lean.Json` AST codecs, schemas, nested decode errors, and round-trip proofs.                                                                                                                     |
+| `Cordis.Tool`                 | Request-indexed tool contracts, invocations, certified outcomes, verified implementations, catalogs, emission classes, and decisions.                                                             |
+| `Cordis.ToolWire`             | Raw-call resolution/admission, dynamic input validation, request-dependent result codecs, and certified-result encoding.                                                                          |
+| `Cordis.Registry`             | Dependent set/install/withdraw operations, witnessed recovery, distinct-key commutation, and satisfaction witnesses.                                                                              |
+| `Cordis.Protocol`             | Indexed session events/traces, runtime validation, raw-to-typed reconstruction, replay, and well-formedness theorems.                                                                             |
+| `Cordis.Policy`               | Duplicate-free lease pools, ID-only compatibility policy, exact-subject policy transitions/traces, and dispatch-count theorems.                                                                   |
+| `Cordis.Batch`                | Strong independence certificates and order equivalence for exactly two heterogeneous pure calls.                                                                                                  |
+| `Cordis.Stream`               | Bounded typed assistant text chunks, raw validation, deterministic assembly, and terminal reconstruction.                                                                                         |
+| `Cordis.Lifecycle`            | Finite synchronous component phases, committed views, undo stacks, diversion, and withdrawal guards.                                                                                              |
+| `Cordis.Examples.Counter`     | Verified counter read/increment contracts, implementations, registry, view, and postcondition theorem.                                                                                            |
+| `Cordis.Examples.CounterWire` | Counter JSON codecs, name resolution, admission proofs, capability decisions, and raw sample calls.                                                                                               |
+| `Cordis.Harness`              | Deterministic counter runner, exact-subject `CallEvidence`, encoded results, replay-certified finite turns/steps, private atomic settlement, and joint model/lease/ID/log-boundary `RecordChain`. |
+| `Cordis.TestSuite`            | Executable effect, batch, codec, stream, registry, lifecycle, protocol, policy, admission, encoded-result, replay, joint-history, and harness checks.                                             |
+| `Cordis.AxiomAudit`           | Explicit `#print axioms` checks for headline theorems.                                                                                                                                            |
+| `Cordis.Version`              | Delivered version string.                                                                                                                                                                         |
+
+The public library umbrella is `Cordis.lean`. `Main.lean` is the
+`cordis_demo` entry point, and `Tests.lean` is the `cordis_tests` entry point.
+`Cordis.TestSuite` and `Cordis.AxiomAudit` intentionally remain separate from
+the umbrella's runtime behavior.
+
+## 5. Finite acceptance matrix
+
+| Acceptance item                                                        | Delivered evidence                                                                                                                            | Scope qualification                                                                                            |
+| ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Identity, sequential recovery, associativity, and accumulator recovery | `Effect.identity_seq`, `seq_identity`, `seq_recovers`, `seq_assoc`, `UndoAccumulator.push_recovers`, `UndoStack.recover_after`                | Pure modeled state.                                                                                            |
+| Observational recovery                                                 | `Observational.Effect.seq_recovers` and related laws                                                                                          | Up to the supplied `Setoid`.                                                                                   |
+| Certified two-call reorder                                             | `Effect.IndependentAt`, `CertifiedTwoBatch.execute_order_irrelevant`, `execute_outputs_in_model_order`, `execute_recovers`                    | Exactly two pure calls; no async scheduler.                                                                    |
+| Dependent call/reply correspondence                                    | `AuthorizedCall`, `Reply call`, `View.execute`                                                                                                | Static dependent API after admission.                                                                          |
+| Declared capability and present provider                               | `View.resolve`, `View.provider_present`, `Registry.Satisfies`                                                                                 | Constructive view evidence; no process isolation.                                                              |
+| Reversible registry mutation and distinct-key commutation              | `Registry.setEffect_recovers`, `setEffect_commute`                                                                                            | Distinct typed operation keys.                                                                                 |
+| JSON AST codec round-trip and nested errors                            | `Codec.decode_encode`, primitive/product/list codecs                                                                                          | AST only; no byte parser or external schema enforcement.                                                       |
+| Fail-closed dynamic tool admission                                     | `ToolWire.validate`, `validate_declared`                                                                                                      | Name, declaration, AST shape, contract, and capability checks.                                                 |
+| Request-indexed encoded results                                        | `ToolWire.resultCodec`, `decode_encoded_result`, `encodeCertifiedResult`, `decode_encoded_certified_result`                                   | Tagged success/failure AST values; no transport.                                                               |
+| Typed protocol structural invariants                                   | Indexed `Event`, `Event.preservesWellFormed`, `Event.noOrphanResult`                                                                          | Finite turn/step/pending-call machine.                                                                         |
+| Raw event replay and intrinsic trace reconstruction                    | `validateEvent`, `validateTrace`, `validateRuntimeTrace`, `ValidatedTrace.replays`, `replayRaw_eraseTrace`                                    | Finite in-memory raw lists.                                                                                    |
+| Bounded assistant stream reconstruction                                | Indexed `Stream.Chunk`/`Trace`, `noChunkAfterFinished`, `replay_completeTrace`                                                                | Text fragments only.                                                                                           |
+| Policy before dispatch and subject preservation                        | `SubjectPolicyTransition`, `SubjectPolicyTrace.dispatchCount_le_one`, `dispatchCount_to_completed`, `denied_dispatchCount_eq_zero`            | One explicitly threaded pure trace, not global exactly-once.                                                   |
+| Exact-subject policy integrated into execution                         | `Harness.CallEvidence.admitted` stores validation, execution, lease, subject-indexed completion, and policy trace                             | Counter-specific deterministic harness.                                                                        |
+| Encoded result retained by the harness                                 | `CallEvidence.encodedResult`, `CallRecord.encodedResult`; integration tests decode read and increment results                                 | Only after successful provider execution.                                                                      |
+| Finite multi-step and multi-turn execution                             | `RunnerState.runStep`, `runSteps`, `runTurn`, `runTurns`, `runMultiTurn`                                                                      | Sequential call dispatch.                                                                                      |
+| Runtime state/log agreement                                            | `RunnerState.replayProof`, `Harness.replayRaw_append`                                                                                         | In-memory state and list, not durable storage.                                                                 |
+| Joint model, lease, and ID history                                     | `RecordChain initial nextCall records final leases boundaries`, `length_eq_nextCall`, `ids_eq_range`, `leases_threaded`                       | Starts at the initial model and empty lease pool; records remain in sequential model-commit order.             |
+| Exact log-boundary/record agreement                                    | `RecordChain.boundaries_eq_records`, `RunnerState.callBoundaries_eq_records`                                                                  | `callBoundaries log = recordBoundaries records` for finite in-memory lists; not a persistence theorem.         |
+| Atomic call/result and record settlement                               | Private settlement transition extends protocol, log, record, model, leases, history, and replay proof together; public generic `emit` removed | Atomic only as one pure immutable `Except` result, not a durable transaction or global exactly-once guarantee. |
+| Partial lifecycle recovery and withdrawal guard                        | `Lifecycle.Transition.unload_recovers`, `unload_rejects_relied`, `active_successor_keeps_view`                                                | Finite synchronous generic lifecycle.                                                                          |
+| End-to-end local reference execution                                   | `Harness.demo` and `Cordis.TestSuite.run`                                                                                                     | Certified counter tools only; no live API.                                                                     |
+
+The original target language used words such as “parallel scheduling” and
+“complete harness.” For `v0.1.0`, those claims are narrowed to the rows above:
+the batch result is a certified pure two-call evaluation-order equivalence, and
+the complete execution is complete only for the delivered finite local counter
+scenario.
+
+## 6. Reproducibility gates
+
+The delivered checkout has four verified commands:
+
+```bash
 lake build
 lake exe cordis_tests
 lake exe cordis_demo
+lake env lean Cordis/AxiomAudit.lean
 ```
 
-Additionally:
+Expected behavior:
 
-- every exported theorem used by the guarantee table has its axioms inspected;
-- no project Lean file contains `sorry`, `admit`, or a custom `axiom`;
-- no credential or local absolute path is committed;
-- source claims are mapped in `docs/PAPER_MAP.md`;
-- trust boundaries are repeated in `docs/TRUST_BOUNDARY.md`;
-- Linear issue ALOK-824 is reconciled with the actual delivered state.
+- `lake build` builds the `Cordis` library and the `cordis_demo` and
+  `cordis_tests` default executables.
+- `cordis_tests` exits successfully and prints
+  `CORDIS adversarial and integration tests passed`.
+- `cordis_demo` reports final counter `5`, protocol `ready 1`, 12 replayed
+  events, three successful encoded results with one policy dispatch each, and
+  one unknown-tool rejection with zero dispatches and no encoded result.
+- `Cordis/AxiomAudit.lean` prints the dependencies of the headline theorems.
+  Its selected guarantees include boundary/record agreement and lease
+  threading at both the `RecordChain` and `RunnerState` levels.
+  The current audit reports only Lean's standard `propext`,
+  `Classical.choice`, and `Quot.sound` where dependencies occur; several
+  theorems are axiom-free.
 
-## 7. Claim boundary
+Repository hygiene additionally requires no `sorry`, `admit`, project-defined
+`axiom`, `unsafe`, or `partial` declaration in the project Lean sources, no
+credential, and no committed local absolute path.
 
-This project is a proof-carrying Lean implementation inspired by, and mapped to, the
-CORDIS calculus plus DeepSeek Harness. It is not initially a line-by-line mechanization
-of every theorem in the paper, a drop-in replacement for every JavaScript plugin, or a
-proof that arbitrary external effects are reversible. The finite executable kernel must
-fully prove the obligations it advertises. Unimplemented paper results remain listed as
-future work rather than being implied by naming or prose.
+## 7. Trust boundary
 
-The intended ambitious endpoint is a foundation on which a production adapter can be
-small: dynamic input is decoded once, the rest of the harness operates on dependent
-calls and indexed transitions, and every escape back into untyped `IO` is visible.
+The following facts are proved for the delivered Lean values:
+
+- accepted modeled effects recover their indexed predecessor;
+- strong two-call certificates make the two finite evaluation orders equal;
+- dependent calls and replies cannot be mismatched in typed code;
+- committed views require declared-operation evidence and retain provider
+  identity/presence evidence;
+- generated codec values decode to their original typed values;
+- raw tool calls fail closed before becoming authorized dependent calls;
+- request-dependent success and failure results round-trip through their tagged
+  AST codec;
+- typed protocol, policy, stream, and lifecycle transitions exclude their
+  stated illegal edges;
+- accepted raw event lists reconstruct typed traces and replay to their indexed
+  endpoints;
+- a runner's stored protocol state equals replay of its complete event list;
+- admitted counter calls retain policy and provider evidence for the exact same
+  dependent subject;
+- records thread model and lease endpoints from the initial model and empty
+  pool, with monotone session-wide IDs;
+- the log's call/result projection equals the ordered call/result pairs derived
+  from the records;
+- a successful pure settlement adds the call, result, record, model endpoint,
+  lease endpoint, history witness, and replay witness together; and
+- the deterministic counter providers satisfy their declared postconditions.
+
+The following remain external facts or validation boundaries:
+
+- `IO`, HTTP, filesystems, subprocesses, clocks, signals, native plugins,
+  schedulers, persistence, and model providers may behave differently from the
+  modeled state;
+- parsing bytes into `Lean.Json`, rendering ASTs, character encoding, transport,
+  and storage are outside the codec proofs;
+- JSON schemas are metadata and cannot force a language model or service to
+  conform;
+- a certificate for an external action is only as strong as the observations
+  used to construct it;
+- irreversible emissions outside the modeled state cannot be undone;
+- capability views do not provide host- or process-level isolation;
+- a pure lease value can be duplicated, so policy theorems do not establish
+  global exactly-once execution or atomicity across workers;
+- pure runner settlement does not provide durable transactionality, crash
+  recovery, or atomic coordination with external effects; and
+- fairness, cancellation delivery, process termination, and remote availability
+  are not theorems of this kernel.
+
+There is no credential-loading path, HTTP client, or live model API in
+`v0.1.0`. No API key is needed for any acceptance command, and no key may be
+stored in the repository.
+
+## 8. Explicit future work
+
+The following are intentionally not part of the delivered finite acceptance
+claim:
+
+1. **Full asynchronous execution.** Add task/fiber spawning, cancellation,
+   completion races, fairness assumptions, and adapter-level failure handling.
+1. **N-call concurrency.** Generalize the two-call certificate and evaluator to
+   arbitrary finite dependency graphs or schedules, and integrate that
+   scheduler into the harness.
+1. **External adapters.** Add byte-level JSON parsing/rendering, an
+   OpenAI-compatible DeepSeek client, real tool processes, persistence,
+   credential injection, and explicit per-adapter trust declarations.
+1. **Production streaming.** Extend the bounded text model with transport,
+   backpressure, cancellation, tool-call payload assembly, and parser state.
+1. **Production policy guarantees.** Add durable lease storage, atomic
+   consumption, multi-process exclusion, retries, and crash recovery before
+   claiming global exactly-once behavior.
+1. **Full CORDIS implementation coverage.** Model dynamic loader acquisition,
+   real fiber lifetimes, interception, isolation, hot replacement, and the
+   broader lifecycle implementation.
+1. **Full paper mechanization.** Port and prove the remaining CORDIS calculus,
+   iterator, arbitrary-removal, scheduling, and composability results rather
+   than inferring them from similarly named finite structures.
+1. **DeepSeek Harness equivalence.** Define an explicit relation to the pinned
+   TypeScript state, plugin, cancellation, persistence, and error semantics and
+   prove it. No such full equivalence theorem exists in `v0.1.0`.
+
+Future adapters must preserve the distinction between checked boundary data,
+Lean-proved kernel facts, and trusted external observations. Extending the
+repository does not automatically extend any theorem beyond its stated model.
