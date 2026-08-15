@@ -62,6 +62,10 @@ private def triple : Effect Nat := fun before ↦
     undo := fun current ↦ current / 3
     undo_after := Nat.mul_div_cancel before (by decide) }
 
+private abbrev LifecycleView := Lifecycle.CommittedView Nat Nat
+
+private abbrev LifecycleState := Lifecycle.State Nat LifecycleView Unit
+
 private def testEffects : IO Unit := do
   let first := addTwo 4
   let second := triple first.after
@@ -136,6 +140,40 @@ private def testRegistry : IO Unit := do
     assertEqual "reversed distinct-key order also recovers the original registry"
       (providerIdentityAt (incrementThenRead.undo incrementThenRead.after) operation)
       (providerIdentityAt registry operation)
+
+private def testLifecycle : IO Unit := do
+  let committed : LifecycleView := {
+    resolve := fun _ ↦ some 1
+  }
+  let applied := addTwo 4
+  let undo := UndoStack.singleton applied
+  let began : Lifecycle.Transition (Key := Nat) (Fiber := Nat) 1 []
+      (.inactive 4 .stopped : LifecycleState)
+      (.reloading 4 4 (.nil 4) () committed) :=
+    .begin .stopped 4 () committed
+  let iterated : Lifecycle.Transition (Key := Nat) (Fiber := Nat) 1 []
+      (.reloading 4 4 (.nil 4) () committed : LifecycleState)
+      (.reloading 4 applied.after undo () committed) :=
+    .iterate addTwo ()
+  let finished : Lifecycle.Transition (Key := Nat) (Fiber := Nat) 1 []
+      (.reloading 4 applied.after undo () committed : LifecycleState)
+      (.active 4 applied.after undo committed) :=
+    .finish
+  let left : Lifecycle.Transition (Key := Nat) (Fiber := Nat) 1 []
+      (.active 4 applied.after undo committed : LifecycleState)
+      (.unloading 4 applied.after undo committed .stopped) :=
+    .leave .stopped
+  let unloaded : Lifecycle.Transition (Key := Nat) (Fiber := Nat) 1 []
+      (.unloading 4 applied.after undo committed .stopped : LifecycleState)
+      (.inactive 4 .stopped) :=
+    .unload (Lifecycle.withdrawable_empty 1)
+  let trace : Lifecycle.Trace (Key := Nat) (Fiber := Nat) 1 []
+      (.inactive 4 .stopped : LifecycleState) (.inactive 4 .stopped) :=
+    .cons began <| .cons iterated <| .cons finished <| .cons left <|
+      .cons unloaded (.nil _)
+  let _ := trace
+  assertEqual "lifecycle unload stack recovers the recorded inactive model"
+    (undo.recover applied.after) 4
 
 private def testProtocolFailures : IO Unit := do
   let orphan : CallId := ⟨9⟩
@@ -246,6 +284,7 @@ def run : IO Unit := do
   testEffects
   testCodecs
   testRegistry
+  testLifecycle
   testProtocolFailures
   testPolicy
   testCounterAdmission

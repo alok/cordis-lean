@@ -74,9 +74,9 @@ theorem not_withdrawable_of_relied
   intro guard
   exact guard consumer member installed relies
 
-/-- Lifecycle states retain a typed LIFO stack from activation origin to current state. -/
+/-- Lifecycle states retain the modeled state and a typed LIFO activation stack. -/
 inductive State (Model : Type w) (View Iterator : Type u) where
-  | inactive (outcome : Outcome)
+  | inactive (current : Model) (outcome : Outcome)
   | reloading
       (origin current : Model)
       (undo : UndoStack Model origin current)
@@ -110,7 +110,7 @@ inductive Transition
       (iterator : Iterator)
       (committed : View) :
       Transition provider consumers
-        (.inactive outcome)
+        (.inactive origin outcome)
         (.reloading origin origin (.nil origin) iterator committed)
   | iterate
       {origin current : Model}
@@ -156,7 +156,7 @@ inductive Transition
       (guard : Withdrawable consumers provider) :
       Transition provider consumers
         (.unloading origin current undo committed outcome)
-        (.inactive outcome)
+        (.inactive origin outcome)
 
 namespace Transition
 
@@ -174,7 +174,7 @@ theorem unload_recovers
     {outcome : Outcome}
     (transition : Transition (View := View) (Iterator := Iterator) provider consumers
       (.unloading origin current undo committed outcome : State Model View Iterator)
-      (.inactive outcome : State Model View Iterator)) :
+      (.inactive origin outcome : State Model View Iterator)) :
     undo.recover current = origin := by
   cases transition
   exact undo.recover_after
@@ -193,7 +193,7 @@ theorem unload_rejects_relied
     {outcome : Outcome}
     (transition : Transition (View := View) (Iterator := Iterator) provider consumers
       (.unloading origin current undo committed outcome : State Model View Iterator)
-      (.inactive outcome : State Model View Iterator))
+      (.inactive origin outcome : State Model View Iterator))
     (consumer : Consumer Key Fiber)
     (member : consumer ∈ consumers)
     (installed : consumer.installed = true)
