@@ -10,6 +10,10 @@ package «cordis-lean» where
 lean_lib Cordis
 
 @[default_target]
+lean_lib CordisStaticTests where
+  roots := #[`Cordis.NegativeTests]
+
+@[default_target]
 lean_exe cordis_demo where
   root := `Main
 

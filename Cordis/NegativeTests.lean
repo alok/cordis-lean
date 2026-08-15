@@ -41,7 +41,7 @@ private def trueRequest : AuthorizedCall requestIndexedSignature requestIndexedN
 
 /-- error: Type mismatch -/
 #guard_msgs (substring := true) in
-def wrongRequestIndexedReply : Reply trueRequest where
+example : Reply trueRequest where
   value := "not a natural number"
 
 /-! A result cannot be emitted when no call identifier is pending. -/
@@ -118,7 +118,7 @@ A replay-valid log for call `99` cannot be paired with a record/history certific
 
 /-- error: Type mismatch -/
 #guard_msgs (substring := true) in
-def forgedBoundaryState : Harness.RunnerState where
+example : Harness.RunnerState where
   initialModel := 0
   model := 0
   protocol := .ready 1
@@ -133,7 +133,7 @@ def forgedBoundaryState : Harness.RunnerState where
 
 /-- error: Type mismatch -/
 #guard_msgs (substring := true) in
-def eraseLeasesWithoutHistory (state : Harness.RunnerState) : Harness.RunnerState := {
+example (state : Harness.RunnerState) : Harness.RunnerState := {
   state with leases := .empty
 }
 
