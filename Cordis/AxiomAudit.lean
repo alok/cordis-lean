@@ -1,3 +1,4 @@
+import Cordis.Batch
 import Cordis.Codec
 import Cordis.Effect
 import Cordis.Harness
@@ -18,6 +19,10 @@ axioms and proof placeholders.
 #print axioms Cordis.Effect.seq_assoc
 #print axioms Cordis.UndoStack.recover_after
 #print axioms Cordis.Observational.Effect.seq_recovers
+#print axioms Cordis.Effect.IndependentAt.seq_applied_eq
+#print axioms Cordis.CertifiedTwoBatch.execute_order_irrelevant
+#print axioms Cordis.CertifiedTwoBatch.execute_outputs_in_model_order
+#print axioms Cordis.CertifiedTwoBatch.execute_recovers
 #print axioms Cordis.Registry.setAt_restore
 #print axioms Cordis.Registry.setAt_commute
 #print axioms Cordis.Registry.setEffect_recovers

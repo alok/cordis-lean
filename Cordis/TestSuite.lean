@@ -1,3 +1,4 @@
+import Cordis.Batch
 import Cordis.Codec
 import Cordis.Effect
 import Cordis.Examples.Counter
@@ -62,6 +63,16 @@ private def triple : Effect Nat := fun before ↦
     undo := fun current ↦ current / 3
     undo_after := Nat.mul_div_cancel before (by decide) }
 
+private def incrementLeft : Effect (Nat × Nat) := fun before ↦
+  { after := (before.1 + 1, before.2)
+    undo := fun current ↦ (current.1 - 1, current.2)
+    undo_after := by simp }
+
+private def incrementRight : Effect (Nat × Nat) := fun before ↦
+  { after := (before.1, before.2 + 1)
+    undo := fun current ↦ (current.1, current.2 - 1)
+    undo_after := by simp }
+
 private abbrev LifecycleView := Lifecycle.CommittedView Nat Nat
 
 private abbrev LifecycleState := Lifecycle.State Nat LifecycleView Unit
@@ -80,6 +91,34 @@ private def testEffects : IO Unit := do
   assertEqual "indexed undo stack exactly recovers" (stack.recover second.after) 4
   assertEqual "compiled accumulator agrees with stack"
     (stack.toAccumulator.recover second.after) 4
+
+private def testCertifiedBatch : IO Unit := do
+  let batch : TwoBatch (Nat × Nat) Nat Nat := {
+    first := { effect := incrementLeft, result := Prod.fst }
+    second := { effect := incrementRight, result := Prod.snd }
+  }
+  let independent : batch.IndependentAt (2, 3) := {
+    effects := {
+      successor_eq := rfl
+      recovery_eq := by intro current; rfl
+    }
+    first_result_stable := rfl
+    second_result_stable := rfl
+  }
+  let certified : CertifiedTwoBatch (Nat × Nat) Nat Nat (2, 3) := {
+    batch := batch
+    independent := independent
+  }
+  let model := certified.execute .model
+  let swapped := certified.execute .swapped
+  assertEqual "certified batch reaches the same successor"
+    model.applied.after swapped.applied.after
+  assertEqual "certified batch commits outputs in model order"
+    model.outputs swapped.outputs
+  assertEqual "certified batch successor" swapped.applied.after (3, 4)
+  assertEqual "certified batch ordered outputs" swapped.outputs (2, 3)
+  assertEqual "certified swapped batch recovers" (swapped.applied.undo swapped.applied.after)
+    (2, 3)
 
 private def testCodecs : IO Unit := do
   assertRoundtrip "boolean codec roundtrip" Codec.bool true
@@ -305,6 +344,7 @@ private def testHarnessDemo : IO Unit := do
 /-- Run all executable adversarial and integration tests. -/
 def run : IO Unit := do
   testEffects
+  testCertifiedBatch
   testCodecs
   testRegistry
   testLifecycle

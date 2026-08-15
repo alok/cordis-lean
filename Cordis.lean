@@ -1,4 +1,5 @@
 import Cordis.Api
+import Cordis.Batch
 import Cordis.Codec
 import Cordis.Effect
 import Cordis.Examples.Counter
