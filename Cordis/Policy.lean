@@ -411,6 +411,33 @@ theorem dispatchCount_le_one
           simp [dispatchCount, SubjectPolicyTransition.isDispatch,
             dispatchCount_from_settled rest]
 
+/-- A trace from proposal to a completed result crosses dispatch exactly once. -/
+theorem dispatchCount_to_completed
+    {Subject : Type u}
+    {Completed : Subject -> Type v}
+    {Rejected : Subject -> Type w}
+    {id : CallId}
+    {subject : Subject}
+    {leases remaining : LeasePool}
+    {result : Completed subject}
+    (trace : SubjectPolicyTrace (Completed := Completed) (Rejected := Rejected)
+      (.proposed id subject leases)
+      (.settled id subject remaining (.completed result))) :
+    dispatchCount (Rejected := Rejected) trace = 1 := by
+  cases trace with
+  | cons first rest =>
+      cases first with
+      | decide =>
+          cases rest with
+          | cons second suffix =>
+              cases second with
+              | dispatch consumed =>
+                  simp [dispatchCount, SubjectPolicyTransition.isDispatch,
+                    dispatchCount_from_dispatched suffix]
+              | reject notAllowed reason =>
+                  cases suffix with
+                  | cons impossible _ => cases impossible
+
 /-- Two dispatch edges cannot occur in one explicitly threaded trace. -/
 theorem cannot_dispatch_twice
     {Subject : Type u}
