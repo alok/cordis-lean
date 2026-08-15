@@ -81,7 +81,7 @@ structure Codec (alpha : Type u) where
 namespace Codec
 
 /-- The roundtrip theorem exposed with an operation-oriented name. -/
-theorem decode_encode (codec : Codec alpha) (value : alpha) :
+theorem decode_encode {alpha : Type u} (codec : Codec alpha) (value : alpha) :
     codec.decode (codec.encode value) = .ok value :=
   codec.roundtrip value
 
