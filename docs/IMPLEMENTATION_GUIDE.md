@@ -1178,8 +1178,8 @@ crash-safe commit, or global exactly-once tool execution.
 
 ### 14.9 Route every dispatch branch through settlement
 
-`dispatch` is available only in an open step. It assigns
-`CallId state.nextCall` and runs admission.
+`dispatch` is available only in an open step. It constructs a `CallId` whose
+`value` is `state.nextCall` and runs admission.
 
 For rejection:
 
