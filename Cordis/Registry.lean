@@ -1,4 +1,5 @@
 import Cordis.Api
+import Cordis.Effect
 
 /-!
 # Dependent provider registries
@@ -105,6 +106,75 @@ theorem setAt_commute
     · subst op
       simp [setAt, isLeft]
     · simp [setAt, isLeft, isRight]
+
+/-- A dependent registry update packaged with its exact, local inverse. -/
+def setEffect
+    {sig : Signature}
+    (target : sig.Op)
+    (replacement : Option (Provider sig target)) : Effect (Registry sig) :=
+  fun registry => {
+    after := setAt registry target replacement
+    undo := fun current => setAt current target (registry target)
+    undo_after := setAt_restore registry target replacement
+  }
+
+/-- Installing a provider is a witnessed registry effect. -/
+def installEffect
+    {sig : Signature}
+    (target : sig.Op)
+    (provider : Provider sig target) : Effect (Registry sig) :=
+  setEffect target (some provider)
+
+/-- Withdrawing a provider is a witnessed registry effect. -/
+def withdrawEffect
+    {sig : Signature}
+    (target : sig.Op) : Effect (Registry sig) :=
+  setEffect target none
+
+@[simp]
+theorem setEffect_after
+    {sig : Signature}
+    (registry : Registry sig)
+    (target : sig.Op)
+    (replacement : Option (Provider sig target)) :
+    (setEffect target replacement registry).after = setAt registry target replacement :=
+  rfl
+
+@[simp]
+theorem setEffect_recovers
+    {sig : Signature}
+    (registry : Registry sig)
+    (target : sig.Op)
+    (replacement : Option (Provider sig target)) :
+    (setEffect target replacement registry).undo
+      (setEffect target replacement registry).after = registry :=
+  (setEffect target replacement registry).undo_after
+
+/--
+Certified updates at distinct keys are strongly independent: swapping them
+preserves both their successor registry and their composed recovery function.
+-/
+theorem setEffect_commute
+    {sig : Signature}
+    (left right : sig.Op)
+    (different : left ≠ right)
+    (leftValue : Option (Provider sig left))
+    (rightValue : Option (Provider sig right)) :
+    Effect.seq (setEffect left leftValue) (setEffect right rightValue) =
+      Effect.seq (setEffect right rightValue) (setEffect left leftValue) := by
+  funext registry
+  apply Applied.ext
+  · exact setAt_commute registry left right different leftValue rightValue
+  · funext current
+    change
+      setAt (setAt current right (setAt registry left leftValue right))
+          left (registry left) =
+        setAt (setAt current left (setAt registry right rightValue left))
+          right (registry right)
+    rw [setAt_other registry left right leftValue (Ne.symm different)]
+    rw [setAt_other registry right left rightValue different]
+    exact setAt_commute current right left (Ne.symm different)
+      (registry right) (registry left)
 
 /-- A resolved view is constructive evidence that all declared needs are satisfied. -/
 abbrev Satisfies
