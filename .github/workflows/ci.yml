@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Lean and trust-boundary gates
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out the exact revision
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Reject trust-broadening Lean source
+        run: python3 scripts/check_lean_hygiene.py --self-test .
+
+      - name: Install the pinned Lean toolchain
+        uses: leanprover/lean-action@38fbc41a8c28c4cbaec22d7f7de508ec2e7c0dd9
+        with:
+          auto-config: false
+          build: false
+          test: false
+          lint: false
+          use-github-cache: false
+          use-mathlib-cache: false
+
+      - name: Verify the resolved Lean version
+        shell: bash
+        run: |
+          set -euo pipefail
+          toolchain="$(tr -d '\r\n' < lean-toolchain)"
+          case "$toolchain" in
+            leanprover/lean4:v*) expected="${toolchain#leanprover/lean4:v}" ;;
+            *) echo "Unsupported lean-toolchain value: $toolchain" >&2; exit 1 ;;
+          esac
+          actual="$(lean -V)"
+          test "$actual" = "$expected" || {
+            echo "Expected Lean $expected from lean-toolchain, got $actual" >&2
+            exit 1
+          }
+          lean --version
+          lake --version
+
+      - name: Compile with warnings as failures
+        run: lake --wfail build
+
+      - name: Build documented targets
+        run: lake build
+
+      - name: Compile static rejection tests
+        run: lake lean Cordis/NegativeTests.lean
+
+      - name: Run adversarial and integration tests
+        run: lake exe cordis_tests
+
+      - name: Run the deterministic harness demo
+        run: lake exe cordis_demo
+
+      - name: Audit headline theorem dependencies
+        shell: bash
+        env:
+          AXIOM_REPORT: ${{ runner.temp }}/cordis-axioms.txt
+        run: |
+          set -euo pipefail
+          lake lean Cordis/AxiomAudit.lean 2>&1 | tee "$AXIOM_REPORT"
+          python3 scripts/check_lean_hygiene.py --axiom-report "$AXIOM_REPORT"
