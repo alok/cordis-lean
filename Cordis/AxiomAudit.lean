@@ -56,4 +56,8 @@ axioms and proof placeholders.
 #print axioms Cordis.Harness.replayRaw_append
 #print axioms Cordis.Harness.RecordChain.length_eq_nextCall
 #print axioms Cordis.Harness.RecordChain.ids_eq_range
+#print axioms Cordis.Harness.RecordChain.boundaries_eq_records
+#print axioms Cordis.Harness.RecordChain.leases_threaded
+#print axioms Cordis.Harness.RunnerState.callBoundaries_eq_records
+#print axioms Cordis.Harness.RunnerState.leases_threaded
 #print axioms Cordis.Harness.certifiedTwoCallTrace_replays

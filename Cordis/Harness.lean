@@ -134,20 +134,74 @@ def policyDispatchCount (record : CallRecord) : Nat :=
 
 end CallRecord
 
+/-- The tool-boundary portion of a runtime log, with protocol coordinates erased. -/
+inductive CallBoundary where
+  | call (id : CallId)
+  | result (id : CallId)
+deriving BEq, DecidableEq, Repr
+
+namespace RuntimeEvent
+
+/-- Retain only tool calls and results from the full protocol event vocabulary. -/
+def callBoundary? : RuntimeEvent → Option CallBoundary
+  | .toolCall _ _ id => some (.call id)
+  | .toolResult _ _ id => some (.result id)
+  | _ => none
+
+end RuntimeEvent
+
+/-- The ordered call/result subsequence of a full runtime log. -/
+def callBoundaries (log : List RuntimeEvent) : List CallBoundary :=
+  log.filterMap RuntimeEvent.callBoundary?
+
+/-- The exact call/result pair required by every settled record. -/
+def recordBoundaries (records : List CallRecord) : List CallBoundary :=
+  records.flatMap fun record => [.call record.id, .result record.id]
+
+/-- Every record receives exactly the pool produced by its predecessor. -/
+def LeasesThreaded (start : LeasePool) : List CallRecord → LeasePool → Prop
+  | [], finish => finish = start
+  | record :: records, finish =>
+      record.leasesBefore = start ∧ LeasesThreaded record.leasesAfter records finish
+
+private theorem leasesThreaded_snoc
+    {start current : LeasePool}
+    {records : List CallRecord}
+    (threaded : LeasesThreaded start records current)
+    (record : CallRecord)
+    (starts : record.leasesBefore = current) :
+    LeasesThreaded start (records ++ [record]) record.leasesAfter := by
+  induction records generalizing start with
+  | nil =>
+      simp only [LeasesThreaded] at threaded
+      simp only [List.nil_append, LeasesThreaded]
+      exact ⟨starts.trans threaded, trivial⟩
+  | cons first rest inductionHypothesis =>
+      simp only [LeasesThreaded] at threaded
+      simp only [List.cons_append, LeasesThreaded]
+      exact ⟨threaded.1, inductionHypothesis threaded.2⟩
+
 /--
-Proof that records form one contiguous modeled history with session-wide monotone call IDs.
-The constructor is append-oriented because results are committed in model order.
+Joint proof that records form one contiguous modeled history, lease ownership is threaded from
+the empty pool to the final pool, and the projected runtime log is exactly the records' ordered
+call/result pairs. The constructor is append-oriented because results are committed in model
+order.
 -/
-inductive RecordChain : Nat → Nat → List CallRecord → Nat → Prop where
-  | nil (initial : Nat) : RecordChain initial 0 [] initial
+inductive RecordChain :
+    Nat → Nat → List CallRecord → Nat → LeasePool → List CallBoundary → Prop where
+  | nil (initial : Nat) : RecordChain initial 0 [] initial .empty []
   | snoc
       {initial nextCall current : Nat}
       {records : List CallRecord}
-      (prior : RecordChain initial nextCall records current)
+      {currentLeases : LeasePool}
+      {boundaries : List CallBoundary}
+      (prior : RecordChain initial nextCall records current currentLeases boundaries)
       (record : CallRecord)
       (id_is_next : record.id.value = nextCall)
-      (starts_at_current : record.before = current) :
+      (starts_at_current : record.before = current)
+      (leases_start_at_current : record.leasesBefore = currentLeases) :
       RecordChain initial (nextCall + 1) (records ++ [record]) record.after
+        record.leasesAfter (boundaries ++ [.call record.id, .result record.id])
 
 namespace RecordChain
 
@@ -155,23 +209,53 @@ namespace RecordChain
 theorem length_eq_nextCall
     {initial nextCall final : Nat}
     {records : List CallRecord}
-    (history : RecordChain initial nextCall records final) :
+    {leases : LeasePool}
+    {boundaries : List CallBoundary}
+    (history : RecordChain initial nextCall records final leases boundaries) :
     records.length = nextCall := by
   induction history with
   | nil => rfl
-  | snoc prior record id_is_next starts_at_current inductionHypothesis =>
+  | snoc prior record id_is_next starts_at_current leases_start inductionHypothesis =>
       simp [inductionHypothesis]
 
 /-- A certified record history assigns identifiers `0, 1, ..., nextCall - 1` in order. -/
 theorem ids_eq_range
     {initial nextCall final : Nat}
     {records : List CallRecord}
-    (history : RecordChain initial nextCall records final) :
+    {leases : LeasePool}
+    {boundaries : List CallBoundary}
+    (history : RecordChain initial nextCall records final leases boundaries) :
     records.map (fun record ↦ record.id.value) = List.range nextCall := by
   induction history with
   | nil => rfl
-  | snoc prior record id_is_next starts_at_current inductionHypothesis =>
+  | snoc prior record id_is_next starts_at_current leases_start inductionHypothesis =>
       simp [inductionHypothesis, id_is_next, List.range_succ]
+
+/-- The boundary index of a certified history is exactly the records' ordered call/result pairs. -/
+theorem boundaries_eq_records
+    {initial nextCall final : Nat}
+    {records : List CallRecord}
+    {leases : LeasePool}
+    {boundaries : List CallBoundary}
+    (history : RecordChain initial nextCall records final leases boundaries) :
+    boundaries = recordBoundaries records := by
+  induction history with
+  | nil => rfl
+  | snoc prior record id_is_next starts_at_current leases_start inductionHypothesis =>
+      simp [recordBoundaries, inductionHypothesis]
+
+/-- A certified history threads leases from the empty initial pool to its indexed final pool. -/
+theorem leases_threaded
+    {initial nextCall final : Nat}
+    {records : List CallRecord}
+    {leases : LeasePool}
+    {boundaries : List CallBoundary}
+    (history : RecordChain initial nextCall records final leases boundaries) :
+    LeasesThreaded .empty records leases := by
+  induction history with
+  | nil => rfl
+  | snoc prior record id_is_next starts_at_current leases_start inductionHypothesis =>
+      exact leasesThreaded_snoc inductionHypothesis record leases_start
 
 end RecordChain
 
@@ -218,7 +302,7 @@ structure RunnerState where
   leases : LeasePool
   log : List RuntimeEvent
   records : List CallRecord
-  history : RecordChain initialModel nextCall records model
+  history : RecordChain initialModel nextCall records model leases (callBoundaries log)
   replayProof : replayRaw (.ready 0) log = .ok protocol
 
 namespace RunnerState
@@ -234,8 +318,22 @@ def initial (model : Nat) : RunnerState where
   history := .nil model
   replayProof := rfl
 
-/-- Append one checked protocol event while extending the replay certificate. -/
-def emit (state : RunnerState) (event : RuntimeEvent) : Except RunnerError RunnerState :=
+/-- No tool call or result exists in the log beyond the exact ordered pairs in `records`. -/
+theorem callBoundaries_eq_records (state : RunnerState) :
+    callBoundaries state.log = recordBoundaries state.records :=
+  state.history.boundaries_eq_records
+
+/-- Every record lease input is its predecessor's output, from empty to `state.leases`. -/
+theorem leases_threaded (state : RunnerState) :
+    LeasesThreaded .empty state.records state.leases :=
+  state.history.leases_threaded
+
+/-- Append one checked non-tool event while extending both state certificates. -/
+private def emitNonBoundary
+    (state : RunnerState)
+    (event : RuntimeEvent)
+    (notBoundary : RuntimeEvent.callBoundary? event = none) :
+    Except RunnerError RunnerState :=
   match applied : applyRaw state.protocol event with
   | .error error => .error (.protocol error)
   | .ok next =>
@@ -243,6 +341,8 @@ def emit (state : RunnerState) (event : RuntimeEvent) : Except RunnerError Runne
         state with
         protocol := next
         log := state.log ++ [event]
+        history := by
+          simpa [callBoundaries, notBoundary] using state.history
         replayProof := by
           rw [replayRaw_append, state.replayProof]
           change replayRaw state.protocol [event] = .ok next
@@ -253,13 +353,13 @@ def emit (state : RunnerState) (event : RuntimeEvent) : Except RunnerError Runne
 /-- Open the next turn recorded by the protocol state. -/
 def beginTurn (state : RunnerState) : Except RunnerError RunnerState :=
   match state.protocol with
-  | .ready turn => state.emit (.turnStart turn)
+  | .ready turn => emitNonBoundary state (.turnStart turn) rfl
   | protocol => .error (.notReady protocol)
 
 /-- Open the next model step recorded by the current turn. -/
 def beginStep (state : RunnerState) : Except RunnerError RunnerState :=
   match state.protocol with
-  | .turn turn step => state.emit (.stepStart turn step)
+  | .turn turn step => emitNonBoundary state (.stepStart turn step) rfl
   | protocol => .error (.notInTurn protocol)
 
 /-- Backwards-compatible helper opening one turn and its first model step. -/
@@ -272,16 +372,43 @@ private def settle
     (turn step : Nat)
     (record : CallRecord)
     (id_is_next : record.id.value = state.nextCall)
-    (starts_at_current : record.before = state.model) : Except RunnerError RunnerState := do
-  let recorded := {
-    state with
-    model := record.after
-    nextCall := state.nextCall + 1
-    leases := record.leasesAfter
-    records := state.records ++ [record]
-    history := .snoc state.history record id_is_next starts_at_current
-  }
-  recorded.emit (.toolResult turn step record.id)
+    (starts_at_current : record.before = state.model)
+    (leases_start_at_current : record.leasesBefore = state.leases) :
+    Except RunnerError RunnerState :=
+  let callEvent := RuntimeEvent.toolCall turn step record.id
+  let resultEvent := RuntimeEvent.toolResult turn step record.id
+  match called : applyRaw state.protocol callEvent with
+  | .error error => .error (.protocol error)
+  | .ok awaitingResult =>
+      match resulted : applyRaw awaitingResult resultEvent with
+      | .error error => .error (.protocol error)
+      | .ok next =>
+          .ok {
+            state with
+            model := record.after
+            protocol := next
+            nextCall := state.nextCall + 1
+            leases := record.leasesAfter
+            log := state.log ++ [callEvent, resultEvent]
+            records := state.records ++ [record]
+            history := by
+              simpa [callEvent, resultEvent, callBoundaries, RuntimeEvent.callBoundary?] using
+                RecordChain.snoc state.history record id_is_next starts_at_current
+                  leases_start_at_current
+            replayProof := by
+              rw [replayRaw_append, state.replayProof]
+              calc
+                replayRaw state.protocol [callEvent, resultEvent] =
+                    (do
+                      let middle ← applyRaw state.protocol callEvent
+                      let finish ← applyRaw middle resultEvent
+                      Except.ok finish) := rfl
+                _ =
+                    (do
+                      let finish ← applyRaw awaitingResult resultEvent
+                      Except.ok finish) := by rw [called]; rfl
+                _ = .ok next := by rw [resulted]; rfl
+          }
 
 /--
 Dispatch one raw call. Rejections and provider failures still emit a matching
@@ -290,22 +417,20 @@ result, so no protocol obligation leaks from a failed tool boundary.
 def dispatch (state : RunnerState) (raw : RawCall) : Except RunnerError RunnerState :=
   match state.protocol with
   | .step turn step _ => do
-      let id : CallId := { value := state.nextCall }
-      let opened ← state.emit (.toolCall turn step id)
-      let assigned : CallId := { value := opened.nextCall }
-      match validation : validateRaw opened.model raw with
+      let assigned : CallId := { value := state.nextCall }
+      match validation : validateRaw state.model raw with
       | .error error =>
-          settle opened turn step {
+          settle state turn step {
             id := assigned
             raw := raw
-            before := opened.model
-            after := opened.model
-            leasesBefore := opened.leases
-            leasesAfter := opened.leases
+            before := state.model
+            after := state.model
+            leasesBefore := state.leases
+            leasesAfter := state.leases
             evidence := .rejected error validation
-          } rfl rfl
+          } rfl rfl rfl
       | .ok call =>
-          match issuance : opened.leases.issue assigned with
+          match issuance : state.leases.issue assigned with
           | none => .error (.leaseInvariant assigned)
           | some issued =>
               match consumption : issued.consume assigned with
@@ -322,16 +447,16 @@ def dispatch (state : RunnerState) (raw : RawCall) : Except RunnerError RunnerSt
                         .cons (.decide assigned call issued .allow) <|
                         .cons (.dispatch consumption) <|
                         .cons (.settle completion) (.nil _)
-                      settle opened turn step {
+                      settle state turn step {
                         id := assigned
                         raw := raw
-                        before := opened.model
-                        after := completionAfter opened.model completion
-                        leasesBefore := opened.leases
+                        before := state.model
+                        after := completionAfter state.model completion
+                        leasesBefore := state.leases
                         leasesAfter := remaining
                         evidence := .admitted call validation issued issuance completion
                           execution policy
-                      } rfl rfl
+                      } rfl rfl rfl
                   | .ok reply =>
                       let completion : CounterCompletion call := .ok reply
                       let policy : SubjectPolicyTrace
@@ -342,16 +467,16 @@ def dispatch (state : RunnerState) (raw : RawCall) : Except RunnerError RunnerSt
                         .cons (.decide assigned call issued .allow) <|
                         .cons (.dispatch consumption) <|
                         .cons (.settle completion) (.nil _)
-                      settle opened turn step {
+                      settle state turn step {
                         id := assigned
                         raw := raw
-                        before := opened.model
-                        after := completionAfter opened.model completion
-                        leasesBefore := opened.leases
+                        before := state.model
+                        after := completionAfter state.model completion
+                        leasesBefore := state.leases
                         leasesAfter := remaining
                         evidence := .admitted call validation issued issuance completion
                           execution policy
-                      } rfl rfl
+                      } rfl rfl rfl
   | state => .error (.notInStep state)
 
 /-- Dispatch calls in model order. -/
@@ -364,13 +489,13 @@ def dispatchAll : RunnerState -> List RawCall -> Except RunnerError RunnerState
 /-- Close the current step after all calls have settled. -/
 def finishStep (state : RunnerState) : Except RunnerError RunnerState :=
   match state.protocol with
-  | .step turn step _ => state.emit (.stepEnd turn step)
+  | .step turn step _ => emitNonBoundary state (.stepEnd turn step) rfl
   | protocol => .error (.notInStep protocol)
 
 /-- Close the current turn after its final step. -/
 def finishTurn (state : RunnerState) : Except RunnerError RunnerState :=
   match state.protocol with
-  | .turn turn nextStep => state.emit (.turnEnd turn nextStep)
+  | .turn turn nextStep => emitNonBoundary state (.turnEnd turn nextStep) rfl
   | protocol => .error (.notInTurn protocol)
 
 /-- Close the current step and turn after all calls have settled. -/

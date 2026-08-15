@@ -341,6 +341,11 @@ private def testHarnessDemo : IO Unit := do
   assertEqual "Harness.demo settled record count" state.records.length 4
   assertEqual "Harness.demo assigns monotonically increasing call ids"
     (state.records.map fun record ↦ record.id.value) [0, 1, 2, 3]
+  assertEqual "Harness.demo log has exactly one adjacent call/result pair per record"
+    (Harness.callBoundaries state.log) (Harness.recordBoundaries state.records)
+  let _leaseCertificate :
+      Harness.LeasesThreaded .empty state.records state.leases :=
+    state.leases_threaded
   match state.records with
   | [first, incremented, secondRead, unknown] =>
       assertEqual "first read succeeds" first.outcome .succeeded
@@ -410,6 +415,12 @@ private def testHarnessDemo : IO Unit := do
     (multiTurn.records.map fun record ↦ record.id.value) [0, 1, 2]
   assertEqual "multi-turn harness routes every admitted call through policy"
     (multiTurn.records.map Harness.CallRecord.policyDispatchCount) [1, 1, 1]
+  assertEqual "multi-turn log has no unrecorded call or result"
+    (Harness.callBoundaries multiTurn.log)
+    (Harness.recordBoundaries multiTurn.records)
+  let _leaseCertificate :
+      Harness.LeasesThreaded .empty multiTurn.records multiTurn.leases :=
+    multiTurn.leases_threaded
   match validateRuntimeTrace (.ready 0) multiTurn.log with
   | .error error => fail s!"multi-turn typed reconstruction failed with {reprStr error}"
   | .ok validated =>
