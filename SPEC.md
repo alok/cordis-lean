@@ -387,7 +387,7 @@ The delivered checkout has four verified commands:
 lake build
 lake exe cordis_tests
 lake exe cordis_demo
-lake env lean Cordis/AxiomAudit.lean
+lake lean Cordis/AxiomAudit.lean
 ```
 
 Expected behavior:

@@ -60,8 +60,8 @@ lake exe cordis_tests
 # Run the deterministic counter harness.
 lake exe cordis_demo
 
-# Print the logical dependencies of every headline theorem.
-lake env lean Cordis/AxiomAudit.lean
+# Elaborate the axiom audit in Lake's module context and print every dependency.
+lake lean Cordis/AxiomAudit.lean
 ```
 
 The test command exits successfully after printing:
