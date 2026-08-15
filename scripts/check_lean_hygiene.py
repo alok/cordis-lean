@@ -33,6 +33,10 @@ FORBIDDEN = {
     "implemented_by": "runtime implementation override",
 }
 FORBIDDEN_WHEN_QUALIFIED = frozenset({"sorryAx", "ofReduceBool", "trustCompiler"})
+# These names are rejected even inside comments or literals. This deliberate
+# conservatism closes string-interpolation holes without pretending this small
+# checker is a complete Lean lexer.
+FORBIDDEN_EVERYWHERE = FORBIDDEN_WHEN_QUALIFIED
 
 
 class ScanError(ValueError):
@@ -147,7 +151,7 @@ def scan_source(path: Path) -> list[str]:
 
 def forbidden_matches(source: str) -> list[re.Match[str]]:
     tokens = list(TOKEN.finditer(scrub_literals_and_comments(source)))
-    findings: list[re.Match[str]] = []
+    findings: dict[tuple[int, str], re.Match[str]] = {}
     for index, match in enumerate(tokens):
         word = match.group()
         if word not in FORBIDDEN:
@@ -157,8 +161,18 @@ def forbidden_matches(source: str) -> list[re.Match[str]]:
         qualified = previous == "." and word not in FORBIDDEN_WHEN_QUALIFIED
         print_axioms = word == "axioms" and previous == "print" and previous_two == "#"
         if not qualified and not print_axioms:
-            findings.append(match)
-    return findings
+            findings[(match.start(), word)] = match
+
+    # Lean expressions inside `s!"...{...}..."` are executable, but a simple
+    # literal scrubber cannot distinguish them from display text. Reject the
+    # three compiler-trust escape hatches everywhere in the source so neither
+    # interpolation nor future literal syntax can hide them.
+    for match in TOKEN.finditer(source):
+        word = match.group()
+        if word in FORBIDDEN_EVERYWHERE:
+            findings[(match.start(), word)] = match
+
+    return [findings[key] for key in sorted(findings)]
 
 
 def source_files(paths: Sequence[Path]) -> list[Path]:
@@ -256,6 +270,15 @@ unsafe def bad := by sorry
         "sorryAx",
         "ofReduceBool",
         "implemented_by",
+    }
+    interpolation_bypass = r"""
+set_option linter.deprecated false in
+def bypass : String :=
+  s!"{(let _proof : True := Lean.trustCompiler; 0)}"
+"""
+    assert scan_text(interpolation_bypass) == {"trustCompiler"}
+    assert scan_text("-- Lean.trustCompiler is forbidden even in prose") == {
+        "trustCompiler"
     }
     print("Lean hygiene scanner self-test passed.")
 

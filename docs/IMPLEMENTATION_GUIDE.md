@@ -212,7 +212,10 @@ Two non-Lean files complete the release feedback loop:
   disables mutable caches;
 - [`../scripts/check_lean_hygiene.py`](../scripts/check_lean_hygiene.py) blanks
   nested comments, strings, raw strings, character literals, and quoted
-  identifiers before scanning actual Lean tokens, self-tests that lexer, and
+  identifiers before scanning ordinary forbidden Lean tokens. It also rejects
+  `sorryAx`, `ofReduceBool`, and `trustCompiler` everywhere—even in prose or
+  literals—so an executable expression inside string interpolation cannot hide
+  a compiler-trust escape hatch. It self-tests that conservative lexer and
   separately parses the axiom report against the three-principle allow-list.
 
 Implement those files after the named commands exist, then run each workflow
