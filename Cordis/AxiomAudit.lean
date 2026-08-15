@@ -32,7 +32,9 @@ axioms and proof placeholders.
 #print axioms Cordis.ToolWire.validate_declared
 #print axioms Cordis.Event.noOrphanResult
 #print axioms Cordis.applyRaw_eraseEvent
+#print axioms Cordis.ValidatedEvent.applies
 #print axioms Cordis.replayRaw_eraseTrace
+#print axioms Cordis.ValidatedTrace.replays
 #print axioms Cordis.Lifecycle.Transition.unload_recovers
 #print axioms Cordis.Lifecycle.Transition.unload_rejects_relied
 #print axioms Cordis.Harness.replayRaw_append

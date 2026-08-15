@@ -96,6 +96,17 @@ def eraseState : SessionState → RuntimeState
   | .turn turn nextStep => .turn turn nextStep
   | .step turn step pending => .step turn step pending
 
+/-- Reconstruct the intrinsic state index represented by a runtime state. -/
+def reifyState : RuntimeState → SessionState
+  | .ready nextTurn => .ready nextTurn
+  | .turn turn nextStep => .turn turn nextStep
+  | .step turn step pending => .step turn step pending
+
+@[simp]
+theorem eraseState_reifyState (state : RuntimeState) :
+    eraseState (reifyState state) = state := by
+  cases state <;> rfl
+
 namespace Event
 
 /-- Forget the proofs carried by a legal event. -/
@@ -175,6 +186,152 @@ def replayRaw : RuntimeState → List RuntimeEvent → Except ValidationError Ru
       let next ← applyRaw state event
       replayRaw next rest
 
+/--
+A raw event reconstructed as an intrinsic transition from the supplied start index.
+The erasure field ties the proof-carrying transition to the exact untrusted event.
+-/
+structure ValidatedEvent (start : SessionState) (raw : RuntimeEvent) where
+  finish : SessionState
+  event : Event start finish
+  erase_eq : event.erase = raw
+
+/-- Validate one raw event and return its intrinsic transition witness. -/
+def validateEvent :
+    (start : SessionState) →
+    (raw : RuntimeEvent) →
+    Except ValidationError (ValidatedEvent start raw)
+  | .ready expectedTurn, .turnStart actualTurn =>
+      if same : expectedTurn = actualTurn then
+        match same with
+        | rfl => .ok {
+            finish := .turn expectedTurn 0
+            event := .turnStart expectedTurn
+            erase_eq := rfl
+          }
+      else
+        .error (.turnMismatch expectedTurn actualTurn)
+  | .turn turn nextStep, .stepStart actualTurn actualStep =>
+      if sameTurn : turn = actualTurn then
+        match sameTurn with
+        | rfl =>
+            if sameStep : nextStep = actualStep then
+              match sameStep with
+              | rfl => .ok {
+                  finish := .step turn nextStep []
+                  event := .stepStart turn nextStep
+                  erase_eq := rfl
+                }
+            else
+              .error (.stepMismatch nextStep actualStep)
+      else
+        .error (.turnMismatch turn actualTurn)
+  | .step turn step pending, .toolCall actualTurn actualStep id =>
+      if sameTurn : turn = actualTurn then
+        match sameTurn with
+        | rfl =>
+            if sameStep : step = actualStep then
+              match sameStep with
+              | rfl =>
+                  if duplicate : id ∈ pending then
+                    .error (.duplicateCall id)
+                  else
+                    .ok {
+                      finish := .step turn step (id :: pending)
+                      event := .toolCall id duplicate
+                      erase_eq := rfl
+                    }
+            else
+              .error (.stepMismatch step actualStep)
+      else
+        .error (.turnMismatch turn actualTurn)
+  | .step turn step pending, .toolResult actualTurn actualStep id =>
+      if sameTurn : turn = actualTurn then
+        match sameTurn with
+        | rfl =>
+            if sameStep : step = actualStep then
+              match sameStep with
+              | rfl =>
+                  if wasPending : id ∈ pending then
+                    .ok {
+                      finish := .step turn step (pending.erase id)
+                      event := .toolResult id wasPending
+                      erase_eq := rfl
+                    }
+                  else
+                    .error (.orphanResult id)
+            else
+              .error (.stepMismatch step actualStep)
+      else
+        .error (.turnMismatch turn actualTurn)
+  | .step turn step pending, .stepEnd actualTurn actualStep =>
+      if sameTurn : turn = actualTurn then
+        match sameTurn with
+        | rfl =>
+            if sameStep : step = actualStep then
+              match sameStep with
+              | rfl =>
+                  match pending with
+                  | [] => .ok {
+                      finish := .turn turn (step + 1)
+                      event := .stepEnd turn step
+                      erase_eq := rfl
+                    }
+                  | _ :: _ => .error (.pendingCallsRemain pending)
+            else
+              .error (.stepMismatch step actualStep)
+      else
+        .error (.turnMismatch turn actualTurn)
+  | .turn turn nextStep, .turnEnd actualTurn actualNextStep =>
+      if sameTurn : turn = actualTurn then
+        match sameTurn with
+        | rfl =>
+            if sameStep : nextStep = actualNextStep then
+              match sameStep with
+              | rfl => .ok {
+                  finish := .ready (turn + 1)
+                  event := .turnEnd turn nextStep
+                  erase_eq := rfl
+                }
+            else
+              .error (.stepMismatch nextStep actualNextStep)
+      else
+        .error (.turnMismatch turn actualTurn)
+  | start, raw => .error (.wrongPhase (eraseState start) raw)
+
+/-- A complete raw log reconstructed as one intrinsic typed trace. -/
+structure ValidatedTrace (start : SessionState) (raw : List RuntimeEvent) where
+  finish : SessionState
+  trace : Trace start finish
+  erase_eq : trace.erase = raw
+
+/-- Validate a raw log while reconstructing its intrinsic trace witness. -/
+def validateTrace :
+    (start : SessionState) →
+    (raw : List RuntimeEvent) →
+    Except ValidationError (ValidatedTrace start raw)
+  | start, [] => .ok {
+      finish := start
+      trace := .nil
+      erase_eq := rfl
+    }
+  | start, rawEvent :: rest => do
+      let first ← validateEvent start rawEvent
+      let suffix ← validateTrace first.finish rest
+      .ok {
+        finish := suffix.finish
+        trace := .cons first.event suffix.trace
+        erase_eq := by
+          simp only [Trace.erase]
+          rw [first.erase_eq, suffix.erase_eq]
+      }
+
+/-- Validate a raw log from the intrinsic index represented by its runtime start. -/
+def validateRuntimeTrace
+    (start : RuntimeState)
+    (raw : List RuntimeEvent) :
+    Except ValidationError (ValidatedTrace (reifyState start) raw) :=
+  validateTrace (reifyState start) raw
+
 /-- Every typed transition preserves uniqueness of live call identifiers. -/
 theorem Event.preservesWellFormed {start finish : SessionState}
     (event : Event start finish) :
@@ -211,6 +368,18 @@ theorem Event.noOrphanResult
     applyRaw (eraseState start) event.erase = .ok (eraseState finish) := by
   cases event <;> simp [applyRaw, eraseState, Event.erase, *]
 
+/-- Every reconstructed raw event is accepted by the executable validator. -/
+theorem ValidatedEvent.applies
+    {start : SessionState}
+    {raw : RuntimeEvent}
+    (validated : ValidatedEvent start raw) :
+    applyRaw (eraseState start) raw = .ok (eraseState validated.finish) := by
+  calc
+    applyRaw (eraseState start) raw =
+        applyRaw (eraseState start) validated.event.erase :=
+      congrArg (applyRaw (eraseState start)) validated.erase_eq.symm
+    _ = .ok (eraseState validated.finish) := applyRaw_eraseEvent validated.event
+
 /-- Trace composition erases to list concatenation. -/
 theorem Trace.erase_append
     {start middle finish : SessionState}
@@ -230,6 +399,18 @@ theorem Trace.erase_append
   | cons event rest inductionHypothesis =>
       rw [Trace.erase, replayRaw, applyRaw_eraseEvent]
       exact inductionHypothesis
+
+/-- Every reconstructed raw log replays to its intrinsic terminal index. -/
+theorem ValidatedTrace.replays
+    {start : SessionState}
+    {raw : List RuntimeEvent}
+    (validated : ValidatedTrace start raw) :
+    replayRaw (eraseState start) raw = .ok (eraseState validated.finish) := by
+  calc
+    replayRaw (eraseState start) raw =
+        replayRaw (eraseState start) validated.trace.erase :=
+      congrArg (replayRaw (eraseState start)) validated.erase_eq.symm
+    _ = .ok (eraseState validated.finish) := replayRaw_eraseTrace validated.trace
 
 /-- Well-formedness propagates over a complete typed trace. -/
 theorem Trace.preservesWellFormed {start finish : SessionState}

@@ -176,6 +176,23 @@ private def testLifecycle : IO Unit := do
     (undo.recover applied.after) 4
 
 private def testProtocolFailures : IO Unit := do
+  match applyRaw (.ready 0) (.turnStart 1) with
+  | .error (.turnMismatch expected actual) =>
+      assertEqual "protocol reports the mismatched turn" (expected, actual) (0, 1)
+  | .error error => fail s!"expected turnMismatch, got {reprStr error}"
+  | .ok state => fail s!"mismatched turn was accepted into {reprStr state}"
+
+  match applyRaw (.turn 0 2) (.stepStart 0 3) with
+  | .error (.stepMismatch expected actual) =>
+      assertEqual "protocol reports the mismatched step" (expected, actual) (2, 3)
+  | .error error => fail s!"expected stepMismatch, got {reprStr error}"
+  | .ok state => fail s!"mismatched step was accepted into {reprStr state}"
+
+  match applyRaw (.ready 0) (.stepEnd 0 0) with
+  | .error (.wrongPhase _ _) => pure ()
+  | .error error => fail s!"expected wrongPhase, got {reprStr error}"
+  | .ok state => fail s!"wrong-phase event was accepted into {reprStr state}"
+
   let orphan : CallId := ⟨9⟩
   match applyRaw (.step 0 0 []) (.toolResult 0 0 orphan) with
   | .error (.orphanResult actual) =>
@@ -278,6 +295,12 @@ private def testHarnessDemo : IO Unit := do
   | .ok replayed =>
       assertRuntimeStateEqual
         "Harness.demo stored protocol equals replayed log" replayed state.protocol
+  match validateRuntimeTrace (.ready 0) state.log with
+  | .error error => fail s!"Harness.demo typed reconstruction failed with {reprStr error}"
+  | .ok validated =>
+      assertRuntimeStateEqual
+        "Harness.demo raw log reconstructs an intrinsic typed trace"
+        (eraseState validated.finish) state.protocol
 
 /-- Run all executable adversarial and integration tests. -/
 def run : IO Unit := do
