@@ -11,12 +11,16 @@ namespace Cordis
 
 universe u v w
 
+set_option linter.checkUnivs false
+
 /-- A universe of operations with request-indexed response types. -/
 structure Signature where
   Op : Type u
   opDecEq : DecidableEq Op
   Request : Op -> Type v
   Response : (op : Op) -> Request op -> Type w
+
+set_option linter.checkUnivs true
 
 attribute [instance] Signature.opDecEq
 
