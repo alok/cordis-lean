@@ -37,7 +37,7 @@ private def resolveTool : String -> Option Operation
   | "counter_increment" => some .increment
   | _ => none
 
-private def admitRead
+private def certifyReadAdmission
     (before : Nat)
     (granted : Capability -> Prop)
     (grantedDecidable : (capability : Capability) -> Decidable (granted capability)) :
@@ -54,7 +54,7 @@ private def admitRead
       }
   | .isFalse _ => .error "counter_read requires the read capability"
 
-private def admitIncrement
+private def certifyIncrementAdmission
     (input : Increment)
     (before : Nat)
     (granted : Capability -> Prop)
@@ -81,11 +81,17 @@ def wire : ToolWire catalog where
   inputCodec
     | .read => Codec.unit
     | .increment => incrementCodec
-  admit
+  outputCodec
+    | .read, () => Codec.nat
+    | .increment, _ => Codec.nat
+  failureCodec
+    | .read, () => Codec.string
+    | .increment, _ => Codec.string
+  certifyAdmission
     | .read, (), before, granted, decideGranted =>
-        admitRead before granted decideGranted
+        certifyReadAdmission before granted decideGranted
     | .increment, input, before, granted, decideGranted =>
-        admitIncrement input before granted decideGranted
+        certifyIncrementAdmission input before granted decideGranted
 
 def allNeeds : Needs catalog.signature := fun _ => True
 

@@ -2,12 +2,17 @@ import Cordis.Codec
 import Cordis.Tool
 
 /-!
-# Dynamic tool-call validation
+# Dynamic tool-call and result validation
 
 Language-model output crosses the trust boundary as a textual tool name and a
 `Lean.Json` AST. `validate` resolves that name, decodes the operation-specific
 input, and checks precondition and authority evidence before constructing an
 `AuthorizedCall`. Only that dependent call can enter `View.execute`.
+
+Results cross the boundary in the other direction through request-indexed
+codecs. A Boolean tag distinguishes failures from successes, and the resulting
+`Codec` proves that every encoded typed result decodes to the same dependent
+`Except` value.
 
 Parsing bytes into `Lean.Json` remains outside this module's theorem boundary.
 -/
@@ -41,8 +46,8 @@ structure AdmissionEvidence
 
 /--
 Wire metadata and a proof-producing admission check for a typed tool catalog.
-`admit` cannot return success without constructing the actual precondition and
-capability propositions declared by the selected tool.
+`certifyAdmission` cannot return success without constructing the actual
+precondition and capability propositions declared by the selected tool.
 -/
 structure ToolWire
     {Model Capability : Type u}
@@ -50,7 +55,15 @@ structure ToolWire
   resolve : String -> Option catalog.Tool
   resolve_name : forall tool, resolve (catalog.spec tool).name = some tool
   inputCodec : (tool : catalog.Tool) -> Codec (catalog.spec tool).Input
-  admit :
+  outputCodec :
+    (tool : catalog.Tool) ->
+    (input : (catalog.spec tool).Input) ->
+    Codec ((catalog.spec tool).Output input)
+  failureCodec :
+    (tool : catalog.Tool) ->
+    (input : (catalog.spec tool).Input) ->
+    Codec ((catalog.spec tool).Failure input)
+  certifyAdmission :
     (tool : catalog.Tool) ->
     (input : (catalog.spec tool).Input) ->
     (before : Model) ->
@@ -59,6 +72,120 @@ structure ToolWire
     Except String (AdmissionEvidence (catalog.spec tool) input before granted)
 
 namespace ToolWire
+
+private def taggedResultBranchSchema
+    (successful : Bool)
+    (payload : Lean.Json) : Lean.Json :=
+  Lean.Json.mkObj [
+    ("type", .str "array"),
+    ("prefixItems", .arr #[
+      Lean.Json.mkObj [("const", .bool successful)],
+      payload
+    ]),
+    ("minItems", .num (Lean.JsonNumber.fromNat 2)),
+    ("maxItems", .num (Lean.JsonNumber.fromNat 2))
+  ]
+
+private def taggedResultSchema
+    (failure output : Lean.Json) : Lean.Json :=
+  Lean.Json.mkObj [
+    ("oneOf", .arr #[
+      taggedResultBranchSchema false failure,
+      taggedResultBranchSchema true output
+    ])
+  ]
+
+private def decodeTaggedResultValues
+    {Failure Output : Type u}
+    (failure : Codec Failure)
+    (output : Codec Output) :
+    List Lean.Json -> Except DecodeError (Except Failure Output)
+  | [tagJson, payloadJson] =>
+      match Codec.bool.decode tagJson with
+      | .error error => .error (error.atIndex 0)
+      | .ok false =>
+          match failure.decode payloadJson with
+          | .error error => .error (error.atIndex 1)
+          | .ok value => .ok (.error value)
+      | .ok true =>
+          match output.decode payloadJson with
+          | .error error => .error (error.atIndex 1)
+          | .ok value => .ok (.ok value)
+  | values => .error (.invalidLength [] 2 values.length)
+
+private def decodeTaggedResult
+    {Failure Output : Type u}
+    (failure : Codec Failure)
+    (output : Codec Output) : Lean.Json -> Except DecodeError (Except Failure Output)
+  | .arr values => decodeTaggedResultValues failure output values.toList
+  | .null => .error (.typeMismatch [] "tagged result array" .null)
+  | .bool _ => .error (.typeMismatch [] "tagged result array" .boolean)
+  | .num _ => .error (.typeMismatch [] "tagged result array" .number)
+  | .str _ => .error (.typeMismatch [] "tagged result array" .string)
+  | .obj _ => .error (.typeMismatch [] "tagged result array" .object)
+
+/--
+The request-dependent wire result codec. Results are represented as
+`[false, failure]` or `[true, output]`; its proof concerns only `Lean.Json`
+ASTs, not parsing, rendering, transport, or external schema conformance.
+-/
+def resultCodec
+    {Model Capability : Type u}
+    {catalog : ToolCatalog Model Capability}
+    (wire : ToolWire catalog)
+    (tool : catalog.Tool)
+    (input : (catalog.spec tool).Input) :
+    Codec (Except ((catalog.spec tool).Failure input) ((catalog.spec tool).Output input)) :=
+  let failure := wire.failureCodec tool input
+  let output := wire.outputCodec tool input
+  {
+    schema := taggedResultSchema failure.schema output.schema
+    encode
+      | .error value => .arr #[.bool false, failure.encode value]
+      | .ok value => .arr #[.bool true, output.encode value]
+    decode := decodeTaggedResult failure output
+    roundtrip := by
+      intro result
+      cases result with
+      | error value =>
+          simp [decodeTaggedResult, decodeTaggedResultValues, Codec.bool, failure.roundtrip]
+      | ok value =>
+          simp [decodeTaggedResult, decodeTaggedResultValues, Codec.bool, output.roundtrip]
+  }
+
+/-- Encoding and decoding either branch recovers the exact dependent tool result. -/
+theorem decode_encoded_result
+    {Model Capability : Type u}
+    {catalog : ToolCatalog Model Capability}
+    (wire : ToolWire catalog)
+    (tool : catalog.Tool)
+    (input : (catalog.spec tool).Input)
+    (result : Except ((catalog.spec tool).Failure input) ((catalog.spec tool).Output input)) :
+    (wire.resultCodec tool input).decode ((wire.resultCodec tool input).encode result) =
+      .ok result :=
+  (wire.resultCodec tool input).roundtrip result
+
+/-- Encode the actual typed result carried by a certified tool outcome. -/
+def encodeCertifiedResult
+    {Model Capability : Type u}
+    {catalog : ToolCatalog Model Capability}
+    (wire : ToolWire catalog)
+    (tool : catalog.Tool)
+    (invocation : ToolSpec.Invocation (catalog.spec tool))
+    (outcome : ToolSpec.CertifiedOutcome (catalog.spec tool) invocation) : Lean.Json :=
+  (wire.resultCodec tool invocation.input).encode outcome.result
+
+/-- Encoding a certified outcome's result and decoding it recovers that exact result. -/
+theorem decode_encoded_certified_result
+    {Model Capability : Type u}
+    {catalog : ToolCatalog Model Capability}
+    (wire : ToolWire catalog)
+    (tool : catalog.Tool)
+    (invocation : ToolSpec.Invocation (catalog.spec tool))
+    (outcome : ToolSpec.CertifiedOutcome (catalog.spec tool) invocation) :
+    (wire.resultCodec tool invocation.input).decode
+        (wire.encodeCertifiedResult tool invocation outcome) = .ok outcome.result :=
+  wire.decode_encoded_result tool invocation.input outcome.result
 
 /-- Catalog-generated input JSON always decodes to the original typed input. -/
 theorem decode_encoded_input
@@ -103,7 +230,7 @@ def validate
           match (wire.inputCodec tool).decode raw.arguments with
           | .error error => .error (.invalidArguments raw.name error)
           | .ok input =>
-              match wire.admit tool input before granted grantedDecidable with
+              match wire.certifyAdmission tool input before granted grantedDecidable with
               | .error reason => .error (.contractRejected raw.name reason)
               | .ok evidence =>
                   let invocation : ToolSpec.Invocation (catalog.spec tool) := {
