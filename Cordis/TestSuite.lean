@@ -155,6 +155,10 @@ private def testStream : IO Unit := do
   | .error error => fail s!"expected stream budgetExhausted, got {reprStr error}"
   | .ok state => fail s!"over-budget stream chunk reached {reprStr state}"
   let finished : Stream.RuntimeState := .finished { text := "done" }
+  match Stream.applyRaw finished (.text "late") with
+  | .error (.alreadyFinished (.text "late")) => pure ()
+  | .error error => fail s!"expected late stream text to be rejected, got {reprStr error}"
+  | .ok state => fail s!"post-finish stream text reached {reprStr state}"
   match Stream.applyRaw finished .finish with
   | .error (.alreadyFinished .finish) => pure ()
   | .error error => fail s!"expected stream alreadyFinished, got {reprStr error}"
@@ -253,6 +257,25 @@ private def testProtocolFailures : IO Unit := do
   | .error error => fail s!"expected wrongPhase, got {reprStr error}"
   | .ok state => fail s!"wrong-phase event was accepted into {reprStr state}"
 
+  let coordinateId : CallId := ⟨12⟩
+  match applyRaw (.step 0 1 []) (.toolCall 9 1 coordinateId) with
+  | .error (.turnMismatch expected actual) =>
+      assertEqual "tool call reports its mismatched turn" (expected, actual) (0, 9)
+  | .error error => fail s!"expected tool-call turnMismatch, got {reprStr error}"
+  | .ok state => fail s!"wrong-turn tool call was accepted into {reprStr state}"
+
+  match applyRaw (.step 0 1 []) (.toolCall 0 9 coordinateId) with
+  | .error (.stepMismatch expected actual) =>
+      assertEqual "tool call reports its mismatched step" (expected, actual) (1, 9)
+  | .error error => fail s!"expected tool-call stepMismatch, got {reprStr error}"
+  | .ok state => fail s!"wrong-step tool call was accepted into {reprStr state}"
+
+  match applyRaw (.turn 0 2) (.turnEnd 0 1) with
+  | .error (.stepMismatch expected actual) =>
+      assertEqual "turn end reports its mismatched next step" (expected, actual) (2, 1)
+  | .error error => fail s!"expected turn-end stepMismatch, got {reprStr error}"
+  | .ok state => fail s!"wrong-coordinate turn end was accepted into {reprStr state}"
+
   let orphan : CallId := ⟨9⟩
   match applyRaw (.step 0 0 []) (.toolResult 0 0 orphan) with
   | .error (.orphanResult actual) =>
@@ -305,6 +328,75 @@ private def testPolicy : IO Unit := do
       | none => pure ()
       | some twice =>
           fail s!"consumed policy lease was reused as {reprStr twice.available}"
+
+private def testSubjectPolicyRejection : IO Unit := do
+  let id : CallId := ⟨8⟩
+  let issued ←
+    match LeasePool.empty.issue id with
+    | none => fail "fresh exact-subject policy lease was not issued"
+    | some issued => pure issued
+  let decided : SubjectPolicyTransition
+      (Completed := fun _ : Nat ↦ Unit)
+      (Rejected := fun _ : Nat ↦ String)
+      (.proposed id 42 issued)
+      (.decided id 42 .deny issued) :=
+    .decide id 42 issued .deny
+  let rejected : SubjectPolicyTransition
+      (Completed := fun _ : Nat ↦ Unit)
+      (Rejected := fun _ : Nat ↦ String)
+      (.decided id 42 .deny issued)
+      (.settled id 42 issued (.rejected "denied")) :=
+    .reject
+      (Completed := fun _ : Nat ↦ Unit)
+      (Rejected := fun _ : Nat ↦ String)
+      (id := id)
+      (subject := 42)
+      (leases := issued)
+      (decision := .deny)
+      (by decide)
+      "denied"
+  let trace : SubjectPolicyTrace
+      (Completed := fun _ : Nat ↦ Unit)
+      (Rejected := fun _ : Nat ↦ String)
+      (.proposed id 42 issued)
+      (.settled id 42 issued (.rejected "denied")) :=
+    .cons decided <| .cons rejected (.nil _)
+  assertEqual "denied exact-subject trace never dispatches" trace.dispatchCount 0
+
+private def testHarnessPhaseFailures : IO Unit := do
+  let initial := Harness.RunnerState.initial 0
+  match initial.beginStep with
+  | .error (.notInTurn (.ready 0)) => pure ()
+  | .error error => fail s!"expected beginStep notInTurn, got {reprStr error}"
+  | .ok state => fail s!"beginStep accepted ready state as {reprStr state.protocol}"
+  match initial.dispatch rawRead with
+  | .error (.notInStep (.ready 0)) => pure ()
+  | .error error => fail s!"expected dispatch notInStep, got {reprStr error}"
+  | .ok state => fail s!"dispatch accepted ready state as {reprStr state.protocol}"
+  match initial.finishStep with
+  | .error (.notInStep (.ready 0)) => pure ()
+  | .error error => fail s!"expected finishStep notInStep, got {reprStr error}"
+  | .ok state => fail s!"finishStep accepted ready state as {reprStr state.protocol}"
+  let inTurn ←
+    match initial.beginTurn with
+    | .error error => fail s!"valid beginTurn failed with {reprStr error}"
+    | .ok state => pure state
+  match inTurn.beginTurn with
+  | .error (.notReady (.turn 0 0)) => pure ()
+  | .error error => fail s!"expected repeated beginTurn notReady, got {reprStr error}"
+  | .ok state => fail s!"repeated beginTurn reached {reprStr state.protocol}"
+  match inTurn.dispatch rawRead with
+  | .error (.notInStep (.turn 0 0)) => pure ()
+  | .error error => fail s!"expected in-turn dispatch notInStep, got {reprStr error}"
+  | .ok state => fail s!"in-turn dispatch reached {reprStr state.protocol}"
+  let inStep ←
+    match inTurn.beginStep with
+    | .error error => fail s!"valid beginStep failed with {reprStr error}"
+    | .ok state => pure state
+  match inStep.finishTurn with
+  | .error (.notInTurn (.step 0 0 [])) => pure ()
+  | .error error => fail s!"expected in-step finishTurn notInTurn, got {reprStr error}"
+  | .ok state => fail s!"in-step finishTurn reached {reprStr state.protocol}"
 
 private def testCounterAdmission : IO Unit := do
   let admittedRaw := rawIncrement { amount := 3, limit := 10 }
@@ -437,6 +529,8 @@ def run : IO Unit := do
   testLifecycle
   testProtocolFailures
   testPolicy
+  testSubjectPolicyRejection
+  testHarnessPhaseFailures
   testCounterAdmission
   testHarnessDemo
   IO.println "CORDIS adversarial and integration tests passed"
