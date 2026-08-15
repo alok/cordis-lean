@@ -35,7 +35,14 @@ axioms and proof placeholders.
 #print axioms Cordis.LeasePool.cannot_consume_twice
 #print axioms Cordis.PolicyTransition.denied_cannot_dispatch
 #print axioms Cordis.PolicyTransition.dispatched_lease_absent
+#print axioms Cordis.SubjectPolicyTransition.dispatched_lease_absent
+#print axioms Cordis.SubjectPolicyTrace.dispatchCount_le_one
+#print axioms Cordis.SubjectPolicyTrace.dispatchCount_to_completed
+#print axioms Cordis.SubjectPolicyTrace.cannot_dispatch_twice
+#print axioms Cordis.SubjectPolicyTrace.denied_dispatchCount_eq_zero
 #print axioms Cordis.ToolWire.validate_declared
+#print axioms Cordis.ToolWire.decode_encoded_result
+#print axioms Cordis.ToolWire.decode_encoded_certified_result
 #print axioms Cordis.Event.noOrphanResult
 #print axioms Cordis.applyRaw_eraseEvent
 #print axioms Cordis.ValidatedEvent.applies
@@ -47,4 +54,6 @@ axioms and proof placeholders.
 #print axioms Cordis.Lifecycle.Transition.unload_recovers
 #print axioms Cordis.Lifecycle.Transition.unload_rejects_relied
 #print axioms Cordis.Harness.replayRaw_append
+#print axioms Cordis.Harness.RecordChain.length_eq_nextCall
+#print axioms Cordis.Harness.RecordChain.ids_eq_range
 #print axioms Cordis.Harness.certifiedTwoCallTrace_replays

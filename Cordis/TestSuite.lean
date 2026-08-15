@@ -337,6 +337,7 @@ private def testHarnessDemo : IO Unit := do
     | .ok state => pure state
   assertEqual "Harness.demo final model" state.model 5
   assertEqual "Harness.demo final protocol" state.protocol (.ready 1)
+  assertEqual "Harness.demo leaves no live dispatch lease" state.leases.available []
   assertEqual "Harness.demo settled record count" state.records.length 4
   assertEqual "Harness.demo assigns monotonically increasing call ids"
     (state.records.map fun record ↦ record.id.value) [0, 1, 2, 3]
@@ -347,9 +348,42 @@ private def testHarnessDemo : IO Unit := do
       assertEqual "second read succeeds" secondRead.outcome .succeeded
       assertEqual "unknown tool is settled as a rejection" unknown.outcome
         (.rejected (.unknownTool rawUnknown.name))
+      assertEqual "admitted calls each retain exactly one policy dispatch"
+        [first.policyDispatchCount, incremented.policyDispatchCount,
+          secondRead.policyDispatchCount] [1, 1, 1]
+      assertEqual "rejected call retains no policy dispatch" unknown.policyDispatchCount 0
       assertEqual "unknown rejection leaves the model unchanged" (unknown.before, unknown.after)
         (5, 5)
-  | records => fail s!"expected four ordered records, got {reprStr records}"
+      let readResultCodec : Codec (Except String Nat) := wire.resultCodec .read ()
+      match first.encodedResult with
+      | none => fail "first read lost its request-indexed encoded result"
+      | some encoded =>
+          match readResultCodec.decode encoded with
+          | .ok (.ok value) => assertEqual "first read encoded result" value 2
+          | .ok (.error message) => fail s!"first read encoded tool failure: {message}"
+          | .error error => fail s!"first read encoded result failed to decode: {reprStr error}"
+      let incrementInput : Increment := { amount := 3, limit := 10 }
+      let incrementResultCodec : Codec (Except String Nat) :=
+        wire.resultCodec .increment incrementInput
+      match incremented.encodedResult with
+      | none => fail "increment lost its request-indexed encoded result"
+      | some encoded =>
+          match incrementResultCodec.decode encoded with
+          | .ok (.ok value) => assertEqual "increment encoded result" value 5
+          | .ok (.error message) => fail s!"increment encoded tool failure: {message}"
+          | .error error => fail s!"increment encoded result failed to decode: {reprStr error}"
+      match secondRead.encodedResult with
+      | none => fail "second read lost its request-indexed encoded result"
+      | some encoded =>
+          match readResultCodec.decode encoded with
+          | .ok (.ok value) => assertEqual "second read encoded result" value 5
+          | .ok (.error message) => fail s!"second read encoded tool failure: {message}"
+          | .error error =>
+              fail s!"second read encoded result failed to decode: {reprStr error}"
+      match unknown.encodedResult with
+      | none => pure ()
+      | some _ => fail "rejected call fabricated an encoded provider result"
+  | records => fail s!"expected four ordered records, got {records.length}"
   match replayRaw (.ready 0) state.log with
   | .error error => fail s!"Harness.demo log replay failed with {reprStr error}"
   | .ok replayed =>
@@ -361,6 +395,26 @@ private def testHarnessDemo : IO Unit := do
       assertRuntimeStateEqual
         "Harness.demo raw log reconstructs an intrinsic typed trace"
         (eraseState validated.finish) state.protocol
+
+  let multiTurn ←
+    match Harness.RunnerState.runMultiTurn 1 [
+      [[rawRead], [rawIncrement { amount := 2, limit := 10 }]],
+      [[rawRead]]
+    ] with
+    | .error error => fail s!"multi-turn harness failed with {reprStr error}"
+    | .ok state => pure state
+  assertEqual "multi-turn harness final model" multiTurn.model 3
+  assertEqual "multi-turn harness advances exact turn and step counters"
+    multiTurn.protocol (.ready 2)
+  assertEqual "multi-turn harness assigns session-wide call ids"
+    (multiTurn.records.map fun record ↦ record.id.value) [0, 1, 2]
+  assertEqual "multi-turn harness routes every admitted call through policy"
+    (multiTurn.records.map Harness.CallRecord.policyDispatchCount) [1, 1, 1]
+  match validateRuntimeTrace (.ready 0) multiTurn.log with
+  | .error error => fail s!"multi-turn typed reconstruction failed with {reprStr error}"
+  | .ok validated =>
+      assertRuntimeStateEqual "multi-turn log reconstructs its terminal protocol"
+        (eraseState validated.finish) multiTurn.protocol
 
 /-- Run all executable adversarial and integration tests. -/
 def run : IO Unit := do

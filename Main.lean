@@ -11,4 +11,6 @@ def main : IO Unit := do
       IO.println s!"final protocol state: {repr state.protocol}"
       IO.println s!"replay-certified events: {state.log.length}"
       for record in state.records do
-        IO.println s!"call {record.id.value} {record.name}: {repr record.outcome}"
+        let payload := if record.encodedResult.isSome then "encoded-result" else "no-result"
+        IO.println (s!"call {record.id.value} {record.name}: {repr record.outcome}; " ++
+          s!"policy-dispatches={record.policyDispatchCount}; {payload}")
