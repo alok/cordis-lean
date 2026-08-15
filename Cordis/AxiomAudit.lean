@@ -5,6 +5,7 @@ import Cordis.Harness
 import Cordis.Lifecycle
 import Cordis.Policy
 import Cordis.Registry
+import Cordis.Stream
 
 /-!
 # Headline theorem axiom audit
@@ -40,6 +41,9 @@ axioms and proof placeholders.
 #print axioms Cordis.ValidatedEvent.applies
 #print axioms Cordis.replayRaw_eraseTrace
 #print axioms Cordis.ValidatedTrace.replays
+#print axioms Cordis.Stream.noChunkAfterFinished
+#print axioms Cordis.Stream.replayRaw_eraseTrace
+#print axioms Cordis.Stream.replay_completeTrace
 #print axioms Cordis.Lifecycle.Transition.unload_recovers
 #print axioms Cordis.Lifecycle.Transition.unload_rejects_relied
 #print axioms Cordis.Harness.replayRaw_append

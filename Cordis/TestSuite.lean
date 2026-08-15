@@ -8,6 +8,7 @@ import Cordis.Lifecycle
 import Cordis.Policy
 import Cordis.Protocol
 import Cordis.Registry
+import Cordis.Stream
 
 /-!
 # Executable adversarial and integration tests
@@ -138,6 +139,26 @@ private def testCodecs : IO Unit := do
   | .error error => assertEqual "nested codec reports the complete path" error expected
   | .ok value =>
       fail s!"nested codec accepted malformed JSON as {reprStr value}"
+
+private def testStream : IO Unit := do
+  let chunks := ["proof-", "carrying", " stream"]
+  assertEqual "stream assembly is deterministic"
+    (Stream.assemble chunks) "proof-carrying stream"
+  match Stream.replayRaw (Stream.RuntimeState.initial 3)
+      [.text "proof-", .text "carrying", .text " stream", .finish] with
+  | .error error => fail s!"valid assistant stream failed with {reprStr error}"
+  | .ok state =>
+      assertEqual "assistant stream reconstructs its exact terminal text" state
+        (.finished { text := "proof-carrying stream" })
+  match Stream.applyRaw (.open 0 "full") (.text "overflow") with
+  | .error .budgetExhausted => pure ()
+  | .error error => fail s!"expected stream budgetExhausted, got {reprStr error}"
+  | .ok state => fail s!"over-budget stream chunk reached {reprStr state}"
+  let finished : Stream.RuntimeState := .finished { text := "done" }
+  match Stream.applyRaw finished .finish with
+  | .error (.alreadyFinished .finish) => pure ()
+  | .error error => fail s!"expected stream alreadyFinished, got {reprStr error}"
+  | .ok state => fail s!"double stream finish reached {reprStr state}"
 
 private def providerIdentityAt
     (providers : Registry catalog.signature)
@@ -346,6 +367,7 @@ def run : IO Unit := do
   testEffects
   testCertifiedBatch
   testCodecs
+  testStream
   testRegistry
   testLifecycle
   testProtocolFailures

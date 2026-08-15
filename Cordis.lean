@@ -9,6 +9,7 @@ import Cordis.Lifecycle
 import Cordis.Policy
 import Cordis.Protocol
 import Cordis.Registry
+import Cordis.Stream
 import Cordis.Tool
 import Cordis.ToolWire
 import Cordis.Version
