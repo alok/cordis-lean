@@ -3,9 +3,9 @@
 <!-- markdownlint-disable MD013 MD024 MD029 -->
 
 This guide teaches the implementation of CORDIS Lean `0.1.0` from first
-principles. It is written for a developer who wants to rebuild the repository
-manually, understand why each index exists, and know exactly where the proof
-boundary stops.
+principles. It is written for a developer who wants to rebuild the kernel and
+its release glue manually, understand why each index exists, and know exactly
+where the proof boundary stops.
 
 The implementation is a finite, pure Lean reference kernel. It is inspired by
 the CORDIS paper, the standalone CORDIS implementation, and the DeepSeek
@@ -131,7 +131,8 @@ forgotten binder should be an elaboration error, not a silently introduced
 type variable. This matters especially in declarations with several state
 indices.
 
-Use five feedback loops from the first commit onward:
+Create the corresponding entry files as described below, then keep these five
+feedback loops green for the rest of the reconstruction:
 
 ```bash
 lake build
@@ -148,6 +149,75 @@ fixtures are intentionally kept separate from the native test executable.
 The last command is deliberately `lake lean`, not a bare `lean` invocation. It
 elaborates the audit with the package's Lake configuration and compiled module
 context.
+
+### Reconstruct the root and release glue
+
+The root files are small, but omitting them makes an otherwise correct kernel
+impossible to build, run, or audit from a clean checkout. Create them in the
+first milestone and evolve them as their imported modules become available.
+
+Start [`../Cordis/Version.lean`](../Cordis/Version.lean) as data rather than a
+Git or filesystem lookup:
+
+```lean
+namespace Cordis
+
+def version : String := "0.1.0"
+
+end Cordis
+```
+
+Initially, [`../Cordis.lean`](../Cordis.lean) can import only `Cordis.Version`.
+Append each completed public module until the final umbrella imports `Api`,
+`Batch`, `Codec`, `Effect`, both counter example modules, `Harness`,
+`Lifecycle`, `Policy`, `Protocol`, `Registry`, `Stream`, `Tool`, `ToolWire`,
+and `Version`. Keep executable tests, static rejection fixtures, and the axiom
+audit out of this public umbrella because importing the library should not run
+or expose release-only checks.
+
+Create minimal executable roots before their real dependencies exist:
+
+```lean
+-- Main.lean, during scaffolding
+import Cordis.Version
+
+def main : IO Unit :=
+  IO.println s!"CORDIS Lean {Cordis.version} scaffold"
+
+-- Tests.lean, during scaffolding
+def main : IO Unit :=
+  pure ()
+```
+
+Replace `Main.main` with the `Harness.demo` reporting loop after the runner is
+implemented. Replace `Tests.main` with `Cordis.TestSuite.run` when the executable
+suite exists. The final forms are
+[`../Main.lean`](../Main.lean) and [`../Tests.lean`](../Tests.lean).
+
+The separate static target also needs a root from the first build. A minimal
+[`../Cordis/NegativeTests.lean`](../Cordis/NegativeTests.lean) may begin as an
+empty namespace; add anonymous `#guard_msgs` examples only after the APIs they
+attack exist. Likewise,
+[`../Cordis/AxiomAudit.lean`](../Cordis/AxiomAudit.lean) may begin as an empty
+module and should acquire one `#print axioms` line for each selected headline
+theorem as that theorem is delivered. An empty audit is acceptable only during
+scaffolding: the final CI parser deliberately fails if it sees no audited
+declaration.
+
+Two non-Lean files complete the release feedback loop:
+
+- [`.github/workflows/ci.yml`](../.github/workflows/ci.yml) pins checkout and
+  Lean actions by commit, verifies the exact toolchain, runs strict and ordinary
+  builds, static and runtime tests, the demo, and the selected axiom audit, and
+  disables mutable caches;
+- [`../scripts/check_lean_hygiene.py`](../scripts/check_lean_hygiene.py) blanks
+  nested comments, strings, raw strings, character literals, and quoted
+  identifiers before scanning actual Lean tokens, self-tests that lexer, and
+  separately parses the axiom report against the three-principle allow-list.
+
+Implement those files after the named commands exist, then run each workflow
+step locally. The checker is trusted release automation, not a Lean theorem;
+its self-tests and the kernel audit complement rather than certify one another.
 
 ### A claim vocabulary for the reconstruction
 
@@ -498,6 +568,8 @@ Implement [`../Cordis/Tool.lean`](../Cordis/Tool.lean) next.
 `ToolSpec Model Capability` declares:
 
 ```lean
+name : String
+description : String
 Input : Type
 Output : Input → Type
 Failure : Input → Type
@@ -1339,10 +1411,13 @@ parses the axiom-audit output and fails if a dependency outside `propext`,
 ### 15.4 Verify from a clean materialization
 
 Cached build artifacts can hide missing imports or accidental local
-dependencies. After local tests pass, verify a clean archive:
+dependencies. After local tests pass, commit the exact candidate revision—the
+archive command below reads `HEAD`, not unstaged or staged changes—verify the
+working tree is clean, and then test that clean archive:
 
 ```bash
 tmp_dir="$(mktemp -d)"
+git status --short
 git archive HEAD | tar -x -C "$tmp_dir"
 cd "$tmp_dir"
 lake build
@@ -1366,7 +1441,9 @@ obligations depend on already understood code.
 - Turn off `autoImplicit`.
 - Create the public library, static-rejection library, demo, and runtime-test
   targets.
-- Add an umbrella [`../Cordis.lean`](../Cordis.lean).
+- Add `Cordis/Version.lean`, the initial public umbrella, minimal `Main.lean`
+  and `Tests.lean`, and placeholder `Cordis/NegativeTests.lean` and
+  `Cordis/AxiomAudit.lean` roots.
 - Run `lake build` before adding semantics.
 
 Exit condition: the empty package builds from a clean checkout.
@@ -1672,7 +1749,7 @@ lake lean Cordis/AxiomAudit.lean
 Run source and diff hygiene:
 
 ```bash
-git diff --check
+git diff HEAD --check
 python3 scripts/check_lean_hygiene.py --self-test .
 ```
 
