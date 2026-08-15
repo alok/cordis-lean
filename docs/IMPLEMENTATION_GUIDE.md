@@ -1102,8 +1102,10 @@ The public history theorems should be easy after the constructor is right:
 - `ids_eq_range` proves IDs are exactly `0, ..., nextCall - 1` in order;
 - `boundaries_eq_records` proves the boundary index equals the projection of
   the record list; and
-- `leases_threaded` proves every record consumes the preceding lease endpoint,
-  from the empty pool to the final pool.
+- `leases_threaded` proves every record starts from the preceding lease
+  endpoint and passes its `leasesAfter` endpoint to the next record, from the
+  empty pool to the final pool. It does not by itself prove how either endpoint
+  was computed or that every record consumed a lease.
 
 If one of these proofs becomes deeply complicated, reconsider the indices or
 constructor. The data type should do most of the work.
@@ -1222,12 +1224,17 @@ First, construct a replay-valid log with call/result ID `99` while retaining a
 record chain containing ID `0`. The `history` field should fail because
 `callBoundaries log` cannot unify with the chain's boundary index.
 
-Second, take a valid nonempty history whose final lease pool contains some ID
-and overwrite only `RunnerState.leases` with `LeasePool.empty`. The `history`
-field should fail because its fifth index no longer matches.
+Second, quantify over an arbitrary `RunnerState` and try to update only its
+`leases` field to `LeasePool.empty` while retaining its dependent `history`
+field. The generic update should fail because the history's fifth index is the
+original `state.leases`, which is not definitionally equal to `.empty`. This
+fixture does not construct a concrete nonempty runner state; the delivered
+runner issues and consumes each local lease before settlement, so its recorded
+demo endpoints remain empty.
 
-These are compile-failure experiments, not runtime tests. They demonstrate
-that the invalid combinations are excluded by construction.
+These are finite compile-failure experiments, not runtime tests or universal
+proofs. They confirm that those particular forged constructions are rejected;
+the general endpoint and boundary claims come from the `RecordChain` theorems.
 
 ## 15. Testing the implementation honestly
 

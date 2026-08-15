@@ -1,5 +1,7 @@
 # CORDIS Lean
 
+[![CI](https://github.com/alok/cordis-lean/actions/workflows/ci.yml/badge.svg?branch=feat%2Falok-824-proof-carrying-harness)](https://github.com/alok/cordis-lean/actions/workflows/ci.yml)
+
 <!-- markdownlint-disable MD013 -->
 
 CORDIS Lean `0.1.0` is a delivered, executable finite reference kernel for
@@ -34,6 +36,10 @@ This is a small Lean kernel inspired by CORDIS and the DeepSeek Harness. It is
 not a full port of the CORDIS paper, an asynchronous scheduler, a live model
 client, or a drop-in replacement for the TypeScript harness.
 
+See the [manual implementation guide](docs/IMPLEMENTATION_GUIDE.md) to rebuild
+the kernel in dependency order, understand why each index exists, and reproduce
+the positive, adversarial, static-rejection, and axiom checks.
+
 ## Prerequisite
 
 The exact required toolchain is recorded in `lean-toolchain`:
@@ -46,13 +52,16 @@ Install [elan](https://lean-lang.org/lean4/doc/quickstart.html), Lean's official
 toolchain manager. Running `lake` in this checkout selects that exact Lean
 release; no additional Lake dependencies are declared.
 
-## Four verified commands
+## Five verified commands
 
 Run these from the repository root:
 
 ```bash
-# Build the library and both default executables.
+# Build the library, static rejection target, and both default executables.
 lake build
+
+# Compile the expected-failure API attacks directly.
+lake lean Cordis/NegativeTests.lean
 
 # Run the executable adversarial and integration suite.
 lake exe cordis_tests
@@ -63,6 +72,14 @@ lake exe cordis_demo
 # Elaborate the axiom audit in Lake's module context and print every dependency.
 lake lean Cordis/AxiomAudit.lean
 ```
+
+The static rejection module uses guarded expected compiler errors. It is a
+separate default library target and is intentionally not imported into the
+native test executable. GitHub Actions runs these five commands plus a
+warnings-as-errors build, an exact toolchain check, a self-testing lexical
+hygiene scan, and an allow-list check over the axiom report; see
+[the workflow](.github/workflows/ci.yml) and
+[the checker](scripts/check_lean_hygiene.py).
 
 The test command exits successfully after printing:
 
@@ -134,12 +151,14 @@ placeholders.
 | `Cordis.Examples.CounterWire` | Counter name resolution, codecs, admission proofs, capabilities, and raw examples.                                                                                                                |
 | `Cordis.Harness`              | Counter-specific deterministic runner with exact-subject policy evidence, encoded results, multi-step/multi-turn execution, replay proofs, and a joint model/lease/ID/log-boundary `RecordChain`. |
 | `Cordis.TestSuite`            | Executable algebraic, boundary, adversarial, and end-to-end checks.                                                                                                                               |
-| `Cordis.AxiomAudit`           | `#print axioms` audit for every headline guarantee.                                                                                                                                               |
+| `Cordis.NegativeTests`        | Guarded compile-failure checks for illegal dependent replies, protocol/policy/lifecycle edges, and forged runner histories.                                                                       |
+| `Cordis.AxiomAudit`           | `#print axioms` audit for 53 selected headline theorem declarations.                                                                                                                              |
 | `Cordis.Version`              | Kernel version exposed to the demo.                                                                                                                                                               |
 
 `Cordis.lean` is the public library umbrella. `Main.lean` builds
-`cordis_demo`, and `Tests.lean` builds `cordis_tests`. The test suite and axiom
-audit remain separate entry points so importing the library does not run them.
+`cordis_demo`, and `Tests.lean` builds `cordis_tests`. The executable suite,
+static rejection suite, and axiom audit remain separate entry points so
+importing the public library does not run them.
 
 ## Sources and pins
 
@@ -176,10 +195,11 @@ The trusted executable boundary is deliberately small and visible:
 There is no live model or tool API adapter, no network call in the demo, and no
 credential-loading path. Do not add API keys or secrets to this repository.
 
-## Local repository status
+## Publication status
 
-At this documentation snapshot, `0.1.0` is implemented on the local branch
-`feat/alok-824-proof-carrying-harness`. No Git remote is configured, so this
-README does not imply a pushed branch, published tag, package, or release. The
-checkout is under active local integration; the four commands above are the
-authoritative reproducibility check for the exact working tree.
+The source is public at [alok/cordis-lean](https://github.com/alok/cordis-lean).
+This review snapshot is published on
+[`feat/alok-824-proof-carrying-harness`](https://github.com/alok/cordis-lean/tree/feat/alok-824-proof-carrying-harness);
+`main` remains the bootstrap baseline until review is complete. No version tag,
+package, or GitHub release has been published. The five commands above and the
+GitHub Actions run are the reproducibility checks for each reviewed revision.

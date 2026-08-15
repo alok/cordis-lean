@@ -338,13 +338,16 @@ the empty-to-final lease-threading certificate.
 | `Cordis.Examples.CounterWire` | Counter JSON codecs, name resolution, admission proofs, capability decisions, and raw sample calls.                                                                                               |
 | `Cordis.Harness`              | Deterministic counter runner, exact-subject `CallEvidence`, encoded results, replay-certified finite turns/steps, private atomic settlement, and joint model/lease/ID/log-boundary `RecordChain`. |
 | `Cordis.TestSuite`            | Executable effect, batch, codec, stream, registry, lifecycle, protocol, policy, admission, encoded-result, replay, joint-history, and harness checks.                                             |
+| `Cordis.NegativeTests`        | Guarded expected compiler errors for dependent reply mismatch, forbidden transitions, and forged joint-history indices.                                                                           |
 | `Cordis.AxiomAudit`           | Explicit `#print axioms` checks for headline theorems.                                                                                                                                            |
 | `Cordis.Version`              | Delivered version string.                                                                                                                                                                         |
 
 The public library umbrella is `Cordis.lean`. `Main.lean` is the
 `cordis_demo` entry point, and `Tests.lean` is the `cordis_tests` entry point.
-`Cordis.TestSuite` and `Cordis.AxiomAudit` intentionally remain separate from
-the umbrella's runtime behavior.
+`Cordis.TestSuite`, `Cordis.NegativeTests`, and `Cordis.AxiomAudit`
+intentionally remain separate from the umbrella's runtime behavior. The static
+rejection module is nevertheless a default Lake library target, so `lake build`
+must elaborate it.
 
 ## 5. Finite acceptance matrix
 
@@ -372,6 +375,7 @@ the umbrella's runtime behavior.
 | Atomic call/result and record settlement                               | Private settlement transition extends protocol, log, record, model, leases, history, and replay proof together; public generic `emit` removed | Atomic only as one pure immutable `Except` result, not a durable transaction or global exactly-once guarantee. |
 | Partial lifecycle recovery and withdrawal guard                        | `Lifecycle.Transition.unload_recovers`, `unload_rejects_relied`, `active_successor_keeps_view`                                                | Finite synchronous generic lifecycle.                                                                          |
 | End-to-end local reference execution                                   | `Harness.demo` and `Cordis.TestSuite.run`                                                                                                     | Certified counter tools only; no live API.                                                                     |
+| Static rejection of selected malformed constructions                   | `Cordis.NegativeTests` guarded expected compiler errors                                                                                       | Concrete API attacks; not a universal metatheorem or complete adversarial search.                              |
 
 The original target language used words such as “parallel scheduling” and
 “complete harness.” For `v0.1.0`, those claims are narrowed to the rows above:
@@ -381,10 +385,11 @@ scenario.
 
 ## 6. Reproducibility gates
 
-The delivered checkout has four verified commands:
+The delivered checkout has five verified commands:
 
 ```bash
 lake build
+lake lean Cordis/NegativeTests.lean
 lake exe cordis_tests
 lake exe cordis_demo
 lake lean Cordis/AxiomAudit.lean
@@ -392,8 +397,11 @@ lake lean Cordis/AxiomAudit.lean
 
 Expected behavior:
 
-- `lake build` builds the `Cordis` library and the `cordis_demo` and
-  `cordis_tests` default executables.
+- `lake build` builds the public library, the `CordisStaticTests` rejection
+  target, and the `cordis_demo` and `cordis_tests` default executables.
+- `Cordis/NegativeTests.lean` compiles only when the listed malformed
+  constructions continue to produce their guarded expected errors. It is not
+  imported into the native test executable.
 - `cordis_tests` exits successfully and prints
   `CORDIS adversarial and integration tests passed`.
 - `cordis_demo` reports final counter `5`, protocol `ready 1`, 12 replayed
@@ -406,9 +414,13 @@ Expected behavior:
   `Classical.choice`, and `Quot.sound` where dependencies occur; several
   theorems are axiom-free.
 
-Repository hygiene additionally requires no `sorry`, `admit`, project-defined
-`axiom`, `unsafe`, or `partial` declaration in the project Lean sources, no
-credential, and no committed local absolute path.
+The pinned GitHub Actions workflow also runs `lake --wfail build`, verifies the
+resolved Lean version, executes the self-testing lexical source checker, and
+parses the axiom report. Repository hygiene additionally requires no actual
+`sorry`, `admit`, project-defined `axiom` or bodyless `constant`, `unsafe`,
+`partial`, external runtime override, credential, or committed local absolute
+path. These automation checks are validation gates, not additional kernel
+theorems.
 
 ## 7. Trust boundary
 
