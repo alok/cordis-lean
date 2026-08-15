@@ -216,8 +216,10 @@ Two non-Lean files complete the release feedback loop:
   separately parses the axiom report against the three-principle allow-list.
 
 Implement those files after the named commands exist, then run each workflow
-step locally. The checker is trusted release automation, not a Lean theorem;
-its self-tests and the kernel audit complement rather than certify one another.
+shell gate locally. The checkout and toolchain-installation `uses:` steps remain
+GitHub-hosted actions. The checker is trusted release automation, not a Lean
+theorem; its self-tests and the kernel audit complement rather than certify one
+another.
 
 ### A claim vocabulary for the reconstruction
 
@@ -1417,14 +1419,16 @@ working tree is clean, and then test that clean archive:
 
 ```bash
 tmp_dir="$(mktemp -d)"
-git status --short
+test -z "$(git status --porcelain)"
 git archive HEAD | tar -x -C "$tmp_dir"
-cd "$tmp_dir"
-lake build
-lake lean Cordis/NegativeTests.lean
-lake exe cordis_tests
-lake exe cordis_demo
-lake lean Cordis/AxiomAudit.lean
+(
+  cd "$tmp_dir"
+  lake build
+  lake lean Cordis/NegativeTests.lean
+  lake exe cordis_tests
+  lake exe cordis_demo
+  lake lean Cordis/AxiomAudit.lean
+)
 ```
 
 Use an explicit temporary directory as above. Do not point cleanup commands at
@@ -1773,7 +1777,9 @@ Finally, inspect repository state before committing or publishing:
 
 ```bash
 git status --short --branch
-jj status
+if test -d .jj; then
+  jj status
+fi
 ```
 
 The expected implementation result is not merely “the demo prints `5`.” It is
