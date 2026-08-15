@@ -2,6 +2,7 @@ import Cordis.Codec
 import Cordis.Effect
 import Cordis.Harness
 import Cordis.Lifecycle
+import Cordis.Policy
 import Cordis.Registry
 
 /-!
@@ -23,6 +24,11 @@ axioms and proof placeholders.
 #print axioms Cordis.Registry.setEffect_commute
 #print axioms Cordis.View.provider_present
 #print axioms Cordis.Decision.denied_never_allows
+#print axioms Cordis.LeasePool.consumed_absent
+#print axioms Cordis.LeasePool.consume_after_consumed
+#print axioms Cordis.LeasePool.cannot_consume_twice
+#print axioms Cordis.PolicyTransition.denied_cannot_dispatch
+#print axioms Cordis.PolicyTransition.dispatched_lease_absent
 #print axioms Cordis.ToolWire.validate_declared
 #print axioms Cordis.Event.noOrphanResult
 #print axioms Cordis.applyRaw_eraseEvent

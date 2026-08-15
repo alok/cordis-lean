@@ -4,6 +4,7 @@ import Cordis.Examples.Counter
 import Cordis.Examples.CounterWire
 import Cordis.Harness
 import Cordis.Lifecycle
+import Cordis.Policy
 import Cordis.Protocol
 import Cordis.Registry
 
@@ -158,6 +159,38 @@ private def testProtocolFailures : IO Unit := do
   | .error error => fail s!"expected pendingCallsRemain, got {reprStr error}"
   | .ok state => fail s!"step with pending calls was closed into {reprStr state}"
 
+private def testPolicy : IO Unit := do
+  let id : CallId := ⟨7⟩
+  let issued ←
+    match LeasePool.empty.issue id with
+    | none => fail "fresh policy lease was not issued"
+    | some issued => pure issued
+  assertEqual "policy lease is issued exactly once" issued.available [id]
+  match issued.issue id with
+  | some duplicate =>
+      fail s!"duplicate live policy lease was issued as {reprStr duplicate.available}"
+  | none => pure ()
+  match consumed : issued.consume id with
+  | none => fail "issued policy lease could not be consumed"
+  | some remaining =>
+      let allowed :
+          PolicyTransition (.proposed id issued) (.decided id .allow issued) :=
+        .decide id issued .allow
+      let dispatched :
+          PolicyTransition (.decided id .allow issued) (.dispatched id remaining) :=
+        .dispatch consumed
+      let settled :
+          PolicyTransition (.dispatched id remaining) (.settled id remaining) :=
+        .settle id remaining
+      let _ := allowed
+      let _ := dispatched
+      let _ := settled
+      assertEqual "dispatch consumes its exact lease" remaining.available []
+      match remaining.consume id with
+      | none => pure ()
+      | some twice =>
+          fail s!"consumed policy lease was reused as {reprStr twice.available}"
+
 private def testCounterAdmission : IO Unit := do
   let admittedRaw := rawIncrement { amount := 3, limit := 10 }
   match validateRaw 2 admittedRaw with
@@ -214,6 +247,7 @@ def run : IO Unit := do
   testCodecs
   testRegistry
   testProtocolFailures
+  testPolicy
   testCounterAdmission
   testHarnessDemo
   IO.println "CORDIS adversarial and integration tests passed"
