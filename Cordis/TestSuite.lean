@@ -1,6 +1,7 @@
 import Cordis.Batch
 import Cordis.Codec
 import Cordis.Coeffect
+import Cordis.ContextualEquivalence
 import Cordis.Effect
 import Cordis.Examples.Counter
 import Cordis.Examples.CounterWire
@@ -11,11 +12,13 @@ import Cordis.Policy
 import Cordis.Protocol
 import Cordis.Registry
 import Cordis.RichStream
+import Cordis.RuntimeRefinement
 import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionValidation
 import Cordis.Stream
 import Cordis.StreamSession
+import Cordis.UnifiedContext
 
 /-!
 # Executable adversarial and integration tests
@@ -556,6 +559,93 @@ private def testStreamSessionBridge : IO Unit := do
   assertEqual "stream bridge enters one canonical assistant surface message"
     StreamSession.bridgedSession.messages.length 1
 
+private def testContextualEquivalence : IO Unit := do
+  let leftCounter : Option Nat :=
+    Coeffect.Observational.Example.left Coeffect.Example.Key.counter
+  let rightCounter : Option Nat :=
+    Coeffect.Observational.Example.right Coeffect.Example.Key.counter
+  assertEqual "observationally related contexts may have different exact values"
+    (leftCounter, rightCounter) (some 1, some 3)
+  let leftAfter := Coeffect.removeAt Coeffect.Observational.Example.left
+    Coeffect.Example.Key.label
+  let rightAfter := Coeffect.removeAt Coeffect.Observational.Example.right
+    Coeffect.Example.Key.label
+  assertEqual "related endpoints induce the same notification"
+    (Coeffect.notify Coeffect.Example.dependencies
+      Coeffect.Observational.Example.left leftAfter)
+    (Coeffect.notify Coeffect.Example.dependencies
+      Coeffect.Observational.Example.right rightAfter)
+  assertEqual "the related satisfied contexts both deactivate after label removal"
+    (Coeffect.notify Coeffect.Example.dependencies
+      Coeffect.Observational.Example.left leftAfter)
+    .deactivating
+
+private def testUnifiedContexts : IO Unit := do
+  let isolationRoot := UnifiedContext.Example.Isolation.root
+  let isolationTenant := UnifiedContext.Example.Isolation.tenant
+  assertEqual "root isolation resolves the logical counter to its own realm"
+    (isolationRoot.resolve .counter)
+    UnifiedContext.Example.Isolation.Realm.counterBase
+  assertEqual "derived isolation redirects the same logical counter"
+    (isolationTenant.resolve .counter)
+    UnifiedContext.Example.Isolation.Realm.counterTenant
+  let rootCounter : Nat := isolationRoot.get .counter
+    UnifiedContext.Example.Isolation.rootCounterPresent
+  let tenantCounter : Nat := isolationTenant.get .counter
+    UnifiedContext.Example.Isolation.tenantCounterPresent
+  assertEqual "realm-dependent gets retain their exact Nat values"
+    (rootCounter, tenantCounter) (1, 99)
+  let counted := UnifiedContext.Example.Interception.counted
+  let countResult : Nat := counted.get UnifiedContext.Example.Interception.algebra .count
+    UnifiedContext.Example.Interception.declaredCount
+    UnifiedContext.Example.Interception.countPresent
+  assertEqual "interception merges declared then inherited metadata" countResult 14
+  let texted := UnifiedContext.Example.Interception.texted
+  let textResult : String := texted.get UnifiedContext.Example.Interception.algebra .text
+    UnifiedContext.Example.Interception.declaredText
+    UnifiedContext.Example.Interception.textPresent
+  assertEqual "heterogeneous interception uses the String metadata monoid"
+    textResult "value:declared-outer"
+  let recorded := UnifiedContext.Example.Unified.layer.record
+    UnifiedContext.Example.Unified.replacement
+  assertEqual "finite unified layer records and recovers in LIFO order"
+    (recorded.recover recorded.current) 10
+
+private def testRuntimeRefinement : IO Unit := do
+  match RuntimeRefinement.validateJsonTrace RuntimeRefinement.exampleJson with
+  | .error error => fail s!"current Harness stream JSON was rejected with {reprStr error}"
+  | .ok validated =>
+      assertEqual "JSON refinement preserves every supported chunk"
+        validated.chunks.length RuntimeRefinement.exampleChunks.length
+      match validated.validated.finish with
+      | .active _ _ => fail "complete current-Harness stream remained active"
+      | .terminal blocks usage reason replay =>
+          assertEqual "JSON refinement reaches the exact assembled text block"
+            blocks [.text "hello"]
+          assertEqual "JSON refinement performs only the named optional-usage normalization"
+            usage RuntimeRefinement.exampleUsage.toLocal
+          assertEqual "JSON refinement preserves the successful finish reason" reason .stop
+          assertEqual "absent replay state remains absent" replay.isSome false
+  let noncontiguous : List Lean.Json := [Lean.Json.mkObj [
+    ("type", .str "block-start"),
+    ("index", .num 1),
+    ("blockType", .str "text")
+  ]]
+  match RuntimeRefinement.validateJsonTrace noncontiguous with
+  | .error error =>
+      assertEqual "JSON shape success cannot bypass semantic stream validation"
+        error (.stream (.wrongStartIndex 0 1))
+  | .ok _ => fail "noncontiguous current-Harness stream was accepted"
+  match RuntimeRefinement.decodeChunk (Lean.Json.mkObj [
+    ("type", .str "finish"),
+    ("reason", Lean.Json.mkObj [("kind", .str "stop")]),
+    ("replayState", Lean.Json.mkObj [("response", .null)])
+  ]) with
+  | .error error =>
+      assertEqual "opaque upstream replay state fails closed"
+        error (.unsupportedField [] "replayState")
+  | .ok _ => fail "opaque upstream replay state was silently discarded"
+
 private def testHarnessPhaseFailures : IO Unit := do
   let initial := Harness.RunnerState.initial 0
   match initial.beginStep with
@@ -746,6 +836,9 @@ def run : IO Unit := do
   testFiniteSchedules
   testRichStream
   testStreamSessionBridge
+  testContextualEquivalence
+  testUnifiedContexts
+  testRuntimeRefinement
   testHarnessPhaseFailures
   testCounterAdmission
   testHarnessDemo

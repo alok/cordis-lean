@@ -1,13 +1,16 @@
 import Cordis.Harness
 import Cordis.Coeffect
+import Cordis.ContextualEquivalence
 import Cordis.Examples.DependentChoice
 import Cordis.Lifecycle
 import Cordis.Policy
 import Cordis.Protocol
 import Cordis.RichStream
+import Cordis.RuntimeRefinement
 import Cordis.Schedule
 import Cordis.Session
 import Cordis.StreamSession
+import Cordis.UnifiedContext
 
 /-!
 # Static rejection tests
@@ -225,5 +228,43 @@ example : StreamSession.CallIdAssignment StreamSession.interleavedView where
   ids := []
   length_eq := by decide
   nodup := by decide
+
+/-! Presence cannot be observationally related to absence at the same dependent key. -/
+
+/-- error: Type mismatch -/
+#guard_msgs (substring := true) in
+example : Coeffect.Observational.Related
+    Coeffect.Observational.Example.equivalences
+    Coeffect.Observational.Example.left Coeffect.empty := by
+  intro key
+  cases key with
+  | counter => exact Coeffect.Observational.OptionRelated.none
+  | label => exact Coeffect.Observational.OptionRelated.none
+
+/-! Isolation selects the stored value type through the resolved realm. -/
+
+/-- error: Application type mismatch -/
+#guard_msgs (substring := true) in
+example : Cordis.Applied UnifiedContext.Example.Isolation.Context
+    UnifiedContext.Example.Isolation.blank :=
+  UnifiedContext.Example.Isolation.blank.setEffect .counter "not a Nat"
+    UnifiedContext.Example.Isolation.blankCounterAbsent
+
+/-! An intercepted provider must return the value type selected by its exact key. -/
+
+/-- error: Type mismatch -/
+#guard_msgs (substring := true) in
+example : Cordis.Applied UnifiedContext.Example.Interception.Context
+    UnifiedContext.Example.Interception.blank :=
+  UnifiedContext.Example.Interception.blank.setEffect .count
+    (fun _ ↦ "not a Nat") UnifiedContext.Example.Interception.blankCountAbsent
+
+/-! Runtime JSON indices cannot fabricate a proof beyond JavaScript's exact integer range. -/
+
+/-- error: Tactic `decide` proved that the proposition -/
+#guard_msgs (substring := true) in
+example : RuntimeRefinement.SafeNat where
+  value := 9007199254740992
+  safe := by decide
 
 end Cordis.NegativeTests

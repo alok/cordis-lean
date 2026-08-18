@@ -1,6 +1,7 @@
 import Cordis.Batch
 import Cordis.Codec
 import Cordis.Coeffect
+import Cordis.ContextualEquivalence
 import Cordis.Effect
 import Cordis.Examples.DependentChoice
 import Cordis.Harness
@@ -8,11 +9,13 @@ import Cordis.Lifecycle
 import Cordis.Policy
 import Cordis.Registry
 import Cordis.RichStream
+import Cordis.RuntimeRefinement
 import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionValidation
 import Cordis.Stream
 import Cordis.StreamSession
+import Cordis.UnifiedContext
 
 /-!
 # Headline theorem axiom audit
@@ -165,3 +168,42 @@ set_option format.width 200
 #print axioms Cordis.StreamSession.interleavedPayload_exact
 #print axioms Cordis.StreamSession.bridgedSession_messages
 #print axioms Cordis.StreamSession.interleaved_assignment_is_unique
+#print axioms Cordis.Coeffect.Observational.related_iff
+#print axioms Cordis.Coeffect.Observational.contextSetoid
+#print axioms Cordis.Coeffect.Observational.setAt_related
+#print axioms Cordis.Coeffect.Observational.removeAt_related
+#print axioms Cordis.Coeffect.Observational.setApplied_recovers
+#print axioms Cordis.Coeffect.Observational.satisfies_iff_of_related
+#print axioms Cordis.Coeffect.Observational.notify_eq_of_related
+#print axioms Cordis.Coeffect.Observational.Example.left_related_right
+#print axioms Cordis.UnifiedContext.InPlace.recover_eq
+#print axioms Cordis.UnifiedContext.Derived.discard_eq
+#print axioms Cordis.UnifiedContext.updateAt_commute
+#print axioms Cordis.UnifiedContext.IsolatedContext.resolve_isolate_same
+#print axioms Cordis.UnifiedContext.IsolatedContext.resolve_isolate_other
+#print axioms Cordis.UnifiedContext.IsolatedContext.isolate_reassign
+#print axioms Cordis.UnifiedContext.IsolatedContext.isolate_commute
+#print axioms Cordis.UnifiedContext.IsolatedContext.setEffect_recovers
+#print axioms Cordis.UnifiedContext.InterceptionContext.intercept_same
+#print axioms Cordis.UnifiedContext.InterceptionContext.intercept_commute
+#print axioms Cordis.UnifiedContext.InterceptionContext.get_intercept_assoc
+#print axioms Cordis.UnifiedContext.InterceptionContext.setEffect_recovers
+#print axioms Cordis.UnifiedContext.approximation_zero
+#print axioms Cordis.UnifiedContext.approximation_succ
+#print axioms Cordis.UnifiedContext.Layer.record_twice_recovers
+#print axioms Cordis.UnifiedContext.Layer.liftCoeffect_recovers
+#print axioms Cordis.UnifiedContext.pushApproximation_discard
+#print axioms Cordis.RuntimeRefinement.WireUsage.toLocal
+#print axioms Cordis.RuntimeRefinement.ValidatedJsonTrace.replay_eq
+#print axioms Cordis.RuntimeRefinement.decode_example_exact
+#print axioms Cordis.RuntimeRefinement.validate_example_exact
+#print axioms Cordis.RuntimeRefinement.example_optionalUsage_normalization
+#print axioms Cordis.RuntimeRefinement.reject_opaqueReplayState
+#print axioms Cordis.RuntimeRefinement.reject_unmodeledErrorFinish
+#print axioms Cordis.RuntimeRefinement.reject_unmodeledAbortedFinish
+#print axioms Cordis.RuntimeRefinement.reject_semantic_noncontiguousStart
+#print axioms Cordis.RuntimeRefinement.reject_unmodeledImageBlock
+#print axioms Cordis.RuntimeRefinement.reject_unmodeledToolResultBlock
+#print axioms Cordis.RuntimeRefinement.decode_toolCallDelta_exact
+#print axioms Cordis.RuntimeRefinement.reject_nestedFieldType
+#print axioms Cordis.RuntimeRefinement.reject_unsafeInteger
