@@ -23,6 +23,13 @@ exact-call policy allows one branch and rejects the other without dispatch.
 exact append/replacement range, provenance, surface-uniqueness, and `ValidLog`
 certificates.
 
+The same development line now adds three further source-grounded proof layers:
+`Cordis.RichStream` validates interleaved text, reasoning, and raw tool-call
+blocks with terminal usage/replay invariants; `Cordis.Schedule` proves arbitrary
+finite semantic reordering for certified commuting pure effects; and
+`Cordis.Coeffect` mechanizes the paper's local reactive-coeffect Definitions
+22–26 over a finite dependent context.
+
 The included demo is deterministic and credential-free. Starting from counter
 state `2`, it reads, increments by `3` under limit `10`, reads again, and rejects
 an unknown `counter_destroy` call. It finishes at counter state `5`, protocol
@@ -161,6 +168,10 @@ placeholders.
 | Rich surface intent is selected by event visibility; replacement retains a nonempty exact shadow interval with unique earlier covering sources     | `Session.EventIntent`, `SurfaceTransition.replace`, `replacement_exact_shadow`, `replacement_coverage`                    | Intrinsic path plus proof-producing validation after kind-specific payload parsing; byte/JSON parsing remains external.  |
 | Rich session sequence numbers are contiguous; surface nodes are unique earlier events; request header and messages are exact log projections       | `ValidLog.*`, `ModelRequest`, `mkRequest`                                                                                 | In-memory typed events; timestamps, JSON bytes, durability, resume, and fork are excluded.                               |
 | The counter wrapper's canonical rich session erases exactly to the replay-certified structural protocol log                                        | `RunnerState.protocolProjection_eq_log`, `protocolProjection_replays`                                                     | The rich vocabulary is a finite core subset, not full TypeScript session equivalence.                                    |
+| Parsed typed rich events validate into exact append/range/provenance/uniqueness witnesses and finite `ValidLog` suffixes                           | `SessionValidation.validateAppend`, `ValidatedAppend`, `ValidatedSuffix`, `ValidatedLog`                                  | Begins after kind-specific payload parsing; bytes, persistence, and unknown required extension kinds remain external.    |
+| Interleaved text, reasoning, and raw tool-call deltas retain first-seen order, exact block-end assembly, terminal discipline, and aligned metadata | `RichStream.Event`, `ValidatedTrace`, `replayRaw_eraseTrace`, `AlignedMetadata`                                           | Images, tool-result blocks, transport, and metadata pruning are deferred.                                                |
+| Any finite permutation of a certified commuting pure-effect family denotes the same complete effect and recovery function                          | `Schedule.runEffects_eq_of_perm`, `CertifiedSchedule.*`                                                                   | Semantic sequential reordering only; no tasks, failures, outputs, fairness, or wall-clock overlap.                       |
+| A finite dependent coeffect context enforces typed presence/absence, concrete local recovery, decidable satisfaction, and exact notifications      | `Coeffect.Context`, `setEffect_recovers`, `CoeffectAt.lift_recovers`, `activating_iff`, `deactivating_iff`, `neutral_iff` | Local paper Definitions 22–26 only; isolation, unified contexts, components, fibers, and global metatheory remain open.  |
 
 ## Module map
 
@@ -182,6 +193,9 @@ placeholders.
 | `Cordis.GenericHarness`           | Generic phase-indexed dependent runner, exact-call policy rejection/completion evidence, dispatch results, and joint model/lease/ID/log history.                |
 | `Cordis.Session`                  | Visibility-indexed rich events, exact append/replacement surface witnesses, contiguous logs, header/message reconstruction, and structural protocol projection. |
 | `Cordis.SessionValidation`        | Terminating range location and proof-producing validation from typed untrusted events to `ValidatedAppend`, `ValidatedSuffix`, and `ValidatedLog`.              |
+| `Cordis.RichStream`               | Indexed interleaved content blocks, exact raw validation/replay, terminal usage/error/abort discipline, and replay-metadata alignment.                          |
+| `Cordis.Schedule`                 | Arbitrary finite `List.Perm` invariance for certified commuting pure effects, including exact successor, undo, and recovery equality.                           |
+| `Cordis.Coeffect`                 | Finite dependent contexts, typed get/set/remove and local-operation lift, concrete recovery, specifications, satisfaction, and notifications.                   |
 | `Cordis.Examples.DependentChoice` | Structured non-counter model whose Boolean input selects `Nat` or `String`, with exact-call allow/deny behavior.                                                |
 | `Cordis.Harness`                  | Counter configuration and dynamic convenience wrapper whose canonical rich session is proved to project to the generic runner's structural log.                 |
 | `Cordis.TestSuite`                | Executable algebraic, boundary, adversarial, and end-to-end checks.                                                                                             |

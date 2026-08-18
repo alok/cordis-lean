@@ -33,6 +33,12 @@ Current machine-checked evidence includes:
   replacement examples, and rich-to-structural `ProtocolCertificate`;
 - `Cordis.SessionValidation.RangeWitness`, `ValidatedAppend`, `ValidatedSuffix`, and
   `ValidatedLog`, including exact structured rejection examples;
+- `Cordis.RichStream`, including block-kind-indexed deltas, interleaved first-seen ordering,
+  exact block ends, usage/terminal discipline, error/abort terminals, and aligned replay data;
+- `Cordis.Schedule.runEffects_eq_of_perm`, promoting the exactly-two batch result to arbitrary
+  finite semantic orders under a real pairwise commuting-family certificate;
+- `Cordis.Coeffect`, mechanizing paper Definitions 22–26 for dependent finite contexts, concrete
+  reversible bindings, typed local operations, finite satisfaction, and exact notifications;
 - `Harness.RunnerState.protocolProjection_eq_log` and `protocolProjection_replays`, tying the
   actual counter demo's canonical rich log to the generic runner; and
 - executable, static-rejection, hygiene, strict-build, and selected-axiom gates covering those

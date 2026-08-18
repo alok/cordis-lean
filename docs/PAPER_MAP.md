@@ -12,6 +12,15 @@
 > wrapper's rich protocol projection equals its structural runner log. This
 > does not retroactively turn the tables below into a full paper or
 > TypeScript-equivalence claim.
+>
+> `Cordis.Coeffect` now directly mechanizes the local content of paper
+> Definitions 22–26: finite dependent context, typed presence/absence, concrete
+> reversible insertion/removal, typed key-local operations, finite
+> specifications, satisfaction, and exact notifications. `Cordis.Schedule`
+> proves arbitrary finite semantic permutation of certified commuting pure
+> effects, while `Cordis.RichStream` models the current Harness block stream.
+> None of these additions is labeled as the still-absent global component/fiber
+> calculus or cross-language refinement theorem.
 
 This document maps the Lean proof kernel and local reference layers to the pinned CORDIS paper
 and to the runtime systems that motivated them. It is a claim ledger, not a claim that the Lean

@@ -15,6 +15,12 @@ parsing, durability, asynchronous scheduling, full paper metatheory, and
 TypeScript refinement remain open, so this historical acceptance matrix is not
 silently redefined as a broader completion claim.
 
+The active line also includes a rich interleaved LLM-stream validator, an
+arbitrary-finite semantic permutation theorem for certified commuting pure
+effects, and a bounded mechanization of paper Definitions 22–26 for local
+reactive coeffects. These do not yet supply task concurrency, global component
+calculus, or the paper's preservation/progress/confluence results.
+
 Repository: `cordis-lean`
 
 Lean toolchain: `leanprover/lean4:v4.33.0`

@@ -13,6 +13,15 @@
 > `0.1.0` boundary below remains historical evidence rather than a claim about
 > those absent layers.
 
+The active line also proves local reactive coeffect behavior for paper
+Definitions 22–26, arbitrary finite semantic reordering for certified commuting
+pure effects, and a rich in-memory LLM block-stream validator. Coeffect
+equivalence and operation obligations are supplied by the integrator;
+`Schedule` executes sequentially; and `RichStream` begins with parsed provider
+chunks and excludes transport, images, tool-result blocks, and pruning. These
+new types do not extend the theorem boundary to the corresponding external
+systems automatically.
+
 CORDIS Lean proves properties of typed, pure Lean values. It does not by itself prove that a
 model response, JSON parser, TypeScript Harness process, operating-system resource, or remote
 service behaves like those values. This document marks the exact perimeter.
