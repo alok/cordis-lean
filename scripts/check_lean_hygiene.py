@@ -43,6 +43,10 @@ class ScanError(ValueError):
     """A lexical region did not terminate."""
 
 
+class AxiomReportError(ValueError):
+    """A `#print axioms` entry was truncated or malformed."""
+
+
 def scrub_literals_and_comments(source: str) -> str:
     """Blank comments/literals while preserving offsets and newlines."""
 
@@ -206,6 +210,32 @@ def check_sources(paths: Sequence[Path]) -> int:
     return 0
 
 
+def normalized_axiom_entries(lines: Sequence[str]) -> list[str]:
+    """Join Lean's width-wrapped `#print axioms` diagnostics into entries."""
+
+    entries: list[str] = []
+    pending: list[str] = []
+    for raw_line in lines:
+        line = ANSI_ESCAPE.sub("", raw_line).strip()
+        if pending:
+            if not line:
+                raise AxiomReportError("blank line inside wrapped axiom entry")
+            pending.append(line)
+            if line.endswith("]"):
+                entries.append(" ".join(pending))
+                pending = []
+            continue
+        if "depends on axioms: [" in line and not line.endswith("]"):
+            if not line.startswith("'"):
+                raise AxiomReportError(f"malformed axiom report line: {line}")
+            pending = [line]
+            continue
+        entries.append(line)
+    if pending:
+        raise AxiomReportError(f"unterminated axiom report entry: {' '.join(pending)}")
+    return entries
+
+
 def check_axiom_report(path: Path) -> int:
     try:
         lines = path.read_text(encoding="utf-8").splitlines()
@@ -213,10 +243,15 @@ def check_axiom_report(path: Path) -> int:
         print(f"{path}: cannot read axiom report: {error}", file=sys.stderr)
         return 2
 
+    try:
+        entries = normalized_axiom_entries(lines)
+    except AxiomReportError as error:
+        print(f"{path}: {error}", file=sys.stderr)
+        return 2
+
     audited = 0
     violations: list[str] = []
-    for raw_line in lines:
-        line = ANSI_ESCAPE.sub("", raw_line).strip()
+    for line in entries:
         match = AXIOM_LINE.fullmatch(line)
         if match is None:
             if "depends on axioms:" in line:
@@ -280,6 +315,16 @@ def bypass : String :=
     assert scan_text("-- Lean.trustCompiler is forbidden even in prose") == {
         "trustCompiler"
     }
+    wrapped_axioms = [
+        "'Cordis.Long.theorem_name' depends on axioms: [propext,",
+        " Classical.choice,",
+        " Quot.sound]",
+        "'Cordis.Constructive' does not depend on any axioms",
+    ]
+    assert normalized_axiom_entries(wrapped_axioms) == [
+        "'Cordis.Long.theorem_name' depends on axioms: [propext, Classical.choice, Quot.sound]",
+        "'Cordis.Constructive' does not depend on any axioms",
+    ]
     print("Lean hygiene scanner self-test passed.")
 
 
