@@ -1,15 +1,14 @@
 import Cordis.Examples.CounterWire
-import Cordis.Policy
-import Cordis.Protocol
+import Cordis.GenericHarness
+import Cordis.Session
+import Lean.Data.Json.Printer
 
 /-!
-# Deterministic proof-carrying harness
+# Counter instantiation of the generic proof-carrying harness
 
-The reference runner is deliberately pure and credential-free. It validates
-raw counter calls, executes only admitted dependent calls, and emits the same
-turn/step/call/result bracket used by DeepSeek Harness. Every `RunnerState`
-stores a proof that replaying its emitted log from the initial state yields its
-current protocol state.
+`Cordis.GenericHarness` owns the reusable, phase-indexed runner. This module supplies the
+verified counter catalog as one concrete configuration and an erased convenience wrapper for the
+demo and dynamic callers. Trusted internal transitions remain indexed by `SessionState`.
 -/
 
 namespace Cordis.Harness
@@ -17,506 +16,420 @@ namespace Cordis.Harness
 open Cordis
 open Cordis.Examples.Counter
 
-/-- The externally visible disposition of one settled call. -/
-inductive CallOutcome where
-  | succeeded
-  | toolFailed
-  | rejected (error : AdmissionError)
-  | providerFailed (message : String)
-deriving BEq, DecidableEq, Repr
+/-- The counter example grants both declared capabilities and allows every admitted call. -/
+def counterConfig : Cordis.GenericHarness.Config Nat Capability where
+  catalog := catalog
+  wire := wire
+  needs := needs
+  needsDecidable := fun _ => isTrue trivial
+  registry := registry
+  view := view
+  granted := fun _ _ _ => True
+  grantedDecidable := fun _ _ _ => isTrue trivial
+  PolicyRejected := fun _ => String
+  renderPolicyRejected := fun _ reason => reason
+  decide := fun _ _ _ => .allow
 
-abbrev CounterCall := AuthorizedCall catalog.signature allNeeds
+def counterRequestHeader : Cordis.Session.RequestHeader where
+  provider := "cordis-lean"
+  model := "deterministic-counter"
+  system := some "Execute only the supplied proof-carrying counter tools."
+  toolSchemas := [
+    {
+      name := readSpec.name
+      description := readSpec.description
+      inputSchema := (wire.inputCodec .read).schema.compress
+    },
+    {
+      name := incrementSpec.name
+      description := incrementSpec.description
+      inputSchema := (wire.inputCodec .increment).schema.compress
+    }
+  ]
 
-/-- Provider execution outcome indexed by the exact authorized counter call. -/
-abbrev CounterCompletion (call : CounterCall) := Except String (Reply call)
+abbrev CallOutcome := Cordis.GenericHarness.CallOutcome
+abbrev CounterCall := counterConfig.Call
+abbrev CounterCompletion (call : CounterCall) := counterConfig.Completion call
 
-/-- The modeled counter after one provider execution or provider-level failure. -/
-def completionAfter
-    (before : Nat)
-    {call : CounterCall} : CounterCompletion call → Nat
-  | .error _ => before
-  | .ok reply => reply.value.after
+def completionAfter (before : Nat) {call : CounterCall} : CounterCompletion call → Nat :=
+  Cordis.GenericHarness.completionAfter before
 
-/--
-Evidence connecting one raw call to either fail-closed admission or an exact-subject policy
-trace ending in the provider result for that same dependent call.
--/
-inductive CallEvidence
+abbrev CallEvidence
     (id : CallId)
     (raw : RawCall)
-    (before : Nat) :
-    (after : Nat) →
-    (leasesBefore leasesAfter : LeasePool) → Type where
-  | rejected
-      {leases : LeasePool}
-      (error : AdmissionError)
-      (validation : validateRaw before raw = .error error) :
-      CallEvidence id raw before before leases leases
-  | admitted
-      {leasesBefore leasesAfter : LeasePool}
-      (call : CounterCall)
-      (validation : validateRaw before raw = .ok call)
-      (issued : LeasePool)
-      (issuance : leasesBefore.issue id = some issued)
-      (completion : CounterCompletion call)
-      (execution : view.execute call = completion)
-      (policy : SubjectPolicyTrace
-        (Completed := CounterCompletion)
-        (Rejected := fun _ => String)
-        (.proposed id call issued)
-        (.settled id call leasesAfter (.completed completion))) :
-      CallEvidence id raw before (completionAfter before completion)
-        leasesBefore leasesAfter
+    (before after : Nat)
+    (leasesBefore leasesAfter : LeasePool) :=
+  Cordis.GenericHarness.CallEvidence counterConfig id raw before after leasesBefore leasesAfter
 
-namespace CallEvidence
-
-/-- User-facing disposition derived from the retained dependent evidence. -/
-def outcome
-    {id : CallId}
-    {raw : RawCall}
-    {before after : Nat}
-    {leasesBefore leasesAfter : LeasePool} :
-    CallEvidence id raw before after leasesBefore leasesAfter → CallOutcome
-  | .rejected error _ => .rejected error
-  | .admitted (completion := .error message) .. => .providerFailed message
-  | .admitted (completion := .ok reply) .. =>
-      match reply.value.result with
-      | .error _ => .toolFailed
-      | .ok _ => .succeeded
-
-/-- Encoded request-indexed tool result, available only after provider execution succeeds. -/
-def encodedResult
-    {id : CallId}
-    {raw : RawCall}
-    {before after : Nat}
-    {leasesBefore leasesAfter : LeasePool} :
-    CallEvidence id raw before after leasesBefore leasesAfter → Option Lean.Json
-  | .rejected _ _ => none
-  | .admitted (completion := .error _) .. => none
-  | .admitted (call := call) (completion := .ok reply) .. =>
-      some (wire.encodeCertifiedResult call.op call.request reply.value)
-
-/-- Dispatch edges retained by this call's exact-subject policy trace. -/
-def dispatchCount
-    {id : CallId}
-    {raw : RawCall}
-    {before after : Nat}
-    {leasesBefore leasesAfter : LeasePool} :
-    CallEvidence id raw before after leasesBefore leasesAfter → Nat
-  | .rejected _ _ => 0
-  | .admitted (policy := policy) .. => policy.dispatchCount
-
-end CallEvidence
-
-/-- Audit data retaining the raw call and proof-carrying evidence for its exact result. -/
-structure CallRecord where
-  id : CallId
-  raw : RawCall
-  before : Nat
-  after : Nat
-  leasesBefore : LeasePool
-  leasesAfter : LeasePool
-  evidence : CallEvidence id raw before after leasesBefore leasesAfter
+abbrev CallRecord := Cordis.GenericHarness.CallRecord counterConfig
 
 namespace CallRecord
 
-def name (record : CallRecord) : String :=
-  record.raw.name
+def name (record : CallRecord) : String := Cordis.GenericHarness.CallRecord.name record
 
 def outcome (record : CallRecord) : CallOutcome :=
-  record.evidence.outcome
+  Cordis.GenericHarness.CallRecord.outcome record
 
 def encodedResult (record : CallRecord) : Option Lean.Json :=
-  record.evidence.encodedResult
+  Cordis.GenericHarness.CallRecord.encodedResult record
 
 def policyDispatchCount (record : CallRecord) : Nat :=
-  record.evidence.dispatchCount
+  Cordis.GenericHarness.CallRecord.dispatchCount record
 
 end CallRecord
 
-/-- The tool-boundary portion of a runtime log, with protocol coordinates erased. -/
-inductive CallBoundary where
-  | call (id : CallId)
-  | result (id : CallId)
-deriving BEq, DecidableEq, Repr
+def callOutcomeIsError : CallOutcome → Bool
+  | .succeeded => false
+  | _ => true
 
-namespace RuntimeEvent
+abbrev CallBoundary := Cordis.GenericHarness.CallBoundary
 
-/-- Retain only tool calls and results from the full protocol event vocabulary. -/
-def callBoundary? : RuntimeEvent → Option CallBoundary
-  | .toolCall _ _ id => some (.call id)
-  | .toolResult _ _ id => some (.result id)
-  | _ => none
-
-end RuntimeEvent
-
-/-- The ordered call/result subsequence of a full runtime log. -/
 def callBoundaries (log : List RuntimeEvent) : List CallBoundary :=
-  log.filterMap RuntimeEvent.callBoundary?
+  Cordis.GenericHarness.callBoundaries log
 
-/-- The exact call/result pair required by every settled record. -/
 def recordBoundaries (records : List CallRecord) : List CallBoundary :=
-  records.flatMap fun record => [.call record.id, .result record.id]
+  Cordis.GenericHarness.recordBoundaries records
 
-/-- Every record receives exactly the pool produced by its predecessor. -/
-def LeasesThreaded (start : LeasePool) : List CallRecord → LeasePool → Prop
-  | [], finish => finish = start
-  | record :: records, finish =>
-      record.leasesBefore = start ∧ LeasesThreaded record.leasesAfter records finish
+abbrev ModelsThreaded (start : Nat) (records : List CallRecord) (finish : Nat) : Prop :=
+  Cordis.GenericHarness.ModelsThreaded (cfg := counterConfig) start records finish
 
-private theorem leasesThreaded_snoc
-    {start current : LeasePool}
-    {records : List CallRecord}
-    (threaded : LeasesThreaded start records current)
-    (record : CallRecord)
-    (starts : record.leasesBefore = current) :
-    LeasesThreaded start (records ++ [record]) record.leasesAfter := by
-  induction records generalizing start with
-  | nil =>
-      simp only [LeasesThreaded] at threaded
-      simp only [List.nil_append, LeasesThreaded]
-      exact ⟨starts.trans threaded, trivial⟩
-  | cons first rest inductionHypothesis =>
-      simp only [LeasesThreaded] at threaded
-      simp only [List.cons_append, LeasesThreaded]
-      exact ⟨threaded.1, inductionHypothesis threaded.2⟩
+abbrev LeasesThreaded
+    (start : LeasePool) (records : List CallRecord) (finish : LeasePool) : Prop :=
+  Cordis.GenericHarness.LeasesThreaded (cfg := counterConfig) start records finish
 
-/--
-Joint proof that records form one contiguous modeled history, lease ownership is threaded from
-the empty pool to the final pool, and the projected runtime log is exactly the records' ordered
-call/result pairs. The constructor is append-oriented because results are committed in model
-order.
--/
-inductive RecordChain :
-    Nat → Nat → List CallRecord → Nat → LeasePool → List CallBoundary → Prop where
-  | nil (initial : Nat) : RecordChain initial 0 [] initial .empty []
-  | snoc
-      {initial nextCall current : Nat}
-      {records : List CallRecord}
-      {currentLeases : LeasePool}
-      {boundaries : List CallBoundary}
-      (prior : RecordChain initial nextCall records current currentLeases boundaries)
-      (record : CallRecord)
-      (id_is_next : record.id.value = nextCall)
-      (starts_at_current : record.before = current)
-      (leases_start_at_current : record.leasesBefore = currentLeases) :
-      RecordChain initial (nextCall + 1) (records ++ [record]) record.after
-        record.leasesAfter (boundaries ++ [.call record.id, .result record.id])
+abbrev RecordChain
+    (initial : Nat)
+    (nextCall : Nat)
+    (records : List CallRecord)
+    (final : Nat)
+    (leases : LeasePool)
+    (boundaries : List CallBoundary) : Prop :=
+  Cordis.GenericHarness.RecordChain counterConfig initial nextCall records final leases boundaries
 
 namespace RecordChain
 
-/-- A certified record history contains exactly one record per allocated call identifier. -/
 theorem length_eq_nextCall
     {initial nextCall final : Nat}
     {records : List CallRecord}
     {leases : LeasePool}
     {boundaries : List CallBoundary}
     (history : RecordChain initial nextCall records final leases boundaries) :
-    records.length = nextCall := by
-  induction history with
-  | nil => rfl
-  | snoc prior record id_is_next starts_at_current leases_start inductionHypothesis =>
-      simp [inductionHypothesis]
+    records.length = nextCall :=
+  Cordis.GenericHarness.RecordChain.length_eq_nextCall history
 
-/-- A certified record history assigns identifiers `0, 1, ..., nextCall - 1` in order. -/
 theorem ids_eq_range
     {initial nextCall final : Nat}
     {records : List CallRecord}
     {leases : LeasePool}
     {boundaries : List CallBoundary}
     (history : RecordChain initial nextCall records final leases boundaries) :
-    records.map (fun record ↦ record.id.value) = List.range nextCall := by
-  induction history with
-  | nil => rfl
-  | snoc prior record id_is_next starts_at_current leases_start inductionHypothesis =>
-      simp [inductionHypothesis, id_is_next, List.range_succ]
+    records.map (fun record ↦ record.id.value) = List.range nextCall :=
+  Cordis.GenericHarness.RecordChain.ids_eq_range history
 
-/-- The boundary index of a certified history is exactly the records' ordered call/result pairs. -/
 theorem boundaries_eq_records
     {initial nextCall final : Nat}
     {records : List CallRecord}
     {leases : LeasePool}
     {boundaries : List CallBoundary}
     (history : RecordChain initial nextCall records final leases boundaries) :
-    boundaries = recordBoundaries records := by
-  induction history with
-  | nil => rfl
-  | snoc prior record id_is_next starts_at_current leases_start inductionHypothesis =>
-      simp [recordBoundaries, inductionHypothesis]
+    boundaries = recordBoundaries records :=
+  Cordis.GenericHarness.RecordChain.boundaries_eq_records history
 
-/-- A certified history threads leases from the empty initial pool to its indexed final pool. -/
+theorem models_threaded
+    {initial nextCall final : Nat}
+    {records : List CallRecord}
+    {leases : LeasePool}
+    {boundaries : List CallBoundary}
+    (history : RecordChain initial nextCall records final leases boundaries) :
+    ModelsThreaded initial records final :=
+  Cordis.GenericHarness.RecordChain.models_threaded history
+
 theorem leases_threaded
     {initial nextCall final : Nat}
     {records : List CallRecord}
     {leases : LeasePool}
     {boundaries : List CallBoundary}
     (history : RecordChain initial nextCall records final leases boundaries) :
-    LeasesThreaded .empty records leases := by
-  induction history with
-  | nil => rfl
-  | snoc prior record id_is_next starts_at_current leases_start inductionHypothesis =>
-      exact leasesThreaded_snoc inductionHypothesis record leases_start
+    LeasesThreaded .empty records leases :=
+  Cordis.GenericHarness.RecordChain.leases_threaded history
 
 end RecordChain
 
-/-- Internal failures of the deterministic runner itself. -/
-inductive RunnerError where
-  | protocol (error : ValidationError)
-  | notReady (state : RuntimeState)
-  | notInTurn (state : RuntimeState)
-  | notInStep (state : RuntimeState)
-  | leaseInvariant (id : CallId)
-deriving DecidableEq, Repr
-
-/-- Replaying an appended suffix is the same as replaying in two stages. -/
 theorem replayRaw_append
     (start : RuntimeState)
     (first second : List RuntimeEvent) :
     replayRaw start (first ++ second) =
       match replayRaw start first with
       | .error error => .error error
-      | .ok middle => replayRaw middle second := by
-  induction first generalizing start with
-  | nil => rfl
-  | cons event rest inductionHypothesis =>
-      simp only [List.cons_append, replayRaw]
-      cases applied : applyRaw start event with
-      | error error => rfl
-      | ok middle =>
-          change
-            replayRaw middle (rest ++ second) =
-              match replayRaw middle rest with
-              | .error error => .error error
-              | .ok state => replayRaw state second
-          exact inductionHypothesis middle
+      | .ok middle => replayRaw middle second :=
+  Cordis.GenericHarness.replayRaw_append start first second
 
-/--
-Pure runtime state. `replayProof` rules out divergence between the in-memory
-protocol state and the append-only event log.
--/
+/-- Failures exposed only by the erased convenience wrapper. -/
+inductive RunnerError where
+  | notReady (state : RuntimeState)
+  | notInTurn (state : RuntimeState)
+  | notInStep (state : RuntimeState)
+  | pendingCalls (pending : List CallId)
+  | internal (error : Cordis.GenericHarness.RunnerError)
+deriving DecidableEq, Repr
+
+/-- Existential phase wrapper around the trusted phase-indexed counter runner. -/
 structure RunnerState where
-  initialModel : Nat
-  model : Nat
-  protocol : RuntimeState
-  nextCall : Nat
-  leases : LeasePool
-  log : List RuntimeEvent
-  records : List CallRecord
-  history : RecordChain initialModel nextCall records model leases (callBoundaries log)
-  replayProof : replayRaw (.ready 0) log = .ok protocol
+  phase : SessionState
+  runner : Cordis.GenericHarness.Runner counterConfig phase
+  session : Cordis.Session.Session Cordis.Session.noExtensions
+  projection_eq : Cordis.Session.protocolProjection session.events = runner.log
 
 namespace RunnerState
 
-def initial (model : Nat) : RunnerState where
-  initialModel := model
-  model := model
-  protocol := .ready 0
-  nextCall := 0
-  leases := .empty
-  log := []
-  records := []
-  history := .nil model
-  replayProof := rfl
+private def sessionToolCalls : Nat → List RawCall → List Cordis.Session.ToolCall
+  | _, [] => []
+  | next, raw :: rest =>
+      {
+        id := { value := next }
+        name := raw.name
+        arguments := raw.arguments.compress
+      } :: sessionToolCalls (next + 1) rest
 
-/-- No tool call or result exists in the log beyond the exact ordered pairs in `records`. -/
+def initial (model : Nat) : RunnerState :=
+  { phase := .ready 0,
+    runner := Cordis.GenericHarness.Runner.initial counterConfig model
+    session := Cordis.Session.Session.empty Cordis.Session.noExtensions
+    projection_eq := rfl }
+
+def initialModel (state : RunnerState) : Nat := state.runner.initialModel
+
+def model (state : RunnerState) : Nat := state.runner.model
+
+def protocol (state : RunnerState) : RuntimeState := eraseState state.phase
+
+def nextCall (state : RunnerState) : Nat := state.runner.nextCall
+
+def leases (state : RunnerState) : LeasePool := state.runner.leases
+
+def log (state : RunnerState) : List RuntimeEvent := state.runner.log
+
+def records (state : RunnerState) : List CallRecord := state.runner.records
+
+def messages (state : RunnerState) : List Cordis.Session.Message := state.session.messages
+
+def modelRequest (state : RunnerState) : Option (Cordis.Session.ModelRequest state.session) :=
+  Cordis.Session.mkRequest state.session
+
+private def recordRequestHeader (state : RunnerState) : RunnerState :=
+  let nextSession := state.session.appendLogOnly .requestHeader counterRequestHeader
+  {
+    state with
+    session := nextSession
+    projection_eq := by
+      simpa [nextSession] using state.projection_eq
+  }
+
+private def recordUserMessage (state : RunnerState) (content : String) : RunnerState :=
+  let nextSession := state.session.appendSurface .userMessage { content } [] (by simp) (by simp)
+  {
+    state with
+    session := nextSession
+    projection_eq := by
+      simpa [nextSession] using state.projection_eq
+  }
+
+private def recordAssistantMessage
+    (state : RunnerState)
+    (content : String)
+    (calls : List RawCall) : RunnerState :=
+  let rawToolCalls := sessionToolCalls state.nextCall calls
+  let nextSession := state.session.appendSurface .assistantMessage {
+    turn := match state.phase with
+      | .step turn _ _ => turn
+      | _ => 0
+    step := match state.phase with
+      | .step _ step _ => step
+      | _ => 0
+    content
+    rawToolCalls
+  } [] (by simp) (by simp)
+  {
+    state with
+    session := nextSession
+    projection_eq := by
+      simpa [nextSession] using state.projection_eq
+  }
+
+theorem records_length_eq_nextCall (state : RunnerState) :
+    state.records.length = state.nextCall :=
+  state.runner.records_length_eq_nextCall
+
+theorem ids_eq_range (state : RunnerState) :
+    state.records.map (fun record ↦ record.id.value) = List.range state.nextCall :=
+  state.runner.ids_eq_range
+
+theorem models_threaded (state : RunnerState) :
+    ModelsThreaded state.initialModel state.records state.model :=
+  state.runner.models_threaded
+
 theorem callBoundaries_eq_records (state : RunnerState) :
     callBoundaries state.log = recordBoundaries state.records :=
-  state.history.boundaries_eq_records
+  state.runner.callBoundaries_eq_records
 
-/-- Every record lease input is its predecessor's output, from empty to `state.leases`. -/
+theorem protocolProjection_eq_log (state : RunnerState) :
+    Cordis.Session.protocolProjection state.session.events = state.log :=
+  state.projection_eq
+
+theorem protocolProjection_replays (state : RunnerState) :
+    replayRaw (.ready 0) (Cordis.Session.protocolProjection state.session.events) =
+      .ok state.protocol := by
+  rw [state.protocolProjection_eq_log]
+  exact state.runner.replayProof
+
 theorem leases_threaded (state : RunnerState) :
     LeasesThreaded .empty state.records state.leases :=
-  state.history.leases_threaded
+  state.runner.leases_threaded
 
-/-- Append one checked non-tool event while extending both state certificates. -/
-private def emitNonBoundary
-    (state : RunnerState)
-    (event : RuntimeEvent)
-    (notBoundary : RuntimeEvent.callBoundary? event = none) :
-    Except RunnerError RunnerState :=
-  match applied : applyRaw state.protocol event with
-  | .error error => .error (.protocol error)
-  | .ok next =>
+def beginTurn : RunnerState → Except RunnerError RunnerState
+  | ⟨.ready turn, runner, session, aligned⟩ =>
+      let nextRunner := runner.beginTurn
+      let nextSession := session.appendLogOnly .turnStart { turn }
       .ok {
-        state with
-        protocol := next
-        log := state.log ++ [event]
-        history := by
-          simpa [callBoundaries, notBoundary] using state.history
-        replayProof := by
-          rw [replayRaw_append, state.replayProof]
-          change replayRaw state.protocol [event] = .ok next
-          simp only [replayRaw, applied]
-          rfl
+        phase := .turn turn 0
+        runner := nextRunner
+        session := nextSession
+        projection_eq := by
+          rw [Cordis.GenericHarness.Runner.beginTurn_log]
+          simpa [nextSession, Cordis.Session.Session.appendLogOnly,
+            Cordis.Session.Session.append, Cordis.Session.protocolProjection,
+            Cordis.Session.LoggedEvent.protocolEvent?] using
+            congrArg (fun log => log ++ [.turnStart turn]) aligned
       }
+  | ⟨phase, _, _, _⟩ => .error (.notReady (eraseState phase))
 
-/-- Open the next turn recorded by the protocol state. -/
-def beginTurn (state : RunnerState) : Except RunnerError RunnerState :=
-  match state.protocol with
-  | .ready turn => emitNonBoundary state (.turnStart turn) rfl
-  | protocol => .error (.notReady protocol)
+def beginStep : RunnerState → Except RunnerError RunnerState
+  | ⟨.turn turn step, runner, session, aligned⟩ =>
+      let nextRunner := runner.beginStep
+      let nextSession := session.appendLogOnly .stepStart { turn, step }
+      .ok {
+        phase := .step turn step []
+        runner := nextRunner
+        session := nextSession
+        projection_eq := by
+          rw [Cordis.GenericHarness.Runner.beginStep_log]
+          simpa [nextSession, Cordis.Session.Session.appendLogOnly,
+            Cordis.Session.Session.append, Cordis.Session.protocolProjection,
+            Cordis.Session.LoggedEvent.protocolEvent?] using
+            congrArg (fun log => log ++ [.stepStart turn step]) aligned
+      }
+  | ⟨phase, _, _, _⟩ => .error (.notInTurn (eraseState phase))
 
-/-- Open the next model step recorded by the current turn. -/
-def beginStep (state : RunnerState) : Except RunnerError RunnerState :=
-  match state.protocol with
-  | .turn turn step => emitNonBoundary state (.stepStart turn step) rfl
-  | protocol => .error (.notInTurn protocol)
-
-/-- Backwards-compatible helper opening one turn and its first model step. -/
 def beginSession (state : RunnerState) : Except RunnerError RunnerState := do
   let inTurn ← state.beginTurn
   inTurn.beginStep
 
-private def settle
-    (state : RunnerState)
-    (turn step : Nat)
-    (record : CallRecord)
-    (id_is_next : record.id.value = state.nextCall)
-    (starts_at_current : record.before = state.model)
-    (leases_start_at_current : record.leasesBefore = state.leases) :
-    Except RunnerError RunnerState :=
-  let callEvent := RuntimeEvent.toolCall turn step record.id
-  let resultEvent := RuntimeEvent.toolResult turn step record.id
-  match called : applyRaw state.protocol callEvent with
-  | .error error => .error (.protocol error)
-  | .ok awaitingResult =>
-      match resulted : applyRaw awaitingResult resultEvent with
-      | .error error => .error (.protocol error)
-      | .ok next =>
-          .ok {
-            state with
-            model := record.after
-            protocol := next
-            nextCall := state.nextCall + 1
-            leases := record.leasesAfter
-            log := state.log ++ [callEvent, resultEvent]
-            records := state.records ++ [record]
-            history := by
-              simpa [callEvent, resultEvent, callBoundaries, RuntimeEvent.callBoundary?] using
-                RecordChain.snoc state.history record id_is_next starts_at_current
-                  leases_start_at_current
-            replayProof := by
-              rw [replayRaw_append, state.replayProof]
-              calc
-                replayRaw state.protocol [callEvent, resultEvent] =
-                    (do
-                      let middle ← applyRaw state.protocol callEvent
-                      let finish ← applyRaw middle resultEvent
-                      Except.ok finish) := rfl
-                _ =
-                    (do
-                      let finish ← applyRaw awaitingResult resultEvent
-                      Except.ok finish) := by rw [called]; rfl
-                _ = .ok next := by rw [resulted]; rfl
+def dispatch : RunnerState → RawCall → Except RunnerError RunnerState
+  | ⟨.step turn step [], runner, session, aligned⟩, raw =>
+      match runner.dispatch raw with
+      | .error error => .error (.internal error)
+      | .ok result =>
+          let callSeq := session.nextSeq
+          let call : Cordis.Session.ToolCall := {
+            id := result.record.id
+            name := raw.name
+            arguments := raw.arguments.compress
           }
+          let called := session.appendLogOnly .toolCall { turn, step, call }
+          let outcome := result.record.outcome
+          let completed := called.appendSurface .toolResult {
+            turn
+            step
+            callId := result.record.id
+            content := reprStr outcome
+            isError := callOutcomeIsError outcome
+          } [callSeq] (by simp) (by
+            intro source member
+            simp only [List.mem_singleton] at member
+            subst source
+            simp [callSeq, called, Cordis.Session.Session.appendLogOnly,
+              Cordis.Session.Session.append])
+          .ok {
+            phase := .step turn step []
+            runner := result.runner
+            session := completed
+            projection_eq := by
+              rw [result.log_eq]
+              simpa [completed, called, call, Cordis.Session.Session.appendSurface,
+                Cordis.Session.Session.appendLogOnly, Cordis.Session.Session.append,
+                Cordis.Session.protocolProjection,
+                Cordis.Session.LoggedEvent.protocolEvent?] using
+                congrArg (fun log => log ++ [
+                  RuntimeEvent.toolCall turn step result.record.id,
+                  RuntimeEvent.toolResult turn step result.record.id
+                ]) aligned
+          }
+  | ⟨.step _ _ pending, _, _, _⟩, _ => .error (.pendingCalls pending)
+  | ⟨phase, _, _, _⟩, _ => .error (.notInStep (eraseState phase))
 
-/--
-Dispatch one raw call. Rejections and provider failures still emit a matching
-result, so no protocol obligation leaks from a failed tool boundary.
--/
-def dispatch (state : RunnerState) (raw : RawCall) : Except RunnerError RunnerState :=
-  match state.protocol with
-  | .step turn step _ => do
-      let assigned : CallId := { value := state.nextCall }
-      match validation : validateRaw state.model raw with
-      | .error error =>
-          settle state turn step {
-            id := assigned
-            raw := raw
-            before := state.model
-            after := state.model
-            leasesBefore := state.leases
-            leasesAfter := state.leases
-            evidence := .rejected error validation
-          } rfl rfl rfl
-      | .ok call =>
-          match issuance : state.leases.issue assigned with
-          | none => .error (.leaseInvariant assigned)
-          | some issued =>
-              match consumption : issued.consume assigned with
-              | none => .error (.leaseInvariant assigned)
-              | some remaining =>
-                  match execution : view.execute call with
-                  | .error message =>
-                      let completion : CounterCompletion call := .error message
-                      let policy : SubjectPolicyTrace
-                          (Completed := CounterCompletion)
-                          (Rejected := fun _ => String)
-                          (.proposed assigned call issued)
-                          (.settled assigned call remaining (.completed completion)) :=
-                        .cons (.decide assigned call issued .allow) <|
-                        .cons (.dispatch consumption) <|
-                        .cons (.settle completion) (.nil _)
-                      settle state turn step {
-                        id := assigned
-                        raw := raw
-                        before := state.model
-                        after := completionAfter state.model completion
-                        leasesBefore := state.leases
-                        leasesAfter := remaining
-                        evidence := .admitted call validation issued issuance completion
-                          execution policy
-                      } rfl rfl rfl
-                  | .ok reply =>
-                      let completion : CounterCompletion call := .ok reply
-                      let policy : SubjectPolicyTrace
-                          (Completed := CounterCompletion)
-                          (Rejected := fun _ => String)
-                          (.proposed assigned call issued)
-                          (.settled assigned call remaining (.completed completion)) :=
-                        .cons (.decide assigned call issued .allow) <|
-                        .cons (.dispatch consumption) <|
-                        .cons (.settle completion) (.nil _)
-                      settle state turn step {
-                        id := assigned
-                        raw := raw
-                        before := state.model
-                        after := completionAfter state.model completion
-                        leasesBefore := state.leases
-                        leasesAfter := remaining
-                        evidence := .admitted call validation issued issuance completion
-                          execution policy
-                      } rfl rfl rfl
-  | state => .error (.notInStep state)
-
-/-- Dispatch calls in model order. -/
-def dispatchAll : RunnerState -> List RawCall -> Except RunnerError RunnerState
+def dispatchAll : RunnerState → List RawCall → Except RunnerError RunnerState
   | state, [] => .ok state
-  | state, call :: rest => do
-      let next ← state.dispatch call
+  | state, raw :: rest => do
+      let next ← state.dispatch raw
       dispatchAll next rest
 
-/-- Close the current step after all calls have settled. -/
-def finishStep (state : RunnerState) : Except RunnerError RunnerState :=
-  match state.protocol with
-  | .step turn step _ => emitNonBoundary state (.stepEnd turn step) rfl
-  | protocol => .error (.notInStep protocol)
+def finishStep : RunnerState → Except RunnerError RunnerState
+  | ⟨.step turn step [], runner, session, aligned⟩ =>
+      let nextRunner := runner.finishStep
+      let nextSession := session.appendLogOnly .stepEnd { turn, step }
+      .ok {
+        phase := .turn turn (step + 1)
+        runner := nextRunner
+        session := nextSession
+        projection_eq := by
+          rw [Cordis.GenericHarness.Runner.finishStep_log]
+          simpa [nextSession, Cordis.Session.Session.appendLogOnly,
+            Cordis.Session.Session.append, Cordis.Session.protocolProjection,
+            Cordis.Session.LoggedEvent.protocolEvent?] using
+            congrArg (fun log => log ++ [.stepEnd turn step]) aligned
+      }
+  | ⟨.step _ _ pending, _, _, _⟩ => .error (.pendingCalls pending)
+  | ⟨phase, _, _, _⟩ => .error (.notInStep (eraseState phase))
 
-/-- Close the current turn after its final step. -/
-def finishTurn (state : RunnerState) : Except RunnerError RunnerState :=
-  match state.protocol with
-  | .turn turn nextStep => emitNonBoundary state (.turnEnd turn nextStep) rfl
-  | protocol => .error (.notInTurn protocol)
+def finishTurn : RunnerState → Except RunnerError RunnerState
+  | ⟨.turn turn nextStep, runner, session, aligned⟩ =>
+      let nextRunner := runner.finishTurn
+      let nextSession := session.appendLogOnly .turnEnd {
+        turn
+        nextStep
+        reason := .completed
+      }
+      .ok {
+        phase := .ready (turn + 1)
+        runner := nextRunner
+        session := nextSession
+        projection_eq := by
+          rw [Cordis.GenericHarness.Runner.finishTurn_log]
+          simpa [nextSession, Cordis.Session.Session.appendLogOnly,
+            Cordis.Session.Session.append, Cordis.Session.protocolProjection,
+            Cordis.Session.LoggedEvent.protocolEvent?] using
+            congrArg (fun log => log ++ [.turnEnd turn nextStep]) aligned
+      }
+  | ⟨phase, _, _, _⟩ => .error (.notInTurn (eraseState phase))
 
-/-- Close the current step and turn after all calls have settled. -/
 def finishSession (state : RunnerState) : Except RunnerError RunnerState := do
   let inTurn ← state.finishStep
   inTurn.finishTurn
 
-/-- Run one complete model step from an open turn. -/
 def runStep (state : RunnerState) (calls : List RawCall) : Except RunnerError RunnerState := do
   let started ← state.beginStep
-  let settled ← started.dispatchAll calls
+  let withHeader := started.recordRequestHeader
+  let withUser := withHeader.recordUserMessage "Execute the next certified counter step."
+  let withAssistant := withUser.recordAssistantMessage "Dispatching certified tools." calls
+  let settled ← withAssistant.dispatchAll calls
   settled.finishStep
 
-/-- Run a finite list of model steps inside one open turn. -/
-def runSteps : RunnerState -> List (List RawCall) -> Except RunnerError RunnerState
+def runSteps : RunnerState → List (List RawCall) → Except RunnerError RunnerState
   | state, [] => .ok state
   | state, calls :: rest => do
       let next ← state.runStep calls
       runSteps next rest
 
-/-- Run one turn containing an arbitrary finite list of model steps. -/
 def runTurn
     (state : RunnerState)
     (steps : List (List RawCall)) : Except RunnerError RunnerState := do
@@ -524,19 +437,15 @@ def runTurn
   let completed ← started.runSteps steps
   completed.finishTurn
 
-/-- Run a finite list of turns while preserving one replay-certified session log. -/
-def runTurns :
-    RunnerState -> List (List (List RawCall)) -> Except RunnerError RunnerState
+def runTurns : RunnerState → List (List (List RawCall)) → Except RunnerError RunnerState
   | state, [] => .ok state
   | state, steps :: rest => do
       let next ← state.runTurn steps
       runTurns next rest
 
-/-- Run one deterministic one-step turn from an initial counter state. -/
 def runScript (initialModel : Nat) (calls : List RawCall) : Except RunnerError RunnerState :=
   (initial initialModel).runTurn [calls]
 
-/-- Run a finite multi-turn script from an initial counter state. -/
 def runMultiTurn
     (initialModel : Nat)
     (turns : List (List (List RawCall))) : Except RunnerError RunnerState :=
@@ -544,7 +453,7 @@ def runMultiTurn
 
 end RunnerState
 
-/-- A statically typed two-call session used to exercise the intrinsic protocol API. -/
+/-- A statically typed two-call trace exercising the intrinsic protocol API. -/
 def certifiedTwoCallTrace : Trace (.ready 0) (.ready 1) :=
   .cons (.turnStart 0) <|
   .cons (.stepStart 0 0) <|
@@ -555,7 +464,6 @@ def certifiedTwoCallTrace : Trace (.ready 0) (.ready 1) :=
   .cons (.stepEnd 0 0) <|
   .cons (.turnEnd 0 1) .nil
 
-/-- Erasing the static example yields a runtime log accepted to its exact endpoint. -/
 theorem certifiedTwoCallTrace_replays :
     replayRaw (.ready 0) certifiedTwoCallTrace.erase = .ok (.ready 1) :=
   replayRaw_eraseTrace certifiedTwoCallTrace

@@ -3,11 +3,13 @@ import Cordis.Codec
 import Cordis.Effect
 import Cordis.Examples.Counter
 import Cordis.Examples.CounterWire
+import Cordis.Examples.DependentChoice
 import Cordis.Harness
 import Cordis.Lifecycle
 import Cordis.Policy
 import Cordis.Protocol
 import Cordis.Registry
+import Cordis.Session
 import Cordis.Stream
 
 /-!
@@ -23,6 +25,15 @@ set_option autoImplicit false
 namespace Cordis.TestSuite
 
 open Cordis.Examples.Counter
+
+private def rejectingCounterConfig : GenericHarness.Config Nat Capability := {
+  Harness.counterConfig with
+  decide := fun _ raw _ =>
+    if raw.name = incrementSpec.name then
+      .reject .deny (by decide) "counter increments are denied by this policy"
+    else
+      .allow
+}
 
 private def fail {alpha : Type} (message : String) : IO alpha :=
   throw <| IO.userError message
@@ -363,6 +374,81 @@ private def testSubjectPolicyRejection : IO Unit := do
     .cons decided <| .cons rejected (.nil _)
   assertEqual "denied exact-subject trace never dispatches" trace.dispatchCount 0
 
+private def testGenericRunnerPolicy : IO Unit := do
+  let started :=
+    (GenericHarness.Runner.initial rejectingCounterConfig 2).beginTurn.beginStep
+  let afterRead ←
+    match started.dispatch rawRead with
+    | .error error => fail s!"generic read dispatch failed with {reprStr error}"
+    | .ok result => pure result.runner
+  let afterDenied ←
+    match afterRead.dispatch (rawIncrement { amount := 3, limit := 10 }) with
+    | .error error => fail s!"generic policy rejection failed with {reprStr error}"
+    | .ok result => pure result.runner
+  assertEqual "generic allowed call updates no read-only model" afterRead.model 2
+  assertEqual "generic denied call preserves the model" afterDenied.model 2
+  assertEqual "generic runner restores every modeled lease" afterDenied.leases.available []
+  assertEqual "generic runner keeps session-wide ids"
+    (afterDenied.records.map fun record ↦ record.id.value) [0, 1]
+  assertEqual "generic runner records allowed then policy-rejected outcomes"
+    (afterDenied.records.map GenericHarness.CallRecord.outcome)
+    [.succeeded,
+      .policyRejected .deny "counter increments are denied by this policy"]
+  assertEqual "generic runner dispatches only the allowed call"
+    (afterDenied.records.map GenericHarness.CallRecord.dispatchCount) [1, 0]
+  let _models :
+      GenericHarness.ModelsThreaded afterDenied.initialModel afterDenied.records
+        afterDenied.model := afterDenied.models_threaded
+  let _leases : GenericHarness.LeasesThreaded .empty afterDenied.records afterDenied.leases :=
+    afterDenied.leases_threaded
+  pure ()
+
+private def testSessionLog : IO Unit := do
+  assertEqual "session surface derives only model-visible messages"
+    Session.certifiedSession.messages
+    [.user "What is the answer?",
+      .assistant "I will look it up." [Session.exampleCall],
+      .toolResult Session.exampleCall.id "42" false]
+  match Session.mkRequest Session.certifiedSession with
+  | none => fail "certified session did not reconstruct a model request"
+  | some request =>
+      assertEqual "request reconstructs the latest full header"
+        request.header Session.exampleHeader
+      assertEqual "request reconstructs the exact session surface"
+        request.messages Session.certifiedSession.messages
+      assertEqual "request records its exact log length" request.logLength 5
+  assertEqual "surface replacement shadows exactly the certified interval"
+    Session.replacementSession.messages
+    [.user "What is the answer?", .assistant "The answer is 42." []]
+  match replayRaw (.step 0 0 [])
+      (Session.protocolProjection Session.certifiedSession.events) with
+  | .error error => fail s!"rich session protocol projection failed with {reprStr error}"
+  | .ok state =>
+      assertRuntimeStateEqual "rich session projection returns to an empty-pending step"
+        state (.step 0 0 [])
+
+private def testDependentChoiceHarness : IO Unit := do
+  match Examples.DependentChoice.allowedEncodedResult with
+  | none => fail "dependent choice allowed branch lost its typed encoding"
+  | some encoded =>
+      let codec : Codec (Except String Nat) :=
+        Examples.DependentChoice.wire.resultCodec
+          Examples.DependentChoice.Operation.choose true
+      match codec.decode encoded with
+      | .ok (.ok revision) =>
+          assertEqual "dependent choice decodes the Nat-selected branch"
+            revision Examples.DependentChoice.initialWorkspace.revision
+      | .ok (.error message) => fail s!"dependent choice tool failed with {message}"
+      | .error error => fail s!"dependent choice result failed to decode: {reprStr error}"
+  assertEqual "dependent choice reaches exact-call policy rejection"
+    Examples.DependentChoice.rejectedOutcome
+    (some (.policyRejected .deny "label output rejected by exact-call policy"))
+  assertEqual "dependent choice rejection never dispatches"
+    Examples.DependentChoice.rejectedDispatchCount (some 0)
+  assertEqual "dependent choice rejection preserves the structured model"
+    Examples.DependentChoice.rejectedModel
+    (some Examples.DependentChoice.initialWorkspace)
+
 private def testHarnessPhaseFailures : IO Unit := do
   let initial := Harness.RunnerState.initial 0
   match initial.beginStep with
@@ -435,6 +521,21 @@ private def testHarnessDemo : IO Unit := do
     (state.records.map fun record ↦ record.id.value) [0, 1, 2, 3]
   assertEqual "Harness.demo log has exactly one adjacent call/result pair per record"
     (Harness.callBoundaries state.log) (Harness.recordBoundaries state.records)
+  assertEqual "Harness.demo derives its structural protocol from the rich canonical log"
+    (Session.protocolProjection state.session.events) state.log
+  assertEqual "Harness.demo rich session records every request and settlement event"
+    state.session.events.length 15
+  assertEqual "Harness.demo rich surface contains user, assistant, and four tool results"
+    state.messages.length 6
+  match state.modelRequest with
+  | none => fail "Harness.demo did not reconstruct a model request from its rich log"
+  | some request =>
+      assertEqual "Harness.demo request uses the latest recorded header"
+        request.header Harness.counterRequestHeader
+      assertEqual "Harness.demo request history is the exact current surface"
+        request.messages state.messages
+      assertEqual "Harness.demo request records the canonical log length"
+        request.logLength state.session.events.length
   let _leaseCertificate :
       Harness.LeasesThreaded .empty state.records state.leases :=
     state.leases_threaded
@@ -444,7 +545,7 @@ private def testHarnessDemo : IO Unit := do
       assertEqual "increment succeeds" incremented.outcome .succeeded
       assertEqual "second read succeeds" secondRead.outcome .succeeded
       assertEqual "unknown tool is settled as a rejection" unknown.outcome
-        (.rejected (.unknownTool rawUnknown.name))
+        (.admissionRejected (.unknownTool rawUnknown.name))
       assertEqual "admitted calls each retain exactly one policy dispatch"
         [first.policyDispatchCount, incremented.policyDispatchCount,
           secondRead.policyDispatchCount] [1, 1, 1]
@@ -530,6 +631,9 @@ def run : IO Unit := do
   testProtocolFailures
   testPolicy
   testSubjectPolicyRejection
+  testGenericRunnerPolicy
+  testSessionLog
+  testDependentChoiceHarness
   testHarnessPhaseFailures
   testCounterAdmission
   testHarnessDemo

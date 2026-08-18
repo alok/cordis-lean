@@ -1,7 +1,9 @@
 import Cordis.Harness
+import Cordis.Examples.DependentChoice
 import Cordis.Lifecycle
 import Cordis.Policy
 import Cordis.Protocol
+import Cordis.Session
 
 /-!
 # Static rejection tests
@@ -97,7 +99,7 @@ private def rejectedRecordZero : Harness.CallRecord where
   after := 0
   leasesBefore := .empty
   leasesAfter := .empty
-  evidence := .rejected (.unknownTool rawUnknown.name) rfl
+  evidence := .admissionRejected (.unknownTool rawUnknown.name) rfl
 
 private theorem historyZero : Harness.RecordChain 0 1 [rejectedRecordZero] 0 .empty
     [.call ⟨0⟩, .result ⟨0⟩] :=
@@ -119,22 +121,74 @@ A replay-valid log for call `99` cannot be paired with a record/history certific
 /-- error: Type mismatch -/
 #guard_msgs (substring := true) in
 example : Harness.RunnerState where
-  initialModel := 0
-  model := 0
-  protocol := .ready 1
-  nextCall := 1
-  leases := .empty
-  log := logNinetyNine
-  records := [rejectedRecordZero]
-  history := historyZero
-  replayProof := by decide
+  phase := .ready 1
+  runner := {
+    initialModel := 0
+    model := 0
+    nextCall := 1
+    leases := .empty
+    log := logNinetyNine
+    records := [rejectedRecordZero]
+    history := historyZero
+    replayProof := by decide
+  }
 
 /-! A dependent structure update cannot replace the final lease pool without new history proof. -/
 
 /-- error: Type mismatch -/
 #guard_msgs (substring := true) in
-example (state : Harness.RunnerState) : Harness.RunnerState := {
+example {phase : SessionState}
+    (state : GenericHarness.Runner Harness.counterConfig phase) :
+    GenericHarness.Runner Harness.counterConfig phase := {
   state with leases := .empty
 }
+
+/-! Log-only event kinds cannot carry surface placement metadata. -/
+
+/-- error: Type mismatch -/
+#guard_msgs (substring := true) in
+example : Session.LoggedEvent Session.noExtensions where
+  visibility := .logOnly
+  seq := 0
+  kind := .turnStart
+  payload := { turn := 0 }
+  intent := Session.SurfaceIntent.append []
+
+/-! A model request cannot substitute a message list that was not derived from its session. -/
+
+/-- error: unsolved goals -/
+#guard_msgs (substring := true) in
+example : Session.ModelRequest Session.certifiedSession where
+  header := Session.exampleHeader
+  messages := []
+  messages_eq := by simp [Session.certifiedSession_messages]
+  latestHeader_eq := rfl
+  logLength := 5
+  logLength_eq := rfl
+  nextSeq_eq := rfl
+
+/-! A rich session with tool boundaries cannot be paired with an empty structural runner log. -/
+
+/-- error: Tactic `decide` proved that the proposition -/
+#guard_msgs (substring := true) in
+example : Harness.RunnerState where
+  phase := .ready 0
+  runner := GenericHarness.Runner.initial Harness.counterConfig 0
+  session := Session.certifiedSession
+  projection_eq := by decide
+
+/-! The trusted phase-indexed runner cannot close a step while it is ready. -/
+
+/-- error: Application type mismatch -/
+#guard_msgs (substring := true) in
+example : GenericHarness.Runner Harness.counterConfig (.turn 0 1) :=
+  (GenericHarness.Runner.initial Harness.counterConfig 0).finishStep
+
+/-! A runner for the structured dependent-choice model cannot be replaced by a counter runner. -/
+
+/-- error: Type mismatch -/
+#guard_msgs (substring := true) in
+example : GenericHarness.Runner Examples.DependentChoice.config (.ready 0) :=
+  GenericHarness.Runner.initial Harness.counterConfig 0
 
 end Cordis.NegativeTests
