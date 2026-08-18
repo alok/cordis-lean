@@ -2,6 +2,7 @@ import Cordis.Api
 import Cordis.Batch
 import Cordis.Codec
 import Cordis.Coeffect
+import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.Effect
 import Cordis.Examples.Counter
@@ -10,13 +11,16 @@ import Cordis.Examples.DependentChoice
 import Cordis.GenericHarness
 import Cordis.Harness
 import Cordis.Lifecycle
+import Cordis.OperationalEquivalence
 import Cordis.Policy
 import Cordis.Protocol
+import Cordis.QuotientEffect
 import Cordis.Registry
 import Cordis.RichStream
 import Cordis.RuntimeRefinement
 import Cordis.Schedule
 import Cordis.Session
+import Cordis.SessionRefinement
 import Cordis.SessionValidation
 import Cordis.Stream
 import Cordis.StreamSession

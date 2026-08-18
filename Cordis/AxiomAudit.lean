@@ -1,17 +1,21 @@
 import Cordis.Batch
 import Cordis.Codec
 import Cordis.Coeffect
+import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.Effect
 import Cordis.Examples.DependentChoice
 import Cordis.Harness
 import Cordis.Lifecycle
+import Cordis.OperationalEquivalence
 import Cordis.Policy
+import Cordis.QuotientEffect
 import Cordis.Registry
 import Cordis.RichStream
 import Cordis.RuntimeRefinement
 import Cordis.Schedule
 import Cordis.Session
+import Cordis.SessionRefinement
 import Cordis.SessionValidation
 import Cordis.Stream
 import Cordis.StreamSession
@@ -207,3 +211,38 @@ set_option format.width 200
 #print axioms Cordis.RuntimeRefinement.decode_toolCallDelta_exact
 #print axioms Cordis.RuntimeRefinement.reject_nestedFieldType
 #print axioms Cordis.RuntimeRefinement.reject_unsafeInteger
+#print axioms Cordis.Observational.Quotient.Respects.comp
+#print axioms Cordis.Observational.Quotient.MapRelated.comp
+#print axioms Cordis.Observational.Quotient.AppliedRelated.trans
+#print axioms Cordis.Observational.Quotient.Admissible.seq
+#print axioms Cordis.Observational.Quotient.Program.run_admissible
+#print axioms Cordis.Observational.Quotient.Program.accumulated_inverse_respects
+#print axioms Cordis.Observational.Quotient.Program.recovers
+#print axioms Cordis.Observational.Quotient.ofExact_admissible
+#print axioms Cordis.Observational.Quotient.Example.program_recovers
+#print axioms Cordis.Coeffect.Quotient.undoAt_related
+#print axioms Cordis.Coeffect.Quotient.lift_results_related
+#print axioms Cordis.Coeffect.Quotient.liftApplied
+#print axioms Cordis.Coeffect.Quotient.Example.counter_lifts_related
+#print axioms Cordis.OperationalEquivalence.indistinguishableSetoid
+#print axioms Cordis.OperationalEquivalence.indistinguishable_admissible
+#print axioms Cordis.OperationalEquivalence.contained_in_indistinguishable
+#print axioms Cordis.OperationalEquivalence.declaredEquivalence_admissible
+#print axioms Cordis.OperationalEquivalence.declaredEquivalence_contained
+#print axioms Cordis.OperationalEquivalence.withOperationalEquivalence
+#print axioms Cordis.OperationalEquivalence.Example.initial_not_indistinguishable_from_bumped
+#print axioms Cordis.OperationalEquivalence.Example.leftContext_related_renamedContext
+#print axioms Cordis.OperationalEquivalence.PairedGap.seeds_indistinguishable
+#print axioms Cordis.OperationalEquivalence.PairedGap.pairedInverseCoherent_fails
+#print axioms Cordis.SessionRefinement.RefinedEvent.projection_exact
+#print axioms Cordis.SessionRefinement.RefinedEvent.events_eq
+#print axioms Cordis.SessionRefinement.ValidatedSequence.protocolTrace_erase
+#print axioms Cordis.SessionRefinement.ValidatedSequence.sessionProjection_eq
+#print axioms Cordis.SessionRefinement.ValidatedJsonLog.projection_exact
+#print axioms Cordis.SessionRefinement.validate_example
+#print axioms Cordis.SessionRefinement.example_turnEndStep_isDerived
+#print axioms Cordis.SessionRefinement.reject_surfaceMetadataOnStepStart
+#print axioms Cordis.SessionRefinement.reject_ignorableCoreEvent
+#print axioms Cordis.SessionRefinement.reject_unmodeledTurnEndReason
+#print axioms Cordis.SessionRefinement.reject_mismatchedToolResultIds
+#print axioms Cordis.SessionRefinement.reject_underdeterminedTurnEnd

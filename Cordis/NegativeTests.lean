@@ -1,14 +1,18 @@
 import Cordis.Harness
 import Cordis.Coeffect
+import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.Examples.DependentChoice
 import Cordis.Lifecycle
 import Cordis.Policy
 import Cordis.Protocol
+import Cordis.OperationalEquivalence
+import Cordis.QuotientEffect
 import Cordis.RichStream
 import Cordis.RuntimeRefinement
 import Cordis.Schedule
 import Cordis.Session
+import Cordis.SessionRefinement
 import Cordis.StreamSession
 import Cordis.UnifiedContext
 
@@ -266,5 +270,37 @@ example : Cordis.Applied UnifiedContext.Example.Interception.Context
 example : RuntimeRefinement.SafeNat where
   value := 9007199254740992
   safe := by decide
+
+/-! A heterogeneous operational outcome keeps the exact operation-selected value type. -/
+
+/-- error: Type mismatch -/
+#guard_msgs (substring := true) in
+example : OperationalEquivalence.OutcomeEvent OperationalEquivalence.Example.coeffect where
+  op := .bump
+  value := "not a Nat"
+
+/-! An inverse test letter cannot be fabricated at a seed outside the operation domain. -/
+
+/-- error: Tactic `decide` proved that the proposition -/
+#guard_msgs (substring := true) in
+example : OperationalEquivalence.Letter OperationalEquivalence.Example.coeffect :=
+  .inverse .bump () OperationalEquivalence.Example.blocked (by
+    letI := OperationalEquivalence.Example.coeffect.enabledDecidable .bump ()
+      OperationalEquivalence.Example.blocked
+    decide)
+
+/-! Provider-call assignment state cannot contain duplicate provider identifiers. -/
+
+/-- error: Tactic `decide` proved that the proposition -/
+#guard_msgs (substring := true) in
+example : SessionRefinement.BindingState where
+  nextLocalId := 2
+  bindings := [
+    { providerId := "same", localId := { value := 0 } },
+    { providerId := "same", localId := { value := 1 } }
+  ]
+  providerNodup := by decide
+  localNodup := by decide
+  localBelowNext := by decide
 
 end Cordis.NegativeTests

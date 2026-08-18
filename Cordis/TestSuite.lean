@@ -1,6 +1,7 @@
 import Cordis.Batch
 import Cordis.Codec
 import Cordis.Coeffect
+import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.Effect
 import Cordis.Examples.Counter
@@ -8,13 +9,16 @@ import Cordis.Examples.CounterWire
 import Cordis.Examples.DependentChoice
 import Cordis.Harness
 import Cordis.Lifecycle
+import Cordis.OperationalEquivalence
 import Cordis.Policy
 import Cordis.Protocol
+import Cordis.QuotientEffect
 import Cordis.Registry
 import Cordis.RichStream
 import Cordis.RuntimeRefinement
 import Cordis.Schedule
 import Cordis.Session
+import Cordis.SessionRefinement
 import Cordis.SessionValidation
 import Cordis.Stream
 import Cordis.StreamSession
@@ -646,6 +650,65 @@ private def testRuntimeRefinement : IO Unit := do
         error (.unsupportedField [] "replayState")
   | .ok _ => fail "opaque upstream replay state was silently discarded"
 
+private def testQuotientEffects : IO Unit := do
+  let applied := Observational.Quotient.Example.program.run
+    Observational.Quotient.Example.initial
+  let expected : Observational.Quotient.Example.Model := { visible := 5, hidden := 11 }
+  assertEqual "admissible quotient program retains its concrete successor"
+    applied.after expected
+  assertEqual "the concrete example's accumulated observational inverse recovers exactly"
+    (applied.undo applied.after) Observational.Quotient.Example.initial
+
+private def testCoeffectQuotientLift : IO Unit := do
+  let result := Coeffect.Quotient.Example.counterCoeffect.lift
+    Coeffect.Quotient.Example.counterOp Coeffect.Quotient.Example.counterAmount
+    Coeffect.Quotient.Example.left Coeffect.Quotient.Example.leftCounter trivial
+  let outcome : Nat := result.2
+  assertEqual "quotient-preserving coeffect lift retains its typed outcome" outcome 3
+  let afterCounter : Option Nat := result.1.after Coeffect.Quotient.Example.ExampleKey.counter
+  assertEqual "quotient-preserving coeffect lift changes only the selected Nat binding"
+    afterCounter (some 7)
+  let recoveredCounter : Option Nat :=
+    result.1.undo result.1.after Coeffect.Quotient.Example.ExampleKey.counter
+  assertEqual "lifted local inverse restores the selected dependent binding"
+    recoveredCounter (some 3)
+
+private def testOperationalEquivalence : IO Unit := do
+  match OperationalEquivalence.observe OperationalEquivalence.Example.coeffect
+      OperationalEquivalence.Example.mixedTest OperationalEquivalence.Example.initial with
+  | none => fail "enabled heterogeneous operational test became undefined"
+  | some outcomes =>
+      assertEqual "heterogeneous operational test records both forward outcomes"
+        outcomes.length 2
+  match OperationalEquivalence.observe OperationalEquivalence.Example.coeffect
+      [.forward .bump ()] OperationalEquivalence.Example.blocked with
+  | none => pure ()
+  | some _ => fail "operational test ignored a failed operation precondition"
+
+private def testSessionRefinement : IO Unit := do
+  match SessionRefinement.validateJsonLog SessionRefinement.exampleJson with
+  | .error error => fail s!"supported current-Harness session prefix failed: {reprStr error}"
+  | .ok validated =>
+      assertRuntimeStateEqual "stateful session refinement reaches the derived turn endpoint"
+        (eraseState validated.final.protocol) (.ready 2)
+      assertEqual "stateful session refinement preserves physical sequence continuity"
+        validated.final.session.nextSeq 6
+      assertEqual "stateful session refinement derives one tool-result surface message"
+        validated.final.session.messages [.toolResult { value := 0 } "result" false]
+      assertEqual "stateful session refinement retains the exact structural event sequence"
+        validated.sequence.runtimeEvents [
+          .turnStart 1,
+          .stepStart 1 0,
+          .toolCall 1 0 { value := 0 },
+          .toolResult 1 0 { value := 0 },
+          .stepEnd 1 0,
+          .turnEnd 1 1
+        ]
+      let _projectionCertificate :
+          Session.protocolProjection validated.final.session.events =
+            validated.sequence.protocolTrace.erase :=
+        validated.projection_exact
+
 private def testHarnessPhaseFailures : IO Unit := do
   let initial := Harness.RunnerState.initial 0
   match initial.beginStep with
@@ -839,6 +902,10 @@ def run : IO Unit := do
   testContextualEquivalence
   testUnifiedContexts
   testRuntimeRefinement
+  testQuotientEffects
+  testCoeffectQuotientLift
+  testOperationalEquivalence
+  testSessionRefinement
   testHarnessPhaseFailures
   testCounterAdmission
   testHarnessDemo
