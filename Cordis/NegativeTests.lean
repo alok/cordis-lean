@@ -3,12 +3,14 @@ import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.Examples.DependentChoice
+import Cordis.GlobalRegistry
 import Cordis.Lifecycle
 import Cordis.Policy
 import Cordis.Protocol
 import Cordis.OperationIndependence
 import Cordis.OperationalEquivalence
 import Cordis.QuotientEffect
+import Cordis.Removal
 import Cordis.RichStream
 import Cordis.RuntimeRefinement
 import Cordis.Schedule
@@ -324,5 +326,21 @@ example : Transformation.InverseStable
     (fun state ↦ (OperationIndependence.Example.ForwardOnlyGap.bumpY state).after) := by
   intro state
   rfl
+
+/-! An occupied global fiber name cannot satisfy the insertion freshness witness. -/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : Coeffect.Absent GlobalRegistry.Example.withProvider.registry 0 := by
+  constructor
+  rfl
+
+/-! A list that drops a retained inverse cannot witness Corollary 21's permutation. -/
+
+/-- error: unsolved goals -/
+#guard_msgs (substring := true) in
+example : (Removal.yieldedInverses Removal.Example.effects Removal.Example.initial).Perm
+    [Removal.Example.inverseX, Removal.Example.inverseY] := by
+  simp [Removal.Example.effects]
 
 end Cordis.NegativeTests

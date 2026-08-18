@@ -7,6 +7,7 @@ import Cordis.Effect
 import Cordis.Examples.Counter
 import Cordis.Examples.CounterWire
 import Cordis.Examples.DependentChoice
+import Cordis.GlobalRegistry
 import Cordis.Harness
 import Cordis.Lifecycle
 import Cordis.OperationIndependence
@@ -15,6 +16,7 @@ import Cordis.Policy
 import Cordis.Protocol
 import Cordis.QuotientEffect
 import Cordis.Registry
+import Cordis.Removal
 import Cordis.RichStream
 import Cordis.RuntimeRefinement
 import Cordis.Schedule
@@ -759,6 +761,32 @@ private def testOperationIndependence : IO Unit := do
   assertEqual "Definition 41 continuation selects the matching String argument"
     mediatedLabel (some "a-three")
 
+private def testArbitraryRemoval : IO Unit := do
+  let final := Removal.runState Removal.Example.effects Removal.Example.initial
+  assertEqual "arbitrary inverse order recovers the exact initial state"
+    (Removal.applyMaps Removal.Example.inverseOrder final) Removal.Example.initial
+  let originalWithMiddle :=
+    Removal.runState [Schedule.exampleZ]
+      (Schedule.exampleY Removal.Example.afterX).after
+  let omittedMiddle := Removal.runState [Schedule.exampleZ] Removal.Example.afterX
+  assertEqual "removing the middle effect preserves the later independent contribution"
+    (Removal.Example.inverseY originalWithMiddle) omittedMiddle
+
+private def testGlobalRegistry : IO Unit := do
+  assertEqual "global registry insertions advance the proof-only birth clock"
+    GlobalRegistry.Example.withConsumer.nextBirth 2
+  assertEqual "inserted provider remains registered"
+    (GlobalRegistry.Example.withConsumer.registry 0).isSome true
+  assertEqual "retire then remove makes the child name absent"
+    (GlobalRegistry.Example.withoutConsumer.registry 1).isSome false
+  match GlobalRegistry.Example.retiredConsumer.registry 1 with
+  | none => fail "retirement removed the fiber instead of retaining it"
+  | some fiber =>
+      assertEqual "retirement sets only the request flag before removal" fiber.retired true
+      match fiber.phase with
+      | .inactive _ => pure ()
+      | _ => fail "orchestration retirement changed the lifecycle phase"
+
 private def testHarnessPhaseFailures : IO Unit := do
   let initial := Harness.RunnerState.initial 0
   match initial.beginStep with
@@ -958,6 +986,8 @@ def run : IO Unit := do
   testSessionRefinement
   testTransformationIndependence
   testOperationIndependence
+  testArbitraryRemoval
+  testGlobalRegistry
   testHarnessPhaseFailures
   testCounterAdmission
   testHarnessDemo

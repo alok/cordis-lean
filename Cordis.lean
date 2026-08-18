@@ -9,6 +9,7 @@ import Cordis.Examples.Counter
 import Cordis.Examples.CounterWire
 import Cordis.Examples.DependentChoice
 import Cordis.GenericHarness
+import Cordis.GlobalRegistry
 import Cordis.Harness
 import Cordis.Lifecycle
 import Cordis.OperationIndependence
@@ -17,6 +18,7 @@ import Cordis.Policy
 import Cordis.Protocol
 import Cordis.QuotientEffect
 import Cordis.Registry
+import Cordis.Removal
 import Cordis.RichStream
 import Cordis.RuntimeRefinement
 import Cordis.Schedule

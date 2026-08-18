@@ -5,6 +5,7 @@ import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.Effect
 import Cordis.Examples.DependentChoice
+import Cordis.GlobalRegistry
 import Cordis.Harness
 import Cordis.Lifecycle
 import Cordis.OperationIndependence
@@ -12,6 +13,7 @@ import Cordis.OperationalEquivalence
 import Cordis.Policy
 import Cordis.QuotientEffect
 import Cordis.Registry
+import Cordis.Removal
 import Cordis.RichStream
 import Cordis.RuntimeRefinement
 import Cordis.Schedule
@@ -265,3 +267,31 @@ set_option format.width 200
 #print axioms Cordis.OperationIndependence.Computation.run_recovers
 #print axioms Cordis.OperationIndependence.Example.Exact.independent
 #print axioms Cordis.OperationIndependence.Example.ForwardOnlyGap.inverse_stability_fails
+#print axioms Cordis.GlobalRegistry.WellFormed.activeProvider_unique
+#print axioms Cordis.GlobalRegistry.WellFormed.activeValue_unique
+#print axioms Cordis.GlobalRegistry.activeContext_value_iff
+#print axioms Cordis.GlobalRegistry.IsTargetView.unique
+#print axioms Cordis.GlobalRegistry.targetView_sound
+#print axioms Cordis.GlobalRegistry.targetView_eq_of_isTarget
+#print axioms Cordis.GlobalRegistry.preserve_insert
+#print axioms Cordis.GlobalRegistry.preserve_retire
+#print axioms Cordis.GlobalRegistry.preserve_remove
+#print axioms Cordis.GlobalRegistry.OrchestrationStep.preservesWellFormed
+#print axioms Cordis.GlobalRegistry.Ancestor.birth_lt
+#print axioms Cordis.GlobalRegistry.parent_acyclic
+#print axioms Cordis.GlobalRegistry.Trace.preservesWellFormed
+#print axioms Cordis.GlobalRegistry.Example.orchestrationTrace_preserves
+#print axioms Cordis.Removal.execution_retainedInverses
+#print axioms Cordis.Removal.RemovalTrace.step
+#print axioms Cordis.Removal.buildRemovalTrace
+#print axioms Cordis.Removal.removal_forward_relation
+#print axioms Cordis.Removal.removal_inverse_relation
+#print axioms Cordis.Removal.later_inverses_unchanged
+#print axioms Cordis.Removal.RemovalTrace.suffix_occurrence_has_inverseAgreement
+#print axioms Cordis.Removal.applyMaps_eq_of_perm
+#print axioms Cordis.Removal.reverse_yieldedInverses_recovers
+#print axioms Cordis.Removal.headInverse_commutes_yielded
+#print axioms Cordis.Removal.yieldedInverses_commuting
+#print axioms Cordis.Removal.inverse_permutation_recovers
+#print axioms Cordis.Removal.Example.pairwise
+#print axioms Cordis.Removal.Example.inverseOrder_permutation
