@@ -9,10 +9,11 @@ Active `0.2` development is specified separately in
 [`docs/V0_2_SPEC.md`](docs/V0_2_SPEC.md): a generic phase-indexed runner,
 exact-call policy denial, a non-counter dependent-output configuration, and a
 canonical rich session whose model requests and structural protocol are proved
-to be log projections are now implemented. Raw surface-intent validation,
-durability, asynchronous scheduling, full paper metatheory, and TypeScript
-refinement remain open, so this historical acceptance matrix is not silently
-redefined as a broader completion claim.
+to be log projections are now implemented. Proof-producing validation now
+admits or rejects typed rich events after kind-specific payload parsing; byte
+parsing, durability, asynchronous scheduling, full paper metatheory, and
+TypeScript refinement remain open, so this historical acceptance matrix is not
+silently redefined as a broader completion claim.
 
 Repository: `cordis-lean`
 

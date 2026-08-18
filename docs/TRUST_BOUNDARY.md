@@ -5,8 +5,9 @@
 > **Current-development addendum.** The `0.2` work described in
 > [`V0_2_SPEC.md`](V0_2_SPEC.md) moves catalog coherence, runner phase,
 > exact-call policy rejection, rich surface placement, log sequence continuity,
-> request reconstruction, and rich-to-structural protocol equality into Lean
-> types. It does not add durable storage, byte-level transport, real model/tool
+> proof-producing validation after typed payload parsing, request
+> reconstruction, and rich-to-structural protocol equality into Lean types. It
+> does not add byte-level parsing, durable storage, transport, real model/tool
 > I/O, asynchronous fibers, global exactly-once execution, full paper
 > metatheory, or a refinement theorem for the TypeScript Harness. The reviewed
 > `0.1.0` boundary below remains historical evidence rather than a claim about

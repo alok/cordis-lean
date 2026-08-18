@@ -19,6 +19,9 @@ configuration and its trusted transitions are indexed by the exact session
 phase. The counter is a thin instantiation; a second `Workspace` example proves
 that a Boolean request can select either a `Nat` or `String` result while an
 exact-call policy allows one branch and rejects the other without dispatch.
+`Cordis.SessionValidation` validates parsed-but-untrusted typed events into
+exact append/replacement range, provenance, surface-uniqueness, and `ValidLog`
+certificates.
 
 The included demo is deterministic and credential-free. Starting from counter
 state `2`, it reads, increments by `3` under limit `10`, reads again, and rejects
@@ -155,7 +158,7 @@ placeholders.
 | Catalog, wire, needs, registry, view, model-dependent grants, and exact-call policy cannot drift across the reusable runner                        | `GenericHarness.Config`, `Runner cfg phase`, `DispatchResult`                                                             | Pure sequential execution; external adapters still require refinement evidence.                                          |
 | Admission rejection and admitted policy rejection dispatch zero times; a completed exact-call trace dispatches once and restores its lease pool    | `CallEvidence.*dispatchCount*`, `completed_terminal_lease_absent`, `leases_restored`                                      | One explicitly threaded pure runner, not a global cross-worker guarantee.                                                |
 | A non-counter Boolean request definitionally selects `Nat` or `String`, and policy rejects the exact string branch before provider execution       | `Examples.DependentChoice.request_selects_exact_output_type` and its allowed/rejected run theorems                        | Deterministic in-memory example over a structured `Workspace`.                                                           |
-| Rich surface intent is selected by event visibility; replacement retains a nonempty exact shadow interval with unique earlier covering sources     | `Session.EventIntent`, `SurfaceTransition.replace`, `replacement_exact_shadow`, `replacement_coverage`                    | Intrinsic/certified append path; raw serialized surface-intent validation is still future work.                          |
+| Rich surface intent is selected by event visibility; replacement retains a nonempty exact shadow interval with unique earlier covering sources     | `Session.EventIntent`, `SurfaceTransition.replace`, `replacement_exact_shadow`, `replacement_coverage`                    | Intrinsic path plus proof-producing validation after kind-specific payload parsing; byte/JSON parsing remains external.  |
 | Rich session sequence numbers are contiguous; surface nodes are unique earlier events; request header and messages are exact log projections       | `ValidLog.*`, `ModelRequest`, `mkRequest`                                                                                 | In-memory typed events; timestamps, JSON bytes, durability, resume, and fork are excluded.                               |
 | The counter wrapper's canonical rich session erases exactly to the replay-certified structural protocol log                                        | `RunnerState.protocolProjection_eq_log`, `protocolProjection_replays`                                                     | The rich vocabulary is a finite core subset, not full TypeScript session equivalence.                                    |
 
@@ -178,6 +181,7 @@ placeholders.
 | `Cordis.Examples.CounterWire`     | Counter name resolution, codecs, admission proofs, capabilities, and raw examples.                                                                              |
 | `Cordis.GenericHarness`           | Generic phase-indexed dependent runner, exact-call policy rejection/completion evidence, dispatch results, and joint model/lease/ID/log history.                |
 | `Cordis.Session`                  | Visibility-indexed rich events, exact append/replacement surface witnesses, contiguous logs, header/message reconstruction, and structural protocol projection. |
+| `Cordis.SessionValidation`        | Terminating range location and proof-producing validation from typed untrusted events to `ValidatedAppend`, `ValidatedSuffix`, and `ValidatedLog`.              |
 | `Cordis.Examples.DependentChoice` | Structured non-counter model whose Boolean input selects `Nat` or `String`, with exact-call allow/deny behavior.                                                |
 | `Cordis.Harness`                  | Counter configuration and dynamic convenience wrapper whose canonical rich session is proved to project to the generic runner's structural log.                 |
 | `Cordis.TestSuite`                | Executable algebraic, boundary, adversarial, and end-to-end checks.                                                                                             |

@@ -7,9 +7,10 @@
 This specification defines the active implementation slice after the finite `0.1.0` counter
 kernel. The generic phase-indexed runner, exact-call allow/reject policy paths, structured
 non-counter example, intrinsic rich session/surface kernel, model-request reconstruction, and
-the counter wrapper's rich-to-structural log equality are implemented. Runtime validation of raw
-surface intents and the later production/refinement layers listed below remain open; this file is
-therefore an in-progress contract, not a completed `0.2.0` release claim.
+the counter wrapper's rich-to-structural log equality are implemented. `SessionValidation`
+proof-produces append/replacement and finite-suffix certificates from parsed-but-untrusted typed
+events. Byte/payload parsing and the later production/refinement layers listed below remain open;
+this file is therefore an in-progress contract, not a completed `0.2.0` release claim.
 
 The slice closes two concrete gaps in the original objective:
 
@@ -30,6 +31,8 @@ Current machine-checked evidence includes:
   policy rejects the exact string-producing call before dispatch;
 - `Cordis.Session.EventIntent`, `SurfaceTransition`, `ValidLog`, `ModelRequest`, certified
   replacement examples, and rich-to-structural `ProtocolCertificate`;
+- `Cordis.SessionValidation.RangeWitness`, `ValidatedAppend`, `ValidatedSuffix`, and
+  `ValidatedLog`, including exact structured rejection examples;
 - `Harness.RunnerState.protocolProjection_eq_log` and `protocolProjection_replays`, tying the
   actual counter demo's canonical rich log to the generic runner; and
 - executable, static-rejection, hygiene, strict-build, and selected-axiom gates covering those
