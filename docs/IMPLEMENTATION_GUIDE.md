@@ -1736,8 +1736,10 @@ does not authorize real parallel I/O without a concrete refinement.
 ### 19.5 Relate the model to DeepSeek Harness
 
 The active `Cordis.RuntimeRefinement` module begins this work for a supported
-current-Harness `StreamChunk` subset. It starts at `Lean.Json`, decodes exact
-current field/tag shapes, and feeds the result to `RichStream.validateTrace`.
+current-Harness `StreamChunk` subset. `Cordis.SessionRefinement` adds a stateful
+turn/step/tool subset whose accepted events carry both rich Session and
+intrinsic Protocol witnesses. Both start at `Lean.Json`, decode exact current
+field/tag shapes, and fail closed outside their stated language.
 Continue by defining translations for additional pinned Harness events and tool
 definitions and proving only the invariants actually shared by the two
 representations. Expect to model more payloads, surface semantics, session
@@ -1747,14 +1749,16 @@ one-way supported-subset decoder are not a whole-runtime equivalence theorem.
 ### 19.6 Mechanize more of the paper
 
 Use [`PAPER_MAP.md`](PAPER_MAP.md) as a backlog. Major missing areas include the
-effect-context tower, Definitions 34–42's operation-test and independence
+effect-context tower, Definitions 39–42's transformation-monoid and independence
 machinery, the global component calculus, preservation, interleaved temporal
 recovery, spatial composition, progress, confluence, loader reconciliation,
 and HMR. The active line now covers finite local coeffects (Definitions 22–26),
 direct finite realization/isolation/interception models (27–31), finite
 unfoldings of 32, and the finite-context relation/reactive invariance of 33.
-Do not present those bounded results, local `UndoStack`, lifecycle, or batch
-results as substitutes for the remaining theorems.
+It also covers Definition 34 and generator-level Lemma 35, Definitions 36–37,
+and the finite-composition core of Lemma 38. Do not present those bounded
+results, local `UndoStack`, lifecycle, or batch results as substitutes for the
+remaining theorems.
 
 ### 19.7 Rebuild the bounded context layer by hand
 
@@ -1787,12 +1791,23 @@ Implement this layer in paper dependency order.
 9. Lift each key relation through `Option` so absence relates only to absence. Prove this is
    equivalent to equal presence domains plus pointwise-related present values; then package it as
    a `Setoid` and prove satisfaction and notification invariance.
+10. Represent a Definition 34 test as a finite word of typed forward operations and concrete
+    inverses yielded at enabled seed states. Keep outcomes heterogeneous and make a failed
+    forward precondition return an undefined observation.
+11. Prove finite-test agreement is an equivalence and the largest relation respected by each
+    fixed generator. Do not silently upgrade that result to compare two different inverses
+    yielded at related seeds: the checked `PairedGap` model refutes that implication. Name the
+    additional paired-inverse coherence law explicitly when a full `CoeffectAt` requires it.
+12. Separate Definition 36's quotient-respecting map from pointwise map relatedness. Add
+    Definition 37 admissibility to observational effects, prove it is closed under sequential
+    composition, and then prove the key-local operation lift preserves whole-context successor,
+    inverse-map, and outcome relations.
 
 The important review question at each step is whether a theorem describes the paper object
 directly, a bounded approximation, or an integrator-supplied obligation. Put that distinction in
 the declaration's documentation, not only in release notes.
 
-### 19.8 Rebuild the current stream JSON refinement by hand
+### 19.8 Rebuild the current JSON refinements by hand
 
 Keep three layers visibly separate:
 
@@ -1810,6 +1825,22 @@ Fail closed when the upstream and local types differ. In the current slice that 
 replay state, image/tool-result blocks, and error/abort `LlmFailure` values. Add exact rejection
 theorems for each unsupported boundary, and keep decode errors separate from semantic stream
 errors. The resulting theorem is supported-subset soundness, not assembler completeness.
+
+For session events, use a stateful refiner rather than a context-free codec. Decode and retain
+the current `{type, seq, time, data, ignorable?, sourceEventSeqs?, surfaceOp?}` envelope, then:
+
+1. normalize upstream one-based steps to the local zero-based protocol only after rejecting zero;
+2. derive `turn/end.nextStep` from the already validated local turn state;
+3. assign provider string call IDs to fresh numeric IDs in proof-carrying state;
+4. construct one candidate whose rich event projection is definitionally the runtime event;
+5. require both `Session.validateAppend` and `Protocol.validateEvent` to accept it; and
+6. compose the witnesses and prove the final Session projection equals intrinsic trace erasure.
+
+Keep the subset narrow. The current implementation supports boundary events, tool calls, and a
+restricted append-only singleton-text tool result. It rejects identities/payloads the local type
+cannot preserve, replacement operations, opaque metadata, extensions, and non-equivalent turn
+reasons. This is stateful supported-subset soundness, not a persisted JSONL or whole-session
+equivalence theorem.
 
 ## 20. Exact verification and review commands
 

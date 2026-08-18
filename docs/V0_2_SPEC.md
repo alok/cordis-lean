@@ -45,8 +45,15 @@ Current machine-checked evidence includes:
   unfoldings of Definition 32's negatively recursive context equation;
 - `Cordis.ContextualEquivalence`, mechanizing the finite-context portion of Definition 33 and
   proving satisfaction and notification invariance under the resulting `Setoid`;
+- `Cordis.OperationalEquivalence`, executing Definition 34's heterogeneous finite tests,
+  proving the generator-level coarsest relation of Lemma 35, and formally separating the
+  stronger paired-inverse law by counterexample;
+- `Cordis.QuotientEffect` and `Cordis.CoeffectQuotient`, implementing Definitions 36–37,
+  finite quotient-respecting composition/recovery, and the context-lift preservation laws;
 - `Cordis.RuntimeRefinement`, decoding the supported current-Harness stream-chunk JSON-AST
   shapes into `RichStream.ValidatedTrace` while explicitly rejecting non-equivalent fields;
+- `Cordis.SessionRefinement`, statefully translating a supported source-shaped Harness session
+  prefix into joint `Session.ValidatedAppend` and intrinsic `Protocol.ValidatedEvent` witnesses;
 - `Cordis.StreamSession`, making the provider-string-ID to unique numeric-session-`CallId`
   assignment explicit before a validated rich assistant view enters the canonical surface;
 - `Harness.RunnerState.protocolProjection_eq_log` and `protocolProjection_replays`, tying the
@@ -300,7 +307,7 @@ future external adapter consumes the same proof-carrying request contract.
 
 ## Paper context and executable refinement
 
-The bounded context layer now has three explicit tiers:
+The bounded context layer now has five explicit tiers:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -309,6 +316,15 @@ The bounded context layer now has three explicit tiers:
 3. `Cordis.ContextualEquivalence` lifts each key's Definition 24 equivalence through optional
    bindings, proves that this is exactly same-domain plus pointwise-related values, and supplies
    the finite context `Setoid` used by observational effects.
+4. `Cordis.OperationalEquivalence` defines finite tests from typed forward maps and concrete
+   seeded inverses, retains heterogeneous outcomes, and proves the largest relation respected by
+   every fixed generator. A finite counterexample proves that same-word tests do not imply the
+   stronger comparison between two differently yielded inverses; `PairedInverseCoherent` names
+   the additional premise needed to rebuild a full `CoeffectAt` over that relation.
+5. `Cordis.QuotientEffect` defines quotient-respecting and pointwise-related maps, proves
+   Definition 37 admissibility is closed under finite sequential composition, and exposes the
+   accumulator-respect/recovery core of Lemma 38. `Cordis.CoeffectQuotient` connects the local
+   Definition 24 laws to related lifted contexts and outcomes.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -322,6 +338,15 @@ the intrinsic trace witness. Opaque replay state, image/tool-result blocks, upst
 `LlmFailure` error/abort shapes, unsafe integers, and malformed fields fail closed. This is a
 sound supported-subset refinement; it is not a completeness or behavioral-equivalence theorem
 for the TypeScript `BlockAssembler`.
+
+`Cordis.SessionRefinement` covers a separate stateful subset of current `SessionEvent` JSON:
+turn/step boundaries, tool calls, and restricted append-only singleton-text tool results. It
+retains source sequence/time values in wire witnesses, derives local zero-based steps and
+`turn/end.nextStep` only from the validated prefix, and assigns provider string call IDs to
+fresh numeric local IDs with uniqueness proofs. Every admitted event passes both the rich
+Session append validator and intrinsic Protocol validator. Unsupported messages, chunks,
+headers, replacements, error/meta payloads, extension events, and non-equivalent turn reasons
+fail closed.
 
 ## Executable and static tests
 
@@ -339,12 +364,17 @@ The slice requires all existing gates plus the following new coverage:
 - one generic counter configuration reproducing the `0.1.0` final model and dependent encoded
   results;
 - one policy-denied admitted call proving the provider was not dispatched;
-- a second non-counter catalog instantiation proving the runner is genuinely generic; and
+- a second non-counter catalog instantiation proving the runner is genuinely generic;
 - negative construction tests for mismatched catalog/wire/view indices and forged joint
   session/record history;
 - heterogeneous realm isolation and metadata interception, including exact recovery;
-- context-equivalence preservation of satisfaction and notification; and
-- current-Harness stream JSON success plus exact decode and semantic rejection paths.
+- context-equivalence preservation of satisfaction and notification;
+- current-Harness stream JSON success plus exact decode and semantic rejection paths;
+- finite operational tests with heterogeneous outcomes, failed domains, and the formal
+  paired-inverse counterexample;
+- quotient-effect composition and lifted coeffect context preservation; and
+- a complete supported current-Harness turn/step/tool session prefix plus stateful rejection
+  cases.
 
 Headline theorems must be added to `Cordis/AxiomAudit.lean`. The full project must remain free of
 `sorry`, `admit`, project-defined axioms, `unsafe`, `partial`, external implementation overrides,
@@ -375,7 +405,8 @@ This slice does not by itself prove:
 - byte-level JSON parsing, rendering, or storage compatibility;
 - durable persistence, flush barriers, crash repair, resume, or fork correctness;
 - task/fiber scheduling, fairness, cancellation delivery, or wall-clock concurrency;
-- Definitions 34–42, the component/fiber calculus, or the paper's global composability results;
+- the stronger paired-inverse law from same-word tests without its explicit coherence premise;
+- Definitions 39–42, the component/fiber calculus, or the paper's global composability results;
 - native plugin isolation, process confinement, filesystem safety, or remote-service behavior;
 - global exactly-once execution across workers; or
 - that a model follows supplied schemas or chooses an appropriate tool.

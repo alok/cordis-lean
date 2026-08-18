@@ -7,8 +7,10 @@
 > exact-call policy rejection, rich surface placement, log sequence continuity,
 > proof-producing validation after typed payload parsing, request
 > reconstruction, and rich-to-structural protocol equality into Lean types. It
-> adds one partial TypeScript boundary: supported current-Harness stream-chunk
-> JSON-AST values decode into the intrinsic rich-stream validator. It does not
+> adds partial TypeScript boundaries: supported current-Harness stream-chunk
+> JSON-AST values decode into the intrinsic rich-stream validator, and a
+> stateful turn/step/tool session subset jointly refines into local Session and
+> Protocol witnesses. It does not
 > add byte-level parsing, durable storage, transport, real model/tool I/O,
 > asynchronous fibers, global exactly-once execution, full paper metatheory, or
 > whole-Harness behavioral equivalence. The reviewed `0.1.0` boundary below
@@ -19,7 +21,10 @@ Definitions 22–26, direct finite isolation/interception models for Definitions
 27–31, finite unfoldings for Definition 32, and the finite-context relation and
 reactive invariance of Definition 33. Key-local equivalences, operation laws,
 metadata monoids, and runtime correspondence remain supplied obligations;
-Definitions 34–42 remain open. `Schedule` executes sequentially, and
+Definition 34/Lemma 35's fixed-generator relation and Definitions 36–37 with
+the finite Lemma 38 core are now explicit. A formal counterexample shows that
+same-word tests do not derive the stronger paired-inverse law; Definitions
+39–42 remain open. `Schedule` executes sequentially, and
 `RichStream` excludes transport, images, tool-result blocks, and pruning. These
 types do not extend the theorem boundary to corresponding external systems
 automatically.
@@ -129,7 +134,16 @@ no `IO`, launches no tasks, and proves no concurrency or safe-parallel-execution
   so this project does not pretend it is an ordinary strictly positive Lean inductive.
 - `Coeffect.Observational.Related` is exactly same presence domain plus key-wise related values.
   The supplied `contextSetoid`, satisfaction invariance, and notification invariance are proved
-  for finite contexts. Operation-test indistinguishability and Definitions 34–42 are not.
+  for finite contexts.
+- `OperationalEquivalence` executes finite heterogeneous words of forward operations and
+  concrete seeded inverses, including undefined domains and typed outcomes. Its relation is the
+  largest equivalence respected by those fixed generators.
+- `PairedGap.pairedInverseCoherent_fails` proves that same-word tests need not relate two
+  different inverses yielded at related seeds. `PairedInverseCoherent` is therefore an explicit
+  additional premise for the stronger `CoeffectAt` reconstruction, not a hidden theorem.
+- `Observational.Quotient.Admissible.seq` and `Program.recovers` prove finite
+  quotient-respecting composition/recovery. `Coeffect.Quotient.lift_results_related` connects
+  the key-local laws to related whole contexts. Definitions 39–42 remain outside this layer.
 
 ### Current stream JSON refinement
 
@@ -147,6 +161,15 @@ no `IO`, launches no tasks, and proves no concurrency or safe-parallel-execution
 This is soundness of one fail-closed supported subset. It is not completeness for the current
 TypeScript `BlockAssembler`, JSON-text parser correctness, transport correctness, or a claim
 that provider bytes match the audited AST shapes.
+
+`SessionRefinement` is a second, stateful supported subset. It retains decoded upstream sequence
+and time values, normalizes one-based upstream steps to zero-based local steps, derives
+`turn/end.nextStep` only from the already validated prefix, and assigns provider string call IDs
+to fresh numeric IDs with proof-carrying uniqueness state. Each admitted event carries both a
+`Session.ValidatedAppend` and a `Protocol.ValidatedEvent`; the cumulative theorem equates the
+complete rich-session structural projection with intrinsic trace erasure. Messages, chunks,
+headers, replacements, extensions, opaque tool metadata, and non-equivalent turn reasons are
+rejected. No completeness, persistence, or whole-session behavioral equivalence follows.
 
 ### Dependent calls and tool contracts
 
@@ -294,22 +317,24 @@ cancellation, persistence, or crash behavior.
 
 Executable rejection is valuable, but it is not a refinement theorem.
 
-| Boundary                                   | Check performed                                                                                                                                                                                                                      | Missing theorem or guarantee                                                                                                                                                                     |
-| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `Codec.decode`                             | Rejects JSON AST constructors or lengths outside each decoder's accepted shape.                                                                                                                                                      | No proof that accepted values are exactly the values denoted by `schema`, and no completeness result for arbitrary JSON.                                                                         |
-| `ToolWire.validate`                        | Resolves a name, checks declaration, decodes the selected input, and requires `certifyAdmission` evidence before returning a dependent call.                                                                                         | The supplied resolver, codecs, propositions, capability source, and admission procedure are not proved equivalent to a deployed registry or authenticated policy.                                |
-| `Protocol.validateEvent` / `validateTrace` | Checks the six local event variants and returns exact intrinsic witnesses for successful inputs.                                                                                                                                     | No translation or equivalence to the full Harness event union; no theorem equates every successful erased `replayRaw` call with witness reconstruction.                                          |
-| `Stream.applyRaw`                          | Checks one text/finish protocol, explicit chunk budget, and terminal-state discipline.                                                                                                                                               | No witness reconstruction for arbitrary accepted raw streams and no equivalence to Harness `StreamChunk` assembly or persistence.                                                                |
-| `RuntimeRefinement.validateJsonTrace`      | Decodes a supported current-Harness stream JSON-AST subset, then returns an exact intrinsic `RichStream.ValidatedTrace` or a separated decode/semantic error.                                                                        | No byte parser, full stream-union coverage, tolerant-assembler completeness, transport, storage, or whole-runtime equivalence.                                                                   |
-| `UnifiedContext` constructors              | Enforce dependent realm/provider types, derived-parent indices, finite unfolding depth, and witnessed local recovery.                                                                                                                | No imperative alias identity, recursive fixed point, tenant sandbox, middleware execution, or runtime refinement.                                                                                |
-| `Coeffect.Observational.Related`           | Makes presence/absence mismatches unconstructible and packages supplied key relations as a finite-context `Setoid`.                                                                                                                  | The key relations are supplied, and Definitions 34–42's operational indistinguishability and independence are not derived.                                                                       |
-| `CertifiedTwoBatch`                        | Requires same-successor, pointwise same-recovery, and result-stability certificate fields before either order is permitted.                                                                                                          | The certificate is supplied, exactly two pure calls are modeled, and no actual concurrency or external-effect safety follows.                                                                    |
-| `Registry.setAt`                           | Uses dependent equality transport so a value cannot be installed at a differently typed key.                                                                                                                                         | No runtime aliasing, notification, or mutable-store semantics are modeled.                                                                                                                       |
-| `View.resolve`                             | Requires `needs op` before a binding can be requested.                                                                                                                                                                               | Construction of the view and completeness of its registry snapshot remain obligations.                                                                                                           |
-| `ToolSpec.Invocation`                      | Requires proof fields before dispatch through the dependent API.                                                                                                                                                                     | The origin and adequacy of the propositions are not certified by the structure itself.                                                                                                           |
-| `EmissionClass`                            | Records a classification.                                                                                                                                                                                                            | No behavior is enforced from the label.                                                                                                                                                          |
-| `Lifecycle.Withdrawable`                   | Quantifies over a supplied finite list of supplied consumer records.                                                                                                                                                                 | The list is not proved to enumerate a live registry, and its Boolean `installed` fields are not linked to lifecycle states.                                                                      |
-| `Harness.RunnerState`                      | Sequential reference functions construct `replayProof` and a six-index `RecordChain` tying model history, IDs, records, final leases, and `callBoundaries log`; public theorems expose boundary/record equality and lease threading. | The boundary projection erases coordinates and has no full Harness translation; there is no refinement to TypeScript Harness, real I/O, parallel scheduling, durable storage, or crash recovery. |
+| Boundary                                    | Check performed                                                                                                                                                                                                                      | Missing theorem or guarantee                                                                                                                                                                     |
+| ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Codec.decode`                              | Rejects JSON AST constructors or lengths outside each decoder's accepted shape.                                                                                                                                                      | No proof that accepted values are exactly the values denoted by `schema`, and no completeness result for arbitrary JSON.                                                                         |
+| `ToolWire.validate`                         | Resolves a name, checks declaration, decodes the selected input, and requires `certifyAdmission` evidence before returning a dependent call.                                                                                         | The supplied resolver, codecs, propositions, capability source, and admission procedure are not proved equivalent to a deployed registry or authenticated policy.                                |
+| `Protocol.validateEvent` / `validateTrace`  | Checks the six local event variants and returns exact intrinsic witnesses for successful inputs.                                                                                                                                     | No translation or equivalence to the full Harness event union; no theorem equates every successful erased `replayRaw` call with witness reconstruction.                                          |
+| `Stream.applyRaw`                           | Checks one text/finish protocol, explicit chunk budget, and terminal-state discipline.                                                                                                                                               | No witness reconstruction for arbitrary accepted raw streams and no equivalence to Harness `StreamChunk` assembly or persistence.                                                                |
+| `RuntimeRefinement.validateJsonTrace`       | Decodes a supported current-Harness stream JSON-AST subset, then returns an exact intrinsic `RichStream.ValidatedTrace` or a separated decode/semantic error.                                                                        | No byte parser, full stream-union coverage, tolerant-assembler completeness, transport, storage, or whole-runtime equivalence.                                                                   |
+| `SessionRefinement.validateJsonLog`         | Stateful supported-subset decoding returns exact rich append and intrinsic protocol witnesses, fresh local call-ID evidence, and a cumulative projection theorem.                                                                    | No complete event union, replacement translation, persisted JSONL parser, timestamp truth, crash recovery, or whole-session equivalence.                                                         |
+| `UnifiedContext` constructors               | Enforce dependent realm/provider types, derived-parent indices, finite unfolding depth, and witnessed local recovery.                                                                                                                | No imperative alias identity, recursive fixed point, tenant sandbox, middleware execution, or runtime refinement.                                                                                |
+| `Coeffect.Observational.Related`            | Makes presence/absence mismatches unconstructible and packages supplied key relations as a finite-context `Setoid`.                                                                                                                  | The key relations are supplied; operational tests can replace them only under the separately documented laws.                                                                                    |
+| `OperationalEquivalence` / `QuotientEffect` | Checks finite partial test words and certifies finite quotient-respecting effect programs; the paired-inverse counterexample is kernel-checked.                                                                                      | Universal test equivalence is not decidable here; the stronger paired law needs a premise, and transformation-monoid independence/Theorems 40–42 remain absent.                                  |
+| `CertifiedTwoBatch`                         | Requires same-successor, pointwise same-recovery, and result-stability certificate fields before either order is permitted.                                                                                                          | The certificate is supplied, exactly two pure calls are modeled, and no actual concurrency or external-effect safety follows.                                                                    |
+| `Registry.setAt`                            | Uses dependent equality transport so a value cannot be installed at a differently typed key.                                                                                                                                         | No runtime aliasing, notification, or mutable-store semantics are modeled.                                                                                                                       |
+| `View.resolve`                              | Requires `needs op` before a binding can be requested.                                                                                                                                                                               | Construction of the view and completeness of its registry snapshot remain obligations.                                                                                                           |
+| `ToolSpec.Invocation`                       | Requires proof fields before dispatch through the dependent API.                                                                                                                                                                     | The origin and adequacy of the propositions are not certified by the structure itself.                                                                                                           |
+| `EmissionClass`                             | Records a classification.                                                                                                                                                                                                            | No behavior is enforced from the label.                                                                                                                                                          |
+| `Lifecycle.Withdrawable`                    | Quantifies over a supplied finite list of supplied consumer records.                                                                                                                                                                 | The list is not proved to enumerate a live registry, and its Boolean `installed` fields are not linked to lifecycle states.                                                                      |
+| `Harness.RunnerState`                       | Sequential reference functions construct `replayProof` and a six-index `RecordChain` tying model history, IDs, records, final leases, and `callBoundaries log`; public theorems expose boundary/record equality and lease threading. | The boundary projection erases coordinates and has no full Harness translation; there is no refinement to TypeScript Harness, real I/O, parallel scheduling, durable storage, or crash recovery. |
 
 When an adapter such as `ToolWire` is used, textual resolution, decoding, and admission can
 fail closed before an `AuthorizedCall` is constructed. The adapter still supplies its resolver,
@@ -335,7 +360,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 180
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 215
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.
@@ -498,10 +523,12 @@ Without additional proofs or tests, do not state that:
 - pure `RunnerState` call/result/record settlement is a durable transaction, makes external tool
   I/O atomic, or provides process-wide exactly-once execution;
 - the local `Cordis.Harness` verifies or is behaviorally equivalent to DeepSeek Harness;
-- `Approximation` constructs Definition 32's recursive fixed point, or finite Definition 33
-  invariance proves the operation-test and independence results of Definitions 34–42;
+- `Approximation` constructs Definition 32's recursive fixed point, fixed-generator tests imply
+  paired-inverse coherence, or the bounded Definitions 33–38 layer proves Theorems 40–42;
 - `RuntimeRefinement` accepts the full Harness stream union, is complete for the tolerant
   TypeScript assembler, verifies provider streaming, or proves chunk storage;
+- `SessionRefinement` accepts the complete Harness event union, preserves every source field in
+  the local event, validates persistence, or proves whole-session behavioral equivalence;
 - a `Codec` schema is verified, parser-safe, or wire-compatible with Harness;
 - a `VerifiedTool` verifies arbitrary real I/O;
 - an emission label provides compensation, idempotence, or sandboxing;
