@@ -7,6 +7,7 @@ import Cordis.Effect
 import Cordis.Examples.DependentChoice
 import Cordis.Harness
 import Cordis.Lifecycle
+import Cordis.OperationIndependence
 import Cordis.OperationalEquivalence
 import Cordis.Policy
 import Cordis.QuotientEffect
@@ -19,6 +20,7 @@ import Cordis.SessionRefinement
 import Cordis.SessionValidation
 import Cordis.Stream
 import Cordis.StreamSession
+import Cordis.Transformation
 import Cordis.UnifiedContext
 
 /-!
@@ -246,3 +248,20 @@ set_option format.width 200
 #print axioms Cordis.SessionRefinement.reject_unmodeledTurnEndReason
 #print axioms Cordis.SessionRefinement.reject_mismatchedToolResultIds
 #print axioms Cordis.SessionRefinement.reject_underdeterminedTurnEnd
+#print axioms Cordis.Transformation.Closure.commute
+#print axioms Cordis.Transformation.commute_of_generators
+#print axioms Cordis.Transformation.seq_monoid_subset_joint
+#print axioms Cordis.Transformation.inverseStable_of_generators
+#print axioms Cordis.Transformation.Independent.of_generators
+#print axioms Cordis.Transformation.Independent.independentAt
+#print axioms Cordis.Transformation.Independent.seq_commute
+#print axioms Cordis.Transformation.Example.either_order_same
+#print axioms Cordis.OperationIndependence.outcomeStable_of_generators
+#print axioms Cordis.OperationIndependence.ExactOperationIndependent.of_generators
+#print axioms Cordis.OperationIndependence.ExactOperationIndependent.seq_effect_eq
+#print axioms Cordis.OperationIndependence.applyLocal_commute
+#print axioms Cordis.OperationIndependence.inspectForwardAt_stable_of_other
+#print axioms Cordis.OperationIndependence.distinctKeys_finiteIndependent
+#print axioms Cordis.OperationIndependence.Computation.run_recovers
+#print axioms Cordis.OperationIndependence.Example.Exact.independent
+#print axioms Cordis.OperationIndependence.Example.ForwardOnlyGap.inverse_stability_fails

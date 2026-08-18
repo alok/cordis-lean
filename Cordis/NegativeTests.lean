@@ -6,6 +6,7 @@ import Cordis.Examples.DependentChoice
 import Cordis.Lifecycle
 import Cordis.Policy
 import Cordis.Protocol
+import Cordis.OperationIndependence
 import Cordis.OperationalEquivalence
 import Cordis.QuotientEffect
 import Cordis.RichStream
@@ -14,6 +15,7 @@ import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
 import Cordis.StreamSession
+import Cordis.Transformation
 import Cordis.UnifiedContext
 
 /-!
@@ -302,5 +304,25 @@ example : SessionRefinement.BindingState where
   providerNodup := by decide
   localNodup := by decide
   localBelowNext := by decide
+
+/-! Definition 41 continuations retain the exact heterogeneous prior outcome type. -/
+
+/-- error: Application type mismatch -/
+#guard_msgs (substring := true) in
+example : OperationIndependence.Computation Coeffect.Quotient.Example.coeffects :=
+  .step .counter Coeffect.Quotient.Example.counterOp
+    Coeffect.Quotient.Example.counterAmount (fun previous ↦
+      .step .label OperationIndependence.Example.DistinctKeys.labelOp previous
+        (fun _ ↦ .pure))
+
+/-! Commuting forward maps cannot fabricate Definition 19 inverse stability. -/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : Transformation.InverseStable
+    OperationIndependence.Example.ForwardOnlyGap.sensitiveX
+    (fun state ↦ (OperationIndependence.Example.ForwardOnlyGap.bumpY state).after) := by
+  intro state
+  rfl
 
 end Cordis.NegativeTests

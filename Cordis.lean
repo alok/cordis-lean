@@ -11,6 +11,7 @@ import Cordis.Examples.DependentChoice
 import Cordis.GenericHarness
 import Cordis.Harness
 import Cordis.Lifecycle
+import Cordis.OperationIndependence
 import Cordis.OperationalEquivalence
 import Cordis.Policy
 import Cordis.Protocol
@@ -26,6 +27,7 @@ import Cordis.Stream
 import Cordis.StreamSession
 import Cordis.Tool
 import Cordis.ToolWire
+import Cordis.Transformation
 import Cordis.UnifiedContext
 import Cordis.Version
 

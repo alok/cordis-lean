@@ -9,6 +9,7 @@ import Cordis.Examples.CounterWire
 import Cordis.Examples.DependentChoice
 import Cordis.Harness
 import Cordis.Lifecycle
+import Cordis.OperationIndependence
 import Cordis.OperationalEquivalence
 import Cordis.Policy
 import Cordis.Protocol
@@ -22,6 +23,7 @@ import Cordis.SessionRefinement
 import Cordis.SessionValidation
 import Cordis.Stream
 import Cordis.StreamSession
+import Cordis.Transformation
 import Cordis.UnifiedContext
 
 /-!
@@ -709,6 +711,54 @@ private def testSessionRefinement : IO Unit := do
             validated.sequence.protocolTrace.erase :=
         validated.projection_exact
 
+private def testTransformationIndependence : IO Unit := do
+  let modelOrder := Effect.seq Transformation.Example.bumpLeft
+    Transformation.Example.bumpRight Transformation.Example.initial
+  let swappedOrder := Effect.seq Transformation.Example.bumpRight
+    Transformation.Example.bumpLeft Transformation.Example.initial
+  assertEqual "full transformation-monoid independence reaches the same successor"
+    modelOrder.after swappedOrder.after
+  assertEqual "full transformation-monoid independence retains the same recovery map"
+    (modelOrder.undo { left := 20, right := 30 })
+    (swappedOrder.undo { left := 20, right := 30 })
+  assertEqual "independent coordinate effects still recover their predecessor"
+    (modelOrder.undo modelOrder.after) Transformation.Example.initial
+
+open OperationIndependence.Example.DistinctKeys in
+private def testOperationIndependence : IO Unit := do
+  let coeffectFamily := Coeffect.Quotient.Example.coeffects
+  let base := Coeffect.Quotient.Example.left
+  let counterThenLabel :=
+    (OperationIndependence.transformAt coeffectFamily
+      Coeffect.Quotient.Example.ExampleKey.counter counterWord base).bind
+      (OperationIndependence.transformAt coeffectFamily
+        Coeffect.Quotient.Example.ExampleKey.label labelWord)
+  let labelThenCounter :=
+    (OperationIndependence.transformAt coeffectFamily
+      Coeffect.Quotient.Example.ExampleKey.label labelWord base).bind
+      (OperationIndependence.transformAt coeffectFamily
+        Coeffect.Quotient.Example.ExampleKey.counter counterWord)
+  match counterThenLabel, labelThenCounter with
+  | some first, some second =>
+      let firstCounter : Option Nat := first Coeffect.Quotient.Example.ExampleKey.counter
+      let secondCounter : Option Nat := second Coeffect.Quotient.Example.ExampleKey.counter
+      let firstLabel : Option String := first Coeffect.Quotient.Example.ExampleKey.label
+      let secondLabel : Option String := second Coeffect.Quotient.Example.ExampleKey.label
+      assertEqual "distinct-key finite operation words preserve the counter"
+        firstCounter secondCounter
+      assertEqual "distinct-key finite operation words preserve the label"
+        firstLabel secondLabel
+  | _, _ => fail "enabled distinct-key operation words became undefined"
+  let mediated := OperationIndependence.Example.Mediated.applied
+  let mediatedCounter : Option Nat :=
+    mediated.after Coeffect.Quotient.Example.ExampleKey.counter
+  let mediatedLabel : Option String :=
+    mediated.after Coeffect.Quotient.Example.ExampleKey.label
+  assertEqual "Definition 41 continuation consumes the prior typed Nat outcome"
+    mediatedCounter (some 7)
+  assertEqual "Definition 41 continuation selects the matching String argument"
+    mediatedLabel (some "a-three")
+
 private def testHarnessPhaseFailures : IO Unit := do
   let initial := Harness.RunnerState.initial 0
   match initial.beginStep with
@@ -906,6 +956,8 @@ def run : IO Unit := do
   testCoeffectQuotientLift
   testOperationalEquivalence
   testSessionRefinement
+  testTransformationIndependence
+  testOperationIndependence
   testHarnessPhaseFailures
   testCounterAdmission
   testHarnessDemo
