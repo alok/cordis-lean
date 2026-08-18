@@ -17,11 +17,12 @@ not silently redefined as a broader completion claim.
 
 The active line also includes a rich interleaved LLM-stream validator, an
 arbitrary-finite semantic permutation theorem for certified commuting pure
-effects, bounded mechanizations of paper Definitions 22–38, and supported
+effects, bounded mechanizations through paper Definition 41, and supported
 current-Harness stream and session JSON-AST refinements. Definition 34/Lemma 35
 also expose a formal paired-inverse coherence gap instead of assuming it away.
-These do not yet supply Definitions 39–42, task concurrency, the global component
-calculus, or the paper's preservation/progress/confluence results.
+Full branch-indexed Theorem 42, Theorem 20/Corollary 21, task concurrency, the
+global component calculus, and the paper's preservation/progress/confluence
+results remain open.
 
 Repository: `cordis-lean`
 

@@ -24,7 +24,9 @@ metadata monoids, and runtime correspondence remain supplied obligations;
 Definition 34/Lemma 35's fixed-generator relation and Definitions 36–37 with
 the finite Lemma 38 core are now explicit. A formal counterexample shows that
 same-word tests do not derive the stronger paired-inverse law; Definitions
-39–42 remain open. `Schedule` executes sequentially, and
+17–19 and full total Definition 39 are now explicit, as are a finite partial
+distinct-key Theorem 40 and Definition 41 interpreter. Theorem 20, Corollary
+21, and full branch-indexed Theorem 42 remain open. `Schedule` executes sequentially, and
 `RichStream` excludes transport, images, tool-result blocks, and pruning. These
 types do not extend the theorem boundary to corresponding external systems
 automatically.
@@ -143,7 +145,16 @@ no `IO`, launches no tasks, and proves no concurrency or safe-parallel-execution
   additional premise for the stronger `CoeffectAt` reconstruction, not a hidden theorem.
 - `Observational.Quotient.Admissible.seq` and `Program.recovers` prove finite
   quotient-respecting composition/recovery. `Coeffect.Quotient.lift_results_related` connects
-  the key-local laws to related whole contexts. Definitions 39–42 remain outside this layer.
+  the key-local laws to related whole contexts.
+- `Transformation.Closure` includes identity, every effect forward/yielded-inverse generator,
+  and composition. Generator commutation and inverse stability promote to the full monoids, and
+  full Definition 19 implies the existing adjacent Batch/Schedule certificate. Theorem 20 and
+  Corollary 21 are not consequences currently exposed by the module.
+- `ExactOperationIndependent` adds outcome stability to full total Definition 39.
+  `distinctKeys_finiteIndependent` covers arbitrary finite partial operation words at distinct
+  dependent keys, including inverse and outcome stability, and `Computation.run` implements
+  Definition 41 with exact recovery. `MediatedClosure` records the still-unproved
+  branch-indexed obligation for full Theorem 42.
 
 ### Current stream JSON refinement
 
@@ -327,7 +338,8 @@ Executable rejection is valuable, but it is not a refinement theorem.
 | `SessionRefinement.validateJsonLog`         | Stateful supported-subset decoding returns exact rich append and intrinsic protocol witnesses, fresh local call-ID evidence, and a cumulative projection theorem.                                                                    | No complete event union, replacement translation, persisted JSONL parser, timestamp truth, crash recovery, or whole-session equivalence.                                                         |
 | `UnifiedContext` constructors               | Enforce dependent realm/provider types, derived-parent indices, finite unfolding depth, and witnessed local recovery.                                                                                                                | No imperative alias identity, recursive fixed point, tenant sandbox, middleware execution, or runtime refinement.                                                                                |
 | `Coeffect.Observational.Related`            | Makes presence/absence mismatches unconstructible and packages supplied key relations as a finite-context `Setoid`.                                                                                                                  | The key relations are supplied; operational tests can replace them only under the separately documented laws.                                                                                    |
-| `OperationalEquivalence` / `QuotientEffect` | Checks finite partial test words and certifies finite quotient-respecting effect programs; the paired-inverse counterexample is kernel-checked.                                                                                      | Universal test equivalence is not decidable here; the stronger paired law needs a premise, and transformation-monoid independence/Theorems 40–42 remain absent.                                  |
+| `OperationalEquivalence` / `QuotientEffect` | Checks finite partial test words and certifies finite quotient-respecting effect programs; the paired-inverse counterexample is kernel-checked.                                                                                      | Universal test equivalence is not decidable here; the stronger paired law needs a premise, and this layer alone does not prove mediated independence.                                            |
+| `Transformation` / `OperationIndependence`  | Constructs exact generated monoids, promotes full inverse/outcome stability, checks finite distinct-key words, and interprets outcome-mediated computations.                                                                         | Partial words are finite syntax, not abstract Kleisli monoids; Theorem 20/Corollary 21 and the branch-closure derivation for Theorem 42 remain absent.                                           |
 | `CertifiedTwoBatch`                         | Requires same-successor, pointwise same-recovery, and result-stability certificate fields before either order is permitted.                                                                                                          | The certificate is supplied, exactly two pure calls are modeled, and no actual concurrency or external-effect safety follows.                                                                    |
 | `Registry.setAt`                            | Uses dependent equality transport so a value cannot be installed at a differently typed key.                                                                                                                                         | No runtime aliasing, notification, or mutable-store semantics are modeled.                                                                                                                       |
 | `View.resolve`                              | Requires `needs op` before a binding can be requested.                                                                                                                                                                               | Construction of the view and completeness of its registry snapshot remain obligations.                                                                                                           |
@@ -360,7 +372,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 215
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 232
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.
@@ -524,7 +536,8 @@ Without additional proofs or tests, do not state that:
   I/O atomic, or provides process-wide exactly-once execution;
 - the local `Cordis.Harness` verifies or is behaviorally equivalent to DeepSeek Harness;
 - `Approximation` constructs Definition 32's recursive fixed point, fixed-generator tests imply
-  paired-inverse coherence, or the bounded Definitions 33–38 layer proves Theorems 40–42;
+  paired-inverse coherence, full Definition 19 proves Theorem 20/Corollary 21 automatically, or
+  the bounded operation layer proves full Theorem 42;
 - `RuntimeRefinement` accepts the full Harness stream union, is complete for the tolerant
   TypeScript assembler, verifies provider streaming, or proves chunk storage;
 - `SessionRefinement` accepts the complete Harness event union, preserves every source field in

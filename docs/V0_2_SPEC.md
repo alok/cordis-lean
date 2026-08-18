@@ -50,6 +50,11 @@ Current machine-checked evidence includes:
   stronger paired-inverse law by counterexample;
 - `Cordis.QuotientEffect` and `Cordis.CoeffectQuotient`, implementing Definitions 36–37,
   finite quotient-respecting composition/recovery, and the context-lift preservation laws;
+- `Cordis.Transformation`, mechanizing Definition 17 generated transformation monoids,
+  Lemma 18 closure, and full Definition 19 effect independence with inverse-yield stability;
+- `Cordis.OperationIndependence`, proving full total Definition 39, finite partial distinct-key
+  Theorem 40, and Definition 41's outcome-mediated interpreter/recovery while naming the
+  remaining Theorem 42 closure obligation;
 - `Cordis.RuntimeRefinement`, decoding the supported current-Harness stream-chunk JSON-AST
   shapes into `RichStream.ValidatedTrace` while explicitly rejecting non-equivalent fields;
 - `Cordis.SessionRefinement`, statefully translating a supported source-shaped Harness session
@@ -307,7 +312,7 @@ future external adapter consumes the same proof-carrying request contract.
 
 ## Paper context and executable refinement
 
-The bounded context layer now has five explicit tiers:
+The bounded algebra/context layer now has seven explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -325,6 +330,15 @@ The bounded context layer now has five explicit tiers:
    Definition 37 admissibility is closed under finite sequential composition, and exposes the
    accumulator-respect/recovery core of Lemma 38. `Cordis.CoeffectQuotient` connects the local
    Definition 24 laws to related lifted contexts and outcomes.
+6. `Cordis.Transformation` represents Definition 17 as the least identity/composition closure
+   of an effect's forward map and every state-indexed yielded inverse. It proves both parts of
+   Lemma 18, promotes generator commutation/inverse stability through the closures, and shows
+   full Definition 19 implies the existing exact batch/schedule commutation certificate.
+7. `Cordis.OperationIndependence` adds heterogeneous outcome stability for full total
+   Definition 39, proves arbitrary finite operation words at distinct dependent keys commute
+   with complete forward-data stability, and implements Definition 41's outcome-selected
+   computation syntax with exact LIFO recovery. `MediatedClosure` names, but does not pretend to
+   derive, the branch-indexed closure still needed for full Theorem 42.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -372,9 +386,12 @@ The slice requires all existing gates plus the following new coverage:
 - current-Harness stream JSON success plus exact decode and semantic rejection paths;
 - finite operational tests with heterogeneous outcomes, failed domains, and the formal
   paired-inverse counterexample;
-- quotient-effect composition and lifted coeffect context preservation; and
+- quotient-effect composition and lifted coeffect context preservation;
 - a complete supported current-Harness turn/step/tool session prefix plus stateful rejection
-  cases.
+  cases;
+- full generator-to-transformation-monoid promotion and inverse stability; and
+- exact total operation independence, finite partial distinct-key words, outcome-dependent
+  mediated execution, and the forward-only inverse-stability counterexample.
 
 Headline theorems must be added to `Cordis/AxiomAudit.lean`. The full project must remain free of
 `sorry`, `admit`, project-defined axioms, `unsafe`, `partial`, external implementation overrides,
@@ -406,7 +423,8 @@ This slice does not by itself prove:
 - durable persistence, flush barriers, crash repair, resume, or fork correctness;
 - task/fiber scheduling, fairness, cancellation delivery, or wall-clock concurrency;
 - the stronger paired-inverse law from same-word tests without its explicit coherence premise;
-- Definitions 39–42, the component/fiber calculus, or the paper's global composability results;
+- Theorem 20, Corollary 21, full branch-indexed Theorem 42, the component/fiber calculus, or the
+  paper's global composability results;
 - native plugin isolation, process confinement, filesystem safety, or remote-service behavior;
 - global exactly-once execution across workers; or
 - that a model follows supplied schemas or chooses an appropriate tool.

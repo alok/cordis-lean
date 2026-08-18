@@ -46,6 +46,14 @@ operations retain related successors, inverses, and outcomes when lifted through
 `Cordis.SessionRefinement` statefully decodes a source-shaped current-Harness session prefix and
 jointly validates every supported event in both the rich Session and intrinsic Protocol layers.
 
+`Cordis.Transformation` supplies Definition 17 generated transformation monoids, Lemma 18
+closure results, and full Definition 19 effect independence, including inverse-yield stability
+and a bridge to the existing batch/schedule certificates. On top of that,
+`Cordis.OperationIndependence` proves full Definition 39 for total exact operations, a finite
+partial-operation Theorem 40 at distinct keys, and Definition 41's outcome-dependent computation
+interpreter with exact recovery. Full Theorem 42 remains unclaimed: its missing branch-indexed
+closure law is named `MediatedClosure` rather than replaced by an adjacent-swap result.
+
 The included demo is deterministic and credential-free. Starting from counter
 state `2`, it reads, increments by `3` under limit `10`, reads again, and rejects
 an unknown `counter_destroy` call. It finishes at counter state `5`, protocol
@@ -191,7 +199,9 @@ placeholders.
 | Isolation resolves logical keys through typed realm stores; interception merges key-indexed metadata; finite unified layers retain LIFO recovery   | `UnifiedContext.IsolatedContext`, `InterceptionContext`, `Layer.record_twice_recovers`, `Layer.liftCoeffect_recovers`            | Definitions 27–31 are direct finite models; Definition 32 is represented only by finite unfoldings, not its fixed point. |
 | Related finite contexts have exactly the same domain and key-wise related values, and satisfaction and notifications respect that relation         | `Coeffect.Observational.related_iff`, `contextSetoid`, `satisfies_iff_of_related`, `notify_eq_of_related`                        | Finite-context portion of Definition 33; the next rows state the separate bounded Definitions 34–38 results.             |
 | Finite heterogeneous operation tests define a coarsest fixed-generator relation, while a compiled model separates differently yielded inverses     | `OperationalEquivalence.indistinguishable_admissible`, `contained_in_indistinguishable`, `PairedGap.pairedInverseCoherent_fails` | Definition 34 and generator-level Lemma 35; the stronger paired-inverse bridge remains an explicit extra premise.        |
-| Quotient-respecting effects compose and recover through finite programs; lifted key operations preserve contextual successor/inverse/outcome laws  | `Observational.Quotient.Admissible.seq`, `Program.recovers`, `Coeffect.Quotient.lift_results_related`                            | Definitions 36–37 and finite Lemma 38 core; transformation-monoid independence and Theorems 40–42 remain open.           |
+| Quotient-respecting effects compose and recover through finite programs; lifted key operations preserve contextual successor/inverse/outcome laws  | `Observational.Quotient.Admissible.seq`, `Program.recovers`, `Coeffect.Quotient.lift_results_related`                            | Definitions 36–37 and finite Lemma 38 core; the next rows state exact transformation/operation independence results.     |
+| Effect transformation monoids close generator commutation/stability and imply equal adjacent proof-carrying orders                                 | `Transformation.Closure.commute`, `seq_monoid_subset_joint`, `Transformation.Independent.of_generators`, `independentAt`         | Definitions 17–19 and Lemma 18 for exact effects; Theorem 20 and Corollary 21 remain open.                               |
+| Full total-operation independence and finite partial distinct-key words retain inverse and heterogeneous outcome stability; mediated runs recover  | `ExactOperationIndependent`, `distinctKeys_finiteIndependent`, `Computation.run_recovers`                                        | Definitions 39–41 and finite-word Theorem 40; full branch-indexed Theorem 42 remains open.                               |
 | Supported current-Harness stream JSON refines to an intrinsic validated trace with exact replay, or fails with a structured decode/stream error    | `RuntimeRefinement.validateJsonTrace`, `ValidatedJsonTrace.replay_eq`, exact rejection theorems                                  | JSON AST only; unsupported blocks/failures/replay state are rejected, and completeness for Harness is not claimed.       |
 | A supported current-Harness session prefix assigns fresh local call IDs and jointly validates rich appends plus intrinsic protocol events          | `SessionRefinement.RefinedEvent`, `ValidatedJsonLog.projection_exact`, `validate_example`                                        | Restricted turn/step/tool subset; unsupported payloads, replacement, identities, and extensions fail closed.             |
 | A rich provider assistant view cannot enter a session without one unique numeric `CallId` per ordered provider tool call                           | `StreamSession.CallIdAssignment`, `toSessionToolCalls_length`, `appendAssistant`                                                 | Assignment authenticity and provider-ID globalization remain adapter obligations.                                        |
@@ -224,6 +234,8 @@ placeholders.
 | `Cordis.OperationalEquivalence`   | Heterogeneous finite operation tests, partial observations, coarsest generator relation, and the formal paired-inverse counterexample/boundary.                 |
 | `Cordis.QuotientEffect`           | Definition 36 map relations, Definition 37 admissible effects, and finite composition/recovery of quotient-respecting programs.                                 |
 | `Cordis.CoeffectQuotient`         | Generator bridge proving lifted key-local operations preserve contextual successor, inverse-map, and typed-outcome relations.                                   |
+| `Cordis.Transformation`           | Generated transformation monoids, Lemma 18 closure, full inverse-stable Definition 19 independence, and the Batch/Schedule bridge.                              |
+| `Cordis.OperationIndependence`    | Full total Definition 39, finite partial distinct-key Theorem 40, Definition 41 interpreter/recovery, and explicit Theorem 42 boundary.                         |
 | `Cordis.RuntimeRefinement`        | Path-aware current-Harness `StreamChunk` JSON-AST decoding into proof-producing rich-stream validation with explicit unsupported cases.                         |
 | `Cordis.SessionRefinement`        | Stateful supported-subset Harness session decoding with fresh call-ID assignment and joint Session/Protocol proof-producing validation.                         |
 | `Cordis.StreamSession`            | Proof-carrying provider-string-ID to numeric-`CallId` assignment and rich assistant insertion into the canonical session surface.                               |

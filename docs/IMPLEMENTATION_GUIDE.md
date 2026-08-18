@@ -1749,14 +1749,15 @@ one-way supported-subset decoder are not a whole-runtime equivalence theorem.
 ### 19.6 Mechanize more of the paper
 
 Use [`PAPER_MAP.md`](PAPER_MAP.md) as a backlog. Major missing areas include the
-effect-context tower, Definitions 39–42's transformation-monoid and independence
-machinery, the global component calculus, preservation, interleaved temporal
+effect-context tower, Theorem 20/Corollary 21 arbitrary removal/inverse order,
+full branch-indexed Theorem 42, the global component calculus, preservation, interleaved temporal
 recovery, spatial composition, progress, confluence, loader reconciliation,
 and HMR. The active line now covers finite local coeffects (Definitions 22–26),
 direct finite realization/isolation/interception models (27–31), finite
 unfoldings of 32, and the finite-context relation/reactive invariance of 33.
 It also covers Definition 34 and generator-level Lemma 35, Definitions 36–37,
-and the finite-composition core of Lemma 38. Do not present those bounded
+the finite-composition core of Lemma 38, Definitions 17–19, full total Definition
+39, finite partial distinct-key Theorem 40, and Definition 41. Do not present those bounded
 results, local `UndoStack`, lifecycle, or batch results as substitutes for the
 remaining theorems.
 
@@ -1802,6 +1803,20 @@ Implement this layer in paper dependency order.
     Definition 37 admissibility to observational effects, prove it is closed under sequential
     composition, and then prove the key-local operation lift preserves whole-context successor,
     inverse-map, and outcome relations.
+13. Build Definition 17 as an intrinsic generated-monoid predicate containing identity, every
+    forward/yielded-inverse generator, and composition. Prove commutation and inverse stability
+    promote from generators, and prove Definition 18 sequencing introduces no transformation
+    source outside the joint closure. Keep Definition 19's full cross-monoid commutation and
+    yielded-inverse stability separate from adjacent sequence equality.
+14. Add operation-specific outcome stability for Definition 39. For partial dependent operations,
+    execute explicit finite forward/inverse words and prove distinct keys commute including
+    undefinedness and complete yielded data. Encode Definition 41 as a free outcome-indexed
+    computation tree and compose its inverse in LIFO order.
+
+Do not label the remaining gap Theorem 42. Pairwise operation/key laws still need a
+branch-indexed theorem proving that foreign transformations retain every stage outcome, select
+the same continuation, preserve each differently yielded inverse, and close recursively through
+the selected computation tree. `MediatedClosure` names this obligation; deriving it remains work.
 
 The important review question at each step is whether a theorem describes the paper object
 directly, a bounded approximation, or an integrator-supplied obligation. Put that distinction in
