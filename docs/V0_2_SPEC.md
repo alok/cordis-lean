@@ -39,6 +39,8 @@ Current machine-checked evidence includes:
   finite semantic orders under a real pairwise commuting-family certificate;
 - `Cordis.Coeffect`, mechanizing paper Definitions 22–26 for dependent finite contexts, concrete
   reversible bindings, typed local operations, finite satisfaction, and exact notifications;
+- `Cordis.StreamSession`, making the provider-string-ID to unique numeric-session-`CallId`
+  assignment explicit before a validated rich assistant view enters the canonical surface;
 - `Harness.RunnerState.protocolProjection_eq_log` and `protocolProjection_replays`, tying the
   actual counter demo's canonical rich log to the generic runner; and
 - executable, static-rejection, hygiene, strict-build, and selected-axiom gates covering those

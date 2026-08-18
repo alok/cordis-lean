@@ -28,7 +28,9 @@ The same development line now adds three further source-grounded proof layers:
 blocks with terminal usage/replay invariants; `Cordis.Schedule` proves arbitrary
 finite semantic reordering for certified commuting pure effects; and
 `Cordis.Coeffect` mechanizes the paper's local reactive-coeffect Definitions
-22–26 over a finite dependent context.
+22–26 over a finite dependent context. `Cordis.StreamSession` explicitly
+assigns unique numeric session IDs to provider string tool IDs before a
+validated rich assistant view enters the canonical surface.
 
 The included demo is deterministic and credential-free. Starting from counter
 state `2`, it reads, increments by `3` under limit `10`, reads again, and rejects
@@ -172,6 +174,7 @@ placeholders.
 | Interleaved text, reasoning, and raw tool-call deltas retain first-seen order, exact block-end assembly, terminal discipline, and aligned metadata | `RichStream.Event`, `ValidatedTrace`, `replayRaw_eraseTrace`, `AlignedMetadata`                                           | Images, tool-result blocks, transport, and metadata pruning are deferred.                                                |
 | Any finite permutation of a certified commuting pure-effect family denotes the same complete effect and recovery function                          | `Schedule.runEffects_eq_of_perm`, `CertifiedSchedule.*`                                                                   | Semantic sequential reordering only; no tasks, failures, outputs, fairness, or wall-clock overlap.                       |
 | A finite dependent coeffect context enforces typed presence/absence, concrete local recovery, decidable satisfaction, and exact notifications      | `Coeffect.Context`, `setEffect_recovers`, `CoeffectAt.lift_recovers`, `activating_iff`, `deactivating_iff`, `neutral_iff` | Local paper Definitions 22–26 only; isolation, unified contexts, components, fibers, and global metatheory remain open.  |
+| A rich provider assistant view cannot enter a session without one unique numeric `CallId` per ordered provider tool call                           | `StreamSession.CallIdAssignment`, `toSessionToolCalls_length`, `appendAssistant`                                          | Assignment authenticity and provider-ID globalization remain adapter obligations.                                        |
 
 ## Module map
 
@@ -196,6 +199,7 @@ placeholders.
 | `Cordis.RichStream`               | Indexed interleaved content blocks, exact raw validation/replay, terminal usage/error/abort discipline, and replay-metadata alignment.                          |
 | `Cordis.Schedule`                 | Arbitrary finite `List.Perm` invariance for certified commuting pure effects, including exact successor, undo, and recovery equality.                           |
 | `Cordis.Coeffect`                 | Finite dependent contexts, typed get/set/remove and local-operation lift, concrete recovery, specifications, satisfaction, and notifications.                   |
+| `Cordis.StreamSession`            | Proof-carrying provider-string-ID to numeric-`CallId` assignment and rich assistant insertion into the canonical session surface.                               |
 | `Cordis.Examples.DependentChoice` | Structured non-counter model whose Boolean input selects `Nat` or `String`, with exact-call allow/deny behavior.                                                |
 | `Cordis.Harness`                  | Counter configuration and dynamic convenience wrapper whose canonical rich session is proved to project to the generic runner's structural log.                 |
 | `Cordis.TestSuite`                | Executable algebraic, boundary, adversarial, and end-to-end checks.                                                                                             |
