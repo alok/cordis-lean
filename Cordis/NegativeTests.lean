@@ -1,8 +1,11 @@
 import Cordis.Harness
+import Cordis.Coeffect
 import Cordis.Examples.DependentChoice
 import Cordis.Lifecycle
 import Cordis.Policy
 import Cordis.Protocol
+import Cordis.RichStream
+import Cordis.Schedule
 import Cordis.Session
 
 /-!
@@ -190,5 +193,27 @@ example : GenericHarness.Runner Harness.counterConfig (.turn 0 1) :=
 #guard_msgs (substring := true) in
 example : GenericHarness.Runner Examples.DependentChoice.config (.ready 0) :=
   GenericHarness.Runner.initial Harness.counterConfig 0
+
+/-! A dependent coeffect key cannot be populated with another key's value type. -/
+
+/-- error: Application type mismatch -/
+#guard_msgs (substring := true) in
+example : Coeffect.Context Coeffect.Example.Key Coeffect.Example.Value :=
+  Coeffect.setAt Coeffect.Example.initial .counter "not a Nat"
+
+/-! A text delta cannot inhabit the tool-call-indexed delta family. -/
+
+/-- error: Type mismatch -/
+#guard_msgs (substring := true) in
+example : RichStream.Delta .toolCall := .text "wrong block kind"
+
+/-! A schedule that drops the third effect cannot construct the required permutation proof. -/
+
+/-- error: unsolved goals -/
+#guard_msgs (substring := true) in
+example : Schedule.CertifiedSchedule Schedule.exampleCanonical where
+  scheduled := [Schedule.exampleX, Schedule.exampleY]
+  permutation := by simp [Schedule.exampleCanonical]
+  commuting := Schedule.exampleCommuting
 
 end Cordis.NegativeTests

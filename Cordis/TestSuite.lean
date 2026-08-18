@@ -1,5 +1,6 @@
 import Cordis.Batch
 import Cordis.Codec
+import Cordis.Coeffect
 import Cordis.Effect
 import Cordis.Examples.Counter
 import Cordis.Examples.CounterWire
@@ -9,6 +10,8 @@ import Cordis.Lifecycle
 import Cordis.Policy
 import Cordis.Protocol
 import Cordis.Registry
+import Cordis.RichStream
+import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionValidation
 import Cordis.Stream
@@ -478,6 +481,68 @@ private def testSessionValidation : IO Unit := do
       assertEqual "validated rich suffix derives the expected message"
         validated.final.messages [.user "What is the answer?"]
 
+private def testReactiveCoeffects : IO Unit := do
+  assertEqual "installing the last heterogeneous dependency activates"
+    (Coeffect.notify Coeffect.Example.dependencies Coeffect.Example.counterOnly
+      Coeffect.Example.installLabel.after) .activating
+  assertEqual "removing the required dependency deactivates"
+    (Coeffect.notify Coeffect.Example.dependencies Coeffect.Example.installLabel.after
+      (Coeffect.removeAt Coeffect.Example.installLabel.after .label)) .deactivating
+  let counter : Nat :=
+    Coeffect.get Coeffect.Example.counterOnly .counter Coeffect.Example.counterPresent
+  assertEqual "typed counter dependency remains Nat" counter 7
+  let label : String :=
+    Coeffect.get Coeffect.Example.installLabel.after .label Coeffect.Example.labelPresent
+  assertEqual "typed label dependency remains String" label "ready"
+  let recoveredLabel : Option String :=
+    Coeffect.Example.installLabel.undo Coeffect.Example.installLabel.after .label
+  let originalLabel : Option String := Coeffect.Example.counterOnly .label
+  assertEqual "concrete coeffect inverse removes only the inserted binding"
+    recoveredLabel originalLabel
+
+private def testFiniteSchedules : IO Unit := do
+  let expected : Schedule.Triple := { x := 11, y := 22, z := 33 }
+  let reverse := Schedule.reverseSchedule.execute Schedule.exampleBefore
+  let rotate := Schedule.rotateSchedule.execute Schedule.exampleBefore
+  assertEqual "reverse finite schedule reaches the canonical successor" reverse.after expected
+  assertEqual "rotated finite schedule reaches the canonical successor" rotate.after expected
+  assertEqual "all finite schedules retain the same captured undo behavior"
+    (reverse.undo { x := 100, y := 200, z := 300 })
+    (rotate.undo { x := 100, y := 200, z := 300 })
+  assertEqual "reverse schedule recovers its exact predecessor"
+    (reverse.undo reverse.after) Schedule.exampleBefore
+
+private def testRichStream : IO Unit := do
+  match RichStream.validateTrace RichStream.State.initial RichStream.interleavedRaw with
+  | .error error => fail s!"valid interleaved rich stream was rejected with {reprStr error}"
+  | .ok validated =>
+      assertEqual "rich stream validator preserves exact raw chunk count"
+        validated.trace.erase.length RichStream.interleavedRaw.length
+  match RichStream.replayRaw RichStream.RuntimeState.initial RichStream.interleavedRaw with
+  | .error error => fail s!"valid rich stream replay failed with {reprStr error}"
+  | .ok (.active _ _) => fail "complete rich stream remained active"
+  | .ok (.terminal blocks usage reason replay) =>
+      assertEqual "rich stream retains first-seen block order"
+        blocks RichStream.interleavedBlocks
+      assertEqual "rich stream retains usage before finish" usage RichStream.interleavedUsage
+      assertEqual "rich stream retains terminal reason" reason .stop
+      assertEqual "rich stream retains aligned replay metadata"
+        replay (some RichStream.interleavedReplay.erase)
+  let view := RichStream.toAssistantMessageView RichStream.interleavedBlocks
+  assertEqual "rich stream projects visible text without private reasoning"
+    view.content "Hello world"
+  assertEqual "rich stream projects both raw tool calls" view.rawToolCalls.length 2
+  match RichStream.applyRaw RichStream.RuntimeState.initial (.textDelta 0 "orphan") with
+  | .error error => assertEqual "rich stream rejects missing block index" error (.missingIndex 0)
+  | .ok _ => fail "rich stream accepted an orphan delta"
+  match RichStream.applyRaw
+      (.active [.closed (.text "done")] (some RichStream.interleavedUsage))
+      (.finish .stop (some { responseId := none, perBlock := [none, none] })) with
+  | .error error =>
+      assertEqual "rich stream rejects misaligned replay metadata"
+        error (.metadataLengthMismatch 1 2)
+  | .ok _ => fail "rich stream accepted misaligned replay metadata"
+
 private def testHarnessPhaseFailures : IO Unit := do
   let initial := Harness.RunnerState.initial 0
   match initial.beginStep with
@@ -664,6 +729,9 @@ def run : IO Unit := do
   testSessionLog
   testDependentChoiceHarness
   testSessionValidation
+  testReactiveCoeffects
+  testFiniteSchedules
+  testRichStream
   testHarnessPhaseFailures
   testCounterAdmission
   testHarnessDemo

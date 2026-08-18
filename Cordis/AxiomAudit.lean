@@ -1,11 +1,14 @@
 import Cordis.Batch
 import Cordis.Codec
+import Cordis.Coeffect
 import Cordis.Effect
 import Cordis.Examples.DependentChoice
 import Cordis.Harness
 import Cordis.Lifecycle
 import Cordis.Policy
 import Cordis.Registry
+import Cordis.RichStream
+import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionValidation
 import Cordis.Stream
@@ -122,3 +125,38 @@ set_option format.width 200
 #print axioms Cordis.Session.missingEndEvent_rejected
 #print axioms Cordis.Session.incompleteCoverageEvent_rejected
 #print axioms Cordis.Session.shortRawLog_validates
+#print axioms Cordis.Coeffect.removeAt_setAt_of_absent
+#print axioms Cordis.Coeffect.setAt_removeAt_of_present
+#print axioms Cordis.Coeffect.setAt_commute
+#print axioms Cordis.Coeffect.setEffect_recovers
+#print axioms Cordis.Coeffect.CoeffectAt.lift_recovers
+#print axioms Cordis.Coeffect.activating_iff
+#print axioms Cordis.Coeffect.deactivating_iff
+#print axioms Cordis.Coeffect.neutral_iff
+#print axioms Cordis.Coeffect.notify_exhaustive
+#print axioms Cordis.Coeffect.setting_unrelated_key_is_neutral
+#print axioms Cordis.Coeffect.removing_unrelated_key_is_neutral
+#print axioms Cordis.Coeffect.setting_last_missing_key_activates
+#print axioms Cordis.Coeffect.removing_required_key_deactivates
+#print axioms Cordis.Schedule.seq_commute
+#print axioms Cordis.Schedule.runEffects_eq_of_perm
+#print axioms Cordis.Schedule.CertifiedSchedule.effect_eq
+#print axioms Cordis.Schedule.CertifiedSchedule.after_eq
+#print axioms Cordis.Schedule.CertifiedSchedule.undo_eq
+#print axioms Cordis.Schedule.CertifiedSchedule.recovers
+#print axioms Cordis.Schedule.example_orders_equal
+#print axioms Cordis.Schedule.reverseSchedule_recovers
+#print axioms Cordis.RichStream.AlignedMetadata.hasFinalBlockCount
+#print axioms Cordis.RichStream.noEventAfterTerminal
+#print axioms Cordis.RichStream.noFinishWithoutUsage
+#print axioms Cordis.RichStream.applyRaw_eraseEvent
+#print axioms Cordis.RichStream.replayRaw_eraseTrace
+#print axioms Cordis.RichStream.ValidatedChunk.applyRaw_eq
+#print axioms Cordis.RichStream.ValidatedTrace.replayRaw_eq
+#print axioms Cordis.RichStream.validate_interleaved_exact
+#print axioms Cordis.RichStream.replay_interleaved_exact
+#print axioms Cordis.RichStream.interleaved_rawArgumentsExact
+#print axioms Cordis.RichStream.interleaved_metadataAligned
+#print axioms Cordis.RichStream.reject_metadataLengthMismatch
+#print axioms Cordis.RichStream.reject_afterErrorFinish
+#print axioms Cordis.RichStream.reject_afterAbortFinish
