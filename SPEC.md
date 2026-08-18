@@ -12,14 +12,15 @@ canonical rich session whose model requests and structural protocol are proved
 to be log projections are now implemented. Proof-producing validation now
 admits or rejects typed rich events after kind-specific payload parsing; byte
 parsing, durability, asynchronous scheduling, full paper metatheory, and
-TypeScript refinement remain open, so this historical acceptance matrix is not
-silently redefined as a broader completion claim.
+whole-Harness refinement remain open, so this historical acceptance matrix is
+not silently redefined as a broader completion claim.
 
 The active line also includes a rich interleaved LLM-stream validator, an
 arbitrary-finite semantic permutation theorem for certified commuting pure
-effects, and a bounded mechanization of paper Definitions 22–26 for local
-reactive coeffects. These do not yet supply task concurrency, global component
-calculus, or the paper's preservation/progress/confluence results.
+effects, a bounded mechanization of paper Definitions 22–33 through finite
+contexts/unfoldings, and a supported current-Harness stream JSON-AST refinement.
+These do not yet supply Definitions 34–42, task concurrency, the global
+component calculus, or the paper's preservation/progress/confluence results.
 
 Repository: `cordis-lean`
 

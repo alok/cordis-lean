@@ -9,8 +9,10 @@ kernel. The generic phase-indexed runner, exact-call allow/reject policy paths, 
 non-counter example, intrinsic rich session/surface kernel, model-request reconstruction, and
 the counter wrapper's rich-to-structural log equality are implemented. `SessionValidation`
 proof-produces append/replacement and finite-suffix certificates from parsed-but-untrusted typed
-events. Byte/payload parsing and the later production/refinement layers listed below remain open;
-this file is therefore an in-progress contract, not a completed `0.2.0` release claim.
+events. A current-Harness `StreamChunk` subset is also decoded from `Lean.Json` ASTs into the
+intrinsic rich-stream validator. Byte parsing, full `SessionEvent` decoding, and the later
+production/refinement layers listed below remain open; this file is therefore an in-progress
+contract, not a completed `0.2.0` release claim.
 
 The slice closes two concrete gaps in the original objective:
 
@@ -39,6 +41,12 @@ Current machine-checked evidence includes:
   finite semantic orders under a real pairwise commuting-family certificate;
 - `Cordis.Coeffect`, mechanizing paper Definitions 22–26 for dependent finite contexts, concrete
   reversible bindings, typed local operations, finite satisfaction, and exact notifications;
+- `Cordis.UnifiedContext`, directly modeling paper Definitions 27–31 and exposing exact finite
+  unfoldings of Definition 32's negatively recursive context equation;
+- `Cordis.ContextualEquivalence`, mechanizing the finite-context portion of Definition 33 and
+  proving satisfaction and notification invariance under the resulting `Setoid`;
+- `Cordis.RuntimeRefinement`, decoding the supported current-Harness stream-chunk JSON-AST
+  shapes into `RichStream.ValidatedTrace` while explicitly rejecting non-equivalent fields;
 - `Cordis.StreamSession`, making the provider-string-ID to unique numeric-session-`CallId`
   assignment explicit before a validated rich assistant view enters the canonical surface;
 - `Harness.RunnerState.protocolProjection_eq_log` and `protocolProjection_replays`, tying the
@@ -290,6 +298,31 @@ For every model step, the runner must record at least:
 The model adapter interface receives `ModelRequest state.session`, so any scripted, fake, or
 future external adapter consumes the same proof-carrying request contract.
 
+## Paper context and executable refinement
+
+The bounded context layer now has three explicit tiers:
+
+1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
+2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
+   children, implements typed isolation and interception, and unfolds Definition 32 to any
+   selected finite depth.
+3. `Cordis.ContextualEquivalence` lifts each key's Definition 24 equivalence through optional
+   bindings, proves that this is exactly same-domain plus pointwise-related values, and supplies
+   the finite context `Setoid` used by observational effects.
+
+The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
+variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
+finite unfolding theorem surface, not a claimed construction of the equirecursive fixed point.
+
+`Cordis.RuntimeRefinement` starts after JSON text has already become a `Lean.Json` AST. It
+accepts current upstream block starts, text/reasoning/tool-call deltas, supported block ends,
+usage, and successful finishes. Successful decoding is then passed to
+`RichStream.validateTrace`, and the returned object contains both the exact decoded chunks and
+the intrinsic trace witness. Opaque replay state, image/tool-result blocks, upstream
+`LlmFailure` error/abort shapes, unsafe integers, and malformed fields fail closed. This is a
+sound supported-subset refinement; it is not a completeness or behavioral-equivalence theorem
+for the TypeScript `BlockAssembler`.
+
 ## Executable and static tests
 
 The slice requires all existing gates plus the following new coverage:
@@ -308,7 +341,10 @@ The slice requires all existing gates plus the following new coverage:
 - one policy-denied admitted call proving the provider was not dispatched;
 - a second non-counter catalog instantiation proving the runner is genuinely generic; and
 - negative construction tests for mismatched catalog/wire/view indices and forged joint
-  session/record history.
+  session/record history;
+- heterogeneous realm isolation and metadata interception, including exact recovery;
+- context-equivalence preservation of satisfaction and notification; and
+- current-Harness stream JSON success plus exact decode and semantic rejection paths.
 
 Headline theorems must be added to `Cordis/AxiomAudit.lean`. The full project must remain free of
 `sorry`, `admit`, project-defined axioms, `unsafe`, `partial`, external implementation overrides,
@@ -325,7 +361,7 @@ lake lean Cordis/NegativeTests.lean
 lake exe cordis_tests
 lake exe cordis_demo
 lake lean Cordis/AxiomAudit.lean
-python3 scripts/check_lean_hygiene.py --self-test .
+uv run scripts/check_lean_hygiene.py --self-test .
 ```
 
 Then rerun the Lean gates from a clean `git archive HEAD` materialization. A local `.olean` or
@@ -339,7 +375,7 @@ This slice does not by itself prove:
 - byte-level JSON parsing, rendering, or storage compatibility;
 - durable persistence, flush barriers, crash repair, resume, or fork correctness;
 - task/fiber scheduling, fairness, cancellation delivery, or wall-clock concurrency;
-- arbitrary-N CORDIS composability or the paper's full dynamic calculus;
+- Definitions 34–42, the component/fiber calculus, or the paper's global composability results;
 - native plugin isolation, process confinement, filesystem safety, or remote-service behavior;
 - global exactly-once execution across workers; or
 - that a model follows supplied schemas or chooses an appropriate tool.

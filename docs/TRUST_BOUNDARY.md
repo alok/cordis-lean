@@ -7,20 +7,22 @@
 > exact-call policy rejection, rich surface placement, log sequence continuity,
 > proof-producing validation after typed payload parsing, request
 > reconstruction, and rich-to-structural protocol equality into Lean types. It
-> does not add byte-level parsing, durable storage, transport, real model/tool
-> I/O, asynchronous fibers, global exactly-once execution, full paper
-> metatheory, or a refinement theorem for the TypeScript Harness. The reviewed
-> `0.1.0` boundary below remains historical evidence rather than a claim about
-> those absent layers.
+> adds one partial TypeScript boundary: supported current-Harness stream-chunk
+> JSON-AST values decode into the intrinsic rich-stream validator. It does not
+> add byte-level parsing, durable storage, transport, real model/tool I/O,
+> asynchronous fibers, global exactly-once execution, full paper metatheory, or
+> whole-Harness behavioral equivalence. The reviewed `0.1.0` boundary below
+> remains historical evidence rather than a claim about those absent layers.
 
 The active line also proves local reactive coeffect behavior for paper
-Definitions 22–26, arbitrary finite semantic reordering for certified commuting
-pure effects, and a rich in-memory LLM block-stream validator. Coeffect
-equivalence and operation obligations are supplied by the integrator;
-`Schedule` executes sequentially; and `RichStream` begins with parsed provider
-chunks and excludes transport, images, tool-result blocks, and pruning. These
-new types do not extend the theorem boundary to the corresponding external
-systems automatically.
+Definitions 22–26, direct finite isolation/interception models for Definitions
+27–31, finite unfoldings for Definition 32, and the finite-context relation and
+reactive invariance of Definition 33. Key-local equivalences, operation laws,
+metadata monoids, and runtime correspondence remain supplied obligations;
+Definitions 34–42 remain open. `Schedule` executes sequentially, and
+`RichStream` excludes transport, images, tool-result blocks, and pruning. These
+types do not extend the theorem boundary to corresponding external systems
+automatically.
 
 CORDIS Lean proves properties of typed, pure Lean values. It does not by itself prove that a
 model response, JSON parser, TypeScript Harness process, operating-system resource, or remote
@@ -48,6 +50,20 @@ model bytes
 
 Only the middle, in-memory Lean segment is inside the theorem boundary. A production adapter
 must justify every arrow into or out of it.
+
+The supported stream-refinement path is separate:
+
+```text
+provider JSON bytes
+  -- trusted UTF-8/JSON parser --> Lean.Json
+  -- checked RuntimeRefinement decoder --> SupportedChunk list
+  -- proof-producing RichStream.validateTrace --> intrinsic ValidatedTrace
+  -- proved erasure/replay --> exact local runtime endpoint
+```
+
+The first arrow remains trusted. Unsupported upstream fields and variants are rejected, not
+translated. Success proves the local endpoint for that supported subset; it does not prove that
+the TypeScript assembler accepts exactly the same language.
 
 The local protocol has both typed erasure and witness-reconstructing validation:
 
@@ -94,6 +110,43 @@ to a larger real-world interpretation without a refinement proof.
 These results do not prove that an inverse recovers an arbitrary state, that arbitrary effects
 are independent, or that external side effects are reversible. The two-call evaluator performs
 no `IO`, launches no tasks, and proves no concurrency or safe-parallel-execution property.
+
+### Reactive, isolated, and observational contexts
+
+- `Coeffect.Context` is a finite dependent map. `Present`/`Absent` make local preconditions
+  explicit, while witnessed set/remove operations prove exact concrete recovery.
+- `CoeffectAt` requires the integrator to supply each key's equivalence, typed operations,
+  executable domain, and preservation laws. Lean checks those laws once supplied; it does not
+  derive that they describe a live provider.
+- `UnifiedContext.IsolatedContext` proves typed realm resolution and retains an injective
+  embedding of logical keys into their own realms. This is a data-model property, not a sandbox
+  or tenant-confinement theorem.
+- `UnifiedContext.InterceptionContext` proves the declared/context metadata merge order and
+  recovery for a supplied key-indexed monoid and provider table. The meaning of right bias and
+  the behavior of real middleware remain external.
+- `UnifiedContext.Approximation` exposes exact finite unfoldings of Definition 32. It is not a
+  fixed point: the paper equation contains the recursive context negatively in `Gamma -> Gamma`,
+  so this project does not pretend it is an ordinary strictly positive Lean inductive.
+- `Coeffect.Observational.Related` is exactly same presence domain plus key-wise related values.
+  The supplied `contextSetoid`, satisfaction invariance, and notification invariance are proved
+  for finite contexts. Operation-test indistinguishability and Definitions 34–42 are not.
+
+### Current stream JSON refinement
+
+- `SafeNat` proves accepted numeric indices/counts are canonical nonnegative JSON integers in
+  JavaScript's exact range.
+- `decodeChunk` and `decodeChunks` operate on `Lean.Json`, preserve provider IDs and raw argument
+  strings, and return path-aware errors.
+- `ValidatedJsonTrace` retains the exact decoded supported chunks and an intrinsic
+  `RichStream.ValidatedTrace`; `replay_eq` proves the erased trace reaches its indexed endpoint.
+- Missing optional upstream usage counts become zero only in the named `WireUsage.toLocal`
+  normalization.
+- Opaque replay state, image/tool-result blocks, and upstream error/abort `LlmFailure` payloads
+  are rejected because the local types are not equivalent.
+
+This is soundness of one fail-closed supported subset. It is not completeness for the current
+TypeScript `BlockAssembler`, JSON-text parser correctness, transport correctness, or a claim
+that provider bytes match the audited AST shapes.
 
 ### Dependent calls and tool contracts
 
@@ -231,9 +284,11 @@ Settlement is atomic only in the sense that one pure Lean result contains all th
 It is not an external transaction and does not make tool side effects, storage, or retries
 atomic.
 
-This runner is pure, deterministic, sequential, counter-specific, and credential-free. It is
-not the pinned TypeScript Harness and proves no asynchronous scheduling, real tool `IO`,
-approval flow, cancellation, persistence, or crash behavior.
+The reusable `GenericHarness.Runner` is catalog-generic, while the executable
+`Cordis.Harness` wrapper and demo remain pure, deterministic, sequential,
+counter-specific, and credential-free. Neither is the TypeScript Harness, and
+neither proves asynchronous scheduling, real tool `IO`, approval flow,
+cancellation, persistence, or crash behavior.
 
 ## What is checked but not proved
 
@@ -245,6 +300,9 @@ Executable rejection is valuable, but it is not a refinement theorem.
 | `ToolWire.validate`                        | Resolves a name, checks declaration, decodes the selected input, and requires `certifyAdmission` evidence before returning a dependent call.                                                                                         | The supplied resolver, codecs, propositions, capability source, and admission procedure are not proved equivalent to a deployed registry or authenticated policy.                                |
 | `Protocol.validateEvent` / `validateTrace` | Checks the six local event variants and returns exact intrinsic witnesses for successful inputs.                                                                                                                                     | No translation or equivalence to the full Harness event union; no theorem equates every successful erased `replayRaw` call with witness reconstruction.                                          |
 | `Stream.applyRaw`                          | Checks one text/finish protocol, explicit chunk budget, and terminal-state discipline.                                                                                                                                               | No witness reconstruction for arbitrary accepted raw streams and no equivalence to Harness `StreamChunk` assembly or persistence.                                                                |
+| `RuntimeRefinement.validateJsonTrace`      | Decodes a supported current-Harness stream JSON-AST subset, then returns an exact intrinsic `RichStream.ValidatedTrace` or a separated decode/semantic error.                                                                        | No byte parser, full stream-union coverage, tolerant-assembler completeness, transport, storage, or whole-runtime equivalence.                                                                   |
+| `UnifiedContext` constructors              | Enforce dependent realm/provider types, derived-parent indices, finite unfolding depth, and witnessed local recovery.                                                                                                                | No imperative alias identity, recursive fixed point, tenant sandbox, middleware execution, or runtime refinement.                                                                                |
+| `Coeffect.Observational.Related`           | Makes presence/absence mismatches unconstructible and packages supplied key relations as a finite-context `Setoid`.                                                                                                                  | The key relations are supplied, and Definitions 34–42's operational indistinguishability and independence are not derived.                                                                       |
 | `CertifiedTwoBatch`                        | Requires same-successor, pointwise same-recovery, and result-stability certificate fields before either order is permitted.                                                                                                          | The certificate is supplied, exactly two pure calls are modeled, and no actual concurrency or external-effect safety follows.                                                                    |
 | `Registry.setAt`                           | Uses dependent equality transport so a value cannot be installed at a differently typed key.                                                                                                                                         | No runtime aliasing, notification, or mutable-store semantics are modeled.                                                                                                                       |
 | `View.resolve`                             | Requires `needs op` before a binding can be requested.                                                                                                                                                                               | Construction of the view and completeness of its registry snapshot remain obligations.                                                                                                           |
@@ -277,7 +335,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 53
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 180
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.
@@ -404,8 +462,9 @@ Consequently:
   theorems;
 - `RunnerState.callBoundaries_eq_records` covers only the call/result-ID projection of one
   in-memory local log; it is not a persistence, payload, or external-effect theorem;
-- it does not prove sequence numbers, timestamps, surface source references, observer
-  containment, flushes, or durable writes;
+- the separate rich `Session.ValidLog` does prove in-memory sequence continuity, surface
+  provenance, and reconstruction, but not timestamps, observer containment, flushes, or durable
+  writes;
 - Lean's step numbering and pending-call rules differ from the pinned companion; and
 - the optional companion being present in source does not prove it is loaded in a deployment.
 
@@ -439,7 +498,10 @@ Without additional proofs or tests, do not state that:
 - pure `RunnerState` call/result/record settlement is a durable transaction, makes external tool
   I/O atomic, or provides process-wide exactly-once execution;
 - the local `Cordis.Harness` verifies or is behaviorally equivalent to DeepSeek Harness;
-- the bounded text stream verifies Harness block assembly, provider streaming, or chunk storage;
+- `Approximation` constructs Definition 32's recursive fixed point, or finite Definition 33
+  invariance proves the operation-test and independence results of Definitions 34–42;
+- `RuntimeRefinement` accepts the full Harness stream union, is complete for the tolerant
+  TypeScript assembler, verifies provider streaming, or proves chunk storage;
 - a `Codec` schema is verified, parser-safe, or wire-compatible with Harness;
 - a `VerifiedTool` verifies arbitrary real I/O;
 - an emission label provides compensation, idempotence, or sandboxing;

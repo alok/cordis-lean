@@ -1702,10 +1702,12 @@ reference implementation, but external correctness is trusted.
 
 ### 19.1 Generalize beyond the counter
 
-Parameterize `CallEvidence`, `CallRecord`, and `RunnerState` by a catalog,
-model, capabilities, wire, view, and provider completion family. Preserve the
-exact call index in every result and policy trace. Expect universe and equality
-transport work; do not erase requests merely to simplify storage.
+The active `0.2` line now does this in `Cordis.GenericHarness`. When rebuilding
+it, parameterize `CallEvidence`, `CallRecord`, and `Runner` by one coherent
+configuration containing the catalog, model, capabilities, wire, view, and
+policy. Preserve the exact call index in every result and policy trace. Keep
+phase errors out of the trusted API by indexing `Runner` by `SessionState`;
+retain a dynamic wrapper only at an untrusted boundary.
 
 ### 19.2 Add a real JSON boundary
 
@@ -1723,28 +1725,91 @@ invariant. Only then discuss durable atomic settlement.
 
 ### 19.4 Add an `N`-call scheduler
 
-Generalize independence certificates from an exactly-two batch to a graph or
-dependency relation. Distinguish evaluation order from model-commit order and
-result order. Represent cancellation, drain, provider failure, and synthetic
-abort results. A theorem about pure reorderings still will not authorize real
-parallel I/O without a concrete refinement.
+The active `Cordis.Schedule` module now proves that any `List.Perm` of one
+finite family carrying pairwise complete-effect commutation denotes the same
+pure composite effect. That closes the semantic list-permutation step, but not
+the runtime scheduler. The next extension still must distinguish evaluation
+order from model-commit and result order, and represent cancellation, drain,
+provider failure, and synthetic abort results. A theorem about pure reorderings
+does not authorize real parallel I/O without a concrete refinement.
 
 ### 19.5 Relate the model to DeepSeek Harness
 
-Define an explicit translation from pinned Harness events and tool definitions
-to the Lean vocabulary. Prove preservation of the invariants actually shared
-by the two representations. Expect to model more payloads, surface semantics,
-session extensions, policy phases, persistence, and cancellation. Similar
-names are not an equivalence theorem.
+The active `Cordis.RuntimeRefinement` module begins this work for a supported
+current-Harness `StreamChunk` subset. It starts at `Lean.Json`, decodes exact
+current field/tag shapes, and feeds the result to `RichStream.validateTrace`.
+Continue by defining translations for additional pinned Harness events and tool
+definitions and proving only the invariants actually shared by the two
+representations. Expect to model more payloads, surface semantics, session
+extensions, policy phases, persistence, and cancellation. Similar names and a
+one-way supported-subset decoder are not a whole-runtime equivalence theorem.
 
 ### 19.6 Mechanize more of the paper
 
 Use [`PAPER_MAP.md`](PAPER_MAP.md) as a backlog. Major missing areas include the
-effect-context tower, full effect and operation independence, reactive coeffect
-semantics, the global component calculus, preservation, interleaved temporal
+effect-context tower, Definitions 34–42's operation-test and independence
+machinery, the global component calculus, preservation, interleaved temporal
 recovery, spatial composition, progress, confluence, loader reconciliation,
-and HMR. Do not present local `UndoStack`, lifecycle, or two-call results as
-substitutes for those theorems.
+and HMR. The active line now covers finite local coeffects (Definitions 22–26),
+direct finite realization/isolation/interception models (27–31), finite
+unfoldings of 32, and the finite-context relation/reactive invariance of 33.
+Do not present those bounded results, local `UndoStack`, lifecycle, or batch
+results as substitutes for the remaining theorems.
+
+### 19.7 Rebuild the bounded context layer by hand
+
+Implement this layer in paper dependency order.
+
+1. Start with `Coeffect.Context Key Value`, where `Value : Key -> Type` and lookup returns
+   `Option (Value key)`. Carry finite support only as a proposition so context equality remains
+   extensional in lookup behavior.
+2. Make `Present context key` carry both the exact value and its lookup equation. Make `Absent`
+   a proposition. The witnessed insertion inverse should remove only the selected key; prove
+   `removeAt (setAt context key value) key = context` from absence.
+3. Put each key's equivalence, operation-indexed argument/result types, executable domain,
+   witnessed local effect, and preservation laws in `CoeffectAt`. Lift an operation by changing
+   only that dependent binding.
+4. Encode a finite specification as a duplicate-free key list. Define satisfaction by presence,
+   then prove the executable notification classifier is exactly activating, deactivating, or
+   neutral according to the before/after satisfaction propositions.
+5. Keep Definition 27's two realization modes distinct. `InPlace` wraps `Applied`; `Derived`
+   indexes a child by an unchanged parent so discard recovery is a projection rather than a
+   fabricated mutation.
+6. For isolation, use a finite logical-key routing override and a dependent realm store. Require
+   the fallback `baseRealm` embedding to be injective, resolve before typing get/set, and prove
+   derived routing overrides inherit the store.
+7. For interception, define a key-indexed metadata monoid, a total metadata family, and a finite
+   table of providers of type `Meta key -> Value key`. Keep component-declared metadata on the
+   left and context metadata on the right of the merge.
+8. Do not encode `mu Gamma. Gamma x (Gamma -> Gamma) x Sigma` as an ordinary inductive. The
+   recursive variable occurs negatively. Define depth-indexed finite unfoldings and state that
+   boundary in the module documentation.
+9. Lift each key relation through `Option` so absence relates only to absence. Prove this is
+   equivalent to equal presence domains plus pointwise-related present values; then package it as
+   a `Setoid` and prove satisfaction and notification invariance.
+
+The important review question at each step is whether a theorem describes the paper object
+directly, a bounded approximation, or an integrator-supplied obligation. Put that distinction in
+the declaration's documentation, not only in release notes.
+
+### 19.8 Rebuild the current stream JSON refinement by hand
+
+Keep three layers visibly separate:
+
+1. `Lean.Json` wire values mirror supported current TypeScript optionality and tag names.
+2. `SupportedChunk.toRaw` performs the named normalization into local `RichStream.RawChunk`.
+3. `validateJsonTrace` runs `RichStream.validateTrace` and stores both the exact decoding equation
+   and the intrinsic dependent trace witness.
+
+Use path segments for nested decode errors. Accept numeric indices only when their JSON-number
+representation is a canonical nonnegative integer no larger than JavaScript's safe-integer
+limit. Preserve provider tool IDs and raw argument fragments as strings. Map missing optional
+usage counts to zero in one named function so reviewers can see the semantic choice.
+
+Fail closed when the upstream and local types differ. In the current slice that means opaque
+replay state, image/tool-result blocks, and error/abort `LlmFailure` values. Add exact rejection
+theorems for each unsupported boundary, and keep decode errors separate from semantic stream
+errors. The resulting theorem is supported-subset soundness, not assembler completeness.
 
 ## 20. Exact verification and review commands
 
@@ -1762,7 +1827,7 @@ Run source and diff hygiene:
 
 ```bash
 git diff HEAD --check
-python3 scripts/check_lean_hygiene.py --self-test .
+uv run scripts/check_lean_hygiene.py --self-test .
 ```
 
 Run documentation checks when the tools are installed:

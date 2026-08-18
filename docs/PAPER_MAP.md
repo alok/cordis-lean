@@ -13,14 +13,19 @@
 > does not retroactively turn the tables below into a full paper or
 > TypeScript-equivalence claim.
 >
-> `Cordis.Coeffect` now directly mechanizes the local content of paper
-> Definitions 22–26: finite dependent context, typed presence/absence, concrete
-> reversible insertion/removal, typed key-local operations, finite
-> specifications, satisfaction, and exact notifications. `Cordis.Schedule`
-> proves arbitrary finite semantic permutation of certified commuting pure
-> effects, while `Cordis.RichStream` models the current Harness block stream.
-> None of these additions is labeled as the still-absent global component/fiber
-> calculus or cross-language refinement theorem.
+> `Cordis.Coeffect` directly mechanizes the finite local content of paper
+> Definitions 22–26. `Cordis.UnifiedContext` directly models Definitions 27–31
+> and exposes only finite unfoldings of Definition 32's negatively recursive
+> equation. `Cordis.ContextualEquivalence` mechanizes the finite-context clause
+> of Definition 33 and proves satisfaction/notification invariance. Definitions
+> 34–42 and the global component/fiber calculus remain absent.
+>
+> `Cordis.Schedule` proves arbitrary finite semantic permutation of certified
+> commuting pure effects, while `Cordis.RichStream` models the current Harness
+> block stream. `Cordis.RuntimeRefinement` is a real but deliberately partial
+> cross-language boundary: it decodes supported current-Harness `StreamChunk`
+> JSON-AST shapes into an intrinsic rich-stream witness and rejects unsupported
+> shapes. It is not a behavioral-equivalence or completeness theorem.
 
 This document maps the Lean proof kernel and local reference layers to the pinned CORDIS paper
 and to the runtime systems that motivated them. It is a claim ledger, not a claim that the Lean
@@ -298,11 +303,44 @@ later for dispatch. Its tool registry snapshots lossless JSON, validates input/o
 and materializes failures. `Codec` begins after parsing, at `Lean.Json`; it is neither a parser
 nor a proof about Harness's TypeScript schema engine.
 
+### Current-development coeffect and unified-context layer
+
+Local sources: [`Cordis/Coeffect.lean`](../Cordis/Coeffect.lean),
+[`Cordis/UnifiedContext.lean`](../Cordis/UnifiedContext.lean), and
+[`Cordis/ContextualEquivalence.lean`](../Cordis/ContextualEquivalence.lean).
+
+| Lean declaration                                                                                                     | Status and exact Lean guarantee                                                                                                                                    | Paper correspondence                  | Boundary                                                                                                       |
+| -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `Coeffect.Context`, `Present`, `Absent`, `get`, `setEffect`, `removeEffect`                                          | **Checked/proved:** key selection fixes the stored value type; witnessed insertion/removal has a concrete local inverse and exact recovery.                        | Definitions 22–23.                    | Finite pure dependent maps; no external registry, persistence, or alias identity.                              |
+| `CoeffectAt`, `CoeffectAt.lift`, `Spec`, `Satisfies`, `notify`                                                       | **Checked/proved:** key-local operations carry typed inputs/outcomes and equivalence-respect laws; finite satisfaction and three-way notifications are exact.      | Definitions 24–26.                    | The operation record and decidability assumptions are supplied; no global component reacts automatically.      |
+| `UnifiedContext.InPlace`, `Derived`                                                                                  | **Checked/proved:** in-place values carry a witnessed inverse; a derived child retains its unchanged parent as an index and discards back to it.                   | Definition 27.                        | Pure Lean values do not establish imperative alias identity.                                                   |
+| `IsolatedContext`, `resolve`, `isolate`, isolation `setEffect`                                                       | **Checked/proved:** routing selects a realm-indexed value type, distinct own realms are intrinsic, derived overrides inherit the store, and resolved set recovers. | Definitions 28–29.                    | Finite routing/store model; it does not prove runtime tenant isolation or confinement.                         |
+| `MetadataAlgebra`, `InterceptionContext`, `getDeclared`, `intercept`, interception `setEffect`                       | **Checked/proved:** each key has its own metadata monoid/provider type; declared/context metadata order, distinct-key commutation, and recovery are exact.         | Definitions 30–31.                    | Monoid semantics and right-bias behavior are integrator-supplied; no middleware/runtime execution is verified. |
+| `Approximation`, `Layer.record`, `Layer.liftCoeffect`, `pushApproximation`                                           | **Checked/proved:** any selected finite unfolding contains state, accumulator, and coeffects; effects record LIFO and coeffect transitions lift and recover.       | Finite unfoldings of Definition 32.   | The fixed point has a negative occurrence in `Gamma -> Gamma`; no equirecursive fixed point is claimed.        |
+| `Coeffect.Observational.Related`, `related_iff`, `contextSetoid`, `satisfies_iff_of_related`, `notify_eq_of_related` | **Proved:** relation is exactly equal presence domain plus pointwise key relations; satisfaction and notification descend to the finite-context quotient.          | Finite-context part of Definition 33. | It does not define operation-test indistinguishability or prove Definitions 34–42.                             |
+
+### Current-development rich stream and TypeScript refinement
+
+Local sources: [`Cordis/RichStream.lean`](../Cordis/RichStream.lean) and
+[`Cordis/RuntimeRefinement.lean`](../Cordis/RuntimeRefinement.lean).
+
+| Lean declaration                                                                | Status and exact Lean guarantee                                                                                                                        | Current Harness correspondence                                           | Boundary                                                                                                                                            |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `RichStream.Event`, `Trace`, `ValidatedTrace`, `AlignedMetadata`                | **Checked/proved:** typed/raw streams preserve block-kind deltas, exact assembly, first-seen ordering, terminal usage discipline, and metadata length. | Current block-stream and assembler vocabulary at Harness `99f6f02`.      | The local semantic contract is stricter; images, tool-result blocks, transport, and replay pruning are outside `RichStream`.                        |
+| `RuntimeRefinement.decodeChunk`, `decodeChunks`, `SafeNat`, `WireUsage.toLocal` | **Checked executable boundary:** supported current fields/tags decode path-sensitively; IDs/raw arguments are unchanged; unsafe integers fail closed.  | Current [`StreamChunk` and usage fields][harness-current-stream-types].  | Starts from `Lean.Json`, not bytes. Missing optional usage counts become zero at one named local normalization.                                     |
+| `RuntimeRefinement.ValidatedJsonTrace`, `validateJsonTrace`, `replay_eq`        | **Checked/proved:** success retains exact decoded chunks and a real intrinsic `ValidatedTrace` whose erased replay reaches its indexed endpoint.       | Supported-subset JSON-AST-to-semantics refinement for Harness `99f6f02`. | Opaque replay state, image/tool-result blocks, and upstream `LlmFailure` shapes are rejected. No completeness or whole-runtime equivalence follows. |
+
+### Current-development finite schedules
+
+| Lean declaration                                        | Status and exact Lean guarantee                                                                                                                   | Paper correspondence                                      | Boundary                                                                                                                                        |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Schedule.runEffects_eq_of_perm`, `CertifiedSchedule.*` | **Proved:** every permutation of a finite family carrying a pairwise complete-effect commutation certificate denotes the same successor and undo. | Adjacent to Definitions 19–21 and temporal composability. | Sequential pure semantic reordering, not transformation-monoid independence, arbitrary removal, tasks, cancellation, or wall-clock concurrency. |
+
 ### Public surface, examples, and executable checks
 
 | Artifact                                                                                                                       | Status and exact role                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Boundary                                                                                                                                                       |
 | ------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`Cordis.lean`](../Cordis.lean)                                                                                                | **Checked build surface:** imports the kernel, batch, codec, examples, local Harness, lifecycle, policy, protocol, registry, stream, tool, and wire modules.                                                                                                                                                                                                                                                                                                                        | Importing a module makes its declarations available; it does not prove a deployed adapter used them correctly.                                                 |
+| [`Cordis.lean`](../Cordis.lean)                                                                                                | **Checked build surface:** imports the kernel, generic/rich session harness, coeffect/context layers, stream refinement, examples, lifecycle, policy, protocol, registry, tool, and wire modules.                                                                                                                                                                                                                                                                                   | Importing a module makes its declarations available; it does not prove a deployed adapter used them correctly.                                                 |
 | [`Examples/Counter.lean`](../Cordis/Examples/Counter.lean)                                                                     | **Proved pure example:** defines request-indexed read/increment contracts and verified pure implementations; `increment_returns_requested_value` states the modeled successor exactly.                                                                                                                                                                                                                                                                                              | The counter is an in-memory `Nat`, not external I/O. Its capability predicates and registry are example values.                                                |
 | [`Examples/CounterWire.lean`](../Cordis/Examples/CounterWire.lean)                                                             | **Checked/proved example boundary:** supplies codecs, catalog-name resolution, counter-limit and capability certificates, raw example calls, and `validateRaw`.                                                                                                                                                                                                                                                                                                                     | `allNeeds` and `allCapabilities` intentionally grant everything in this deterministic example; they are not authentication or production policy.               |
 | [`Cordis/TestSuite.lean`](../Cordis/TestSuite.lean), [`Tests.lean`](../Tests.lean)                                             | **Checked executable tests:** the test executable runs finite positive/adversarial cases for effects, certified batch ordering, codecs, streams, registry recovery, lifecycle recovery, protocol rejection, leases, admission, encoded dependent results, local Harness replay, typed trace reconstruction, and multi-turn accounting. Demo and multi-turn cases also compare `callBoundaries log` with `recordBoundaries records` and instantiate the lease-threading certificate. | Passing examples and failure cases do not prove universal properties or TypeScript interoperability. The universal claims remain the Lean theorem types above. |
@@ -324,12 +362,13 @@ The following are intentionally not presented as completed formalization work.
    Lemma 18, Definition 19's operation-level conditions, Theorem 20's arbitrary removal, and
    Corollary 21's arbitrary-permutation recovery are not mechanized. Neither
    `setEffect_commute` nor `CertifiedTwoBatch.execute_order_irrelevant` proves those results.
-3. **Reactive coeffect semantics:** Definition 24's operation/outcome semantics,
-   Definition 26's notification classifier, Definition 27's realizations, Definitions 28–31's
-   isolation/interception contexts, and Definition 32's recursive unified context are absent.
-4. **Operational observational equivalence:** Definition 33's coeffect projection,
-   Definition 34 and Lemma 35's test indistinguishability, and the full operation
-   independence results of Definitions 39–41 and Theorems 40–42 are not proved.
+3. **Recursive unified-context fixed point:** Definitions 22–31 now have bounded direct models,
+   but Definition 32's equirecursive fixed point is represented only by exact finite unfoldings.
+   The negative occurrence in `Gamma -> Gamma` is not hidden behind an invalid inductive type.
+4. **Operational observational equivalence and independence:** the finite-context relation of
+   Definition 33 and its reactive invariance are proved. Definition 34 and Lemma 35's test
+   indistinguishability, Definitions 36–39's full quotient/map/operation machinery, and
+   Theorems 40–42 are not proved.
 5. **Full component calculus:** Definitions 43–53 are not mechanized as one global state and
    step relation. In particular, there is no fresh-name fiber registry, parent tree,
    retirement/orchestration calculus, confinement proof, recursive witnessed iterator,
@@ -388,6 +427,7 @@ integration tests; they cannot be inferred from similarly named Lean declaration
 [harness-tools-view]: https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/core/tools/src/index.ts#L1031-L1284
 [harness-tools-execute]: https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/core/tools/src/index.ts#L1328-L1530
 [harness-llm-stream]: https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/llm/llm/src/types.ts#L283-L303
+[harness-current-stream-types]: https://github.com/deepseek-ai/deepseek-harness/blob/99f6f02fecdb7dff40c3fbc9470f5907c29f74ca/packages/llm/llm/src/types.ts
 [harness-session-types]: https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/core/session/src/types.ts#L230-L297
 [harness-session-invariant]: https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/core/session/src/invariant.ts#L1-L250
 [harness-session-append]: https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/core/session/src/index.ts#L564-L655

@@ -23,12 +23,17 @@ exact-call policy allows one branch and rejects the other without dispatch.
 exact append/replacement range, provenance, surface-uniqueness, and `ValidLog`
 certificates.
 
-The same development line now adds three further source-grounded proof layers:
+The same development line now adds further source-grounded proof layers:
 `Cordis.RichStream` validates interleaved text, reasoning, and raw tool-call
 blocks with terminal usage/replay invariants; `Cordis.Schedule` proves arbitrary
 finite semantic reordering for certified commuting pure effects; and
 `Cordis.Coeffect` mechanizes the paper's local reactive-coeffect Definitions
-22–26 over a finite dependent context. `Cordis.StreamSession` explicitly
+22–26 over a finite dependent context. `Cordis.UnifiedContext` then models
+Definitions 27–31 directly and Definition 32 by exact finite unfoldings, while
+`Cordis.ContextualEquivalence` proves the finite-context part of Definition 33
+and its satisfaction/notification invariance. `Cordis.RuntimeRefinement`
+decodes a fail-closed subset of the current Harness `StreamChunk` JSON shape
+into the intrinsic rich-stream validator. `Cordis.StreamSession` explicitly
 assigns unique numeric session IDs to provider string tool IDs before a
 validated rich assistant view enters the canonical surface.
 
@@ -173,7 +178,10 @@ placeholders.
 | Parsed typed rich events validate into exact append/range/provenance/uniqueness witnesses and finite `ValidLog` suffixes                           | `SessionValidation.validateAppend`, `ValidatedAppend`, `ValidatedSuffix`, `ValidatedLog`                                  | Begins after kind-specific payload parsing; bytes, persistence, and unknown required extension kinds remain external.    |
 | Interleaved text, reasoning, and raw tool-call deltas retain first-seen order, exact block-end assembly, terminal discipline, and aligned metadata | `RichStream.Event`, `ValidatedTrace`, `replayRaw_eraseTrace`, `AlignedMetadata`                                           | Images, tool-result blocks, transport, and metadata pruning are deferred.                                                |
 | Any finite permutation of a certified commuting pure-effect family denotes the same complete effect and recovery function                          | `Schedule.runEffects_eq_of_perm`, `CertifiedSchedule.*`                                                                   | Semantic sequential reordering only; no tasks, failures, outputs, fairness, or wall-clock overlap.                       |
-| A finite dependent coeffect context enforces typed presence/absence, concrete local recovery, decidable satisfaction, and exact notifications      | `Coeffect.Context`, `setEffect_recovers`, `CoeffectAt.lift_recovers`, `activating_iff`, `deactivating_iff`, `neutral_iff` | Local paper Definitions 22–26 only; isolation, unified contexts, components, fibers, and global metatheory remain open.  |
+| A finite dependent coeffect context enforces typed presence/absence, concrete local recovery, decidable satisfaction, and exact notifications      | `Coeffect.Context`, `setEffect_recovers`, `CoeffectAt.lift_recovers`, `activating_iff`, `deactivating_iff`, `neutral_iff` | This module is Definitions 22–26; the next two rows state the separate bounded 27–33 results.                            |
+| Isolation resolves logical keys through typed realm stores; interception merges key-indexed metadata; finite unified layers retain LIFO recovery   | `UnifiedContext.IsolatedContext`, `InterceptionContext`, `Layer.record_twice_recovers`, `Layer.liftCoeffect_recovers`     | Definitions 27–31 are direct finite models; Definition 32 is represented only by finite unfoldings, not its fixed point. |
+| Related finite contexts have exactly the same domain and key-wise related values, and satisfaction and notifications respect that relation         | `Coeffect.Observational.related_iff`, `contextSetoid`, `satisfies_iff_of_related`, `notify_eq_of_related`                 | Finite-context portion of Definition 33 only; operation-test indistinguishability and Definitions 34–42 remain open.     |
+| Supported current-Harness stream JSON refines to an intrinsic validated trace with exact replay, or fails with a structured decode/stream error    | `RuntimeRefinement.validateJsonTrace`, `ValidatedJsonTrace.replay_eq`, exact rejection theorems                           | JSON AST only; unsupported blocks/failures/replay state are rejected, and completeness for Harness is not claimed.       |
 | A rich provider assistant view cannot enter a session without one unique numeric `CallId` per ordered provider tool call                           | `StreamSession.CallIdAssignment`, `toSessionToolCalls_length`, `appendAssistant`                                          | Assignment authenticity and provider-ID globalization remain adapter obligations.                                        |
 
 ## Module map
@@ -199,6 +207,9 @@ placeholders.
 | `Cordis.RichStream`               | Indexed interleaved content blocks, exact raw validation/replay, terminal usage/error/abort discipline, and replay-metadata alignment.                          |
 | `Cordis.Schedule`                 | Arbitrary finite `List.Perm` invariance for certified commuting pure effects, including exact successor, undo, and recovery equality.                           |
 | `Cordis.Coeffect`                 | Finite dependent contexts, typed get/set/remove and local-operation lift, concrete recovery, specifications, satisfaction, and notifications.                   |
+| `Cordis.UnifiedContext`           | In-place/derived realizations, typed realm isolation, metadata interception, and exact finite unfoldings of the unified-context equation.                       |
+| `Cordis.ContextualEquivalence`    | Key-wise observational equivalence for finite coeffect contexts, a context `Setoid`, and satisfaction/notification quotient invariance.                         |
+| `Cordis.RuntimeRefinement`        | Path-aware current-Harness `StreamChunk` JSON-AST decoding into proof-producing rich-stream validation with explicit unsupported cases.                         |
 | `Cordis.StreamSession`            | Proof-carrying provider-string-ID to numeric-`CallId` assignment and rich assistant insertion into the canonical session surface.                               |
 | `Cordis.Examples.DependentChoice` | Structured non-counter model whose Boolean input selects `Nat` or `String`, with exact-call allow/deny behavior.                                                |
 | `Cordis.Harness`                  | Counter configuration and dynamic convenience wrapper whose canonical rich session is proved to project to the generic runner's structural log.                 |
