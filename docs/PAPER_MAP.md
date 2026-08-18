@@ -352,20 +352,32 @@ Local sources: [`Cordis/RichStream.lean`](../Cordis/RichStream.lean) and
 Local sources: [`Cordis/Transformation.lean`](../Cordis/Transformation.lean) and
 [`Cordis/OperationIndependence.lean`](../Cordis/OperationIndependence.lean).
 
-| Lean declaration                                                                   | Status and exact Lean guarantee                                                                                                                                               | Paper correspondence                      | Boundary                                                                                                     |
-| ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `Transformation.EffectGenerator`, `Closure`, `OfEffect`, `seq_monoid_subset_joint` | **Proved:** an effect monoid is the least identity/composition closure of its forward map and every yielded inverse; generator commutation closes; sequencing adds no source. | Definition 17 and Lemma 18.               | Exact total `Cordis.Effect`; no partial/Kleisli transformation monoid or Theorem 20 removal trace yet.       |
-| `Transformation.Independent`, `of_generators`, `independentAt`, `seq_commute`      | **Proved:** full cross-monoid commutation and bidirectional yielded-inverse stability promote from generators and imply the exact adjacent certificate.                       | Definition 19.                            | Adjacent equality is a consequence, not the definition. Theorem 20 and Corollary 21 remain absent.           |
-| `ExactOperationIndependent`, `OutcomeStable`, generator promotion                  | **Proved:** full exact-effect independence plus heterogeneous outcome stability holds over every foreign transformation.                                                      | Definition 39 for total exact operations. | Total exact interpretation only; partial dependent operations use the separate finite-word model.            |
-| `FiniteKeyIndependent`, `distinctKeys_finiteIndependent`                           | **Proved:** arbitrary finite forward/inverse words at distinct dependent keys commute including undefinedness, and preserve complete successor/inverse/outcome data.          | Finite executable form of Theorem 40.     | Paper states abstract transformation monoids; this theorem quantifies over intrinsic finite word syntax.     |
-| `Computation`, `Computation.run`, `run_recovers`                                   | **Checked/proved:** outcomes select typed continuations and every successful mediated computation composes inverses in LIFO order and recovers exactly.                       | Definition 41.                            | The interpreter is partial finite syntax; it is not external asynchronous execution.                         |
-| `MediatedClosure`, `ForwardOnlyGap.inverse_stability_fails`                        | **Checked/proved boundary:** forward commutation cannot establish inverse stability; complete outcome-dependent branch/inverse closure is named explicitly.                   | Missing closure frontier for Theorem 42.  | Full Theorem 42 is not asserted; deriving `MediatedClosure` from overlapping-key commutativity remains open. |
+| Lean declaration                                                                                               | Status and exact Lean guarantee                                                                                                                                                | Paper correspondence                      | Boundary                                                                                                     |
+| -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `Transformation.EffectGenerator`, `Closure`, `OfEffect`, `seq_monoid_subset_joint`                             | **Proved:** an effect monoid is the least identity/composition closure of its forward map and every yielded inverse; generator commutation closes; sequencing adds no source.  | Definition 17 and Lemma 18.               | Exact total `Cordis.Effect`; no partial/Kleisli transformation monoid or Theorem 20 removal trace yet.       |
+| `Transformation.Independent`, `of_generators`, `independentAt`, `seq_commute`                                  | **Proved:** full cross-monoid commutation and bidirectional yielded-inverse stability promote from generators and imply the exact adjacent certificate.                        | Definition 19.                            | Adjacent equality is a consequence, not the definition; removal and inverse-order results are the next row.  |
+| `Removal.RemovalTrace`, `removal_inverse_relation`, `later_inverses_unchanged`, `inverse_permutation_recovers` | **Proved:** an indexed original/omitted suffix trace retains every later application state and inverse equality; any permutation of exact yielded inverses recovers the start. | Theorem 20 and Corollary 21.              | Finite pairwise-independent exact effects only; no observational, asynchronous, or external-effect theorem.  |
+| `ExactOperationIndependent`, `OutcomeStable`, generator promotion                                              | **Proved:** full exact-effect independence plus heterogeneous outcome stability holds over every foreign transformation.                                                       | Definition 39 for total exact operations. | Total exact interpretation only; partial dependent operations use the separate finite-word model.            |
+| `FiniteKeyIndependent`, `distinctKeys_finiteIndependent`                                                       | **Proved:** arbitrary finite forward/inverse words at distinct dependent keys commute including undefinedness, and preserve complete successor/inverse/outcome data.           | Finite executable form of Theorem 40.     | Paper states abstract transformation monoids; this theorem quantifies over intrinsic finite word syntax.     |
+| `Computation`, `Computation.run`, `run_recovers`                                                               | **Checked/proved:** outcomes select typed continuations and every successful mediated computation composes inverses in LIFO order and recovers exactly.                        | Definition 41.                            | The interpreter is partial finite syntax; it is not external asynchronous execution.                         |
+| `MediatedClosure`, `ForwardOnlyGap.inverse_stability_fails`                                                    | **Checked/proved boundary:** forward commutation cannot establish inverse stability; complete outcome-dependent branch/inverse closure is named explicitly.                    | Missing closure frontier for Theorem 42.  | Full Theorem 42 is not asserted; deriving `MediatedClosure` from overlapping-key commutativity remains open. |
 
 ### Current-development finite schedules
 
 | Lean declaration                                        | Status and exact Lean guarantee                                                                                                                   | Paper correspondence                                      | Boundary                                                                                                                                        |
 | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Schedule.runEffects_eq_of_perm`, `CertifiedSchedule.*` | **Proved:** every permutation of a finite family carrying a pairwise complete-effect commutation certificate denotes the same successor and undo. | Adjacent to Definitions 19–21 and temporal composability. | Sequential pure semantic reordering, not transformation-monoid independence, arbitrary removal, tasks, cancellation, or wall-clock concurrency. |
+
+### Current-development global registry and orchestration
+
+Local source: [`Cordis/GlobalRegistry.lean`](../Cordis/GlobalRegistry.lean).
+
+| Lean declaration                                                                                          | Status and exact Lean guarantee                                                                                                                                  | Paper correspondence                                   | Boundary                                                                                                                                       |
+| --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `StaticSignature`, `ComponentDecl`, `Fiber`, `Phase`, `GlobalState`                                       | **Checked intrinsically:** global state stores only opaque execution codes, finite declarations, private typed tables, parents, and phase data.                  | Data portions of Definitions 43–45 and 49.             | No function over `GlobalState` is stored, avoiding negative recursion; external dynamics and iterator meaning are deferred.                    |
+| `WellFormed`, `Ancestor.birth_lt`, `parent_acyclic`                                                       | **Proved:** provision ownership and committed providers are coherent, parents are present and strictly older, and no positive parent chain cycles.               | Strengthened Definition 45/58 structural invariant.    | `parent_older` is explicit strengthening; parent presence alone in Definition 58 would permit a cycle.                                         |
+| `ActiveProvider`, `activeContext_value_iff`, `IsTargetView.unique`, `targetView_*`, `Quiescent`           | **Proved/checked:** providers/values and target views are unique, and the derived heterogeneous active context has exactly the values supplied by active fibers. | Definitions 45–46 and widened D49 quiescence.          | Uses noncomputable unique choice over proof-finite registries; no live runtime lookup, read confinement, or asynchronous state.                |
+| `OrchestrationStep`, `preserve_insert`, `preserve_retire`, `preserve_remove`, `Trace.preservesWellFormed` | **Proved:** explicit-freshness insert, unconditional retire, and retired/inactive/childless remove preserve strengthened well-formedness over traces.            | O-Insert/O-Retire/O-Remove; orchestration part of T59. | Definition 47 callbacks, Definition 48 read confinement, lifecycle rules, iterator interpretation, and full ten-rule Theorem 59 remain absent. |
 
 ### Public surface, examples, and executable checks
 
@@ -388,11 +400,10 @@ The following are intentionally not presented as completed formalization work.
    `recover`, twisted composition, the monoid homomorphism, and the soundness invariant)
    are not represented directly. Definition 12 and Theorems 13–15, which lift an effect into
    the next effect-context level, are also absent.
-2. **Arbitrary removal and inverse order:** Definition 17, Lemma 18, and full Definition 19 are
-   now mechanized for exact effects, and they imply the existing adjacent batch certificate.
-   Theorem 20's arbitrary removal trace and Corollary 21's arbitrary-permutation inverse recovery
-   are not yet mechanized. `Schedule.runEffects_eq_of_perm` reorders complete effects under a
-   stronger supplied equality family; it is not either paper theorem.
+2. **Beyond finite exact removal:** Definitions 17–19, Theorem 20, and Corollary 21 are now
+   mechanized for finite exact pairwise-independent effects. Their observational-quotient,
+   infinite, asynchronous, and external-effect interpretations are not. The separate Schedule
+   theorem reorders whole effects and is not used as a substitute for inverse permutation.
 3. **Recursive unified-context fixed point:** Definitions 22–31 now have bounded direct models,
    but Definition 32's equirecursive fixed point is represented only by exact finite unfoldings.
    The negative occurrence in `Gamma -> Gamma` is not hidden behind an invalid inductive type.
@@ -402,12 +413,14 @@ The following are intentionally not presented as completed formalization work.
    41 are proved. Same-word tests do not imply paired-inverse coherence, and forward commutation
    does not imply inverse stability. The branch-indexed closure from the paper's overlapping-key
    premise to full Theorem 42 remains unproved and is named `MediatedClosure`.
-5. **Full component calculus:** Definitions 43–53 are not mechanized as one global state and
-   step relation. In particular, there is no fresh-name fiber registry, parent tree,
-   retirement/orchestration calculus, confinement proof, recursive witnessed iterator,
-   asynchrony rule, or failure rule.
-6. **Preservation metatheory:** Lemmas 54–57, Definition 58's four-clause well-formed
-   registry, and Theorem 59 are absent.
+5. **Full component calculus:** code-only component/fiber/phase/global-registry data, provider
+   uniqueness, target/quiescence, birth-ranked parents, and O-Insert/O-Retire/O-Remove are now
+   mechanized. Definition 47 registration callbacks, Definition 48 read confinement, Definition
+   50 lifecycle reliance rule, Definitions 51–52 iterator dynamics, and the full ten-rule
+   Definition 53 relation remain absent.
+6. **Full preservation metatheory:** strengthened registry well-formedness and preservation by
+   the three orchestration rules are proved. Lemmas 54–57 and preservation by the seven lifecycle
+   rules needed for full Theorem 59 are absent.
 7. **Temporal composability:** Definition 60's iterator independence, Theorem 61's
    interleaved recovery exactness, and Corollary 62's terminal recovery are absent. The local
    `unload_recovers` theorem is not a substitute.

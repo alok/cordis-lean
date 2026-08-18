@@ -20,9 +20,11 @@ arbitrary-finite semantic permutation theorem for certified commuting pure
 effects, bounded mechanizations through paper Definition 41, and supported
 current-Harness stream and session JSON-AST refinements. Definition 34/Lemma 35
 also expose a formal paired-inverse coherence gap instead of assuming it away.
-Full branch-indexed Theorem 42, Theorem 20/Corollary 21, task concurrency, the
-global component calculus, and the paper's preservation/progress/confluence
-results remain open.
+Finite exact Theorem 20/Corollary 21 and the first birth-ranked global
+registry/orchestration preservation slice are also implemented. Full
+branch-indexed Theorem 42, global dynamics/lifecycle execution, task
+concurrency, and the paper's complete preservation/progress/confluence results
+remain open.
 
 Repository: `cordis-lean`
 

@@ -1749,16 +1749,16 @@ one-way supported-subset decoder are not a whole-runtime equivalence theorem.
 ### 19.6 Mechanize more of the paper
 
 Use [`PAPER_MAP.md`](PAPER_MAP.md) as a backlog. Major missing areas include the
-effect-context tower, Theorem 20/Corollary 21 arbitrary removal/inverse order,
-full branch-indexed Theorem 42, the global component calculus, preservation, interleaved temporal
-recovery, spatial composition, progress, confluence, loader reconciliation,
-and HMR. The active line now covers finite local coeffects (Definitions 22–26),
+effect-context tower, full branch-indexed Theorem 42, global lifecycle/dynamics,
+full preservation, interleaved temporal recovery, spatial composition, progress,
+confluence, loader reconciliation, and HMR. The active line now covers finite local coeffects (Definitions 22–26),
 direct finite realization/isolation/interception models (27–31), finite
 unfoldings of 32, and the finite-context relation/reactive invariance of 33.
 It also covers Definition 34 and generator-level Lemma 35, Definitions 36–37,
 the finite-composition core of Lemma 38, Definitions 17–19, full total Definition
 39, finite partial distinct-key Theorem 40, and Definition 41. Do not present those bounded
-results, local `UndoStack`, lifecycle, or batch results as substitutes for the
+results, finite exact Theorem 20/Corollary 21, the orchestration-only global registry, local
+`UndoStack`, lifecycle, or batch results as substitutes for the
 remaining theorems.
 
 ### 19.7 Rebuild the bounded context layer by hand
@@ -1812,6 +1812,11 @@ Implement this layer in paper dependency order.
     execute explicit finite forward/inverse words and prove distinct keys commute including
     undefinedness and complete yielded data. Encode Definition 41 as a free outcome-indexed
     computation tree and compose its inverse in LIFO order.
+15. For Theorem 20, index a paired suffix trace by the target-present and target-omitted states
+    and retain every later effect's two application states plus equality of the inverse it yields.
+    For Corollary 21, apply the exact retained inverse functions directly, prove they form a
+    commuting finite family under pairwise Definition 19 independence, and induct on `List.Perm`.
+    Do not reapply or reorder whole effects.
 
 Do not label the remaining gap Theorem 42. Pairwise operation/key laws still need a
 branch-indexed theorem proving that foreign transformations retain every stage outcome, select
@@ -1856,6 +1861,36 @@ restricted append-only singleton-text tool result. It rejects identities/payload
 cannot preserve, replacement operations, opaque metadata, extensions, and non-equivalent turn
 reasons. This is stateful supported-subset soundness, not a persisted JSONL or whole-session
 equivalence theorem.
+
+### 19.9 Rebuild the first global registry slice by hand
+
+Do not put an effect or iterator function over `GlobalState` inside a fiber stored by that same
+`GlobalState`; that repeats the negative recursive occurrence. Define a static signature of opaque
+component, iterator, and undo codes first. The state may then contain only codes, finite
+declarations, data, and proofs. A later external `Dynamics` record can interpret codes after the
+state type exists.
+
+Build the structural slice in this order:
+
+1. Define finite dependency/provision declarations and a total committed view over the declared
+   key subtype.
+2. Define four code-only phases, private typed fiber tables, retirement, parent, and birth rank.
+3. Define a finite name-to-fiber registry and global ambient state.
+4. Strengthen well-formedness with `parent_older`; parent presence alone permits cycles. Prove a
+   positive parent chain strictly increases birth rank and therefore cannot cycle.
+5. Derive active providers/values and target views from the registry. Prove provider/value/target
+   uniqueness before defining a chosen active context or target.
+6. Make insertion consume an explicit freshness witness and provision-disjointness proof. Keep an
+   optional executable `FreshSupply` separate from relational preservation.
+7. Encode O-Insert, O-Retire, and O-Remove exactly. O-Remove's retired/inactive/childless premises
+   are enough: prior committed-provider-installed well-formedness rules out a surviving installed
+   consumer pointing at the inactive removed fiber.
+8. Prove every rule and finite orchestration trace preserves the strengthened invariant.
+
+The resulting module is only the registry/orchestration portion of Theorem 59. Do not claim
+Definition 47 callbacks, Definition 48 read confinement, iterator interpretation, lifecycle
+rules, or full ten-rule preservation until an external dynamics contract states and proves those
+laws.
 
 ## 20. Exact verification and review commands
 

@@ -55,6 +55,11 @@ Current machine-checked evidence includes:
 - `Cordis.OperationIndependence`, proving full total Definition 39, finite partial distinct-key
   Theorem 40, and Definition 41's outcome-mediated interpreter/recovery while naming the
   remaining Theorem 42 closure obligation;
+- `Cordis.Removal`, proving Theorem 20's finite target/prefix/suffix removal and later-inverse
+  equations plus Corollary 21 for every permutation of retained state-indexed inverses;
+- `Cordis.GlobalRegistry`, encoding Definitions 43–46/49 with opaque execution codes,
+  birth-ranked parents, provider/view uniqueness, and well-formedness preservation for
+  orchestration insert/retire/remove traces;
 - `Cordis.RuntimeRefinement`, decoding the supported current-Harness stream-chunk JSON-AST
   shapes into `RichStream.ValidatedTrace` while explicitly rejecting non-equivalent fields;
 - `Cordis.SessionRefinement`, statefully translating a supported source-shaped Harness session
@@ -312,7 +317,7 @@ future external adapter consumes the same proof-carrying request contract.
 
 ## Paper context and executable refinement
 
-The bounded algebra/context layer now has seven explicit pieces:
+The bounded algebra/context layer now has nine explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -339,6 +344,15 @@ The bounded algebra/context layer now has seven explicit pieces:
    with complete forward-data stability, and implements Definition 41's outcome-selected
    computation syntax with exact LIFO recovery. `MediatedClosure` names, but does not pretend to
    derive, the branch-indexed closure still needed for full Theorem 42.
+8. `Cordis.Removal` keeps each application state and yielded inverse in an indexed execution,
+   builds a paired original/omitted suffix trace, proves every later effect yields the same
+   inverse after removal, and promotes pairwise Definition 19 independence to recovery under
+   every inverse permutation.
+9. `Cordis.GlobalRegistry` avoids recursive functions in state by storing component, iterator,
+   and undo codes. It derives active providers/values and targets from a finite registry, adds a
+   birth-order strengthening to the paper's parent-present invariant, proves parent acyclicity,
+   and proves insert/retire/remove plus orchestration traces preserve the strengthened registry
+   well-formedness.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -391,7 +405,11 @@ The slice requires all existing gates plus the following new coverage:
   cases;
 - full generator-to-transformation-monoid promotion and inverse stability; and
 - exact total operation independence, finite partial distinct-key words, outcome-dependent
-  mediated execution, and the forward-only inverse-stability counterexample.
+  mediated execution, and the forward-only inverse-stability counterexample;
+- arbitrary middle-effect removal, explicit later inverse agreements, and non-LIFO inverse
+  permutation recovery; and
+- global registry insert/retire/remove preservation, used-name/provision rejection, parent
+  acyclicity, and heterogeneous active-context/target examples.
 
 Headline theorems must be added to `Cordis/AxiomAudit.lean`. The full project must remain free of
 `sorry`, `admit`, project-defined axioms, `unsafe`, `partial`, external implementation overrides,
@@ -423,8 +441,8 @@ This slice does not by itself prove:
 - durable persistence, flush barriers, crash repair, resume, or fork correctness;
 - task/fiber scheduling, fairness, cancellation delivery, or wall-clock concurrency;
 - the stronger paired-inverse law from same-word tests without its explicit coherence premise;
-- Theorem 20, Corollary 21, full branch-indexed Theorem 42, the component/fiber calculus, or the
-  paper's global composability results;
+- full branch-indexed Theorem 42, Definition 47/48 dynamics, Definitions 51–53 lifecycle
+  execution, full Theorem 59, or the paper's global composability results;
 - native plugin isolation, process confinement, filesystem safety, or remote-service behavior;
 - global exactly-once execution across workers; or
 - that a model follows supplied schemas or chooses an appropriate tool.
