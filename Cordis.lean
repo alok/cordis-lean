@@ -9,9 +9,11 @@ import Cordis.Examples.Counter
 import Cordis.Examples.CounterWire
 import Cordis.Examples.DependentChoice
 import Cordis.GenericHarness
+import Cordis.GlobalDynamics
 import Cordis.GlobalRegistry
 import Cordis.Harness
 import Cordis.Lifecycle
+import Cordis.MediatedIndependence
 import Cordis.OperationIndependence
 import Cordis.OperationalEquivalence
 import Cordis.Policy

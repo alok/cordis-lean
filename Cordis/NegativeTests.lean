@@ -3,8 +3,10 @@ import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.Examples.DependentChoice
+import Cordis.GlobalDynamics
 import Cordis.GlobalRegistry
 import Cordis.Lifecycle
+import Cordis.MediatedIndependence
 import Cordis.Policy
 import Cordis.Protocol
 import Cordis.OperationIndependence
@@ -342,5 +344,15 @@ example : Coeffect.Absent GlobalRegistry.Example.withProvider.registry 0 := by
 example : (Removal.yieldedInverses Removal.Example.effects Removal.Example.initial).Perm
     [Removal.Example.inverseX, Removal.Example.inverseY] := by
   simp [Removal.Example.effects]
+
+/-! Observationally related contexts do not provide exact representative equality for free. -/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : MediatedIndependence.ExactRepresentativeCoherence
+    (Coeffect.Observational.equivalencesOf
+      MediatedIndependence.Counterexample.coeffects) := by
+  intro left right related
+  rfl
 
 end Cordis.NegativeTests

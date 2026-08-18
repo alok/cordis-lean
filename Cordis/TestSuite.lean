@@ -7,9 +7,11 @@ import Cordis.Effect
 import Cordis.Examples.Counter
 import Cordis.Examples.CounterWire
 import Cordis.Examples.DependentChoice
+import Cordis.GlobalDynamics
 import Cordis.GlobalRegistry
 import Cordis.Harness
 import Cordis.Lifecycle
+import Cordis.MediatedIndependence
 import Cordis.OperationIndependence
 import Cordis.OperationalEquivalence
 import Cordis.Policy
@@ -787,6 +789,33 @@ private def testGlobalRegistry : IO Unit := do
       | .inactive _ => pure ()
       | _ => fail "orchestration retirement changed the lifecycle phase"
 
+private def testMediatedIndependenceBoundary : IO Unit := do
+  assertEqual "realized Definition 41 path retains both outcome-selected stages"
+    MediatedIndependence.BranchExample.path.stages.length 2
+  let selectedLabel : Option String :=
+    MediatedIndependence.BranchExample.applied.after
+      Coeffect.Quotient.Example.ExampleKey.label
+  assertEqual "realized path retains the Nat-selected String continuation"
+    selectedLabel (some "a-three")
+  let falseThenTrue : Option MediatedIndependence.Counterexample.Cell :=
+    MediatedIndependence.Counterexample.falseThenTrue.after .cell
+  let trueThenFalse : Option MediatedIndependence.Counterexample.Cell :=
+    MediatedIndependence.Counterexample.trueThenFalse.after .cell
+  assertEqual "quotient-related orders may choose different exact representatives"
+    (falseThenTrue.map MediatedIndependence.Counterexample.Cell.hidden,
+      trueThenFalse.map MediatedIndependence.Counterexample.Cell.hidden)
+    (some true, some false)
+
+open GlobalDynamics.Example in
+private def testGlobalDynamics : IO Unit := do
+  assertEqual "fueled global iterator executes ordinary then registration steps"
+    (summarize (GlobalDynamics.runFuel dynamics oracle 2 start 0))
+    (some { ambient := 4, childPresent := true, undoCount := 2, completed := true })
+  assertEqual "fuel exhaustion retains the exact continuation code"
+    (exhaustedCode (GlobalDynamics.runFuel dynamics oracle 1 start 0)) (some (some 1))
+  assertEqual "mixed external/retirement accumulation recovers the ambient observation"
+    (recoveredAmbient (GlobalDynamics.runFuel dynamics oracle 2 start 0)) (some start.ambient)
+
 private def testHarnessPhaseFailures : IO Unit := do
   let initial := Harness.RunnerState.initial 0
   match initial.beginStep with
@@ -988,6 +1017,8 @@ def run : IO Unit := do
   testOperationIndependence
   testArbitraryRemoval
   testGlobalRegistry
+  testMediatedIndependenceBoundary
+  testGlobalDynamics
   testHarnessPhaseFailures
   testCounterAdmission
   testHarnessDemo

@@ -5,9 +5,11 @@ import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.Effect
 import Cordis.Examples.DependentChoice
+import Cordis.GlobalDynamics
 import Cordis.GlobalRegistry
 import Cordis.Harness
 import Cordis.Lifecycle
+import Cordis.MediatedIndependence
 import Cordis.OperationIndependence
 import Cordis.OperationalEquivalence
 import Cordis.Policy
@@ -295,3 +297,24 @@ set_option format.width 200
 #print axioms Cordis.Removal.inverse_permutation_recovers
 #print axioms Cordis.Removal.Example.pairwise
 #print axioms Cordis.Removal.Example.inverseOrder_permutation
+#print axioms Cordis.MediatedIndependence.RealizedPath.run_eq_some
+#print axioms Cordis.MediatedIndependence.ObservationalMediatedClosure.toExact
+#print axioms Cordis.MediatedIndependence.Counterexample.results_related
+#print axioms Cordis.MediatedIndependence.Counterexample.sequential_results_related
+#print axioms Cordis.MediatedIndependence.Counterexample.exact_mediatedClosure_fails
+#print axioms Cordis.MediatedIndependence.Counterexample.representative_coherence_fails
+#print axioms Cordis.MediatedIndependence.BranchExample.firstStage_outcome
+#print axioms Cordis.MediatedIndependence.BranchExample.path
+#print axioms Cordis.GlobalDynamics.Dynamics.applyUndo_respects
+#print axioms Cordis.GlobalDynamics.Dynamics.recover_respects
+#print axioms Cordis.GlobalDynamics.Dynamics.recover_append
+#print axioms Cordis.GlobalDynamics.RegistrationAdmission.after_wellFormed
+#print axioms Cordis.GlobalDynamics.IterationStep.preservesWellFormed
+#print axioms Cordis.GlobalDynamics.executeOne
+#print axioms Cordis.GlobalDynamics.Accumulator.seq
+#print axioms Cordis.GlobalDynamics.Trace.preservesWellFormed
+#print axioms Cordis.GlobalDynamics.RunResult.recovers
+#print axioms Cordis.GlobalDynamics.RunResult.preservesWellFormed
+#print axioms Cordis.GlobalDynamics.Example.ordinary_then_registration
+#print axioms Cordis.GlobalDynamics.Example.one_fuel_retains_next_code
+#print axioms Cordis.GlobalDynamics.Example.complete_run_recovers_ambient
