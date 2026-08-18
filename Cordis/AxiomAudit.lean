@@ -7,6 +7,7 @@ import Cordis.Lifecycle
 import Cordis.Policy
 import Cordis.Registry
 import Cordis.Session
+import Cordis.SessionValidation
 import Cordis.Stream
 
 /-!
@@ -114,3 +115,10 @@ set_option format.width 200
 #print axioms Cordis.Examples.DependentChoice.label_call_is_exact_policy_rejection
 #print axioms Cordis.Examples.DependentChoice.rejected_call_has_zero_dispatches
 #print axioms Cordis.Examples.DependentChoice.rejected_call_preserves_model
+#print axioms Cordis.Session.ValidatedSuffix.events_eq
+#print axioms Cordis.Session.replacementEvent_revalidates
+#print axioms Cordis.Session.wrongSequenceEvent_rejected
+#print axioms Cordis.Session.missingStartEvent_rejected
+#print axioms Cordis.Session.missingEndEvent_rejected
+#print axioms Cordis.Session.incompleteCoverageEvent_rejected
+#print axioms Cordis.Session.shortRawLog_validates

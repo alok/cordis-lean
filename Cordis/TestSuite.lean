@@ -10,6 +10,7 @@ import Cordis.Policy
 import Cordis.Protocol
 import Cordis.Registry
 import Cordis.Session
+import Cordis.SessionValidation
 import Cordis.Stream
 
 /-!
@@ -449,6 +450,34 @@ private def testDependentChoiceHarness : IO Unit := do
     Examples.DependentChoice.rejectedModel
     (some Examples.DependentChoice.initialWorkspace)
 
+private def testSessionValidation : IO Unit := do
+  match Session.validateAppend Session.certifiedSession Session.replacementEvent with
+  | .error error => fail s!"valid surface replacement was rejected with {reprStr error}"
+  | .ok validated =>
+      assertEqual "validated replacement reconstructs the exact intrinsic surface"
+        validated.apply.messages Session.replacementSession.messages
+  match Session.validateAppend Session.certifiedSession Session.wrongSequenceEvent with
+  | .error error =>
+      assertEqual "rich validator reports the exact wrong sequence"
+        error (.wrongPhysicalSeq 5 99)
+  | .ok _ => fail "wrong-sequence rich event was accepted"
+  match Session.validateAppend Session.certifiedSession Session.incompleteCoverageEvent with
+  | .error error =>
+      assertEqual "rich validator rejects incomplete replacement provenance"
+        error (.incompleteShadowCoverage [2, 4] [2])
+  | .ok _ => fail "incomplete replacement provenance was accepted"
+  match Session.validateLog (Session.Session.empty Session.noExtensions) Session.shortRawLog with
+  | .error error => fail s!"valid rich suffix was rejected with {reprStr error}"
+  | .ok validated =>
+      let _eventsEq :
+          validated.final.events =
+            (Session.Session.empty Session.noExtensions).events ++ Session.shortRawLog :=
+        validated.events_eq
+      assertEqual "validated rich suffix preserves the physical event count"
+        validated.final.events.length Session.shortRawLog.length
+      assertEqual "validated rich suffix derives the expected message"
+        validated.final.messages [.user "What is the answer?"]
+
 private def testHarnessPhaseFailures : IO Unit := do
   let initial := Harness.RunnerState.initial 0
   match initial.beginStep with
@@ -634,6 +663,7 @@ def run : IO Unit := do
   testGenericRunnerPolicy
   testSessionLog
   testDependentChoiceHarness
+  testSessionValidation
   testHarnessPhaseFailures
   testCounterAdmission
   testHarnessDemo

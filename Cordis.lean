@@ -12,6 +12,7 @@ import Cordis.Policy
 import Cordis.Protocol
 import Cordis.Registry
 import Cordis.Session
+import Cordis.SessionValidation
 import Cordis.Stream
 import Cordis.Tool
 import Cordis.ToolWire
