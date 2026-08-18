@@ -156,8 +156,12 @@ no `IO`, launches no tasks, and proves no concurrency or safe-parallel-execution
 - `ExactOperationIndependent` adds outcome stability to full total Definition 39.
   `distinctKeys_finiteIndependent` covers arbitrary finite partial operation words at distinct
   dependent keys, including inverse and outcome stability, and `Computation.run` implements
-  Definition 41 with exact recovery. `MediatedClosure` records the still-unproved
-  branch-indexed obligation for full Theorem 42.
+  Definition 41 with exact recovery.
+- `MediatedIndependence.RealizedPath` retains actual outcome-selected branches.
+  `ObservationalMediatedClosure` states the quotient conclusion, while
+  `PairwiseOverlapComplete` names the still-unproved all-branches induction. A universal-relation
+  cell model proves exact `MediatedClosure` needs the extra `ExactRepresentativeCoherence` law;
+  it does not refute observational Theorem 42.
 
 ### Current stream JSON refinement
 
@@ -344,7 +348,9 @@ Executable rejection is valuable, but it is not a refinement theorem.
 | `OperationalEquivalence` / `QuotientEffect` | Checks finite partial test words and certifies finite quotient-respecting effect programs; the paired-inverse counterexample is kernel-checked.                                                                                      | Universal test equivalence is not decidable here; the stronger paired law needs a premise, and this layer alone does not prove mediated independence.                                            |
 | `Transformation` / `OperationIndependence`  | Constructs exact generated monoids, promotes full inverse/outcome stability, checks finite distinct-key words, and interprets outcome-mediated computations.                                                                         | Partial words are finite syntax, not abstract Kleisli monoids; the branch-closure derivation for full Theorem 42 remains absent.                                                                 |
 | `Removal`                                   | Builds indexed original/omitted finite traces with exact later inverse equalities and checks arbitrary permutations of the retained inverse list.                                                                                    | Exact pure effects only; no observational quotient, infinite family, asynchronous runtime, or real external recovery.                                                                            |
+| `MediatedIndependence`                      | Reifies selected branches, states quotient closure, bridges it to exact closure under representative coherence, and checks a finite exact-representative counterexample.                                                             | `PairwiseOverlapComplete` remains unproved; the counterexample refutes exact promotion, not observational Theorem 42.                                                                            |
 | `GlobalRegistry`                            | Checks code-only component/fiber/global data, unique providers/targets, birth-ranked acyclicity, and preservation by insert/retire/remove orchestration.                                                                             | Uses a strengthened parent invariant and noncomputable derived views; no code interpreter, read confinement, lifecycle rules, or full Theorem 59.                                                |
+| `GlobalDynamics`                            | Interprets opaque codes externally and reconstructs ordinary/registration steps, recovery, confinement/read/WF evidence, and fueled traces with explicit exhaustion.                                                                 | Most laws are integrator obligations; no phase-updating lifecycle rules, asynchronous inertia, full Definition 53, or full Theorem 59.                                                           |
 | `CertifiedTwoBatch`                         | Requires same-successor, pointwise same-recovery, and result-stability certificate fields before either order is permitted.                                                                                                          | The certificate is supplied, exactly two pure calls are modeled, and no actual concurrency or external-effect safety follows.                                                                    |
 | `Registry.setAt`                            | Uses dependent equality transport so a value cannot be installed at a differently typed key.                                                                                                                                         | No runtime aliasing, notification, or mutable-store semantics are modeled.                                                                                                                       |
 | `View.resolve`                              | Requires `needs op` before a binding can be requested.                                                                                                                                                                               | Construction of the view and completeness of its registry snapshot remain obligations.                                                                                                           |
@@ -377,7 +383,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 260
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 281
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.
@@ -483,9 +489,18 @@ The new `GlobalRegistry` module moves a structural subset inward without interpr
 
 The birth-order field is stronger than paper Definition 58(1), because parent presence alone
 permits cycles. `activeContext` and `targetView` use noncomputable unique choice over proof-finite
-data; they are specifications, not extracted runtime algorithms. Registration callbacks, read
-confinement, iterator/undo interpretation, lifecycle transitions, and the full ten-rule
-preservation theorem remain outside.
+data; they are specifications, not extracted runtime algorithms. Lifecycle phase transitions and
+the full ten-rule preservation theorem remain outside.
+
+`GlobalDynamics` then interprets those codes externally rather than putting functions back into
+stored state. Its `Dynamics` contract makes ordinary recovery, undo/run respect, write
+confinement, an owner-indexed read-equivalence law, well-formedness preservation, and retirement
+respect explicit obligations. Registration admission separately supplies child freshness,
+parent/provision legality, and observational vestigial recovery. `executeOne` reconstructs an
+intrinsic certified step; the fueled runner retains continuation codes on exhaustion and carries
+newest-first accumulated recovery plus trace-level well-formedness. Ambient mutation is
+intentionally permitted, matching Definitions 45/48, and must be reversed by the supplied undo.
+Name equivariance is a separate optional assumption. No lifecycle phase transition is performed.
 
 The local Lean lifecycle instead assumes:
 
@@ -557,12 +572,13 @@ Without additional proofs or tests, do not state that:
   I/O atomic, or provides process-wide exactly-once execution;
 - the local `Cordis.Harness` verifies or is behaviorally equivalent to DeepSeek Harness;
 - `Approximation` constructs Definition 32's recursive fixed point, fixed-generator tests imply
-  paired-inverse coherence, or the bounded operation layer proves full Theorem 42;
+  paired-inverse coherence, or realized paths prove `PairwiseOverlapComplete`/full Theorem 42;
 - finite exact `Removal` proves observational, asynchronous, infinite, or external-effect
   recovery;
-- `GlobalRegistry` interprets its opaque codes, proves Definition 48 read confinement, implements
-  lifecycle rules, or establishes full Theorem 59; or that its strengthened birth-order invariant
-  is literally identical to paper Definition 58;
+- `GlobalDynamics` verifies a real code interpreter rather than requiring its recovery,
+  confinement, read-agreement, equivariance, and WF laws as fields; or that the current global
+  modules implement lifecycle phase transitions/full Theorem 59, or that strengthened birth order
+  is literally paper Definition 58;
 - `RuntimeRefinement` accepts the full Harness stream union, is complete for the tolerant
   TypeScript assembler, verifies provider streaming, or proves chunk storage;
 - `SessionRefinement` accepts the complete Harness event union, preserves every source field in

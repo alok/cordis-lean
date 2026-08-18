@@ -1821,7 +1821,11 @@ Implement this layer in paper dependency order.
 Do not label the remaining gap Theorem 42. Pairwise operation/key laws still need a
 branch-indexed theorem proving that foreign transformations retain every stage outcome, select
 the same continuation, preserve each differently yielded inverse, and close recursively through
-the selected computation tree. `MediatedClosure` names this obligation; deriving it remains work.
+the selected computation tree. Reify realized paths, state the quotient conclusion as
+`ObservationalMediatedClosure`, and name the remaining derivation `PairwiseOverlapComplete`.
+Do not confuse it with exact `MediatedClosure`: a universal-equivalence cell counterexample has
+related opposite-order successors but different exact representatives. Exact promotion needs the
+additional `ExactRepresentativeCoherence` law.
 
 The important review question at each step is whether a theorem describes the paper object
 directly, a bounded approximation, or an integrator-supplied obligation. Put that distinction in
@@ -1886,11 +1890,18 @@ Build the structural slice in this order:
    are enough: prior committed-provider-installed well-formedness rules out a surviving installed
    consumer pointing at the inactive removed fiber.
 8. Prove every rule and finite orchestration trace preserves the strengthened invariant.
+9. Only after `GlobalState` exists, define an external `Dynamics` record interpreting iterator and
+   undo codes. Ordinary results must carry exact recovery plus explicit write/read/respect/WF
+   laws. Registration admission must carry freshness, owner/parent, provision, and observational
+   retirement-recovery evidence.
+10. Reconstruct intrinsic ordinary/registration steps from the interpreter and admission oracle.
+    Accumulate newest-first undo codes, prove recovery respects the state setoid, and implement a
+    total fueled runner whose trace is indexed by the actual continuation code and whose zero-fuel
+    result is explicit exhaustion rather than success.
 
-The resulting module is only the registry/orchestration portion of Theorem 59. Do not claim
-Definition 47 callbacks, Definition 48 read confinement, iterator interpretation, lifecycle
-rules, or full ten-rule preservation until an external dynamics contract states and proves those
-laws.
+These modules remain only the registry/orchestration and external iterator substrate. Do not
+claim lifecycle phase updates, asynchronous inertia, the full Definition 53 relation, or full
+ten-rule preservation until the global lifecycle relation consumes these certificates.
 
 ## 20. Exact verification and review commands
 

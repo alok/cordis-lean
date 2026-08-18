@@ -60,6 +60,12 @@ Current machine-checked evidence includes:
 - `Cordis.GlobalRegistry`, encoding Definitions 43–46/49 with opaque execution codes,
   birth-ranked parents, provider/view uniqueness, and well-formedness preservation for
   orchestration insert/retire/remove traces;
+- `Cordis.MediatedIndependence`, reifying exact outcome-selected branches, defining the
+  observational Theorem 42 conclusion, isolating `PairwiseOverlapComplete`, and proving by
+  counterexample that exact representatives need an extra coherence law;
+- `Cordis.GlobalDynamics`, interpreting opaque iterator/undo codes externally with exact ordinary
+  recovery, observational registration recovery, explicit confinement/read/equivariance
+  obligations, and a total fueled Definition 52 runner with accumulated recovery/WF evidence;
 - `Cordis.RuntimeRefinement`, decoding the supported current-Harness stream-chunk JSON-AST
   shapes into `RichStream.ValidatedTrace` while explicitly rejecting non-equivalent fields;
 - `Cordis.SessionRefinement`, statefully translating a supported source-shaped Harness session
@@ -317,7 +323,7 @@ future external adapter consumes the same proof-carrying request contract.
 
 ## Paper context and executable refinement
 
-The bounded algebra/context layer now has nine explicit pieces:
+The bounded algebra/context/global layer now has eleven explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -353,6 +359,16 @@ The bounded algebra/context layer now has nine explicit pieces:
    birth-order strengthening to the paper's parent-present invariant, proves parent acyclicity,
    and proves insert/retire/remove plus orchestration traces preserve the strengthened registry
    well-formedness.
+10. `Cordis.MediatedIndependence` reifies each realized Definition 41 branch with the exact typed
+    outcome selecting its continuation. It states `ObservationalMediatedClosure` and the remaining
+    `PairwiseOverlapComplete` theorem, proves representative coherence promotes that quotient
+    certificate to exact closure, and gives a finite quotient counterexample showing the
+    coherence premise is genuinely extra.
+11. `Cordis.GlobalDynamics` interprets codes only after `GlobalState` exists. Ordinary steps carry
+    exact recovery, write/read/respect/WF obligations; registration consumes explicit admission
+    and yields child retirement as observational recovery. A total fueled runner retains exact
+    continuation code on exhaustion and carries an intrinsic trace plus newest-first recovery and
+    global well-formedness preservation.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -409,7 +425,11 @@ The slice requires all existing gates plus the following new coverage:
 - arbitrary middle-effect removal, explicit later inverse agreements, and non-LIFO inverse
   permutation recovery; and
 - global registry insert/retire/remove preservation, used-name/provision rejection, parent
-  acyclicity, and heterogeneous active-context/target examples.
+  acyclicity, and heterogeneous active-context/target examples;
+- realized heterogeneous branch paths plus the observational-versus-exact Theorem 42
+  representative counterexample; and
+- ordinary/registration global iterator steps, fuel exhaustion, accumulated code recovery, and
+  trace-level well-formedness.
 
 Headline theorems must be added to `Cordis/AxiomAudit.lean`. The full project must remain free of
 `sorry`, `admit`, project-defined axioms, `unsafe`, `partial`, external implementation overrides,
@@ -441,8 +461,8 @@ This slice does not by itself prove:
 - durable persistence, flush barriers, crash repair, resume, or fork correctness;
 - task/fiber scheduling, fairness, cancellation delivery, or wall-clock concurrency;
 - the stronger paired-inverse law from same-word tests without its explicit coherence premise;
-- full branch-indexed Theorem 42, Definition 47/48 dynamics, Definitions 51–53 lifecycle
-  execution, full Theorem 59, or the paper's global composability results;
+- `PairwiseOverlapComplete`, lifecycle phase transitions and full Definition 53, full Theorem 59,
+  or the paper's global composability results;
 - native plugin isolation, process confinement, filesystem safety, or remote-service behavior;
 - global exactly-once execution across workers; or
 - that a model follows supplied schemas or chooses an appropriate tool.

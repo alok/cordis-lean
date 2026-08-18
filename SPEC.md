@@ -21,10 +21,12 @@ effects, bounded mechanizations through paper Definition 41, and supported
 current-Harness stream and session JSON-AST refinements. Definition 34/Lemma 35
 also expose a formal paired-inverse coherence gap instead of assuming it away.
 Finite exact Theorem 20/Corollary 21 and the first birth-ranked global
-registry/orchestration preservation slice are also implemented. Full
-branch-indexed Theorem 42, global dynamics/lifecycle execution, task
-concurrency, and the paper's complete preservation/progress/confluence results
-remain open.
+registry/orchestration preservation slice are also implemented. Opaque iterator
+codes now have external proof-carrying ordinary/registration semantics and a
+fueled recovery runner. The quotient-versus-exact Theorem 42 representative
+boundary is mechanized; `PairwiseOverlapComplete`, global lifecycle phase
+execution, task concurrency, and the paper's complete
+preservation/progress/confluence results remain open.
 
 Repository: `cordis-lean`
 
