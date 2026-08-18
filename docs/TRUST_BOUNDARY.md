@@ -2,6 +2,16 @@
 
 <!-- markdownlint-disable MD013 MD029 -->
 
+> **Current-development addendum.** The `0.2` work described in
+> [`V0_2_SPEC.md`](V0_2_SPEC.md) moves catalog coherence, runner phase,
+> exact-call policy rejection, rich surface placement, log sequence continuity,
+> request reconstruction, and rich-to-structural protocol equality into Lean
+> types. It does not add durable storage, byte-level transport, real model/tool
+> I/O, asynchronous fibers, global exactly-once execution, full paper
+> metatheory, or a refinement theorem for the TypeScript Harness. The reviewed
+> `0.1.0` boundary below remains historical evidence rather than a claim about
+> those absent layers.
+
 CORDIS Lean proves properties of typed, pure Lean values. It does not by itself prove that a
 model response, JSON parser, TypeScript Harness process, operating-system resource, or remote
 service behaves like those values. This document marks the exact perimeter.

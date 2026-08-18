@@ -2,6 +2,16 @@
 
 <!-- markdownlint-disable MD013 MD029 -->
 
+> **Current-development addendum.** This document records the reviewed `0.1.0`
+> mapping at DeepSeek Harness `47f9438`. The active `0.2` contract and refreshed
+> Harness pin `99f6f02` live in [`V0_2_SPEC.md`](V0_2_SPEC.md). The new
+> `Cordis.GenericHarness` and `Cordis.Session` modules implement a generic
+> phase-indexed runner, exact-call policy denial, visibility-indexed rich
+> events, certified surface replacement, request reconstruction, and a proof
+> that the counter wrapper's rich protocol projection equals its structural
+> runner log. This does not retroactively turn the tables below into a full
+> paper or TypeScript-equivalence claim.
+
 This document maps the Lean proof kernel and local reference layers to the pinned CORDIS paper
 and to the runtime systems that motivated them. It is a claim ledger, not a claim that the Lean
 code is a line-by-line mechanization or a drop-in implementation of either JavaScript system.

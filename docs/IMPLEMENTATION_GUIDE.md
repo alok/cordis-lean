@@ -2,6 +2,11 @@
 
 <!-- markdownlint-disable MD013 MD024 MD029 -->
 
+> This guide reconstructs the reviewed `0.1.0` finite kernel. The active
+> generic-runner and log-reconstructible-session extension has its own
+> [`0.2` specification](V0_2_SPEC.md); do not infer the new declarations or
+> current Harness pin from this historical walkthrough.
+
 This guide teaches the implementation of CORDIS Lean `0.1.0` from first
 principles. It is written for a developer who wants to rebuild the kernel and
 its release glue manually, understand why each index exists, and know exactly

@@ -4,9 +4,12 @@
 
 ## Status
 
-This specification defines the next implementation slice after the finite `0.1.0` counter
-kernel. It is an implementation contract, not a claim that the work described here already
-exists.
+This specification defines the active implementation slice after the finite `0.1.0` counter
+kernel. The generic phase-indexed runner, exact-call allow/reject policy paths, structured
+non-counter example, intrinsic rich session/surface kernel, model-request reconstruction, and
+the counter wrapper's rich-to-structural log equality are implemented. Runtime validation of raw
+surface intents and the later production/refinement layers listed below remain open; this file is
+therefore an in-progress contract, not a completed `0.2.0` release claim.
 
 The slice closes two concrete gaps in the original objective:
 
@@ -16,6 +19,21 @@ The slice closes two concrete gaps in the original objective:
    surface and each request are reconstructed.
 
 The counter remains as one executable instantiation and regression fixture.
+
+Current machine-checked evidence includes:
+
+- `Cordis.GenericHarness.Config`, `Runner cfg phase`, `DispatchResult`, and the generic
+  model/lease/ID/log `RecordChain`;
+- zero-dispatch admission/policy rejection, exactly-one-dispatch completion, terminal lease
+  absence, and lease restoration theorems;
+- `Cordis.Examples.DependentChoice`, where `Bool` definitionally selects `Nat` or `String` and
+  policy rejects the exact string-producing call before dispatch;
+- `Cordis.Session.EventIntent`, `SurfaceTransition`, `ValidLog`, `ModelRequest`, certified
+  replacement examples, and rich-to-structural `ProtocolCertificate`;
+- `Harness.RunnerState.protocolProjection_eq_log` and `protocolProjection_replays`, tying the
+  actual counter demo's canonical rich log to the generic runner; and
+- executable, static-rejection, hygiene, strict-build, and selected-axiom gates covering those
+  declarations.
 
 ## Authoritative source boundary
 

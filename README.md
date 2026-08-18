@@ -12,18 +12,35 @@ result, and maintains proof fields that jointly connect protocol replay, model
 and lease endpoints, monotone IDs, records, and tool-boundary events across
 finite steps and turns.
 
+The current development line extends that reviewed `0.1.0` baseline with the
+[`0.2` implementation contract](docs/V0_2_SPEC.md). The reusable runner is now
+generic over one coherent model/catalog/wire/view/capability/policy
+configuration and its trusted transitions are indexed by the exact session
+phase. The counter is a thin instantiation; a second `Workspace` example proves
+that a Boolean request can select either a `Nat` or `String` result while an
+exact-call policy allows one branch and rejects the other without dispatch.
+
 The included demo is deterministic and credential-free. Starting from counter
 state `2`, it reads, increments by `3` under limit `10`, reads again, and rejects
 an unknown `counter_destroy` call. It finishes at counter state `5`, protocol
 state `ready 1`, with four model-ordered call records and a replay-certified
-12-event log.
+12-event structural log. Its canonical rich session contains 15 events and six
+model-visible messages, and a `ModelRequest` reconstructs its exact latest
+header, message surface, and log length.
 
-Every `RunnerState` carries
+Every generic runner carries
 `RecordChain initialModel nextCall records model leases (callBoundaries log)`.
 The chain begins with the initial model, an empty lease pool, no records, and no
 tool boundaries. Each successor record starts at both the preceding model and
 lease endpoints. Its ID is the next session ID, and the projected log satisfies
 `callBoundaries log = recordBoundaries records`.
+
+The counter wrapper additionally carries a proof that projecting its rich,
+payload-bearing session log produces exactly the structural runner log. Rich
+surface placement is type-indexed: request headers and chunks cannot carry a
+surface mutation, while user, assistant, and tool-result events must. A model
+request cannot substitute a history or header assembled independently of that
+log.
 
 There is no public generic runner event emitter. Non-tool events use a private
 emitter that requires proof that the event is not a call boundary. A private
@@ -37,8 +54,9 @@ not a full port of the CORDIS paper, an asynchronous scheduler, a live model
 client, or a drop-in replacement for the TypeScript harness.
 
 See the [manual implementation guide](docs/IMPLEMENTATION_GUIDE.md) to rebuild
-the kernel in dependency order, understand why each index exists, and reproduce
-the positive, adversarial, static-rejection, and axiom checks.
+the reviewed `0.1.0` kernel in dependency order. See the
+[`0.2` specification](docs/V0_2_SPEC.md) for the refreshed current-Harness
+source boundary, new obligations, and deliberately unfinished production work.
 
 ## Prerequisite
 
@@ -99,10 +117,13 @@ CORDIS Lean 0.1.0 proof-carrying harness
 final modeled counter: 5
 final protocol state: Cordis.RuntimeState.ready 1
 replay-certified events: 12
-call 0 counter_read: Cordis.Harness.CallOutcome.succeeded; policy-dispatches=1; encoded-result
-call 1 counter_increment: Cordis.Harness.CallOutcome.succeeded; policy-dispatches=1; encoded-result
-call 2 counter_read: Cordis.Harness.CallOutcome.succeeded; policy-dispatches=1; encoded-result
-call 3 counter_destroy: Cordis.Harness.CallOutcome.rejected (Cordis.AdmissionError.unknownTool "counter_destroy"); policy-dispatches=0; no-result
+canonical rich-session events: 15
+derived model-visible messages: 6
+request reconstructible from log: true
+call 0 counter_read: Cordis.GenericHarness.CallOutcome.succeeded; policy-dispatches=1; encoded-result
+call 1 counter_increment: Cordis.GenericHarness.CallOutcome.succeeded; policy-dispatches=1; encoded-result
+call 2 counter_read: Cordis.GenericHarness.CallOutcome.succeeded; policy-dispatches=1; encoded-result
+call 3 counter_destroy: Cordis.GenericHarness.CallOutcome.admissionRejected (Cordis.AdmissionError.unknownTool "counter_destroy"); policy-dispatches=0; no-result
 ```
 
 The axiom audit prints one line per selected theorem. The current results use
@@ -131,29 +152,38 @@ placeholders.
 | The tool-boundary projection of the log is exactly the records' ordered call/result pairs                                                          | `RecordChain.boundaries_eq_records`, `RunnerState.callBoundaries_eq_records`                                              | Equality concerns finite in-memory lists; it does not prove persistence integrity.                                       |
 | A call event, matching result event, record, model endpoint, and lease endpoint appear together in one successful runner settlement                | The private settlement transition, indexed `RecordChain.snoc`, and absence of a public generic emitter                    | Atomic only as one pure immutable `Except` result; not durable or globally exactly-once.                                 |
 | The runner's stored protocol state agrees with replaying its complete in-memory log                                                                | `RunnerState.replayProof`, `Harness.replayRaw_append`                                                                     | Persistence and crash recovery are not implemented.                                                                      |
+| Catalog, wire, needs, registry, view, model-dependent grants, and exact-call policy cannot drift across the reusable runner                        | `GenericHarness.Config`, `Runner cfg phase`, `DispatchResult`                                                             | Pure sequential execution; external adapters still require refinement evidence.                                          |
+| Admission rejection and admitted policy rejection dispatch zero times; a completed exact-call trace dispatches once and restores its lease pool    | `CallEvidence.*dispatchCount*`, `completed_terminal_lease_absent`, `leases_restored`                                      | One explicitly threaded pure runner, not a global cross-worker guarantee.                                                |
+| A non-counter Boolean request definitionally selects `Nat` or `String`, and policy rejects the exact string branch before provider execution       | `Examples.DependentChoice.request_selects_exact_output_type` and its allowed/rejected run theorems                        | Deterministic in-memory example over a structured `Workspace`.                                                           |
+| Rich surface intent is selected by event visibility; replacement retains a nonempty exact shadow interval with unique earlier covering sources     | `Session.EventIntent`, `SurfaceTransition.replace`, `replacement_exact_shadow`, `replacement_coverage`                    | Intrinsic/certified append path; raw serialized surface-intent validation is still future work.                          |
+| Rich session sequence numbers are contiguous; surface nodes are unique earlier events; request header and messages are exact log projections       | `ValidLog.*`, `ModelRequest`, `mkRequest`                                                                                 | In-memory typed events; timestamps, JSON bytes, durability, resume, and fork are excluded.                               |
+| The counter wrapper's canonical rich session erases exactly to the replay-certified structural protocol log                                        | `RunnerState.protocolProjection_eq_log`, `protocolProjection_replays`                                                     | The rich vocabulary is a finite core subset, not full TypeScript session equivalence.                                    |
 
 ## Module map
 
-| Module                        | Delivered responsibility                                                                                                                                                                          |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Cordis.Api`                  | Dependent signatures, providers, registries, restricted committed views, authorized calls, and call-indexed replies.                                                                              |
-| `Cordis.Effect`               | Exact and observational reversible effects, LIFO composition, accumulators, and indexed undo stacks.                                                                                              |
-| `Cordis.Codec`                | Proof-carrying `Lean.Json` AST codecs with structured nested decode errors.                                                                                                                       |
-| `Cordis.Tool`                 | Request-indexed tool contracts, capabilities, certified outcomes, catalogs, and policy decisions.                                                                                                 |
-| `Cordis.ToolWire`             | Raw-call admission plus request-dependent success/failure result codecs and certified-result encoding.                                                                                            |
-| `Cordis.Registry`             | Dependent provider updates, exact recovery, distinct-key commutation, and satisfaction witnesses.                                                                                                 |
-| `Cordis.Protocol`             | Indexed turn/step/pending-call protocol, raw validation, typed trace reconstruction, and replay theorems.                                                                                         |
-| `Cordis.Policy`               | Single-use lease pools and exact-subject proposed/decided/dispatched/settled traces.                                                                                                              |
-| `Cordis.Batch`                | Strongly certified, pure, heterogeneous two-call evaluation-order equivalence.                                                                                                                    |
-| `Cordis.Stream`               | Bounded typed assistant-text streams and raw-chunk replay/reconstruction.                                                                                                                         |
-| `Cordis.Lifecycle`            | Finite synchronous component lifecycle with committed views, recovery stacks, diversion, and withdrawal guards.                                                                                   |
-| `Cordis.Examples.Counter`     | Verified local read/increment contracts and providers over a modeled natural-number counter.                                                                                                      |
-| `Cordis.Examples.CounterWire` | Counter name resolution, codecs, admission proofs, capabilities, and raw examples.                                                                                                                |
-| `Cordis.Harness`              | Counter-specific deterministic runner with exact-subject policy evidence, encoded results, multi-step/multi-turn execution, replay proofs, and a joint model/lease/ID/log-boundary `RecordChain`. |
-| `Cordis.TestSuite`            | Executable algebraic, boundary, adversarial, and end-to-end checks.                                                                                                                               |
-| `Cordis.NegativeTests`        | Guarded compile-failure checks for illegal dependent replies, protocol/policy/lifecycle edges, and forged runner histories.                                                                       |
-| `Cordis.AxiomAudit`           | `#print axioms` audit for 53 selected headline theorem declarations.                                                                                                                              |
-| `Cordis.Version`              | Kernel version exposed to the demo.                                                                                                                                                               |
+| Module                            | Delivered responsibility                                                                                                                                        |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Cordis.Api`                      | Dependent signatures, providers, registries, restricted committed views, authorized calls, and call-indexed replies.                                            |
+| `Cordis.Effect`                   | Exact and observational reversible effects, LIFO composition, accumulators, and indexed undo stacks.                                                            |
+| `Cordis.Codec`                    | Proof-carrying `Lean.Json` AST codecs with structured nested decode errors.                                                                                     |
+| `Cordis.Tool`                     | Request-indexed tool contracts, capabilities, certified outcomes, catalogs, and policy decisions.                                                               |
+| `Cordis.ToolWire`                 | Raw-call admission plus request-dependent success/failure result codecs and certified-result encoding.                                                          |
+| `Cordis.Registry`                 | Dependent provider updates, exact recovery, distinct-key commutation, and satisfaction witnesses.                                                               |
+| `Cordis.Protocol`                 | Indexed turn/step/pending-call protocol, raw validation, typed trace reconstruction, and replay theorems.                                                       |
+| `Cordis.Policy`                   | Single-use lease pools and exact-subject proposed/decided/dispatched/settled traces.                                                                            |
+| `Cordis.Batch`                    | Strongly certified, pure, heterogeneous two-call evaluation-order equivalence.                                                                                  |
+| `Cordis.Stream`                   | Bounded typed assistant-text streams and raw-chunk replay/reconstruction.                                                                                       |
+| `Cordis.Lifecycle`                | Finite synchronous component lifecycle with committed views, recovery stacks, diversion, and withdrawal guards.                                                 |
+| `Cordis.Examples.Counter`         | Verified local read/increment contracts and providers over a modeled natural-number counter.                                                                    |
+| `Cordis.Examples.CounterWire`     | Counter name resolution, codecs, admission proofs, capabilities, and raw examples.                                                                              |
+| `Cordis.GenericHarness`           | Generic phase-indexed dependent runner, exact-call policy rejection/completion evidence, dispatch results, and joint model/lease/ID/log history.                |
+| `Cordis.Session`                  | Visibility-indexed rich events, exact append/replacement surface witnesses, contiguous logs, header/message reconstruction, and structural protocol projection. |
+| `Cordis.Examples.DependentChoice` | Structured non-counter model whose Boolean input selects `Nat` or `String`, with exact-call allow/deny behavior.                                                |
+| `Cordis.Harness`                  | Counter configuration and dynamic convenience wrapper whose canonical rich session is proved to project to the generic runner's structural log.                 |
+| `Cordis.TestSuite`                | Executable algebraic, boundary, adversarial, and end-to-end checks.                                                                                             |
+| `Cordis.NegativeTests`            | Guarded compile-failure checks for illegal dependent replies, protocol/policy/lifecycle edges, and forged runner histories.                                     |
+| `Cordis.AxiomAudit`               | `#print axioms` audit for the selected headline theorem declarations, parsed across wrapped diagnostics.                                                        |
+| `Cordis.Version`                  | Kernel version exposed to the demo.                                                                                                                             |
 
 `Cordis.lean` is the public library umbrella. `Main.lean` builds
 `cordis_demo`, and `Tests.lean` builds `cordis_tests`. The executable suite,
@@ -165,11 +195,11 @@ importing the public library does not run them.
 The interpretation is tied to exact upstream snapshots rather than floating
 repository heads:
 
-| Source                                                              | Pinned snapshot                                                                                                                               | Use here                                                                           |
-| ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| [CORDIS paper](https://github.com/cordiverse/paper)                 | [`948a07b369c62adb3b12e102458be5c18dfb69b9`](https://github.com/cordiverse/paper/commit/948a07b369c62adb3b12e102458be5c18dfb69b9)             | Effect/coeffect, lifecycle, recovery, and ordering interpretation.                 |
-| [CORDIS implementation](https://github.com/cordiverse/cordis)       | [`8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4`](https://github.com/cordiverse/cordis/commit/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4)            | Concrete context, registry, lifecycle, isolation, and interception reference.      |
-| [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) | [`47f943859bef60e4160492346772ded9b24f765a`](https://github.com/deepseek-ai/deepseek-harness/commit/47f943859bef60e4160492346772ded9b24f765a) | Turn/step/tool event vocabulary, ordered results, cancellation, and adapter seams. |
+| Source                                                              | Pinned snapshot                                                                                                                               | Use here                                                                                             |
+| ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| [CORDIS paper](https://github.com/cordiverse/paper)                 | [`948a07b369c62adb3b12e102458be5c18dfb69b9`](https://github.com/cordiverse/paper/commit/948a07b369c62adb3b12e102458be5c18dfb69b9)             | Effect/coeffect, lifecycle, recovery, and ordering interpretation.                                   |
+| [CORDIS implementation](https://github.com/cordiverse/cordis)       | [`8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4`](https://github.com/cordiverse/cordis/commit/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4)            | Concrete context, registry, lifecycle, isolation, and interception reference.                        |
+| [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) | [`99f6f02fecdb7dff40c3fbc9470f5907c29f74ca`](https://github.com/deepseek-ai/deepseek-harness/commit/99f6f02fecdb7dff40c3fbc9470f5907c29f74ca) | Current event-sourced session, request reconstruction, surface replacement, tool, and adapter seams. |
 
 The Harness vendor manifest additionally pins CORDIS `v4.0.0-rc.7` and loader
 `v1.0.0-rc.5` at
@@ -183,7 +213,7 @@ The trusted executable boundary is deliberately small and visible:
 
 - codecs prove only `Lean.Json` AST round-trips;
 - all runner, batch, stream, protocol, policy, registry, and lifecycle execution
-  in `0.1.0` is finite and in memory;
+  in the reviewed baseline and current development slice is finite and in memory;
 - `IO`, filesystems, HTTP, subprocesses, signals, schedulers, persistence,
   remote services, and actual external effects are not proved by the kernel;
 - schemas describe expected JSON but cannot force an external producer to obey;
