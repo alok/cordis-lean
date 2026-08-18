@@ -12,6 +12,7 @@ import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionValidation
 import Cordis.Stream
+import Cordis.StreamSession
 
 /-!
 # Headline theorem axiom audit
@@ -160,3 +161,7 @@ set_option format.width 200
 #print axioms Cordis.RichStream.reject_metadataLengthMismatch
 #print axioms Cordis.RichStream.reject_afterErrorFinish
 #print axioms Cordis.RichStream.reject_afterAbortFinish
+#print axioms Cordis.StreamSession.toSessionToolCalls_length
+#print axioms Cordis.StreamSession.interleavedPayload_exact
+#print axioms Cordis.StreamSession.bridgedSession_messages
+#print axioms Cordis.StreamSession.interleaved_assignment_is_unique

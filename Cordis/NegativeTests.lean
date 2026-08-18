@@ -7,6 +7,7 @@ import Cordis.Protocol
 import Cordis.RichStream
 import Cordis.Schedule
 import Cordis.Session
+import Cordis.StreamSession
 
 /-!
 # Static rejection tests
@@ -215,5 +216,14 @@ example : Schedule.CertifiedSchedule Schedule.exampleCanonical where
   scheduled := [Schedule.exampleX, Schedule.exampleY]
   permutation := by simp [Schedule.exampleCanonical]
   commuting := Schedule.exampleCommuting
+
+/-! Provider tool calls cannot enter a session with the wrong number of local call IDs. -/
+
+/-- error: Tactic `decide` proved that the proposition -/
+#guard_msgs (substring := true) in
+example : StreamSession.CallIdAssignment StreamSession.interleavedView where
+  ids := []
+  length_eq := by decide
+  nodup := by decide
 
 end Cordis.NegativeTests

@@ -17,6 +17,7 @@ import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionValidation
 import Cordis.Stream
+import Cordis.StreamSession
 import Cordis.Tool
 import Cordis.ToolWire
 import Cordis.Version

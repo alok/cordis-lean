@@ -15,6 +15,7 @@ import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionValidation
 import Cordis.Stream
+import Cordis.StreamSession
 
 /-!
 # Executable adversarial and integration tests
@@ -543,6 +544,18 @@ private def testRichStream : IO Unit := do
         error (.metadataLengthMismatch 1 2)
   | .ok _ => fail "rich stream accepted misaligned replay metadata"
 
+private def testStreamSessionBridge : IO Unit := do
+  assertEqual "stream bridge preserves visible assistant text"
+    StreamSession.interleavedPayload.content "Hello world"
+  assertEqual "stream bridge assigns both provider calls"
+    StreamSession.interleavedPayload.rawToolCalls.length 2
+  assertEqual "stream bridge preserves the first raw argument string"
+    (Option.map (fun (call : Session.ToolCall) => call.arguments)
+      StreamSession.interleavedPayload.rawToolCalls.head?)
+    (some "{\"q\":\"lean\"}")
+  assertEqual "stream bridge enters one canonical assistant surface message"
+    StreamSession.bridgedSession.messages.length 1
+
 private def testHarnessPhaseFailures : IO Unit := do
   let initial := Harness.RunnerState.initial 0
   match initial.beginStep with
@@ -732,6 +745,7 @@ def run : IO Unit := do
   testReactiveCoeffects
   testFiniteSchedules
   testRichStream
+  testStreamSessionBridge
   testHarnessPhaseFailures
   testCounterAdmission
   testHarnessDemo
