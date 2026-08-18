@@ -30,6 +30,15 @@ namespace LeasePool
 /-- A pool with no issued call leases. -/
 def empty : LeasePool := ⟨[], List.nodup_nil⟩
 
+/-- Lease pools are equal when they contain the same available identifiers. -/
+@[ext]
+theorem ext {left right : LeasePool}
+    (available_eq : left.available = right.available) : left = right := by
+  cases left
+  cases right
+  cases available_eq
+  rfl
+
 /-- Issue or reissue a lease only when its identifier is currently fresh. -/
 def issue (pool : LeasePool) (id : CallId) : Option LeasePool :=
   if fresh : id ∉ pool.available then
@@ -74,6 +83,26 @@ theorem cannot_consume_twice
     False := by
   rw [consume_after_consumed first] at second
   simp at second
+
+/-- Issuing a fresh lease and immediately consuming it restores the original pool. -/
+theorem consume_after_issue_restores
+    {pool issued remaining : LeasePool}
+    {id : CallId}
+    (issuance : pool.issue id = some issued)
+    (consumption : issued.consume id = some remaining) :
+    remaining = pool := by
+  unfold issue at issuance
+  split at issuance
+  · simp only [Option.some.injEq] at issuance
+    subst issued
+    unfold consume at consumption
+    split at consumption
+    · simp only [Option.some.injEq] at consumption
+      subst remaining
+      apply ext
+      simp
+    · simp at consumption
+  · simp at issuance
 
 end LeasePool
 
