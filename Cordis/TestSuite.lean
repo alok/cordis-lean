@@ -8,6 +8,7 @@ import Cordis.Examples.Counter
 import Cordis.Examples.CounterWire
 import Cordis.Examples.DependentChoice
 import Cordis.GlobalDynamics
+import Cordis.GlobalLifecycle
 import Cordis.GlobalRegistry
 import Cordis.Harness
 import Cordis.Lifecycle
@@ -816,6 +817,28 @@ private def testGlobalDynamics : IO Unit := do
   assertEqual "mixed external/retirement accumulation recovers the ambient observation"
     (recoveredAmbient (GlobalDynamics.runFuel dynamics oracle 2 start 0)) (some start.ambient)
 
+open GlobalLifecycle.Example in
+private def testGlobalLifecycle : IO Unit := do
+  assertEqual "global lifecycle exposes the exact five-rule path around retirement"
+    [beginTransition.rule, iterTransition.rule, finishTransition.rule,
+      leaveTransition.rule, unloadTransition.rule]
+    [.begin, .iter, .finish, .leave, .unload]
+  assertEqual "global lifecycle recovery restores the exact ambient observation"
+    unloadedState.ambient start.ambient
+  match finishState.registry 0 with
+  | none => fail "global lifecycle finish lost the owner fiber"
+  | some fiber =>
+      match fiber.phase with
+      | .active undos _ =>
+          assertEqual "global lifecycle retained both newest-first inverses" undos.length 2
+      | _ => fail "global lifecycle finish did not reach the active phase"
+  match unloadedState.registry 0 with
+  | none => fail "global lifecycle unload removed the owner instead of deactivating it"
+  | some fiber =>
+      match fiber.phase with
+      | .inactive none => pure ()
+      | _ => fail "global lifecycle unload reached the wrong phase"
+
 private def testHarnessPhaseFailures : IO Unit := do
   let initial := Harness.RunnerState.initial 0
   match initial.beginStep with
@@ -1019,6 +1042,7 @@ def run : IO Unit := do
   testGlobalRegistry
   testMediatedIndependenceBoundary
   testGlobalDynamics
+  testGlobalLifecycle
   testHarnessPhaseFailures
   testCounterAdmission
   testHarnessDemo

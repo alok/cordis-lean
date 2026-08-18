@@ -6,6 +6,7 @@ import Cordis.ContextualEquivalence
 import Cordis.Effect
 import Cordis.Examples.DependentChoice
 import Cordis.GlobalDynamics
+import Cordis.GlobalLifecycle
 import Cordis.GlobalRegistry
 import Cordis.Harness
 import Cordis.Lifecycle
@@ -318,3 +319,18 @@ set_option format.width 200
 #print axioms Cordis.GlobalDynamics.Example.ordinary_then_registration
 #print axioms Cordis.GlobalDynamics.Example.one_fuel_retains_next_code
 #print axioms Cordis.GlobalDynamics.Example.complete_run_recovers_ambient
+#print axioms Cordis.GlobalLifecycle.setPhase_inactive_preserves
+#print axioms Cordis.GlobalLifecycle.Landing.committedSafe
+#print axioms Cordis.GlobalLifecycle.Transition.preservesWellFormed
+#print axioms Cordis.GlobalLifecycle.Transition.rule_inventory
+#print axioms Cordis.GlobalLifecycle.Transition.iterator_map_iff
+#print axioms Cordis.GlobalLifecycle.Transition.recovery_map_iff
+#print axioms Cordis.GlobalLifecycle.Trace.preservesWellFormed
+#print axioms Cordis.GlobalLifecycle.Example.firstStep_executed
+#print axioms Cordis.GlobalLifecycle.Example.finalStep_executed
+#print axioms Cordis.GlobalLifecycle.Example.bridgedPath_wellFormed
+#print axioms Cordis.GlobalLifecycle.Example.unloaded_phase_exact
+#print axioms Cordis.GlobalLifecycle.Example.unloaded_ambient_exact
+#print axioms Cordis.GlobalLifecycle.Example.stable_leave_guard_rejected
+#print axioms Cordis.GlobalLifecycle.Example.abort_guard_rejected
+#print axioms Cordis.GlobalLifecycle.Example.raise_guard_rejected

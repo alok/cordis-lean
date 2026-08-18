@@ -4,6 +4,7 @@ import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.Examples.DependentChoice
 import Cordis.GlobalDynamics
+import Cordis.GlobalLifecycle
 import Cordis.GlobalRegistry
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
@@ -354,5 +355,13 @@ example : MediatedIndependence.ExactRepresentativeCoherence
       MediatedIndependence.Counterexample.coeffects) := by
   intro left right related
   rfl
+
+/-! An inertia policy that denies abortion cannot fabricate an abort-before-landing witness. -/
+
+/-- error: Tactic `assumption` failed -/
+#guard_msgs (substring := true) in
+example : GlobalLifecycle.Example.inertia.canAbort 0 10
+    GlobalLifecycle.Example.beginState := by
+  trivial
 
 end Cordis.NegativeTests

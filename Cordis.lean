@@ -10,6 +10,7 @@ import Cordis.Examples.CounterWire
 import Cordis.Examples.DependentChoice
 import Cordis.GenericHarness
 import Cordis.GlobalDynamics
+import Cordis.GlobalLifecycle
 import Cordis.GlobalRegistry
 import Cordis.Harness
 import Cordis.Lifecycle
