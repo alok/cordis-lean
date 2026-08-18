@@ -24,9 +24,11 @@ Finite exact Theorem 20/Corollary 21 and the first birth-ranked global
 registry/orchestration preservation slice are also implemented. Opaque iterator
 codes now have external proof-carrying ordinary/registration semantics and a
 fueled recovery runner. The quotient-versus-exact Theorem 42 representative
-boundary is mechanized; `PairwiseOverlapComplete`, global lifecycle phase
-execution, task concurrency, and the paper's complete
-preservation/progress/confluence results remain open.
+boundary is mechanized. The seven global lifecycle rule names now have exact
+phase-indexed transitions and preservation traces with an explicit unload
+recovery admission; `PairwiseOverlapComplete`, the combined ten-rule calculus,
+task concurrency, and the paper's complete preservation/progress/confluence
+results remain open.
 
 Repository: `cordis-lean`
 

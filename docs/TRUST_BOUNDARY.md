@@ -31,6 +31,11 @@ interpreter. Full branch-indexed Theorem 42 remains open. `Schedule` executes se
 types do not extend the theorem boundary to corresponding external systems
 automatically.
 
+The global layer now includes exact phase-indexed lifecycle edges and finite preservation traces.
+An executed landing must be reconstructed by `executeOne`, and unload alone consumes a named
+`RecoveryAdmission`. This is still not the combined ten-rule Definition 53 trace or Theorem 59:
+orchestration remains a separate relation and arbitrary-interleaving recovery is supplied evidence.
+
 CORDIS Lean proves properties of typed, pure Lean values. It does not by itself prove that a
 model response, JSON parser, TypeScript Harness process, operating-system resource, or remote
 service behaves like those values. This document marks the exact perimeter.
@@ -350,7 +355,8 @@ Executable rejection is valuable, but it is not a refinement theorem.
 | `Removal`                                   | Builds indexed original/omitted finite traces with exact later inverse equalities and checks arbitrary permutations of the retained inverse list.                                                                                    | Exact pure effects only; no observational quotient, infinite family, asynchronous runtime, or real external recovery.                                                                            |
 | `MediatedIndependence`                      | Reifies selected branches, states quotient closure, bridges it to exact closure under representative coherence, and checks a finite exact-representative counterexample.                                                             | `PairwiseOverlapComplete` remains unproved; the counterexample refutes exact promotion, not observational Theorem 42.                                                                            |
 | `GlobalRegistry`                            | Checks code-only component/fiber/global data, unique providers/targets, birth-ranked acyclicity, and preservation by insert/retire/remove orchestration.                                                                             | Uses a strengthened parent invariant and noncomputable derived views; no code interpreter, read confinement, lifecycle rules, or full Theorem 59.                                                |
-| `GlobalDynamics`                            | Interprets opaque codes externally and reconstructs ordinary/registration steps, recovery, confinement/read/WF evidence, and fueled traces with explicit exhaustion.                                                                 | Most laws are integrator obligations; no phase-updating lifecycle rules, asynchronous inertia, full Definition 53, or full Theorem 59.                                                           |
+| `GlobalDynamics`                            | Interprets opaque codes externally and reconstructs ordinary/registration steps, recovery, confinement/read/WF evidence, and fueled traces with explicit exhaustion.                                                                 | Most laws are integrator obligations; phase updates and unload policy are handled only by the next bounded layer.                                                                                |
+| `GlobalLifecycle`                           | Checks exact target/phase guards, executed landings, inertia, unload recovery, all-edge WF preservation, and finite lifecycle traces.                                                                                                | Orchestration remains separate; general `RecoveryAdmission` is supplied, oracle rejection has no lifecycle edge, and full Definition 53/Theorem 59 are unclaimed.                                |
 | `CertifiedTwoBatch`                         | Requires same-successor, pointwise same-recovery, and result-stability certificate fields before either order is permitted.                                                                                                          | The certificate is supplied, exactly two pure calls are modeled, and no actual concurrency or external-effect safety follows.                                                                    |
 | `Registry.setAt`                            | Uses dependent equality transport so a value cannot be installed at a differently typed key.                                                                                                                                         | No runtime aliasing, notification, or mutable-store semantics are modeled.                                                                                                                       |
 | `View.resolve`                              | Requires `needs op` before a binding can be requested.                                                                                                                                                                               | Construction of the view and completeness of its registry snapshot remain obligations.                                                                                                           |
@@ -489,8 +495,8 @@ The new `GlobalRegistry` module moves a structural subset inward without interpr
 
 The birth-order field is stronger than paper Definition 58(1), because parent presence alone
 permits cycles. `activeContext` and `targetView` use noncomputable unique choice over proof-finite
-data; they are specifications, not extracted runtime algorithms. Lifecycle phase transitions and
-the full ten-rule preservation theorem remain outside.
+data; they are specifications, not extracted runtime algorithms. The combined ten-rule trace and
+full preservation theorem remain outside this structural module.
 
 `GlobalDynamics` then interprets those codes externally rather than putting functions back into
 stored state. Its `Dynamics` contract makes ordinary recovery, undo/run respect, write
@@ -500,9 +506,17 @@ parent/provision legality, and observational vestigial recovery. `executeOne` re
 intrinsic certified step; the fueled runner retains continuation codes on exhaustion and carries
 newest-first accumulated recovery plus trace-level well-formedness. Ambient mutation is
 intentionally permitted, matching Definitions 45/48, and must be reversed by the supplied undo.
-Name equivariance is a separate optional assumption. No lifecycle phase transition is performed.
+Name equivariance is a separate optional assumption.
 
-The local Lean lifecycle instead assumes:
+`GlobalLifecycle` consumes those certified steps in exact phase-indexed transitions. Landing
+constructors retain an oracle and the equation showing `executeOne` returned their step; the
+registration-error type remains distinct from iterator errors. Abort permission is explicit,
+L-Unload alone interprets accumulated recovery, and every lifecycle edge preserves strengthened
+well-formedness. The general unload proof deliberately consumes `RecoveryAdmission`, because
+arbitrary-interleaving temporal recovery is not yet derived. Orchestration is still a separate
+relation, and an oracle-rejected registration request has no modeled lifecycle edge.
+
+The older finite `Cordis.Lifecycle` model separately assumes:
 
 - inactive states retain the modeled recovered value, and `unload` returns specifically to the
   activation origin;
@@ -576,9 +590,10 @@ Without additional proofs or tests, do not state that:
 - finite exact `Removal` proves observational, asynchronous, infinite, or external-effect
   recovery;
 - `GlobalDynamics` verifies a real code interpreter rather than requiring its recovery,
-  confinement, read-agreement, equivariance, and WF laws as fields; or that the current global
-  modules implement lifecycle phase transitions/full Theorem 59, or that strengthened birth order
-  is literally paper Definition 58;
+  confinement, read-agreement, equivariance, and WF laws as fields; `GlobalLifecycle` discharges
+  arbitrary-interleaving recovery without its named admission, combines orchestration into full
+  Definition 53, proves full Theorem 59, or makes strengthened birth order literally paper
+  Definition 58;
 - `RuntimeRefinement` accepts the full Harness stream union, is complete for the tolerant
   TypeScript assembler, verifies provider streaming, or proves chunk storage;
 - `SessionRefinement` accepts the complete Harness event union, preserves every source field in

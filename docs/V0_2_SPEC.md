@@ -66,6 +66,9 @@ Current machine-checked evidence includes:
 - `Cordis.GlobalDynamics`, interpreting opaque iterator/undo codes externally with exact ordinary
   recovery, observational registration recovery, explicit confinement/read/equivariance
   obligations, and a total fueled Definition 52 runner with accumulated recovery/WF evidence;
+- `Cordis.GlobalLifecycle`, encoding all seven lifecycle rule names as eight phase-indexed
+  constructors with exact executed landings, inertia, unload recovery admission, and finite
+  well-formedness-preserving traces;
 - `Cordis.RuntimeRefinement`, decoding the supported current-Harness stream-chunk JSON-AST
   shapes into `RichStream.ValidatedTrace` while explicitly rejecting non-equivalent fields;
 - `Cordis.SessionRefinement`, statefully translating a supported source-shaped Harness session
@@ -369,6 +372,11 @@ The bounded algebra/context/global layer now has eleven explicit pieces:
     and yields child retirement as observational recovery. A total fueled runner retains exact
     continuation code on exhaustion and carries an intrinsic trace plus newest-first recovery and
     global well-formedness preservation.
+12. `Cordis.GlobalLifecycle` gives exact endpoints to L-Begin, L-Iter, L-Finish, both L-Divert
+    alternatives, L-Raise, L-Leave, and L-Unload. Successful landing constructors retain their
+    `executeOne` equation, and every rule preserves strengthened well-formedness. General unload
+    recovery remains the explicit `RecoveryAdmission`; the concrete heterogeneous path discharges
+    it for two ambient-only inverses.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -461,8 +469,8 @@ This slice does not by itself prove:
 - durable persistence, flush barriers, crash repair, resume, or fork correctness;
 - task/fiber scheduling, fairness, cancellation delivery, or wall-clock concurrency;
 - the stronger paired-inverse law from same-word tests without its explicit coherence premise;
-- `PairwiseOverlapComplete`, lifecycle phase transitions and full Definition 53, full Theorem 59,
-  or the paper's global composability results;
+- `PairwiseOverlapComplete`, the combined ten-rule Definition 53 trace, full Theorem 59, or the
+  paper's global composability results;
 - native plugin isolation, process confinement, filesystem safety, or remote-service behavior;
 - global exactly-once execution across workers; or
 - that a model follows supplied schemas or chooses an appropriate tool.

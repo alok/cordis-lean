@@ -1898,10 +1898,21 @@ Build the structural slice in this order:
     Accumulate newest-first undo codes, prove recovery respects the state setoid, and implement a
     total fueled runner whose trace is indexed by the actual continuation code and whose zero-fuel
     result is explicit exhaustion rather than success.
+11. Define lifecycle transitions with exact endpoints. A landing must carry its distinct
+    registration-error type, admission oracle, dependent `IterationStep`, and the exact equation
+    showing `executeOne` returned it. Split L-Divert into abort and land constructors while mapping
+    both to one paper rule name; put abort permission in an explicit inertia policy.
+12. Make L-Unload the only lifecycle edge that interprets the accumulated recovery list. Until
+    temporal composability is proved, require a named `RecoveryAdmission` containing the exact
+    recovered owner, inactive endpoint, and WF preservation. Prove deactivation preserves WF from
+    the global non-reliance guard, then compose rule preservation over exact finite traces.
+13. Exercise Begin/Iter/Finish and Leave/Unload with an explicit orchestration retirement between
+    the two trace segments. Prove the landing equations came from `executeOne`, the accumulator
+    shape, inactive endpoint, restored observation, and negative target/inertia/raise guards.
 
-These modules remain only the registry/orchestration and external iterator substrate. Do not
-claim lifecycle phase updates, asynchronous inertia, the full Definition 53 relation, or full
-ten-rule preservation until the global lifecycle relation consumes these certificates.
+This reaches the lifecycle relation as a separate bounded layer. Do not claim the full ten-rule
+Definition 53 execution until orchestration and lifecycle share one indexed step/trace relation,
+and do not claim Theorem 59 while general unload recovery is still a supplied admission.
 
 ## 20. Exact verification and review commands
 
