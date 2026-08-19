@@ -2,8 +2,7 @@
 
 <!-- markdownlint-disable MD013 -->
 
-Status: next implementation slice after commit
-`f44f6cb29ddbbb6dd5d1c08e60191f6bf2168aa2`
+Status: implemented by `Cordis.GlobalTransposition`
 
 Source basis: CORDIS paper revision
 `948a07b369c62adb3b12e102458be5c18dfb69b9`, especially Definition 60 and

@@ -84,6 +84,15 @@ provenance-and-membership theorem discharges `GlobalTemporal.PerStepCommutes` on
 each foreign step's `TotalStepMap`; it does not derive totalization, owner inverse stability, trace
 reordering, Theorem 61, or Corollary 62.
 
+Given `Independent`, the bounded transposition layer derives an exact raw execution diamond and
+exact commutation for two already totalized generated step maps. Given `ObservationalIndependent`,
+the same packaged maps commute under its supplied `EffectEquiv`; that certificate retains separate
+`ProgramRespects` obligations. The layer also requires syntactic `UndoCode` equality for
+lifecycle-visible yields, proves distinct-name phase edits commute, and exposes a noncircular
+foreign-phase compatibility contract without constructing an inhabitant. A finite noninjective
+interpreter proves semantic inverse equality cannot recover stored code equality. These are
+ingredients toward Lemma 71, not a lifecycle-step transposition or mixed-trace reorder theorem.
+
 Repository: `cordis-lean`
 
 Lean toolchain: `leanprover/lean4:v4.33.0`

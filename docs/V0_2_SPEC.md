@@ -89,6 +89,11 @@ Current machine-checked evidence includes:
   families, and explicit finite-reach/continuation-bound certificate types, and discharging
   `GlobalTemporal.PerStepCommutes` from accumulator provenance, step-map membership, and supplied
   `TotalStepMap` witnesses;
+- `Cordis.GlobalTransposition`, using `Independent` to derive the raw iterator diamond and exact
+  commutation for two supplied totalized generated pre-edit maps, using
+  `ObservationalIndependent` for the `EffectEquiv` square with its separate `ProgramRespects`, and
+  exposing exact lifecycle undo-code agreement, structural phase-edit commutation, and a
+  noninjective-undo counterexample without claiming a lifecycle transition swap;
 - `Cordis.GlobalRelations`, defining incomparable finite rule/effect observation setoids and an
   explicit respectful-undo bridge into the temporal algebra without claiming rule bisimulation;
 - `Cordis.GlobalRuleInvariance`, proving well-formed bidirectional orchestration matching across
@@ -364,12 +369,13 @@ future external adapter consumes the same proof-carrying request contract.
 
 ## Paper context and executable refinement
 
-The next bounded transposition slice is specified in
-[`GLOBAL_TRANSPOSITION_SPEC.md`](GLOBAL_TRANSPOSITION_SPEC.md). It deliberately separates the raw
-Definition 60 execution diamond from the stronger foreign-phase, exact-undo-code, guard, and edit
-laws required by paper Lemma 71.
+The bounded transposition slice is specified in
+[`GLOBAL_TRANSPOSITION_SPEC.md`](GLOBAL_TRANSPOSITION_SPEC.md) and implemented by
+`Cordis.GlobalTransposition`. It deliberately separates the proved raw Definition 60 execution
+diamond from the stronger foreign-phase, exact-undo-code, guard, and edited-endpoint laws required
+by paper Lemma 71.
 
-The bounded algebra/context/global layer now has twenty-seven explicit pieces:
+The bounded algebra/context/global layer now has twenty-eight explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -511,6 +517,15 @@ The bounded algebra/context/global layer now has twenty-seven explicit pieces:
     closure membership, foreign-name, and pre-existing `TotalStepMap` evidence needed for
     `perStepCommutes_of_generated`. This is an oracle-specific finite partial/Kleisli Definition 60
     analogue, not the displayed rule relation and not Theorem 61 or Corollary 62.
+28. `Cordis.GlobalTransposition` constructs the two off-axis successful iterator executions and
+    their exact common raw endpoint from all three `Independent` fields. Two `TotalProgramStep`s
+    retain supplied totality plus acted-owner closure provenance and commute exactly under
+    `Independent`; `ObservationalIndependent` gives the effect-relational square while retaining
+    separately supplied `ProgramRespects`. `LifecycleYieldAgrees` separately keeps exact stored
+    undo-code equality, distinct phase edits commute, and `ForeignPhaseCompatibility` names a
+    noncircular foreign-edit law for which this module constructs no inhabitant. A finite
+    interpreter proves semantic inverse equality does not imply exact stored-code equality. No
+    lifecycle transition or paper Lemma 71 case is transposed.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -577,7 +592,10 @@ The slice requires all existing gates plus the following new coverage:
 - registration-child dependence of both continuation and retirement inverse, the duplicate-family
   whole-run-versus-full-independence gap, and the indexed-step totalization counterexample; and
 - the `PerStepCommutes` bridge under explicit yielded-accumulator, step-membership,
-  observational-independence, and `TotalStepMap` witnesses.
+  observational-independence, and `TotalStepMap` witnesses;
+- the raw independent iterator diamond and both totalized pre-edit map squares; and
+- a runtime probe on which distinct stored undo codes produce the same projection, plus static
+  proof that their interpreted functions are equal but lifecycle-visible exact agreement fails.
 
 Headline theorems must be added to `Cordis/AxiomAudit.lean`. The full project must remain free of
 `sorry`, `admit`, project-defined axioms, `unsafe`, `partial`, external implementation overrides,
@@ -616,6 +634,8 @@ This slice does not by itself prove:
 - canonical identification of global `≃` and `≈`, an oracle-free or paper-total Definition 60,
   automatic `TotalStepMap`, owner inverse stability, mixed-trace reordering, or arbitrary
   Theorem 61/Corollary 62;
+- promotion of the raw iterator diamond or totalized pre-edit map squares to lifecycle Lemma 71
+  without exact code, fixed program/oracle, foreign-phase, guard, and edited-endpoint laws;
 - native plugin isolation, process confinement, filesystem safety, or remote-service behavior;
 - global exactly-once execution across workers; or
 - that a model follows supplied schemas or chooses an appropriate tool.
