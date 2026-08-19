@@ -380,6 +380,7 @@ Executable rejection is valuable, but it is not a refinement theorem.
 | `GlobalTransposition`                       | Given `Independent`, constructs raw off-axis executions/common endpoint and exact commutation for two supplied totalized closure-member pre-edit maps; given `ObservationalIndependent`, proves the effect-relational square while retaining separate `ProgramRespects`; also separates exact lifecycle codes and phase edits.         | Bounded ingredients toward Lemma 71 only. `GlobalTransposition` itself constructs no phase-frame inhabitant; semantic inverse equality is weaker than stored-code equality; no guard/target preservation, edited endpoint square, or lifecycle transition swap is proved.                                                        |
 | `GlobalForeignPhase`                        | From explicit readability, ordinary exact-successor, and same-child oracle laws, derives exact strong-yield compatibility; combines two such certificates with independence into a framed raw diamond retaining the actual post-raw fibers; kernel-separates all three premises.                                                       | Lower contracts, distinct owners, reach/execution, post-raw fiber lookups, and typed phases are supplied. No `Transition`/`Step`, guard/target preservation, lifecycle phase provenance, Lemma 71 exchange, or mixed-trace reorder theorem.                                                                                      |
 | `GlobalLandingTransposition`                | Adds exact cross-forward yield syntax and fixed-program landing provenance, derives foreign positive-target preservation from WF, reframes off-axis landings, and constructs actual L-Iter/L-Finish transitions in both orders with one exact final state; includes positive and necessity models.                                     | Landing-only four-pair theorem. Requires WF, distinct owners, exact cross-forward stability, both phase compatibilities, and common-source program-aligned activations. No Begin pair, trace-step identity, episode assignment, or full Lemma 71.                                                                                |
+| `GlobalActivationTransposition`             | Adds root-aligned Begin, exact foreign lookup/positive-target framing, fixed-program endpoint/rule determinism, all nine common-source Begin/Iter/Finish diamonds, and an actual-second-step swapped transition; includes branch and necessity witnesses.                                                                              | Partial fixed-oracle Lemma 71(1) analogue. Requires WF, distinct owners, common applicability, explicit provenance, and branch-relevant frame/exact-yield laws. No orchestration clause (2), arbitrary stored-trace rewrite, episode assignment, literal total/quotient Lemma 71, or confluence.                                 |
 | `GlobalRelations`                           | Defines key-indexed rule observation and ambient/table effect observation as setoids, bridges respectful undo to the temporal interface, and separates the candidates by executable models.                                                                                                                                            | Finite Equation 53/Lemmas 55–57 candidates only; rule bisimulation, name-action laws, and the full global lemmas remain unproved.                                                                                                                                                                                                |
 | `GlobalRuleInvariance`                      | Matches every well-formed insert/retire/remove step bidirectionally across rule-related states with exact peer endpoints and related well-formed successors, without equating tables.                                                                                                                                                  | Orchestration-only L55 fragment; ambient-sensitive inertia is a checked lifecycle obstruction and further dynamics/recovery laws are absent.                                                                                                                                                                                     |
 | `GlobalRuleObservations`                    | Transports provider identity, dependent targets, committed resolution, reliance, phases, quiescence, and all structural lifecycle guards across well-formed rule-related states.                                                                                                                                                       | Assumption-free L55 observation substrate; it executes no lifecycle step and leaves landing/error/inertia/oracle/recovery contracts explicit.                                                                                                                                                                                    |
@@ -420,7 +421,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 281
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 637
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.
@@ -617,6 +618,16 @@ template, and returns both real lifecycle orders with one shared exact final sta
 kernel-check the cross-forward syntax gap, the common-applicability premise, and fixed-oracle
 landing provenance.
 
+`GlobalActivationTransposition` adds program-root-aligned Begin without broadening the landing
+premises. A branch-indexed law record requires no iterator law for Begin/Begin, only the landing
+program's foreign-phase compatibility for a mixed pair, and both compatibility certificates plus
+`ForwardLifecycleIndependent` for a landing pair. Exact lookup and a non-active source actor derive
+positive-target preservation. Fixed-program execution makes the endpoint and rule deterministic,
+so `transpose_program_activations` can reconcile its constructed normal-order second activation
+with any supplied actual second activation and derive the swapped lifecycle transition. This is a
+partial fixed-oracle exact-representative analogue of Lemma 71(1), not clause (2), arbitrary trace
+rewriting, episode assignment, or the paper theorem verbatim.
+
 `GlobalRelations` then makes the two observation interfaces concrete without identifying them.
 `RuleRelated` observes the derived coeffect context through supplied key-indexed setoids and keeps
 the registry domain, fiber control, and local birth clock exactly. `EffectRelated` instead keeps
@@ -786,8 +797,12 @@ Without additional proofs or tests, do not state that:
   upgrades its framed raw endpoint into a `Transition`, either Lemma 71 clause, or trace reordering;
   `GlobalLandingTransposition` derives exact cross-forward stored-code stability from semantic
   independence, reassigns a bare landing to an arbitrary fixed program, drops source WF or
-  common-source applicability, covers any Begin pair, identifies its moved step with an arbitrary
-  existing trace step, or proves full Lemma 71 or trace rewriting;
+  common-source applicability, covers any Begin pair, or identifies its moved step with an
+  arbitrary existing trace step;
+  `GlobalActivationTransposition` drops root/reach/oracle provenance, branch-relevant frame or
+  exact-yield laws, distinct owners, source WF, or common-source applicability, rewrites an
+  arbitrary stored trace, proves activation/orchestration clause (2), or upgrades its bounded
+  partial fixed-oracle theorem to the paper's literal total/quotient Lemma 71;
   `GlobalRelations` proves full Lemma 55 rule bisimulation, full lifecycle name equivariance, or
   vestigial rule simulation merely by defining candidate setoids; or strengthened birth order is
   literally paper Definition 58;

@@ -106,8 +106,18 @@ L-Iter/L-Finish combinations. It adds exact cross-forward syntactic-yield stabil
 independence, fixes each landing to the program oracle, derives positive target preservation from
 source well-formedness, and constructs both common-source orders with one exact final state.
 Countermodels separately justify the extra yield, common-applicability, and oracle-provenance
-premises. Begin-containing pairs, arbitrary existing trace steps, episode-level program assignment,
-and full Lemma 71 remain open.
+premises.
+
+The activation transposition layer wraps those landings together with program-root-aligned
+L-Begin. It proves exact foreign lookup and positive-target framing, fixed-program endpoint and rule
+determinism, and one exact diamond for all nine common-source Begin/Iter/Finish combinations. The
+law surface is branch-minimal: Begin/Begin needs no iterator law, mixed pairs need only the landing
+program's foreign-phase compatibility, and landing pairs retain exact
+`ForwardLifecycleIndependent`. A paper-shaped wrapper accepts an actual normal-order second
+activation and derives the swapped actual lifecycle transition at the same endpoint. This is a
+partial, fixed-oracle, exact-representative Lemma 71(1) analogue; activation/orchestration clause
+(2), arbitrary stored-trace rewriting, episode-level program assignment, and the paper's literal
+total/quotient theorem remain open.
 
 Repository: `cordis-lean`
 

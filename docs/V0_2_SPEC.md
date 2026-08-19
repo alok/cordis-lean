@@ -102,6 +102,9 @@ Current machine-checked evidence includes:
   fixed-program landing provenance, deriving positive-target preservation from well-formedness,
   and constructing all four common-source L-Iter/L-Finish transition pairs with one exact final
   state plus syntax/applicability/provenance countermodels;
+- `Cordis.GlobalActivationTransposition`, combining program-root-aligned L-Begin with those
+  landings, proving fixed-program endpoint/rule determinism, and constructing all nine
+  common-source Begin/Iter/Finish diamonds plus an actual-second-step transposition wrapper;
 - `Cordis.GlobalRelations`, defining incomparable finite rule/effect observation setoids and an
   explicit respectful-undo bridge into the temporal algebra without claiming rule bisimulation;
 - `Cordis.GlobalRuleInvariance`, proving well-formed bidirectional orchestration matching across
@@ -393,10 +396,17 @@ The landing activation slice is specified in
 [`GLOBAL_LANDING_TRANSPOSITION_SPEC.md`](GLOBAL_LANDING_TRANSPOSITION_SPEC.md) and implemented by
 `Cordis.GlobalLandingTransposition`. It covers only the four common-source L-Iter/L-Finish
 combinations under explicit fixed-program landing provenance, well-formedness, semantic plus exact
-cross-forward independence, and foreign-phase compatibility; Begin-containing and trace-level
-cases remain separate.
+cross-forward independence, and foreign-phase compatibility.
 
-The bounded algebra/context/global layer now has thirty explicit pieces:
+The complete bounded activation slice is specified in
+[`GLOBAL_ACTIVATION_TRANSPOSITION_SPEC.md`](GLOBAL_ACTIVATION_TRANSPOSITION_SPEC.md) and implemented
+by `Cordis.GlobalActivationTransposition`. It adds program-root-aligned Begin, exact positive-target
+transport, fixed-program endpoint/rule determinism, and all nine common-source
+Begin/Iter/Finish pairs. Its actual-second-step wrapper is a partial, fixed-oracle,
+exact-representative Lemma 71(1) analogue; activation/orchestration exchange, arbitrary trace
+rewriting, episode assignment, and the literal paper theorem remain separate.
+
+The bounded algebra/context/global layer now has thirty-one explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -564,8 +574,17 @@ The bounded algebra/context/global layer now has thirty explicit pieces:
     fiber/control template, and `landing_activation_diamond` constructs actual Iter/Finish
     transitions in both orders with one exact final state for all four outcome combinations. The
     positive example is Iter/Finish; separate models prove common-source applicability and fixed
-    program provenance necessary. No Begin pair, existing-trace identity, or full Lemma 71 is
-    claimed.
+    program provenance necessary. That module alone contains no Begin pair.
+31. `Cordis.GlobalActivationTransposition` packages a program-root-aligned Begin together with the
+    existing program-aligned landing activation. Every activation derives its exact endpoint and
+    actual lifecycle transition; exact foreign lookup and a non-active source actor preserve an
+    already-valid positive target under well-formedness. Fixed-program execution proves endpoint
+    and rule uniqueness. `ActivationSwapLaws` is branch-minimal, and
+    `program_activation_diamond` covers all nine common-source Begin/Iter/Finish pairs. The
+    paper-shaped wrapper receives an actual normal-order second activation, identifies its endpoint
+    by uniqueness, and derives the swapped actual transition. Root mismatch and same-owner phase
+    updates are kernel counterexamples. This is a partial, fixed-oracle bounded Lemma 71(1)
+    analogue, not clause (2), arbitrary trace rewriting, episode assignment, or confluence.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -683,15 +702,17 @@ This slice does not by itself prove:
 - canonical identification of global `≃` and `≈`, an oracle-free or paper-total Definition 60,
   automatic `TotalStepMap`, owner inverse stability, mixed-trace reordering, or arbitrary
   Theorem 61/Corollary 62;
-- promotion of the raw iterator diamond or totalized pre-edit map squares to lifecycle Lemma 71
-  without exact code, fixed program/oracle, foreign-phase, guard, and edited-endpoint laws;
+- promotion of the raw iterator diamond or totalized pre-edit map squares to lifecycle
+  transposition without exact code, fixed program/oracle, foreign-phase, guard, and
+  edited-endpoint laws;
 - derivation of foreign-phase readability, ordinary exact framing, or same-child oracle stability
   from `Independent`, base `Dynamics`, or raw request equality; or promotion of the framed raw
   diamond to lifecycle-rule phases, guards, targets, transitions, or either Lemma 71 clause;
 - derivation of exact cross-forward `UndoCode` stability from semantic `Independent`, reassignment
   of a bare landing to an arbitrary program oracle, omission of source well-formedness or
-  common-source applicability, Begin-containing activation swaps, identity with an arbitrary
-  existing trace step, or full Lemma 71 from the landing-only diamond;
+  common-source applicability, identity with an arbitrary stored trace step, activation/
+  orchestration clause (2), or the literal total/quotient Lemma 71 from the bounded all-nine
+  activation theorem;
 - native plugin isolation, process confinement, filesystem safety, or remote-service behavior;
 - global exactly-once execution across workers; or
 - that a model follows supplied schemas or chooses an appropriate tool.
