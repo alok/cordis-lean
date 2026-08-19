@@ -8,6 +8,7 @@ import Cordis.Examples.DependentChoice
 import Cordis.GlobalActivationOrchestrationTransposition
 import Cordis.GlobalActivationTransposition
 import Cordis.GlobalCalculus
+import Cordis.GlobalDeletion
 import Cordis.GlobalDynamics
 import Cordis.GlobalIteratorIndependence
 import Cordis.GlobalTransposition
@@ -715,6 +716,52 @@ namespace Cordis.GlobalTraceRewrite
 #print axioms registering_insert_birth_gap
 #print axioms bare_landing_has_no_unique_program
 end Cordis.GlobalTraceRewrite
+namespace Cordis.GlobalDeletion
+#print axioms descendantClosed_iff_noSurvivingParentRefs
+#print axioms ParentGap.source_wellFormed
+#print axioms ParentGap.registered_wellFormed
+#print axioms ParentGap.adoptionAfter_wellFormed
+#print axioms ParentGap.removing_child_does_not_restore_clock
+#print axioms ParentGap.no_surviving_same_template_insert
+#print axioms ParentGap.final_parent_closure_fails
+#print axioms ParentGap.removed_final_not_wellFormed
+#print axioms AssignedLocatedEpisode.masterAssignment
+#print axioms DeletionReplay.decisions_length
+#print axioms DeletionReplay.transportAssignment
+#print axioms DeletionReplay.final_related
+#print axioms DeletionReplay.rules_sublist
+#print axioms DeletionReplay.actors_sublist
+#print axioms DeletionReplay.shadow_aligned
+#print axioms DeletionReplay.records_length_le
+#print axioms DeletionReplay.rules_length_le
+#print axioms DeletionReplay.actors_length_le
+#print axioms forwardOrchestration_sameTemplate
+#print axioms forwardOrchestration_avoidsParent
+#print axioms Vestigial.remove_other
+#print axioms safeForVestigialNames_iff_pointwise
+#print axioms forwardNamesStep
+#print axioms SameOrchestrationTraceTemplate.shadowAssignment
+#print axioms forwardNamesOrchestrationTrace
+#print axioms RedrawGap.redraw_trace_not_noRedraw
+#print axioms Positive.names_endpoint_exact
+#print axioms Positive.names_rules_exact
+#print axioms Positive.names_actors_exact
+#print axioms Positive.names_family_preserved
+#print axioms Positive.namesMatchedAssignment
+#print axioms Positive.deletionReplay
+#print axioms Positive.deletion_result_shadow_eq
+#print axioms Positive.filtered_rule_sublist
+#print axioms Positive.filtered_actor_sublist
+#print axioms Positive.deletion_final_related
+#print axioms Positive.deletion_shadow_aligned
+#print axioms Positive.deletion_decisions
+#print axioms Positive.deletion_decisions_length
+#print axioms Positive.deletionShadowAssignment
+#print axioms vestigialOrAbsent_of_vestigial
+#print axioms vestigialOrAbsent_after_remove
+#print axioms registration_insert_birth_order_gap
+#print axioms registration_insert_rule_relation_gap
+end Cordis.GlobalDeletion
 #print axioms Cordis.GlobalRelations.contextRelated_domain
 #print axioms Cordis.GlobalRelations.ruleSetoid
 #print axioms Cordis.GlobalRelations.ruleRelated_registry_domain

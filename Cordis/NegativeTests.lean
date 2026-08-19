@@ -6,6 +6,7 @@ import Cordis.Examples.DependentChoice
 import Cordis.GlobalActivationOrchestrationTransposition
 import Cordis.GlobalActivationTransposition
 import Cordis.GlobalCalculus
+import Cordis.GlobalDeletion
 import Cordis.GlobalDynamics
 import Cordis.GlobalIteratorIndependence
 import Cordis.GlobalTransposition
@@ -623,5 +624,13 @@ example : GlobalTraceRewrite.ExactAdjacentSwap
   first_actor := by rfl
   second_actor := by rfl
 }
+
+/-! Removing a surviving fiber's parent cannot fabricate registry well-formedness. -/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : GlobalRegistry.WellFormed
+    (GlobalRegistry.removeFiber GlobalDeletion.ParentGap.adoptionAfter 1) := by
+  rfl
 
 end Cordis.NegativeTests

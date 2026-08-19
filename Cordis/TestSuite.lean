@@ -10,6 +10,7 @@ import Cordis.Examples.DependentChoice
 import Cordis.GlobalActivationOrchestrationTransposition
 import Cordis.GlobalActivationTransposition
 import Cordis.GlobalCalculus
+import Cordis.GlobalDeletion
 import Cordis.GlobalDynamics
 import Cordis.GlobalIteratorIndependence
 import Cordis.GlobalTransposition
@@ -1025,6 +1026,15 @@ private def testGlobalTraceRewrite : IO Unit := do
     GlobalTraceRewrite.Example.ActivationOrchestration.executableProjection
     ([.oInsert, .oInsert, .lBegin], [0, 1, 0])
 
+private def testGlobalDeletion : IO Unit := do
+  assertEqual "intrinsic deletion replay records one dropped and one retained occurrence"
+    GlobalDeletion.Positive.deletionReplay.decisions
+    [.drop, .keep]
+  assertEqual "bounded deletion keeps the surviving orchestration rule in order"
+    (GlobalDeletion.Positive.deletionSourceTrace.rules,
+      GlobalDeletion.Positive.deletionShadowTrace.rules)
+    ([.oRemove, .oRetire], [.oRetire])
+
 private def testGlobalProgress : IO Unit := do
   assertEqual "conditional progress constructs the expected concrete Begin rule"
     GlobalProgress.BeginExample.executableRule .begin
@@ -1367,6 +1377,7 @@ def run : IO Unit := do
   testGlobalActivationTransposition
   testGlobalActivationOrchestrationTransposition
   testGlobalTraceRewrite
+  testGlobalDeletion
   testGlobalProgress
   testGlobalSupport
   testGlobalRelations

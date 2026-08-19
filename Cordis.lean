@@ -12,6 +12,7 @@ import Cordis.GlobalActivationOrchestrationTransposition
 import Cordis.GlobalActivationTransposition
 import Cordis.GenericHarness
 import Cordis.GlobalCalculus
+import Cordis.GlobalDeletion
 import Cordis.GlobalDynamics
 import Cordis.GlobalIteratorIndependence
 import Cordis.GlobalTransposition
