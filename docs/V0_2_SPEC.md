@@ -364,6 +364,11 @@ future external adapter consumes the same proof-carrying request contract.
 
 ## Paper context and executable refinement
 
+The next bounded transposition slice is specified in
+[`GLOBAL_TRANSPOSITION_SPEC.md`](GLOBAL_TRANSPOSITION_SPEC.md). It deliberately separates the raw
+Definition 60 execution diamond from the stronger foreign-phase, exact-undo-code, guard, and edit
+laws required by paper Lemma 71.
+
 The bounded algebra/context/global layer now has twenty-seven explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
