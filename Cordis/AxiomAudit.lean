@@ -9,6 +9,7 @@ import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
+import Cordis.GlobalNameAction
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
@@ -529,3 +530,26 @@ set_option format.width 200
 #print axioms Cordis.GlobalLifecycleBisimulation.FinishSeam.sources_ruleRelated
 #print axioms Cordis.GlobalLifecycleBisimulation.FinishSeam.source_tables_not_related
 #print axioms Cordis.GlobalLifecycleBisimulation.FinishSeam.activated_not_ruleRelated
+#print axioms Cordis.GlobalNameAction.Equiv.injective
+#print axioms Cordis.GlobalNameAction.mapValues_comp
+#print axioms Cordis.GlobalNameAction.reindexConst_trans
+#print axioms Cordis.GlobalNameAction.actTable_trans
+#print axioms Cordis.GlobalNameAction.actCommittedView_trans
+#print axioms Cordis.GlobalNameAction.actUndoCode_trans
+#print axioms Cordis.GlobalNameAction.actPhase_trans
+#print axioms Cordis.GlobalNameAction.actFiber_trans
+#print axioms Cordis.GlobalNameAction.actRegistry_trans
+#print axioms Cordis.GlobalNameAction.actState_trans
+#print axioms Cordis.GlobalNameAction.actState_symm_apply
+#print axioms Cordis.GlobalNameAction.wellFormed_act
+#print axioms Cordis.GlobalNameAction.wellFormed_act_iff
+#print axioms Cordis.GlobalNameAction.actState_insertFiber
+#print axioms Cordis.GlobalNameAction.actState_retireFiber
+#print axioms Cordis.GlobalNameAction.actState_removeFiber
+#print axioms Cordis.GlobalNameAction.actOrchestrationStep
+#print axioms Cordis.GlobalNameAction.unactOrchestrationStep
+#print axioms Cordis.GlobalNameAction.orchestrationEquivariance
+#print axioms Cordis.GlobalNameAction.Example.acted_wellFormed
+#print axioms Cordis.GlobalNameAction.Example.state_inverse
+#print axioms Cordis.GlobalNameAction.Example.acted_retire_name
+#print axioms Cordis.GlobalNameAction.ConstantNameGap.bad_actName_not_injective

@@ -11,6 +11,7 @@ import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
+import Cordis.GlobalNameAction
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
@@ -1007,6 +1008,22 @@ private def testGlobalLifecycleBisimulation : IO Unit := do
       (GlobalLifecycleBisimulation.FinishSeam.fiber 8).table .counter)
     (some 7, some 8)
 
+private def testGlobalNameAction : IO Unit := do
+  assertEqual "name action swaps registry names and child parent"
+    ((GlobalNameAction.Example.actedState.registry false).isSome,
+      (GlobalNameAction.Example.actedState.registry true).isSome,
+      (GlobalNameAction.actFiber GlobalNameAction.Example.swapAction
+        GlobalNameAction.Example.childFiber).parent)
+    (true, true, some true)
+  assertEqual "name action maps ambient and dependent provider values"
+    (GlobalNameAction.Example.actedState.ambient,
+      (GlobalNameAction.actFiber GlobalNameAction.Example.swapAction
+        GlobalNameAction.Example.providerFiber).table .flag)
+    (false, some false)
+  assertEqual "acted orchestration step renames its exact actor"
+    (GlobalVestigial.orchestrationName GlobalNameAction.Example.actedRetireChild)
+    false
+
 private def testHarnessPhaseFailures : IO Unit := do
   let initial := Harness.RunnerState.initial 0
   match initial.beginStep with
@@ -1223,6 +1240,7 @@ def run : IO Unit := do
   testGlobalRuleInvariance
   testGlobalRuleObservations
   testGlobalLifecycleBisimulation
+  testGlobalNameAction
   testHarnessPhaseFailures
   testCounterAdmission
   testHarnessDemo

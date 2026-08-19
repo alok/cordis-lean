@@ -7,6 +7,7 @@ import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
+import Cordis.GlobalNameAction
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
@@ -488,6 +489,14 @@ example : GlobalRuleObservations.FiberTableRelated
     GlobalLifecycleBisimulation.FinishSeam.values
     (GlobalLifecycleBisimulation.FinishSeam.fiber 7)
     (GlobalLifecycleBisimulation.FinishSeam.fiber 8) := by
+  rfl
+
+/-! The old opaque name-equivariance record does not imply a bijective name action. -/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : Function.Injective
+    (GlobalNameAction.ConstantNameGap.badAssumption.actName ()) := by
   rfl
 
 end Cordis.NegativeTests
