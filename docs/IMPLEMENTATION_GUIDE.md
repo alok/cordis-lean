@@ -1759,7 +1759,8 @@ one-way supported-subset decoder are not a whole-runtime equivalence theorem.
 ### 19.6 Mechanize more of the paper
 
 Use [`PAPER_MAP.md`](PAPER_MAP.md) as a backlog. Major missing areas include the
-effect-context tower, full transformation-monoid Theorem 42, global trace metatheory,
+effect-context tower, the paper's literal total/quotient Theorem 42 beyond the finite partial
+analogue, global trace metatheory,
 full preservation, interleaved temporal recovery, spatial composition, progress,
 confluence, loader reconciliation, and HMR. The active line now covers finite local coeffects (Definitions 22–26),
 direct finite realization/isolation/interception models (27–31), finite
@@ -1838,12 +1839,17 @@ Implement this layer in paper dependency order.
     only `Applied`'s predecessor/recovery proof during structural swapping; reconnect the exact
     successor and complete inverse functions to the original proof-carrying runs before stating
     the theorem.
+18. Build the full partial transformation certificate separately. Use Kleisli maps
+    `State → Option State`, generate the closure from the adaptive partial forward map and every
+    actually yielded totalized inverse, and prove forward/forward, forward/inverse,
+    inverse/forward, inverse/inverse, and yield-stability generator laws structurally. Promote
+    them through identity/composition closure. Derive whole-run interchange from this certificate,
+    and kernel-check that whole-run equality does not imply cross-seed inverse commutation.
 
-Call this a finite whole-run analogue, not full Theorem 42. It proves arbitrary branch-tree
-interchange in the modeled language, but whole-run quantification is not Definition 19's
-transformation monoid over every forward and yielded-inverse word. Likewise, do not confuse the
-observational result with exact representative equality: the universal-equivalence cell
-counterexample still requires `ExactRepresentativeCoherence` for exact promotion.
+The result is the full finite exact partial/Kleisli analogue of Definitions 17/19 and Theorem 42,
+not the paper's literal total/quotient setting. Likewise, do not confuse it with exact
+representative equality: the universal-equivalence cell counterexample still requires
+`ExactRepresentativeCoherence` for exact promotion.
 
 The important review question at each step is whether a theorem describes the paper object
 directly, a bounded approximation, or an integrator-supplied obligation. Put that distinction in

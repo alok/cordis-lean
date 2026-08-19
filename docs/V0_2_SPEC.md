@@ -65,6 +65,8 @@ Current machine-checked evidence includes:
   extra coherence law;
 - `Cordis.MediatedTheorem`, correcting partial composite domains and proving exact plus
   observational finite whole-run interchange for arbitrary outcome-selected computation trees;
+- `Cordis.PartialTransformation`, proving full finite partial/Kleisli transformation-monoid
+  commutation and success-conditional domain/inverse stability for those computation trees;
 - `Cordis.GlobalDynamics`, interpreting opaque iterator/undo codes externally with exact ordinary
   recovery, observational registration recovery, explicit confinement/read/equivariance
   obligations, and a total fueled Definition 52 runner with accumulated recovery/WF evidence;
@@ -335,7 +337,7 @@ future external adapter consumes the same proof-carrying request contract.
 
 ## Paper context and executable refinement
 
-The bounded algebra/context/global layer now has sixteen explicit pieces:
+The bounded algebra/context/global layer now has seventeen explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -404,6 +406,11 @@ The bounded algebra/context/global layer now has sixteen explicit pieces:
     over a foreign replay, then owner inverse and reorder certificates yield finite relational
     recovery and an exact unload package. Countermodels separate this algebra from canonical paper
     `≈`, off-source totality, and structural RecoveryConfinement alone.
+17. `Cordis.PartialTransformation` treats computation forward maps as Kleisli partial maps and
+    actual yielded inverses as total Kleisli generators. Pairwise operation overlap promotes all
+    forward/forward, forward/inverse, and inverse/inverse laws through the complete closures and
+    preserves the other computation's domain and inverse under every successful foreign map. The
+    whole-run theorem follows, while a kernel countermodel refutes its converse.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -496,8 +503,9 @@ This slice does not by itself prove:
 - durable persistence, flush barriers, crash repair, resume, or fork correctness;
 - task/fiber scheduling, fairness, cancellation delivery, or wall-clock concurrency;
 - the stronger paired-inverse law from same-word tests without its explicit coherence premise;
-- full transformation-monoid Theorem 42, full Theorem 59, or the paper's global composability
-  results;
+- identification of the finite exact partial/Kleisli theorem with the paper's literal
+  total/quotient Theorem 42;
+- full Theorem 59 or the paper's global composability results;
 - new-entry or retirement-write provenance for opaque accumulated recovery;
 - canonical global `≃`/`≈`, Definition 60 iterator-family independence, or arbitrary T61/Cor62;
 - native plugin isolation, process confinement, filesystem safety, or remote-service behavior;

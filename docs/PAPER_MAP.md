@@ -28,7 +28,8 @@
 > Theorem 42 statement from exact representative coherence.
 > `Cordis.MediatedTheorem` refutes that old partial-domain closure and proves the
 > corrected exact/observational finite whole-run interchange for arbitrary trees;
-> full transformation-monoid Theorem 42 remains absent. `Cordis.GlobalLifecycle` now checks
+> `Cordis.PartialTransformation` promotes it to full finite partial/Kleisli transformation
+> monoids. The paper's literal total/quotient setting remains separate. `Cordis.GlobalLifecycle` now checks
 > the seven lifecycle rule names as eight phase-indexed constructors, while the
 > `Cordis.GlobalCalculus` combines those with orchestration in one ten-name,
 > exact-endpoint, empty-origin trace relation. Full global metatheory remains absent.
@@ -358,12 +359,14 @@ Local sources: [`Cordis/RichStream.lean`](../Cordis/RichStream.lean) and
 
 ### Current-development transformation and operation independence
 
-Local sources: [`Cordis/Transformation.lean`](../Cordis/Transformation.lean) and
-[`Cordis/OperationIndependence.lean`](../Cordis/OperationIndependence.lean).
+Local sources: [`Cordis/Transformation.lean`](../Cordis/Transformation.lean),
+[`Cordis/OperationIndependence.lean`](../Cordis/OperationIndependence.lean),
+[`Cordis/MediatedTheorem.lean`](../Cordis/MediatedTheorem.lean), and
+[`Cordis/PartialTransformation.lean`](../Cordis/PartialTransformation.lean).
 
 | Lean declaration                                                                                                                            | Status and exact Lean guarantee                                                                                                                                                                               | Paper correspondence                      | Boundary                                                                                                                                  |
 | ------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `Transformation.EffectGenerator`, `Closure`, `OfEffect`, `seq_monoid_subset_joint`                                                          | **Proved:** an effect monoid is the least identity/composition closure of its forward map and every yielded inverse; generator commutation closes; sequencing adds no source.                                 | Definition 17 and Lemma 18.               | Exact total `Cordis.Effect`; no partial/Kleisli transformation monoid or Theorem 20 removal trace yet.                                    |
+| `Transformation.EffectGenerator`, `Closure`, `OfEffect`, `seq_monoid_subset_joint`                                                          | **Proved:** an effect monoid is the least identity/composition closure of its forward map and every yielded inverse; generator commutation closes; sequencing adds no source.                                 | Definition 17 and Lemma 18.               | Exact total `Cordis.Effect`; partial/Kleisli computation monoids and removal are handled in later rows.                                   |
 | `Transformation.Independent`, `of_generators`, `independentAt`, `seq_commute`                                                               | **Proved:** full cross-monoid commutation and bidirectional yielded-inverse stability promote from generators and imply the exact adjacent certificate.                                                       | Definition 19.                            | Adjacent equality is a consequence, not the definition; removal and inverse-order results are the next row.                               |
 | `Removal.RemovalTrace`, `removal_inverse_relation`, `later_inverses_unchanged`, `inverse_permutation_recovers`                              | **Proved:** an indexed original/omitted suffix trace retains every later application state and inverse equality; any permutation of exact yielded inverses recovers the start.                                | Theorem 20 and Corollary 21.              | Finite pairwise-independent exact effects only; no observational, asynchronous, or external-effect theorem.                               |
 | `ExactOperationIndependent`, `OutcomeStable`, generator promotion                                                                           | **Proved:** full exact-effect independence plus heterogeneous outcome stability holds over every foreign transformation.                                                                                      | Definition 39 for total exact operations. | Total exact interpretation only; partial dependent operations use the separate finite-word model.                                         |
@@ -372,6 +375,7 @@ Local sources: [`Cordis/Transformation.lean`](../Cordis/Transformation.lean) and
 | `MediatedClosure`, `ForwardOnlyGap.inverse_stability_fails`                                                                                 | **Checked/proved boundary:** forward commutation cannot establish inverse stability; complete exact outcome-dependent closure is named explicitly.                                                            | Initial exact closure frontier for T42.   | Exact representative equality is stronger than the paper's quotient reading, as the next row proves.                                      |
 | `RealizedPath`, `ObservationalMediatedClosure`, `PairwiseOverlapComplete`, `toExact`, representative counterexample                         | **Checked/proved/boundary:** realized paths retain exact branches; representative coherence promotes quotient closure; finite models separate exact representatives and expose the old partial-domain defect. | Initial observational T42 specification.  | The old `PairwiseOverlapComplete` is false for partial computation versus unit; neither counterexample refutes the paper's total theorem. |
 | `BoundedPartialIndependence`, `rawComputation_swap_success`, `pairwiseOverlap_boundedPartialIndependence`, `partialPairwiseOverlapComplete` | **Proved:** composite partial domains, exact after/undo, typed outcomes, and conditional yielded inverses are preserved while swapping arbitrary finite mediated computation trees.                           | Finite whole-run analogue of Theorem 42.  | Whole-run evaluation is not the full transformation monoid of Definition 19; the older individual-domain closure is kernel-refuted.       |
+| `PartialMap`, `Closure`, `Independent`, `pairwiseOverlap_independent`, `Independent.toBoundedPartial`, `WholeRunGap`                        | **Proved:** complete partial forward/yielded-inverse Kleisli monoids commute across pairwise-overlapping trees and preserve domains/inverses under every successful foreign closure map.                      | Finite partial analogue of D17/D19/T42.   | Success-conditional exact partial semantics; not the paper's literal total/quotient, external, asynchronous, or infinite setting.         |
 
 ### Current-development finite schedules
 
@@ -435,9 +439,11 @@ The following are intentionally not presented as completed formalization work.
    does not imply inverse stability. Realized paths and the observational closure conclusion are
    typed, and a counterexample separates it from exact representative closure. The older partial
    closure is also refuted because it compares individual rather than composite domains. A
-   corrected theorem now swaps arbitrary finite outcome-selected trees with exact whole-run
-   successor/undo equality and conditional inverse stability. Full Definition 19 independence
-   across every generated transformation word remains unproved.
+   corrected theorem swaps arbitrary finite outcome-selected trees with exact whole-run
+   successor/undo equality and conditional inverse stability. `PartialTransformation` further
+   proves full closure commutation and yield stability for the partial forward map and every
+   actually yielded totalized inverse. A countermodel proves whole-run equality is strictly
+   weaker. The paper's literal total/quotient setting remains unproved.
 5. **Full component calculus:** code-only component/fiber/phase/global-registry data, provider
    uniqueness, target/quiescence, birth-ranked parents, and O-Insert/O-Retire/O-Remove are now
    mechanized. External ordinary/registration iterator-code semantics, explicit write/read

@@ -71,6 +71,15 @@ result is an exact finite whole-run analogue and observational consequence, not 
 transformation-monoid Definition 19/Theorem 42; the older `PairwiseOverlapComplete` API is
 kernel-refuted by a partial computation versus unit.
 
+`Cordis.PartialTransformation` closes that distinction inside the finite partial semantics. A
+computation generates its Kleisli partial forward map and every actual totalized yielded inverse;
+the least identity/composition closure is the partial Definition 17 monoid. Pairwise operation
+overlap proves all cross-closure transformations commute and every successful foreign
+transformation preserves the other computation's domain and complete yielded inverse. The
+whole-run theorem follows from this full certificate, while a kernel counterexample proves the
+converse false. This is the exact finite partial/Kleisli analogue, not the paper's literal total or
+quotient setting.
+
 `Cordis.GlobalDynamics` then interprets opaque iterator/undo codes outside stored state, validates ordinary and
 registration steps with recovery/confinement/well-formedness evidence, and provides a total fueled
 Definition 52 runner whose exhaustion retains the exact next code.
@@ -256,6 +265,7 @@ placeholders.
 | Full total-operation independence and finite partial distinct-key words retain inverse and heterogeneous outcome stability; mediated runs recover  | `ExactOperationIndependent`, `distinctKeys_finiteIndependent`, `Computation.run_recovers`                                        | Definitions 39–41 and finite-word Theorem 40; the observational/exact Theorem 42 boundary is the next row.                   |
 | Realized paths retain exact branch choices; quotient closure promotes to exact only under representative coherence                                 | `RealizedPath.run_eq_some`, `ObservationalMediatedClosure.toExact`, exact-representative counterexample                          | Initial Theorem 42 specification; its old individual-domain closure is too strong for partial computations.                  |
 | Pairwise finite operation certificates swap arbitrary outcome-selected computation trees with exact whole-run results and inverse stability        | `pairwiseOverlap_boundedPartialIndependence`, `partialPairwiseOverlapComplete`, heterogeneous example                            | Finite whole-run analogue only; it does not quantify over every transformation-monoid word of full Definition 19.            |
+| Pairwise overlap makes the complete partial forward/yielded-inverse Kleisli monoids commute with success-conditional inverse stability             | `PartialTransformation.pairwiseOverlap_independent`, `Independent.toBoundedPartial`, strict-converse counterexample              | Full finite partial analogue of Definitions 17/19 and T42; not the paper's total/quotient or external-effect setting.        |
 | Birth-ranked global insert/retire/remove steps preserve registry/provider/view invariants and an acyclic parent relation                           | `GlobalRegistry.OrchestrationStep.preservesWellFormed`, `parent_acyclic`, `Trace.preservesWellFormed`                            | Data portions of Definitions 43–46/49 and orchestration part of Theorem 59; external code semantics are the next row.        |
 | External iterator/undo codes produce certified ordinary or registration steps, newest-first recovery, well-formed traces, and explicit fuel status | `GlobalDynamics.executeOne`, `Accumulator.seq`, `RunResult.recovers`, `RunResult.preservesWellFormed`                            | Definitions 47–48/51 and fueled Definition 52 substrate; supplied laws and phase updates remain separate.                    |
 | Phase-indexed lifecycle edges retain exact targets, executed landings, inertia, recovery, and well-formed endpoints                                | `GlobalLifecycle.Transition.preservesWellFormed`, `Trace.preservesWellFormed`, lifecycle example facts                           | Seven lifecycle rule names/eight constructors; orchestration is separate and general unload recovery is admitted explicitly. |
@@ -299,6 +309,7 @@ placeholders.
 | `Cordis.Removal`                  | Indexed exact executions, Theorem 20 removal/later-inverse equations, and Corollary 21 recovery under arbitrary inverse permutation.                            |
 | `Cordis.MediatedIndependence`     | Intrinsic realized branches, observational mediated-closure specification, exact representative bridge, and finite quotient counterexample.                     |
 | `Cordis.MediatedTheorem`          | Corrected partial domains, outcome-preserving stage/tree interchange, exact finite whole-run independence, and observational consequence.                       |
+| `Cordis.PartialTransformation`    | Kleisli partial transformation monoids, full cross-closure commutation/yield stability, whole-run consequence, and strictness counterexample.                   |
 | `Cordis.GlobalRegistry`           | Code-only component/fiber/global data, active context/target uniqueness, birth-ranked acyclicity, and orchestration preservation.                               |
 | `Cordis.GlobalDynamics`           | External code interpretation, ordinary/registration certification, confinement/read obligations, fueled traces, and accumulated recovery.                       |
 | `Cordis.GlobalLifecycle`          | Phase-indexed lifecycle rules, exact executed landings, inertia/recovery admissions, preservation traces, and a concrete activation/deactivation path.          |

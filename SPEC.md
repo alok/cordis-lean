@@ -34,9 +34,11 @@ named unload-confinement law, and a kernel countermodel shows bare recovery
 admission is insufficient. Explicit off-source step maps and per-record
 commutation certificates now yield parameterized finite interleaved recovery;
 countermodels separate that algebra from canonical paper `≈`, off-source
-totality, and RecoveryConfinement alone. The paper's full transformation-monoid
-Theorem 42, task concurrency, and complete preservation/progress/confluence
-results remain open.
+totality, and RecoveryConfinement alone. The complete finite partial/Kleisli
+transformation monoids now satisfy a Definition 19/Theorem 42 analogue, with
+whole-run equality proved strictly weaker. The paper's literal total/quotient
+setting, task concurrency, and complete preservation/progress/confluence results
+remain open.
 
 Repository: `cordis-lean`
 
