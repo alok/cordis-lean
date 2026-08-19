@@ -8,6 +8,7 @@ import Cordis.Examples.DependentChoice
 import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalIteratorIndependence
+import Cordis.GlobalTransposition
 import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
@@ -464,6 +465,15 @@ set_option format.width 200
 #print axioms
   Cordis.GlobalIteratorIndependence.WholeRunCounterexample.duplicatedFamily_not_pairwise_full
 #print axioms Cordis.GlobalIteratorIndependence.TotalizationGap.exact_iterator_has_no_totalization
+#print axioms Cordis.GlobalTransposition.independent_forward_diamond
+#print axioms Cordis.GlobalTransposition.TotalProgramStep.commute_exact
+#print axioms Cordis.GlobalTransposition.TotalProgramStep.commute_effect
+#print axioms Cordis.GlobalTransposition.LifecycleYieldAgrees.toYieldAgrees
+#print axioms Cordis.GlobalTransposition.setPhase_commute
+#print axioms Cordis.GlobalTransposition.Counterexample.interpreted_inverses_equal
+#print axioms Cordis.GlobalTransposition.Counterexample.semantic_yields_agree
+#print axioms Cordis.GlobalTransposition.Counterexample.undo_codes_differ
+#print axioms Cordis.GlobalTransposition.Counterexample.lifecycle_yields_do_not_agree
 #print axioms Cordis.GlobalRelations.contextRelated_domain
 #print axioms Cordis.GlobalRelations.ruleSetoid
 #print axioms Cordis.GlobalRelations.ruleRelated_registry_domain

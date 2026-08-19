@@ -6,6 +6,7 @@ import Cordis.Examples.DependentChoice
 import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalIteratorIndependence
+import Cordis.GlobalTransposition
 import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
@@ -525,6 +526,22 @@ example : GlobalIteratorIndependence.Independent
 #guard_msgs (substring := true) in
 example : GlobalIteratorIndependence.RawRegistrationGap.request.next false =
     GlobalIteratorIndependence.RawRegistrationGap.request.next true := by
+  rfl
+
+/-!
+Semantic yield agreement cannot fabricate the syntactic undo equality stored by lifecycle phases.
+-/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : GlobalTransposition.LifecycleYieldAgrees
+    GlobalTransposition.Counterexample.falseStep
+    GlobalTransposition.Counterexample.trueStep := by
+  refine {
+    undo_eq := ?_
+    continuation := GlobalTransposition.Counterexample.semantic_yields_agree.continuation
+    kind := GlobalTransposition.Counterexample.semantic_yields_agree.kind
+  }
   rfl
 
 end Cordis.NegativeTests

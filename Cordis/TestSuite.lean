@@ -10,6 +10,7 @@ import Cordis.Examples.DependentChoice
 import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalIteratorIndependence
+import Cordis.GlobalTransposition
 import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
@@ -949,6 +950,26 @@ private def testGlobalIteratorIndependence : IO Unit := do
       GlobalIteratorIndependence.RawRegistrationGap.request.next true)
     (some false, some true)
 
+private def testGlobalTransposition : IO Unit := do
+  let falseTag : Option Bool :=
+    match GlobalTransposition.Counterexample.falseStep.undo with
+    | .external code => some code
+    | .retire _ => none
+  let trueTag : Option Bool :=
+    match GlobalTransposition.Counterexample.trueStep.undo with
+    | .external code => some code
+    | .retire _ => none
+  assertEqual "semantic yield agreement retains distinct stored undo codes"
+    (falseTag, trueTag) (some false, some true)
+  let probe := GlobalTransposition.Counterexample.state true
+  let falseRecovered := GlobalTransposition.Counterexample.dynamics.applyUndo
+    GlobalTransposition.Counterexample.falseStep.undo probe
+  let trueRecovered := GlobalTransposition.Counterexample.dynamics.applyUndo
+    GlobalTransposition.Counterexample.trueStep.undo probe
+  assertEqual "distinct undo codes have the same concrete interpretation on a probe"
+    (falseRecovered.ambient, falseRecovered.nextBirth)
+    (trueRecovered.ambient, trueRecovered.nextBirth)
+
 private def testGlobalRelations : IO Unit := do
   let absentTable : Option Nat :=
     GlobalRelations.tableAt GlobalRelations.Example.emptyState false ()
@@ -1275,6 +1296,7 @@ def run : IO Unit := do
   testGlobalTraceFacts
   testGlobalTemporal
   testGlobalIteratorIndependence
+  testGlobalTransposition
   testGlobalRelations
   testGlobalSpatial
   testGlobalVestigial
