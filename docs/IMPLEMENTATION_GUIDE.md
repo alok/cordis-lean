@@ -1692,6 +1692,7 @@ The assurance layers can be summarized as follows:
 | Global iterator family | Oracle-specific reachable partial forwards and actually yielded inverses form exact closures; supplied forward respect gives the effect-relational variant; explicit provenance/membership can discharge temporal per-step commutation.     | Oracle-free or total Definition 60, rule/effect-relation identification, automatic totalization, owner inverse stability, reordering, Theorem 61, and Corollary 62.                                            |
 | Global transposition   | `Independent` yields the raw diamond and exact square for two supplied totalized closure-member maps; `ObservationalIndependent` gives the effect square with separate forward-respect obligations; exact phase/code facts remain explicit. | Foreign-phase opacity, fixed landing/program provenance, guard/target stability, actual lifecycle-step transposition, Lemma 71, and mixed-trace reordering.                                                    |
 | Foreign-phase frame    | Explicit readable-edit, ordinary-successor, and same-child oracle laws derive compatibility; two compatible independent programs yield an exact framed raw endpoint with retained post-raw lookups.                                         | Lower laws, distinct owners, reaches, executions, post-raw lookups, and typed phases are supplied; no lifecycle phase provenance, fixed episode/program assignment, guards/targets, `Transition`, or Lemma 71. |
+| Landing transposition  | Exact cross-forward yield syntax and fixed-program landings lift the framed raw endpoint to all four common-source L-Iter/L-Finish transition pairs with one exact final state; positive targets are preserved structurally under WF.       | Exact cross-forward law, both phase compatibilities, program-aligned common applicability, distinct owners, and WF are supplied; no Begin pair, trace-step identity, episode assignment, or full Lemma 71.     |
 | Policy                 | One exact-subject pure trace dispatches at most once; completed traces dispatch exactly once.                                                                                                                                               | Global linearity, worker exclusion, retries, persistence, and idempotency.                                                                                                                                     |
 | Batch                  | Two certified pure calls have equal proof-carrying outcomes in either represented order.                                                                                                                                                    | Real parallel execution, arbitrary batch sizes, cancellation, and external effect safety.                                                                                                                      |
 | Runner                 | One pure state jointly certifies replay, model/lease/ID history, records, and boundary projection.                                                                                                                                          | TypeScript equivalence, network/model adapters, durable transactions, real tool I/O, and process-wide exactly-once behavior.                                                                                   |
@@ -2077,6 +2078,21 @@ Build the structural slice in this order:
     successor framing, and an identical readable registration request does not stabilize a
     state-dependent oracle. Keep caller-supplied phase payloads distinct from lifecycle rule output,
     and do not mention `Transition`, `Step`, guards, targets, or Lemma 71 in the theorem surface.
+28. Add the exact representation premise still missing between a common-source landing and its
+    off-axis raw execution. Define `LifecycleYieldStable` and package only the two cross-forward
+    instances in `ForwardLifecycleIndependent`, retaining semantic `Independent` for endpoint
+    commutation. Build `LifecycleForwardDiamond` by identifying the exact-yield witnesses with the
+    raw diamond's off-axis steps through their `executeOne` equations. Kernel-check a distinct raw
+    forward model where semantic yields agree but syntactic undo codes differ. Next, tie each bare
+    landing to the fixed program oracle with `LandingProgramWitness`. Package complete common-source
+    Iter/Finish activations whose phases are constructed from the actual landing, not supplied.
+    Derive exact foreign source-fiber and positive-target preservation under source WF. Reframe each
+    off-axis moved step from the common landing only as a fiber/control template; compose exact
+    common-to-off-axis and off-axis-to-phase-framed yields. Finally construct all four Iter/Finish
+    orders with one exact final state. Exercise a positive Iter/Finish pair, and kernel-check that a
+    provider Finish may enable a previously unavailable consumer Begin and that landings produced by
+    different oracles cannot be reassigned across programs. Keep Begin pairs, existing trace-step
+    identity, episode provenance, trace rewriting, and full Lemma 71 outside the theorem.
 
 This reaches a bounded finite Definition 53 relation and an oracle-specific finite partial/Kleisli
 Definition 60 analogue. Do not claim Theorem 59 while general unload recovery confinement is still
@@ -2087,7 +2103,9 @@ raw/map transposition theorems do not add the foreign-phase, exact-code, guard, 
 facts required for lifecycle Lemma 71. The compatibility record only names that future authority;
 `GlobalTransposition` constructs no inhabitant. `GlobalForeignPhase` derives one only from explicit
 readability, exact ordinary-frame, and same-child oracle laws, then proves a framed raw—not
-lifecycle-rule—diamond. The two candidate relations do not themselves prove Lemmas 55–57. The finite spatial facts do not supply maximal episodes,
+lifecycle-rule—diamond. `GlobalLandingTransposition` reaches actual Iter/Finish transitions only
+under exact cross-forward syntax, fixed-program provenance, common-source applicability, and WF;
+it omits Begin pairs, arbitrary trace-step identity, and full Lemma 71. The two candidate relations do not themselves prove Lemmas 55–57. The finite spatial facts do not supply maximal episodes,
 same-owner table confinement, or full T63/T64. The corrected vestigial orchestration squares do
 not prove lifecycle/iterator invisibility or the paper's literal unqualified clauses. Progress and
 confluence remain unproved. The orchestration invariance certificate is not full Lemma 55.

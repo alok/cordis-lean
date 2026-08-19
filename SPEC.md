@@ -101,6 +101,14 @@ readability, and raw registration stability are each kernel-separated from the s
 they do not imply. The result remains about framed raw executions; it does not construct lifecycle
 rules or their guards and targets.
 
+The landing transposition layer now reaches actual lifecycle syntax for exactly the four
+L-Iter/L-Finish combinations. It adds exact cross-forward syntactic-yield stability beyond semantic
+independence, fixes each landing to the program oracle, derives positive target preservation from
+source well-formedness, and constructs both common-source orders with one exact final state.
+Countermodels separately justify the extra yield, common-applicability, and oracle-provenance
+premises. Begin-containing pairs, arbitrary existing trace steps, episode-level program assignment,
+and full Lemma 71 remain open.
+
 Repository: `cordis-lean`
 
 Lean toolchain: `leanprover/lean4:v4.33.0`

@@ -98,6 +98,10 @@ Current machine-checked evidence includes:
   ordinary exact-successor, and same-child oracle laws, deriving registration framing
   structurally, constructing exact one-/two-sided framed raw executions with retained lookups, and
   kernel-separating all three missing premises;
+- `Cordis.GlobalLandingTransposition`, adding exact cross-forward lifecycle-yield stability and
+  fixed-program landing provenance, deriving positive-target preservation from well-formedness,
+  and constructing all four common-source L-Iter/L-Finish transition pairs with one exact final
+  state plus syntax/applicability/provenance countermodels;
 - `Cordis.GlobalRelations`, defining incomparable finite rule/effect observation setoids and an
   explicit respectful-undo bridge into the temporal algebra without claiming rule bisimulation;
 - `Cordis.GlobalRuleInvariance`, proving well-formed bidirectional orchestration matching across
@@ -385,13 +389,14 @@ The lower foreign-phase frame slice is specified in
 blindness and derives the required compatibility only from explicit read, ordinary-successor, and
 registration-oracle frame laws.
 
-The next activation-level slice is specified in
-[`GLOBAL_LANDING_TRANSPOSITION_SPEC.md`](GLOBAL_LANDING_TRANSPOSITION_SPEC.md). It covers only the
-four common-source L-Iter/L-Finish combinations under explicit fixed-program landing provenance,
-well-formedness, independence, and foreign-phase compatibility; Begin-containing and trace-level
+The landing activation slice is specified in
+[`GLOBAL_LANDING_TRANSPOSITION_SPEC.md`](GLOBAL_LANDING_TRANSPOSITION_SPEC.md) and implemented by
+`Cordis.GlobalLandingTransposition`. It covers only the four common-source L-Iter/L-Finish
+combinations under explicit fixed-program landing provenance, well-formedness, semantic plus exact
+cross-forward independence, and foreign-phase compatibility; Begin-containing and trace-level
 cases remain separate.
 
-The bounded algebra/context/global layer now has twenty-nine explicit pieces:
+The bounded algebra/context/global layer now has thirty explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -551,6 +556,16 @@ The bounded algebra/context/global layer now has twenty-nine explicit pieces:
     raw-registration-stable countermodels separately prove that none of the three lower laws is
     implicit. Supplied phases remain arbitrary typed edits; no lifecycle `Transition`, guard,
     target, or Lemma 71 exchange is constructed.
+30. `Cordis.GlobalLandingTransposition` separates `LifecycleYieldStable` from semantic stability
+    and packages both cross-forward directions in `ForwardLifecycleIndependent`; a countermodel
+    proves the strengthening necessary. `LandingProgramWitness` fixes each existential landing to
+    the chosen program oracle. Foreign exact lookups and source well-formedness derive preservation
+    of already-valid target views. Off-axis framed executions are rebuilt from the common landing's
+    fiber/control template, and `landing_activation_diamond` constructs actual Iter/Finish
+    transitions in both orders with one exact final state for all four outcome combinations. The
+    positive example is Iter/Finish; separate models prove common-source applicability and fixed
+    program provenance necessary. No Begin pair, existing-trace identity, or full Lemma 71 is
+    claimed.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -624,7 +639,12 @@ The slice requires all existing gates plus the following new coverage:
 - a fully independent two-owner program whose observed undo syntax changes after a foreign phase
   edit, with static proof that compatibility fails; and
 - readable ordinary and registration models that separately fail exact successor framing and
-  same-child oracle stability.
+  same-child oracle stability;
+- a positive program-aligned L-Iter/L-Finish pair whose exact lifecycle diamond retains that rule
+  pair; and
+- kernel models showing semantic cross-forward stability, post-Finish Begin applicability, and
+  bare landing data do not respectively provide exact undo syntax, common applicability, or fixed
+  program/oracle provenance.
 
 Headline theorems must be added to `Cordis/AxiomAudit.lean`. The full project must remain free of
 `sorry`, `admit`, project-defined axioms, `unsafe`, `partial`, external implementation overrides,
@@ -668,6 +688,10 @@ This slice does not by itself prove:
 - derivation of foreign-phase readability, ordinary exact framing, or same-child oracle stability
   from `Independent`, base `Dynamics`, or raw request equality; or promotion of the framed raw
   diamond to lifecycle-rule phases, guards, targets, transitions, or either Lemma 71 clause;
+- derivation of exact cross-forward `UndoCode` stability from semantic `Independent`, reassignment
+  of a bare landing to an arbitrary program oracle, omission of source well-formedness or
+  common-source applicability, Begin-containing activation swaps, identity with an arbitrary
+  existing trace step, or full Lemma 71 from the landing-only diamond;
 - native plugin isolation, process confinement, filesystem safety, or remote-service behavior;
 - global exactly-once execution across workers; or
 - that a model follows supplied schemas or chooses an appropriate tool.
