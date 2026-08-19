@@ -6,6 +6,7 @@ import Cordis.Examples.DependentChoice
 import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
+import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
@@ -411,6 +412,14 @@ example : PartialTransformation.Commutes
     (PartialTransformation.total PartialTransformation.WholeRunGap.falseResult.undo)
     (PartialTransformation.total PartialTransformation.WholeRunGap.trueResult.undo) := by
   intro state
+  rfl
+
+/-! Effect observation does not fabricate rule-level registry-domain equality. -/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : GlobalRelations.RuleRelated GlobalRelations.Example.universalValues
+    GlobalRelations.Example.emptyState GlobalRelations.Example.vestigialState := by
   rfl
 
 end Cordis.NegativeTests

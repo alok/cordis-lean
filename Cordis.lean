@@ -12,6 +12,7 @@ import Cordis.GenericHarness
 import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
+import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts

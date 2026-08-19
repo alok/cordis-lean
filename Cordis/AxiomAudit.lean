@@ -8,6 +8,7 @@ import Cordis.Examples.DependentChoice
 import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
+import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
@@ -411,3 +412,15 @@ set_option format.width 200
 #print axioms Cordis.GlobalTemporal.Counterexample.universal_relation_is_vacuous_here
 #print axioms Cordis.GlobalTemporal.Counterexample.ambientRecovery_confinement
 #print axioms Cordis.GlobalTemporal.Counterexample.recoveryConfinement_not_temporal
+#print axioms Cordis.GlobalRelations.contextRelated_domain
+#print axioms Cordis.GlobalRelations.ruleSetoid
+#print axioms Cordis.GlobalRelations.ruleRelated_registry_domain
+#print axioms Cordis.GlobalRelations.effectSetoid
+#print axioms Cordis.GlobalRelations.tableAt_retireByName
+#print axioms Cordis.GlobalRelations.temporalEffectEquiv
+#print axioms Cordis.GlobalRelations.Example.rule_related_table_difference
+#print axioms Cordis.GlobalRelations.Example.effect_rejects_table_difference
+#print axioms Cordis.GlobalRelations.Example.effect_related_vestigial_absence
+#print axioms Cordis.GlobalRelations.Example.rule_rejects_vestigial_absence
+#print axioms Cordis.GlobalRelations.Example.dynamics_relation_not_effect_candidate
+#print axioms Cordis.GlobalRelations.Example.counterexampleUndoRespect

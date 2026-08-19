@@ -10,6 +10,7 @@ import Cordis.Examples.DependentChoice
 import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
+import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
@@ -912,6 +913,18 @@ private def testGlobalTemporal : IO Unit := do
   assertEqual "structural recovery confinement alone misses foreign ambient commutation"
     (recovered.ambient, GlobalTemporal.Counterexample.foreignReplayState.ambient) (7, 6)
 
+private def testGlobalRelations : IO Unit := do
+  let absentTable : Option Nat :=
+    GlobalRelations.tableAt GlobalRelations.Example.emptyState false ()
+  let vestigialTable : Option Nat :=
+    GlobalRelations.tableAt GlobalRelations.Example.vestigialState false ()
+  assertEqual "effect relation normalizes absence and a present empty table"
+    (absentTable, vestigialTable) (none, none)
+  assertEqual "rule relation still observes the vestigial registry entry"
+    ((GlobalRelations.controlAt GlobalRelations.Example.emptyState false).isSome,
+      (GlobalRelations.controlAt GlobalRelations.Example.vestigialState false).isSome)
+    (false, true)
+
 private def testHarnessPhaseFailures : IO Unit := do
   let initial := Harness.RunnerState.initial 0
   match initial.beginStep with
@@ -1121,6 +1134,7 @@ def run : IO Unit := do
   testGlobalCalculus
   testGlobalTraceFacts
   testGlobalTemporal
+  testGlobalRelations
   testHarnessPhaseFailures
   testCounterAdmission
   testHarnessDemo
