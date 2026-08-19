@@ -385,6 +385,12 @@ The lower foreign-phase frame slice is specified in
 blindness and derives the required compatibility only from explicit read, ordinary-successor, and
 registration-oracle frame laws.
 
+The next activation-level slice is specified in
+[`GLOBAL_LANDING_TRANSPOSITION_SPEC.md`](GLOBAL_LANDING_TRANSPOSITION_SPEC.md). It covers only the
+four common-source L-Iter/L-Finish combinations under explicit fixed-program landing provenance,
+well-formedness, independence, and foreign-phase compatibility; Begin-containing and trace-level
+cases remain separate.
+
 The bounded algebra/context/global layer now has twenty-nine explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
