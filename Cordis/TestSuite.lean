@@ -10,6 +10,7 @@ import Cordis.Examples.DependentChoice
 import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
+import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
@@ -992,6 +993,20 @@ private def testGlobalRuleObservations : IO Unit := do
       GlobalRuleInvariance.HeterogeneousExample.rightProviderFiber.table .counter)
     (some 7, some 9)
 
+private def testGlobalLifecycleBisimulation : IO Unit := do
+  let pathRules :=
+    [GlobalLifecycleBisimulation.ReflexiveExample.beginMatch.matched.rule,
+      GlobalLifecycleBisimulation.ReflexiveExample.iterMatch.matched.rule,
+      GlobalLifecycleBisimulation.ReflexiveExample.finishMatch.matched.rule,
+      GlobalLifecycleBisimulation.ReflexiveExample.leaveMatch.matched.rule,
+      GlobalLifecycleBisimulation.ReflexiveExample.unloadMatch.matched.rule]
+  assertEqual "conditional lifecycle matching exercises the existing exact path"
+    pathRules [.begin, .iter, .finish, .leave, .unload]
+  assertEqual "finish seam starts with unrelated private reloading tables"
+    ((GlobalLifecycleBisimulation.FinishSeam.fiber 7).table .counter,
+      (GlobalLifecycleBisimulation.FinishSeam.fiber 8).table .counter)
+    (some 7, some 8)
+
 private def testHarnessPhaseFailures : IO Unit := do
   let initial := Harness.RunnerState.initial 0
   match initial.beginStep with
@@ -1207,6 +1222,7 @@ def run : IO Unit := do
   testGlobalVestigial
   testGlobalRuleInvariance
   testGlobalRuleObservations
+  testGlobalLifecycleBisimulation
   testHarnessPhaseFailures
   testCounterAdmission
   testHarnessDemo

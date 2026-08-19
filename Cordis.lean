@@ -12,6 +12,7 @@ import Cordis.GenericHarness
 import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
+import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance

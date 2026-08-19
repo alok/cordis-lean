@@ -6,6 +6,7 @@ import Cordis.Examples.DependentChoice
 import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
+import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
@@ -477,6 +478,16 @@ example : GlobalRuleInvariance.InertiaRespectsRuleRelated
 #guard_msgs (substring := true) in
 example : GlobalRegistry.activeContext GlobalRuleObservations.HeterogeneousExample.leftState =
     GlobalRegistry.activeContext GlobalRuleObservations.HeterogeneousExample.rightState := by
+  rfl
+
+/-! Finish cannot expose unrelated tables hidden during reloading. -/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : GlobalRuleObservations.FiberTableRelated
+    GlobalLifecycleBisimulation.FinishSeam.values
+    (GlobalLifecycleBisimulation.FinishSeam.fiber 7)
+    (GlobalLifecycleBisimulation.FinishSeam.fiber 8) := by
   rfl
 
 end Cordis.NegativeTests

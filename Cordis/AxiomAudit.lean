@@ -8,6 +8,7 @@ import Cordis.Examples.DependentChoice
 import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
+import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
@@ -507,3 +508,24 @@ set_option format.width 200
 #print axioms Cordis.GlobalRuleObservations.HeterogeneousExample.ruleRelated_without_effectRelated
 #print axioms Cordis.GlobalRuleObservations.EffectObservationGap.effectRelated_without_ruleRelated
 #print axioms Cordis.GlobalRuleObservations.AmbientGap.ruleRelated_without_effectRelated
+#print axioms Cordis.GlobalLifecycleBisimulation.ruleRelated_setPhase
+#print axioms Cordis.GlobalLifecycleBisimulation.ruleRelated_setPhase_nonactive
+#print axioms Cordis.GlobalLifecycleBisimulation.ruleRelated_setPhase_activate
+#print axioms Cordis.GlobalLifecycleBisimulation.ruleRelated_setPhase_deactivate
+#print axioms Cordis.GlobalLifecycleBisimulation.matchBeginForward
+#print axioms Cordis.GlobalLifecycleBisimulation.matchIterForward
+#print axioms Cordis.GlobalLifecycleBisimulation.matchFinishForward
+#print axioms Cordis.GlobalLifecycleBisimulation.matchDivertAbortForward
+#print axioms Cordis.GlobalLifecycleBisimulation.matchDivertLandForward
+#print axioms Cordis.GlobalLifecycleBisimulation.matchRaiseForward
+#print axioms Cordis.GlobalLifecycleBisimulation.matchLeaveForward
+#print axioms Cordis.GlobalLifecycleBisimulation.matchUnloadForward
+#print axioms Cordis.GlobalLifecycleBisimulation.matchLifecycleBackward
+#print axioms Cordis.GlobalLifecycleBisimulation.lifecycleRuleBisimulation
+#print axioms Cordis.GlobalLifecycleBisimulation.matchStepForward
+#print axioms Cordis.GlobalLifecycleBisimulation.matchStepBackward
+#print axioms Cordis.GlobalLifecycleBisimulation.wellFormedRuleBisimulation
+#print axioms Cordis.GlobalLifecycleBisimulation.ReflexiveExample.existing_path_rules
+#print axioms Cordis.GlobalLifecycleBisimulation.FinishSeam.sources_ruleRelated
+#print axioms Cordis.GlobalLifecycleBisimulation.FinishSeam.source_tables_not_related
+#print axioms Cordis.GlobalLifecycleBisimulation.FinishSeam.activated_not_ruleRelated
