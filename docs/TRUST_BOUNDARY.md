@@ -378,6 +378,7 @@ Executable rejection is valuable, but it is not a refinement theorem.
 | `GlobalTemporal`                            | Reifies fallible off-source step maps and proves per-step commutation composes to finite relation-indexed recovery with explicit inverse/reorder/unload certificates.                                                                | Parameterized T61/Cor62 algebra only; canonical `≈`, D60, totality, continuation stability, and arbitrary trace reordering remain absent.                                                        |
 | `GlobalRelations`                           | Defines key-indexed rule observation and ambient/table effect observation as setoids, bridges respectful undo to the temporal interface, and separates the candidates by executable models.                                          | Finite Equation 53/Lemmas 55–57 candidates only; rule bisimulation, name-action laws, and the full global lemmas remain unproved.                                                                |
 | `GlobalRuleInvariance`                      | Matches every well-formed insert/retire/remove step bidirectionally across rule-related states with exact peer endpoints and related well-formed successors, without equating tables.                                                | Orchestration-only L55 fragment; ambient-sensitive inertia is a checked lifecycle obstruction and further dynamics/recovery laws are absent.                                                     |
+| `GlobalRuleObservations`                    | Transports provider identity, dependent targets, committed resolution, reliance, phases, quiescence, and all structural lifecycle guards across well-formed rule-related states.                                                     | Assumption-free L55 observation substrate; it executes no lifecycle step and leaves landing/error/inertia/oracle/recovery contracts explicit.                                                    |
 | `GlobalVestigial`                           | Proves vestigial removal effect-equivalent and gives exact bidirectional orchestration removal squares under all kernel-necessary exceptions, with well-formed countermodels.                                                        | Corrected L57 orchestration fragment only; pinned clauses omit parent adoption/removal, and iterator/lifecycle/oracle/inertia/recovery insensitivity is unproved.                                |
 | `GlobalSpatial`                             | Proves dependency provision, explicit nested episode order, committed resolution/no-unload propagation, conditional table constancy, and local reloading-step classification.                                                        | Finite T63/T64 fragments only; nesting/maximality, same-owner confinement, initial intervals, eventual close, and recovery conclusions remain premises or absent.                                |
 | `CertifiedTwoBatch`                         | Requires same-successor, pointwise same-recovery, and result-stability certificate fields before either order is permitted.                                                                                                          | The certificate is supplied, exactly two pure calls are modeled, and no actual concurrency or external-effect safety follows.                                                                    |
@@ -584,6 +585,15 @@ heterogeneous example uses unequal parity-related naturals and length-related st
 lifecycle Lemma 55 remains false for the current interface: a well-formed ambient-only state change
 is invisible to `RuleRelated` but can flip `InertiaPolicy.canAbort`.
 
+`GlobalRuleObservations` isolates everything the relation itself can prove for lifecycle rules.
+Same-name active-provider identity yields transported dependent target views; exact controls yield
+committed resolution, reliance, non-reliance, and phase-pattern equivalences. Together these give
+quiescence and bidirectional availability of begin, reloading-target, leave, divert, and unload
+structural guards. Matched active tables are only pointwise related. A reloading owner's table is
+not observed, so a future Finish landing contract must separately relate the newly active tables.
+Concrete models show `RuleRelated` neither implies `EffectRelated` nor ambient equality, and
+`EffectRelated` can forget registry data required by rules.
+
 `GlobalVestigial` proves that the paper's exact vestigial witness—retired, successful inactive,
 empty table, and no children—is `EffectRelated` to deleting its entry. For orchestration, the
 theorem surface is corrected rather than copied. Forward simulation excludes insertion whose
@@ -688,6 +698,8 @@ Without additional proofs or tests, do not state that:
   Definition 58;
 - `GlobalRuleInvariance` extends its well-formed orchestration certificate to lifecycle rules
   without iterator/read, oracle/landing, recovery-admission, and inertia-respect laws;
+- `GlobalRuleObservations` turns structural guard transport into transition bisimulation or
+  reconstructs newly active landing tables from source rule observation;
 - `GlobalVestigial` proves the literal unqualified Lemma 57 clauses or extends its corrected
   orchestration squares to iterator, lifecycle, oracle, inertia, or accumulated recovery behavior;
 - `GlobalSpatial` derives maximal episode containment, same-owner table immutability, eventual

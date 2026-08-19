@@ -87,6 +87,8 @@ Current machine-checked evidence includes:
   explicit respectful-undo bridge into the temporal algebra without claiming rule bisimulation;
 - `Cordis.GlobalRuleInvariance`, proving well-formed bidirectional orchestration matching across
   rule-related states while preserving unequal observationally related private values;
+- `Cordis.GlobalRuleObservations`, transporting provider identity, targets, reliance, phase
+  patterns, quiescence, and structural lifecycle guards without external execution assumptions;
 - `Cordis.GlobalVestigial`, proving exact effect-equivalence to removal and corrected
   bidirectional orchestration squares, with well-formed witnesses for both paper insert exceptions
   and the two omitted parent-pointer exceptions;
@@ -350,7 +352,7 @@ future external adapter consumes the same proof-carrying request contract.
 
 ## Paper context and executable refinement
 
-The bounded algebra/context/global layer now has twenty-two explicit pieces:
+The bounded algebra/context/global layer now has twenty-three explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -456,6 +458,12 @@ The bounded algebra/context/global layer now has twenty-two explicit pieces:
     successor. A heterogeneous example uses unequal parity-related naturals and length-related
     strings. A separate well-formed ambient-sensitive inertia model proves `RuleRelated` alone
     cannot transport L-DivertAbort, so full Lemma 55 still needs explicit lifecycle laws.
+23. `Cordis.GlobalRuleObservations` proves same-name active-provider identity, dependent
+    target-view transport, committed resolution, reliance/non-reliance, exact phase patterns,
+    quiescence, and five structural guard-availability equivalences from well-formed
+    `RuleRelated` sources alone. Active matched tables are pointwise related. Reloading tables are
+    private, so a future Finish landing must explicitly relate the newly active tables. Examples
+    separate rule observation from effect observation and ambient equality in both directions.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a

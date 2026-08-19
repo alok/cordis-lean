@@ -44,7 +44,10 @@ finite rule/effect observation setoids make the paper's two incomparable global
 relations explicit and bridge respectful undo interpretation into the temporal
 algebra. Bidirectional well-formed orchestration rule invariance is now proved
 without equating private tables; a kernel model shows ambient-sensitive inertia
-still blocks full lifecycle Lemma 55. Vestigial removal is proved
+still blocks full lifecycle Lemma 55. The assumption-free lifecycle observation
+substrate now transports provider names, targets, committed resolution, reliance,
+quiescence, phase patterns, and structural guards; newly active landing tables
+remain an explicit Finish obligation. Vestigial removal is proved
 effect-equivalent, and corrected bidirectional orchestration simulations make
 four exact exceptions explicit. Well-formed countermodels show the pinned Lemma
 57 raw clauses omit forward parent adoption and backward parent removal; the

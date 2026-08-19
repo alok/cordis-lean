@@ -1995,6 +1995,14 @@ Build the structural slice in this order:
     endpoint well-formedness, and successor `RuleRelated`. Before extending to lifecycle rules,
     require iterator/read, oracle/landing, recovery, and inertia-respect laws; an ambient-sensitive
     abort-policy countermodel shows these are semantic requirements, not proof conveniences.
+21. Before assuming lifecycle execution compatibility, exhaust the observation relation. Match
+    active providers by name using context-domain agreement and provision uniqueness, then
+    transport dependent target views, committed resolution, reliance, phase patterns, quiescence,
+    and each structural guard bidirectionally. Relate matched active tables pointwise rather than
+    equating them. Record the activation seam explicitly: a reloading fiber's table is private, so
+    L-Finish requires the landing contract to relate the two newly active tables. Keep rule and
+    effect relations incomparable with executable examples, and do not let ambient-insensitive
+    rule observation stand in for iterator, inertia, or recovery behavior.
 
 This reaches a bounded finite Definition 53 relation. Do not claim Theorem 59 while general unload
 recovery confinement is still supplied, or full T61/Cor62 while the canonical relation,
@@ -2003,6 +2011,7 @@ not themselves prove Lemmas 55–57. The finite spatial facts do not supply maxi
 same-owner table confinement, or full T63/T64. The corrected vestigial orchestration squares do
 not prove lifecycle/iterator invisibility or the paper's literal unqualified clauses. Progress and
 confluence remain unproved. The orchestration invariance certificate is not full Lemma 55.
+The lifecycle observation substrate still executes no rule.
 
 ## 20. Exact verification and review commands
 
