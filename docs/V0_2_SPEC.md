@@ -375,6 +375,11 @@ The bounded transposition slice is specified in
 diamond from the stronger foreign-phase, exact-undo-code, guard, and edited-endpoint laws required
 by paper Lemma 71.
 
+The next lower-frame slice is specified in
+[`GLOBAL_FOREIGN_PHASE_SPEC.md`](GLOBAL_FOREIGN_PHASE_SPEC.md). It will test the strict separation
+between iterator independence and foreign control blindness, then derive the latter only from
+explicit read, ordinary-successor, and registration-oracle frame laws.
+
 The bounded algebra/context/global layer now has twenty-eight explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
