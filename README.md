@@ -62,12 +62,16 @@ birth-ranked registry. It implements the data portions of Definitions 43–46 an
 provider/value and target uniqueness, and proves insert/retire/remove plus orchestration traces
 preserve a strengthened well-formedness invariant and an acyclic parent relation.
 
-`Cordis.MediatedIndependence` now makes the Theorem 42 frontier type-correct: realized paths
-retain every heterogeneous branch decision, `ObservationalMediatedClosure` states the quotient
-conclusion, and `PairwiseOverlapComplete` names the remaining all-branches induction. A finite
-universal-equivalence cell proves exact `MediatedClosure` is strictly stronger than the paper's
-quotient reading; `ExactRepresentativeCoherence` is the explicit bridge. `Cordis.GlobalDynamics`
-then interprets opaque iterator/undo codes outside stored state, validates ordinary and
+`Cordis.MediatedIndependence` makes the Theorem 42 frontier type-correct: realized paths retain
+every heterogeneous branch decision, while a finite universal-equivalence cell proves exact
+representatives require `ExactRepresentativeCoherence`. `Cordis.MediatedTheorem` then fixes the
+partial-domain formulation: it compares the two composite orders directly, retains conditional
+yielded-inverse stability, and constructively swaps arbitrary finite outcome-selected trees. The
+result is an exact finite whole-run analogue and observational consequence, not the paper's full
+transformation-monoid Definition 19/Theorem 42; the older `PairwiseOverlapComplete` API is
+kernel-refuted by a partial computation versus unit.
+
+`Cordis.GlobalDynamics` then interprets opaque iterator/undo codes outside stored state, validates ordinary and
 registration steps with recovery/confinement/well-formedness evidence, and provides a total fueled
 Definition 52 runner whose exhaustion retains the exact next code.
 
@@ -234,7 +238,8 @@ placeholders.
 | Effect transformation monoids close generator commutation/stability and imply equal adjacent proof-carrying orders                                 | `Transformation.Closure.commute`, `seq_monoid_subset_joint`, `Transformation.Independent.of_generators`, `independentAt`         | Definitions 17–19 and Lemma 18 for exact effects; arbitrary removal/inverse order are the next row.                          |
 | Removing any effect from an independent finite execution preserves later inverse yields, and any permutation of retained inverses recovers         | `Removal.removal_inverse_relation`, `later_inverses_unchanged`, `inverse_permutation_recovers`                                   | Theorem 20 and Corollary 21 for finite exact effects; no observational, asynchronous, or external-effect claim.              |
 | Full total-operation independence and finite partial distinct-key words retain inverse and heterogeneous outcome stability; mediated runs recover  | `ExactOperationIndependent`, `distinctKeys_finiteIndependent`, `Computation.run_recovers`                                        | Definitions 39–41 and finite-word Theorem 40; the observational/exact Theorem 42 boundary is the next row.                   |
-| Realized paths retain exact branch choices; quotient mediated closure promotes to exact only under representative coherence                        | `RealizedPath.run_eq_some`, `ObservationalMediatedClosure.toExact`, exact-representative counterexample                          | Theorem 42 specification/frontier; `PairwiseOverlapComplete` remains the unproved all-branches induction.                    |
+| Realized paths retain exact branch choices; quotient closure promotes to exact only under representative coherence                                 | `RealizedPath.run_eq_some`, `ObservationalMediatedClosure.toExact`, exact-representative counterexample                          | Initial Theorem 42 specification; its old individual-domain closure is too strong for partial computations.                  |
+| Pairwise finite operation certificates swap arbitrary outcome-selected computation trees with exact whole-run results and inverse stability        | `pairwiseOverlap_boundedPartialIndependence`, `partialPairwiseOverlapComplete`, heterogeneous example                            | Finite whole-run analogue only; it does not quantify over every transformation-monoid word of full Definition 19.            |
 | Birth-ranked global insert/retire/remove steps preserve registry/provider/view invariants and an acyclic parent relation                           | `GlobalRegistry.OrchestrationStep.preservesWellFormed`, `parent_acyclic`, `Trace.preservesWellFormed`                            | Data portions of Definitions 43–46/49 and orchestration part of Theorem 59; external code semantics are the next row.        |
 | External iterator/undo codes produce certified ordinary or registration steps, newest-first recovery, well-formed traces, and explicit fuel status | `GlobalDynamics.executeOne`, `Accumulator.seq`, `RunResult.recovers`, `RunResult.preservesWellFormed`                            | Definitions 47–48/51 and fueled Definition 52 substrate; supplied laws and phase updates remain separate.                    |
 | Phase-indexed lifecycle edges retain exact targets, executed landings, inertia, recovery, and well-formed endpoints                                | `GlobalLifecycle.Transition.preservesWellFormed`, `Trace.preservesWellFormed`, lifecycle example facts                           | Seven lifecycle rule names/eight constructors; orchestration is separate and general unload recovery is admitted explicitly. |
@@ -275,6 +280,7 @@ placeholders.
 | `Cordis.OperationIndependence`    | Full total Definition 39, finite partial distinct-key Theorem 40, Definition 41 interpreter/recovery, and explicit Theorem 42 boundary.                         |
 | `Cordis.Removal`                  | Indexed exact executions, Theorem 20 removal/later-inverse equations, and Corollary 21 recovery under arbitrary inverse permutation.                            |
 | `Cordis.MediatedIndependence`     | Intrinsic realized branches, observational mediated-closure specification, exact representative bridge, and finite quotient counterexample.                     |
+| `Cordis.MediatedTheorem`          | Corrected partial domains, outcome-preserving stage/tree interchange, exact finite whole-run independence, and observational consequence.                       |
 | `Cordis.GlobalRegistry`           | Code-only component/fiber/global data, active context/target uniqueness, birth-ranked acyclicity, and orchestration preservation.                               |
 | `Cordis.GlobalDynamics`           | External code interpretation, ordinary/registration certification, confinement/read obligations, fueled traces, and accumulated recovery.                       |
 | `Cordis.GlobalLifecycle`          | Phase-indexed lifecycle rules, exact executed landings, inertia/recovery admissions, preservation traces, and a concrete activation/deactivation path.          |

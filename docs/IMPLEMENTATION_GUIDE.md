@@ -1749,7 +1749,7 @@ one-way supported-subset decoder are not a whole-runtime equivalence theorem.
 ### 19.6 Mechanize more of the paper
 
 Use [`PAPER_MAP.md`](PAPER_MAP.md) as a backlog. Major missing areas include the
-effect-context tower, full branch-indexed Theorem 42, global lifecycle/dynamics,
+effect-context tower, full transformation-monoid Theorem 42, global trace metatheory,
 full preservation, interleaved temporal recovery, spatial composition, progress,
 confluence, loader reconciliation, and HMR. The active line now covers finite local coeffects (Definitions 22–26),
 direct finite realization/isolation/interception models (27–31), finite
@@ -1818,14 +1818,22 @@ Implement this layer in paper dependency order.
     commuting finite family under pairwise Definition 19 independence, and induct on `List.Perm`.
     Do not reapply or reorder whole effects.
 
-Do not label the remaining gap Theorem 42. Pairwise operation/key laws still need a
-branch-indexed theorem proving that foreign transformations retain every stage outcome, select
-the same continuation, preserve each differently yielded inverse, and close recursively through
-the selected computation tree. Reify realized paths, state the quotient conclusion as
-`ObservationalMediatedClosure`, and name the remaining derivation `PairwiseOverlapComplete`.
-Do not confuse it with exact `MediatedClosure`: a universal-equivalence cell counterexample has
-related opposite-order successors but different exact representatives. Exact promotion needs the
-additional `ExactRepresentativeCoherence` law.
+16. Do not compare the individual domains of two partial computations: unit is total while a
+    partial computation may be undefined, even though both composite orders agree. Compare the
+    composite domains directly and retain conditional yielded-inverse stability as a separate
+    field. Kernel-check the old API's failure with partial computation versus unit.
+17. Prove the corrected finite whole-run theorem constructively. First preserve complete
+    `ForwardData`, including the typed outcome, across an adjacent swap. Then bubble one root
+    through every outcome-selected foreign continuation and bubble every left root in turn. Erase
+    only `Applied`'s predecessor/recovery proof during structural swapping; reconnect the exact
+    successor and complete inverse functions to the original proof-carrying runs before stating
+    the theorem.
+
+Call this a finite whole-run analogue, not full Theorem 42. It proves arbitrary branch-tree
+interchange in the modeled language, but whole-run quantification is not Definition 19's
+transformation monoid over every forward and yielded-inverse word. Likewise, do not confuse the
+observational result with exact representative equality: the universal-equivalence cell
+counterexample still requires `ExactRepresentativeCoherence` for exact promotion.
 
 The important review question at each step is whether a theorem describes the paper object
 directly, a bounded approximation, or an integrator-supplied obligation. Put that distinction in

@@ -53,16 +53,18 @@ Current machine-checked evidence includes:
 - `Cordis.Transformation`, mechanizing Definition 17 generated transformation monoids,
   Lemma 18 closure, and full Definition 19 effect independence with inverse-yield stability;
 - `Cordis.OperationIndependence`, proving full total Definition 39, finite partial distinct-key
-  Theorem 40, and Definition 41's outcome-mediated interpreter/recovery while naming the
-  remaining Theorem 42 closure obligation;
+  Theorem 40, and Definition 41's outcome-mediated interpreter/recovery while exposing the
+  initial Theorem 42 closure boundary;
 - `Cordis.Removal`, proving Theorem 20's finite target/prefix/suffix removal and later-inverse
   equations plus Corollary 21 for every permutation of retained state-indexed inverses;
 - `Cordis.GlobalRegistry`, encoding Definitions 43–46/49 with opaque execution codes,
   birth-ranked parents, provider/view uniqueness, and well-formedness preservation for
   orchestration insert/retire/remove traces;
-- `Cordis.MediatedIndependence`, reifying exact outcome-selected branches, defining the
-  observational Theorem 42 conclusion, isolating `PairwiseOverlapComplete`, and proving by
-  counterexample that exact representatives need an extra coherence law;
+- `Cordis.MediatedIndependence`, reifying exact outcome-selected branches, stating the initial
+  observational closure surface, and proving by counterexample that exact representatives need an
+  extra coherence law;
+- `Cordis.MediatedTheorem`, correcting partial composite domains and proving exact plus
+  observational finite whole-run interchange for arbitrary outcome-selected computation trees;
 - `Cordis.GlobalDynamics`, interpreting opaque iterator/undo codes externally with exact ordinary
   recovery, observational registration recovery, explicit confinement/read/equivariance
   obligations, and a total fueled Definition 52 runner with accumulated recovery/WF evidence;
@@ -328,7 +330,7 @@ future external adapter consumes the same proof-carrying request contract.
 
 ## Paper context and executable refinement
 
-The bounded algebra/context/global layer now has thirteen explicit pieces:
+The bounded algebra/context/global layer now has fourteen explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -353,8 +355,8 @@ The bounded algebra/context/global layer now has thirteen explicit pieces:
 7. `Cordis.OperationIndependence` adds heterogeneous outcome stability for full total
    Definition 39, proves arbitrary finite operation words at distinct dependent keys commute
    with complete forward-data stability, and implements Definition 41's outcome-selected
-   computation syntax with exact LIFO recovery. `MediatedClosure` names, but does not pretend to
-   derive, the branch-indexed closure still needed for full Theorem 42.
+   computation syntax with exact LIFO recovery. Its initial `MediatedClosure` boundary is later
+   shown too strong for partial domains and replaced by the finite whole-run theorem below.
 8. `Cordis.Removal` keeps each application state and yielded inverse in an indexed execution,
    builds a paired original/omitted suffix trace, proves every later effect yields the same
    inverse after removal, and promotes pairwise Definition 19 independence to recovery under
@@ -365,21 +367,25 @@ The bounded algebra/context/global layer now has thirteen explicit pieces:
    and proves insert/retire/remove plus orchestration traces preserve the strengthened registry
    well-formedness.
 10. `Cordis.MediatedIndependence` reifies each realized Definition 41 branch with the exact typed
-    outcome selecting its continuation. It states `ObservationalMediatedClosure` and the remaining
-    `PairwiseOverlapComplete` theorem, proves representative coherence promotes that quotient
-    certificate to exact closure, and gives a finite quotient counterexample showing the
-    coherence premise is genuinely extra.
-11. `Cordis.GlobalDynamics` interprets codes only after `GlobalState` exists. Ordinary steps carry
+    outcome selecting its continuation. It states the initial `ObservationalMediatedClosure`,
+    proves representative coherence promotes that certificate to exact closure, and gives a
+    finite quotient counterexample showing the coherence premise is genuinely extra. The next
+    module separately refutes this initial API's individual-domain requirement for partial runs.
+11. `Cordis.MediatedTheorem` proves primitive stage interchange without erasing typed outcomes,
+    bubbles a root through arbitrary foreign continuations, and swaps complete finite computation
+    trees. The final exact and observational results compare composite partial domains and retain
+    conditional yielded-inverse stability; they are whole-run analogues, not full Definition 19.
+12. `Cordis.GlobalDynamics` interprets codes only after `GlobalState` exists. Ordinary steps carry
     exact recovery, write/read/respect/WF obligations; registration consumes explicit admission
     and yields child retirement as observational recovery. A total fueled runner retains exact
     continuation code on exhaustion and carries an intrinsic trace plus newest-first recovery and
     global well-formedness preservation.
-12. `Cordis.GlobalLifecycle` gives exact endpoints to L-Begin, L-Iter, L-Finish, both L-Divert
+13. `Cordis.GlobalLifecycle` gives exact endpoints to L-Begin, L-Iter, L-Finish, both L-Divert
     alternatives, L-Raise, L-Leave, and L-Unload. Successful landing constructors retain their
     `executeOne` equation, and every rule preserves strengthened well-formedness. General unload
     recovery remains the explicit `RecoveryAdmission`; the concrete heterogeneous path discharges
     it for two ambient-only inverses.
-13. `Cordis.GlobalCalculus` retains the exact source endpoints while projecting both source
+14. `Cordis.GlobalCalculus` retains the exact source endpoints while projecting both source
     relations to the paper's ten rule names and acted-on names. It separates Equation 51 state
     maps from edit footprints, proves actual installed status changes only at L-Begin/L-Unload,
     and packages a heterogeneous empty-registry-origin trace back to an empty registry.
@@ -475,7 +481,8 @@ This slice does not by itself prove:
 - durable persistence, flush barriers, crash repair, resume, or fork correctness;
 - task/fiber scheduling, fairness, cancellation delivery, or wall-clock concurrency;
 - the stronger paired-inverse law from same-word tests without its explicit coherence premise;
-- `PairwiseOverlapComplete`, full Theorem 59, or the paper's global composability results;
+- full transformation-monoid Theorem 42, full Theorem 59, or the paper's global composability
+  results;
 - native plugin isolation, process confinement, filesystem safety, or remote-service behavior;
 - global exactly-once execution across workers; or
 - that a model follows supplied schemas or chooses an appropriate tool.

@@ -27,9 +27,10 @@ fueled recovery runner. The quotient-versus-exact Theorem 42 representative
 boundary is mechanized. The seven global lifecycle rule names now have exact
 phase-indexed transitions and preservation traces with an explicit unload
 recovery admission, and one unified exact-endpoint relation now projects to the
-paper's ten rule names from an empty-registry origin. `PairwiseOverlapComplete`,
-task concurrency, and the paper's complete preservation/progress/confluence
-results remain open.
+paper's ten rule names from an empty-registry origin. Arbitrary finite
+outcome-selected computation trees now satisfy a corrected exact whole-run
+interchange theorem; the paper's full transformation-monoid Theorem 42, task
+concurrency, and complete preservation/progress/confluence results remain open.
 
 Repository: `cordis-lean`
 
