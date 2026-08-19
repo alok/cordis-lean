@@ -107,6 +107,20 @@ Also prove that the concrete foreign phase edit is not
 `dynamics.ReadEquivalent` for the observed owner. This locates the gap in the
 current dynamics interface without pretending that every dynamics must fail it.
 
+Add two focused necessity witnesses:
+
+1. an ordinary-frame model where the foreign edit is `ReadEquivalent` and
+   `run_read_confined` preserves the exact undo/continuation, but the moved raw
+   successor is only related by a coarse dynamics equivalence and fails the
+   exact `setPhase` frame equation; and
+1. an oracle model where `runIterator` returns the same registration request on
+   both read-equivalent states, but the fixed oracle accepts before the phase
+   edit and rejects afterward or chooses another child.
+
+These witnesses must separately prove that readability alone does not imply the
+ordinary frame and that raw registration read stability does not imply stable
+`executeOne` admission.
+
 ## 4. Foreign phase readability
 
 First prove the reusable source fact:
@@ -120,17 +134,16 @@ theorem IterationStep.owner_present
 The ordinary branch uses `dynamics.ordinary_confined`; the registration branch
 uses `RegistrationAdmission.owner_present`.
 
-Define the first lower, owner-generic law:
+Define the first lower, program-scoped law:
 
 ```lean
 structure ForeignPhaseReadable
-    (dynamics : Dynamics sig catalog Ambient) : Prop where
+    (program : Program dynamics) : Prop where
   read_equivalent :
-    ∀ {owner state ownerFiber foreignName foreignFiber phase},
-      state.registry owner = some ownerFiber →
+    ∀ {state foreignName foreignFiber phase},
       state.registry foreignName = some foreignFiber →
-      foreignName ≠ owner →
-      dynamics.ReadEquivalent owner state
+      foreignName ≠ program.owner →
+      dynamics.ReadEquivalent program.owner state
         (setPhase state foreignName foreignFiber phase)
 ```
 
@@ -153,16 +166,16 @@ Define an ordinary-only exact frame law below lifecycle transitions:
 
 ```lean
 structure OrdinaryForeignPhaseFrame
-    (dynamics : Dynamics sig catalog Ambient) : Prop where
+    (program : Program dynamics) : Prop where
   after_eq :
-    ∀ {owner code state ownerFiber foreignName foreignFiber phase
+    ∀ {code state foreignName foreignFiber phase
         original moved},
-      state.registry owner = some ownerFiber →
+      Reach program code →
       state.registry foreignName = some foreignFiber →
-      foreignName ≠ owner →
-      dynamics.runIterator owner code state =
+      foreignName ≠ program.owner →
+      dynamics.runIterator program.owner code state =
         .ok (.ordinary original) →
-      dynamics.runIterator owner code
+      dynamics.runIterator program.owner code
           (setPhase state foreignName foreignFiber phase) =
         .ok (.ordinary moved) →
       dynamics.equivalence.r original.after moved.after →
@@ -182,9 +195,9 @@ choose a child or prove moved-state admission:
 structure RegistrationOracleForeignPhaseFrame
     (program : Program dynamics) : Prop where
   certify :
-    ∀ {code state ownerFiber foreignName foreignFiber phase
+    ∀ {code state foreignName foreignFiber phase
         originalRequest movedRequest originalAdmission},
-      state.registry program.owner = some ownerFiber →
+      Reach program code →
       state.registry foreignName = some foreignFiber →
       foreignName ≠ program.owner →
       dynamics.runIterator program.owner code state =
@@ -200,15 +213,19 @@ structure RegistrationOracleForeignPhaseFrame
         program.oracle.certify
             (setPhase state foreignName foreignFiber phase)
             movedRequest = .ok movedAdmission ∧
-        movedAdmission.child = originalAdmission.child ∧
-        movedAdmission.after =
-          setPhase originalAdmission.after
-            foreignName foreignFiber phase
+        movedAdmission.child = originalAdmission.child
 ```
 
 Equal child selection plus equal request continuations must be used to recover
 exact retirement undo and concrete continuation equality. Determinism of the
 oracle at each state is not a substitute for this cross-state law.
+
+Do not assume the registration successor frame. Prove a structural helper that
+registration insertion at the oracle-selected fresh child commutes with a
+pre-existing, distinct foreign `setPhase` update. Freshness and the foreign
+lookup prove that the child and foreign name differ. Equality of request
+component/continuation fields identifies the raw registration requests, and
+same-child selection then yields the exact framed successor equation.
 
 ## 7. Derive foreign-phase compatibility
 
@@ -216,8 +233,8 @@ Prove:
 
 ```lean
 theorem ForeignPhaseCompatibility.of_read_frames
-    (readable : ForeignPhaseReadable dynamics)
-    (ordinary : OrdinaryForeignPhaseFrame dynamics)
+    (readable : ForeignPhaseReadable program)
+    (ordinary : OrdinaryForeignPhaseFrame program)
     (registration : RegistrationOracleForeignPhaseFrame program) :
     ForeignPhaseCompatibility program
 ```
@@ -230,6 +247,8 @@ The proof must:
 1. eliminate impossible error/branch mismatches;
 1. use `OrdinaryForeignPhaseFrame.after_eq` in the ordinary case;
 1. use `RegistrationOracleForeignPhaseFrame.certify` in the registration case;
+1. derive registration insertion/phase commutation structurally from request
+   equality, same-child selection, and freshness;
 1. construct the exact moved `executeOne` result;
 1. construct `LifecycleYieldAgrees`; and
 1. return the exact raw-successor frame equation.
