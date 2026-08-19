@@ -11,6 +11,7 @@ import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalIteratorIndependence
 import Cordis.GlobalTransposition
+import Cordis.GlobalForeignPhase
 import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
@@ -970,6 +971,14 @@ private def testGlobalTransposition : IO Unit := do
     (falseRecovered.ambient, falseRecovered.nextBirth)
     (trueRecovered.ambient, trueRecovered.nextBirth)
 
+private def testGlobalForeignPhase : IO Unit := do
+  assertEqual "full iterator independence does not hide foreign-phase-sensitive undo syntax"
+    (GlobalForeignPhase.IndependenceGap.selectedUndo false
+        GlobalForeignPhase.IndependenceGap.before,
+      GlobalForeignPhase.IndependenceGap.selectedUndo false
+        GlobalForeignPhase.IndependenceGap.afterPhaseEdit)
+    (false, true)
+
 private def testGlobalRelations : IO Unit := do
   let absentTable : Option Nat :=
     GlobalRelations.tableAt GlobalRelations.Example.emptyState false ()
@@ -1297,6 +1306,7 @@ def run : IO Unit := do
   testGlobalTemporal
   testGlobalIteratorIndependence
   testGlobalTransposition
+  testGlobalForeignPhase
   testGlobalRelations
   testGlobalSpatial
   testGlobalVestigial

@@ -7,6 +7,7 @@ import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalIteratorIndependence
 import Cordis.GlobalTransposition
+import Cordis.GlobalForeignPhase
 import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
@@ -543,5 +544,13 @@ example : GlobalTransposition.LifecycleYieldAgrees
     kind := GlobalTransposition.Counterexample.semantic_yields_agree.kind
   }
   rfl
+
+/-! Full iterator independence cannot fabricate readability across a foreign phase edit. -/
+
+/-- error: Type mismatch -/
+#guard_msgs (substring := true) in
+example : GlobalTransposition.ForeignPhaseCompatibility
+    GlobalForeignPhase.IndependenceGap.observedProgram :=
+  GlobalForeignPhase.IndependenceGap.programs_independent
 
 end Cordis.NegativeTests

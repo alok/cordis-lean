@@ -9,6 +9,7 @@ import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalIteratorIndependence
 import Cordis.GlobalTransposition
+import Cordis.GlobalForeignPhase
 import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
@@ -474,6 +475,26 @@ set_option format.width 200
 #print axioms Cordis.GlobalTransposition.Counterexample.semantic_yields_agree
 #print axioms Cordis.GlobalTransposition.Counterexample.undo_codes_differ
 #print axioms Cordis.GlobalTransposition.Counterexample.lifecycle_yields_do_not_agree
+#print axioms Cordis.GlobalForeignPhase.IterationStep.owner_present
+#print axioms Cordis.GlobalForeignPhase.insertFiber_setPhase_commute
+#print axioms Cordis.GlobalForeignPhase.ForeignPhaseCompatibility.of_read_frames
+#print axioms Cordis.GlobalForeignPhase.ForeignPhaseCompatibility.frame
+#print axioms Cordis.GlobalForeignPhase.phase_framed_diamond
+#print axioms Cordis.GlobalForeignPhase.IndependenceGap.forwards_commute
+#print axioms Cordis.GlobalForeignPhase.IndependenceGap.programs_independent
+#print axioms Cordis.GlobalForeignPhase.IndependenceGap.semantic_yields_agree
+#print axioms Cordis.GlobalForeignPhase.IndependenceGap.foreign_edit_not_readEquivalent
+#print axioms
+  Cordis.GlobalForeignPhase.IndependenceGap.independent_not_foreignPhaseCompatible
+#print axioms Cordis.GlobalForeignPhase.OrdinaryFrameGap.run_read_confined_at_edit
+#print axioms Cordis.GlobalForeignPhase.OrdinaryFrameGap.exact_frame_fails
+#print axioms Cordis.GlobalForeignPhase.OrdinaryFrameGap.no_ordinary_frame
+#print axioms
+  Cordis.GlobalForeignPhase.OrdinaryFrameGap.readability_does_not_supply_ordinary_frame
+#print axioms Cordis.GlobalForeignPhase.OracleGap.raw_request_stable
+#print axioms Cordis.GlobalForeignPhase.OracleGap.moved_executeOne_rejected
+#print axioms
+  Cordis.GlobalForeignPhase.OracleGap.raw_read_stability_does_not_imply_oracle_frame
 #print axioms Cordis.GlobalRelations.contextRelated_domain
 #print axioms Cordis.GlobalRelations.ruleSetoid
 #print axioms Cordis.GlobalRelations.ruleRelated_registry_domain
