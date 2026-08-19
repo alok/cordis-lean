@@ -1938,10 +1938,18 @@ Build the structural slice in this order:
     endpoint well-formedness alone does not imply it. Align trace state/step lists and make episode
     boundary exclusion specific to the observed name, so other fibers may begin or unload inside
     its episode. Keep fresh-entry and retirement-write provenance separate for opaque undo codes.
+16. Reify Equation 51 state maps independently of their exact endpoints. Iterator-backed maps
+    should re-run the captured code/oracle and remain partial off-source. Parameterize temporal
+    recovery by an effect-relevant relation distinct from arbitrary `Dynamics.equivalence`; require
+    totalization, edit invisibility, relation preservation, per-step recovery commutation, owner
+    inversion, and trace reordering explicitly. Derive whole-replay commutation by induction, then
+    add the unload bridge. Kernel-check failures of off-source totality, universal-relation
+    adequacy, and RecoveryConfinement-as-temporal-independence.
 
 This reaches a bounded finite Definition 53 relation. Do not claim Theorem 59 while general unload
-recovery confinement is still supplied and the remaining spatial/temporal/progress lemmas are
-unproved.
+recovery confinement is still supplied, or full T61/Cor62 while the canonical relation,
+off-source totality, and Definition 60/reordering laws are supplied. The remaining
+spatial/progress/confluence lemmas are unproved.
 
 ## 20. Exact verification and review commands
 

@@ -31,9 +31,12 @@ paper's ten rule names from an empty-registry origin. Arbitrary finite
 outcome-selected computation trees now satisfy a corrected exact whole-run
 interchange theorem. Bounded Lemma 54 foreign/episode facts are proved under a
 named unload-confinement law, and a kernel countermodel shows bare recovery
-admission is insufficient. The paper's full transformation-monoid Theorem 42,
-task concurrency, and complete preservation/progress/confluence results remain
-open.
+admission is insufficient. Explicit off-source step maps and per-record
+commutation certificates now yield parameterized finite interleaved recovery;
+countermodels separate that algebra from canonical paper `≈`, off-source
+totality, and RecoveryConfinement alone. The paper's full transformation-monoid
+Theorem 42, task concurrency, and complete preservation/progress/confluence
+results remain open.
 
 Repository: `cordis-lean`
 

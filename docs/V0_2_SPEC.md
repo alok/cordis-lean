@@ -74,7 +74,10 @@ Current machine-checked evidence includes:
 - `Cordis.GlobalCalculus`, combining orchestration and lifecycle into one ten-name exact-endpoint
   relation with acted-on-name, state-map/edit, installation-boundary, and empty-origin evidence;
 - `Cordis.GlobalTraceFacts`, proving bounded Lemma 54 foreign/static/committed/episode facts under
-  explicit unload confinement and kernel-refuting sufficiency of bare recovery admission;
+  explicit unload confinement and giving a kernel countermodel to bare recovery admission;
+- `Cordis.GlobalTemporal`, reifying fallible off-source step maps and deriving finite
+  relation-indexed interleaved/unload recovery from explicit totality, commutation, inversion, and
+  reordering certificates;
 - `Cordis.RuntimeRefinement`, decoding the supported current-Harness stream-chunk JSON-AST
   shapes into `RichStream.ValidatedTrace` while explicitly rejecting non-equivalent fields;
 - `Cordis.SessionRefinement`, statefully translating a supported source-shaped Harness session
@@ -332,7 +335,7 @@ future external adapter consumes the same proof-carrying request contract.
 
 ## Paper context and executable refinement
 
-The bounded algebra/context/global layer now has fifteen explicit pieces:
+The bounded algebra/context/global layer now has sixteen explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -396,6 +399,11 @@ The bounded algebra/context/global layer now has fifteen explicit pieces:
     derive name-specific episode boundaries and committed/static continuity. A finite kernel
     countermodel shows bare `RecoveryAdmission` can mutate a pre-existing foreign table while
     preserving well-formed endpoints.
+16. `Cordis.GlobalTemporal` separates exact source step evidence from off-source state maps.
+    Iterator maps remain partial unless totalized explicitly; per-step recovery commutation folds
+    over a foreign replay, then owner inverse and reorder certificates yield finite relational
+    recovery and an exact unload package. Countermodels separate this algebra from canonical paper
+    `≈`, off-source totality, and structural RecoveryConfinement alone.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -491,6 +499,7 @@ This slice does not by itself prove:
 - full transformation-monoid Theorem 42, full Theorem 59, or the paper's global composability
   results;
 - new-entry or retirement-write provenance for opaque accumulated recovery;
+- canonical global `≃`/`≈`, Definition 60 iterator-family independence, or arbitrary T61/Cor62;
 - native plugin isolation, process confinement, filesystem safety, or remote-service behavior;
 - global exactly-once execution across workers; or
 - that a model follows supplied schemas or chooses an appropriate tool.

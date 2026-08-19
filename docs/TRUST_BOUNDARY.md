@@ -365,6 +365,7 @@ Executable rejection is valuable, but it is not a refinement theorem.
 | `GlobalLifecycle`                           | Checks exact target/phase guards, executed landings, inertia, unload recovery, all-edge WF preservation, and finite lifecycle traces.                                                                                                | Orchestration remains separate; general `RecoveryAdmission` is supplied, oracle rejection has no lifecycle edge, and full Definition 53/Theorem 59 are unclaimed.                                |
 | `GlobalCalculus`                            | Unifies orchestration/lifecycle endpoints under ten rule names, retains acted-on names, separates state maps from edits, proves installation-boundary semantics, and packages empty-origin traces.                                   | Finite sequential Definition 53 model; general recovery is admitted, oracle rejection remains absent, and full Theorem 59 is unclaimed.                                                          |
 | `GlobalTraceFacts`                          | Proves non-unload foreign exactness, conditional unload table/control/static continuity, aligned name-specific episodes, and a kernel bare-admission countermodel.                                                                   | Bounded existing-fiber Lemma 54 fragments; new-entry/retire-write provenance and remaining global metatheory are unproved.                                                                       |
+| `GlobalTemporal`                            | Reifies fallible off-source step maps and proves per-step commutation composes to finite relation-indexed recovery with explicit inverse/reorder/unload certificates.                                                                | Parameterized T61/Cor62 algebra only; canonical `≈`, D60, totality, continuation stability, and arbitrary trace reordering remain absent.                                                        |
 | `CertifiedTwoBatch`                         | Requires same-successor, pointwise same-recovery, and result-stability certificate fields before either order is permitted.                                                                                                          | The certificate is supplied, exactly two pure calls are modeled, and no actual concurrency or external-effect safety follows.                                                                    |
 | `Registry.setAt`                            | Uses dependent equality transport so a value cannot be installed at a differently typed key.                                                                                                                                         | No runtime aliasing, notification, or mutable-store semantics are modeled.                                                                                                                       |
 | `View.resolve`                              | Requires `needs op` before a binding can be requested.                                                                                                                                                                               | Construction of the view and completeness of its registry snapshot remain obligations.                                                                                                           |
@@ -540,6 +541,15 @@ committed views and identify their opening/closing rules exactly. The law does n
 recovery from adding a brand-new name and does not prove that each retirement came from
 `UndoCode.retire`.
 
+`GlobalTemporal` keeps the temporal assumptions separate. It re-executes an exact iterator
+code/oracle pair to obtain a partial off-source state map, so totality must be certified rather
+than inferred. A caller supplies an effect-relevant `Setoid` distinct from the arbitrary
+`Dynamics.equivalence`, proves each step map total/respectful/edit-invisible, supplies per-step
+recovery commutation, the owner's off-source inverse law, and the mixed-trace reorder relation.
+Those certificates compose to finite interleaved and terminal unload recovery. Countermodels show
+that an exact landing may fail off-source, a universal dynamics relation is vacuous for table
+recovery, and `RecoveryConfinement` alone does not imply temporal exactness.
+
 The older finite `Cordis.Lifecycle` model separately assumes:
 
 - inactive states retain the modeled recovered value, and `unload` returns specifically to the
@@ -618,8 +628,9 @@ Without additional proofs or tests, do not state that:
   confinement, read-agreement, equivariance, and WF laws as fields; `GlobalLifecycle` discharges
   arbitrary-interleaving recovery without its named admission; `GlobalCalculus` proves full
   Theorem 59, progress/confluence, or runtime completeness; `GlobalTraceFacts` proves fresh-name
-  or retirement-write provenance for opaque undo codes; or strengthened birth order is literally
-  paper Definition 58;
+  or retirement-write provenance for opaque undo codes; `GlobalTemporal` derives canonical paper
+  `≈`, off-source totality, D60, or arbitrary T61/Cor62 from current step evidence; or strengthened
+  birth order is literally paper Definition 58;
 - `RuntimeRefinement` accepts the full Harness stream union, is complete for the tolerant
   TypeScript assembler, verifies provider streaming, or proves chunk storage;
 - `SessionRefinement` accepts the complete Harness event union, preserves every source field in
