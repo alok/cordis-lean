@@ -1431,6 +1431,11 @@ test -z "$(git status --porcelain)"
 git archive HEAD | tar -x -C "$tmp_dir"
 (
   cd "$tmp_dir"
+  unset LEAN_PATH
+  export LAKE_ARTIFACT_CACHE=false
+  export LAKE_CACHE_DIR=
+  lake clean
+  lake --wfail build
   lake build
   lake lean Cordis/NegativeTests.lean
   lake exe cordis_tests
@@ -1438,6 +1443,11 @@ git archive HEAD | tar -x -C "$tmp_dir"
   lake lean Cordis/AxiomAudit.lean
 )
 ```
+
+Disabling the Lean 4.33 system artifact cache here is deliberate. Its cached artifacts need not be
+materialized under the archive's `.lake/build` directory, while the subsequent direct `lake lean`
+commands load `.olean` files from that directory. `--no-cache` controls remote cache downloads; it
+does not replace `LAKE_ARTIFACT_CACHE=false` for this clean-materialization check.
 
 Use an explicit temporary directory as above. Do not point cleanup commands at
 the repository root, home directory, or an unresolved variable.
