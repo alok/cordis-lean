@@ -11,6 +11,7 @@ import Cordis.Examples.DependentChoice
 import Cordis.GenericHarness
 import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
+import Cordis.GlobalIteratorIndependence
 import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction

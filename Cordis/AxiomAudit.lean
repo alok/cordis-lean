@@ -7,6 +7,7 @@ import Cordis.Effect
 import Cordis.Examples.DependentChoice
 import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
+import Cordis.GlobalIteratorIndependence
 import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
@@ -430,6 +431,39 @@ set_option format.width 200
 #print axioms Cordis.GlobalTemporal.Counterexample.universal_relation_is_vacuous_here
 #print axioms Cordis.GlobalTemporal.Counterexample.ambientRecovery_confinement
 #print axioms Cordis.GlobalTemporal.Counterexample.recoveryConfinement_not_temporal
+#print axioms Cordis.GlobalIteratorIndependence.YieldAgrees.trans
+#print axioms Cordis.GlobalIteratorIndependence.yieldStable_identity
+#print axioms Cordis.GlobalIteratorIndependence.YieldStable.comp
+#print axioms Cordis.GlobalIteratorIndependence.yieldStable_of_generators
+#print axioms Cordis.GlobalIteratorIndependence.Independent.of_generators
+#print axioms Cordis.GlobalIteratorIndependence.Independent.symm
+#print axioms Cordis.GlobalIteratorIndependence.self_independent_of_duplicate
+#print axioms Cordis.GlobalIteratorIndependence.generator_respects
+#print axioms Cordis.GlobalIteratorIndependence.closure_respects
+#print axioms Cordis.GlobalIteratorIndependence.observationalYieldAgrees_of_exact
+#print axioms Cordis.GlobalIteratorIndependence.observationalYieldStable_of_exact
+#print axioms Cordis.GlobalIteratorIndependence.observationalIndependent_of_exact
+#print axioms Cordis.GlobalIteratorIndependence.recovery_mem
+#print axioms Cordis.GlobalIteratorIndependence.StepMapMember.of_forward
+#print axioms Cordis.GlobalIteratorIndependence.StepMapMember.of_identity
+#print axioms Cordis.GlobalIteratorIndependence.StepMapMember.of_recovery
+#print axioms Cordis.GlobalIteratorIndependence.recoveryCommutesWithMap
+#print axioms Cordis.GlobalIteratorIndependence.observationalRecoveryCommutesWithMap
+#print axioms Cordis.GlobalIteratorIndependence.perStepCommutes_of_generated
+#print axioms Cordis.GlobalIteratorIndependence.Example.root_reachable
+#print axioms Cordis.GlobalIteratorIndependence.Example.continuation_reachable
+#print axioms Cordis.GlobalIteratorIndependence.Example.root_forward_at_source
+#print axioms Cordis.GlobalIteratorIndependence.Example.first_inverse_generated
+#print axioms Cordis.GlobalIteratorIndependence.Example.not_self_independent
+#print axioms Cordis.GlobalIteratorIndependence.RawRegistrationGap.same_component
+#print axioms
+  Cordis.GlobalIteratorIndependence.RawRegistrationGap.continuation_depends_on_chosen_child
+#print axioms
+  Cordis.GlobalIteratorIndependence.RawRegistrationGap.retirement_inverse_depends_on_chosen_child
+#print axioms Cordis.GlobalIteratorIndependence.WholeRunCounterexample.duplicatedFamily_wholeRun
+#print axioms
+  Cordis.GlobalIteratorIndependence.WholeRunCounterexample.duplicatedFamily_not_pairwise_full
+#print axioms Cordis.GlobalIteratorIndependence.TotalizationGap.exact_iterator_has_no_totalization
 #print axioms Cordis.GlobalRelations.contextRelated_domain
 #print axioms Cordis.GlobalRelations.ruleSetoid
 #print axioms Cordis.GlobalRelations.ruleRelated_registry_domain

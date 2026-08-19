@@ -9,6 +9,7 @@ import Cordis.Examples.CounterWire
 import Cordis.Examples.DependentChoice
 import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
+import Cordis.GlobalIteratorIndependence
 import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
@@ -931,6 +932,23 @@ private def testGlobalTemporal : IO Unit := do
   assertEqual "structural recovery confinement alone misses foreign ambient commutation"
     (recovered.ambient, GlobalTemporal.Counterexample.foreignReplayState.ambient) (7, 6)
 
+private def testGlobalIteratorIndependence : IO Unit := do
+  let forwardMap := GlobalIteratorIndependence.forward
+    GlobalIteratorIndependence.Example.program 10
+  let inverseMap := GlobalIteratorIndependence.total
+    (GlobalLifecycle.Example.dynamics.applyUndo GlobalLifecycle.Example.firstStep.undo)
+  let left := PartialTransformation.comp forwardMap inverseMap
+    GlobalIteratorIndependence.Example.zeroState
+  let right := PartialTransformation.comp inverseMap forwardMap
+    GlobalIteratorIndependence.Example.zeroState
+  assertEqual "a real iterator and one yielded inverse need not commute"
+    (left.map (fun state ↦ state.ambient), right.map (fun state ↦ state.ambient))
+    (some 1, some 0)
+  assertEqual "registration continuation retains the oracle-selected child"
+    (GlobalIteratorIndependence.RawRegistrationGap.request.next false,
+      GlobalIteratorIndependence.RawRegistrationGap.request.next true)
+    (some false, some true)
+
 private def testGlobalRelations : IO Unit := do
   let absentTable : Option Nat :=
     GlobalRelations.tableAt GlobalRelations.Example.emptyState false ()
@@ -1256,6 +1274,7 @@ def run : IO Unit := do
   testGlobalCalculus
   testGlobalTraceFacts
   testGlobalTemporal
+  testGlobalIteratorIndependence
   testGlobalRelations
   testGlobalSpatial
   testGlobalVestigial

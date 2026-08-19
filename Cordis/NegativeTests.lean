@@ -5,6 +5,7 @@ import Cordis.ContextualEquivalence
 import Cordis.Examples.DependentChoice
 import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
+import Cordis.GlobalIteratorIndependence
 import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
@@ -507,6 +508,23 @@ example : Function.Injective
 example : GlobalNameAction.NameAction.CatalogEntryInvariant
     GlobalNameLifecycle.NonidentityRaiseExample.entryBreakingAction
     GlobalNameAction.Example.exampleCatalog := by
+  rfl
+
+/-! One family occurrence does not make a real iterator program self-independent. -/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : GlobalIteratorIndependence.Independent
+    GlobalIteratorIndependence.Example.program
+    GlobalIteratorIndependence.Example.program := by
+  rfl
+
+/-! A registration component alone does not determine its child-indexed continuation. -/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : GlobalIteratorIndependence.RawRegistrationGap.request.next false =
+    GlobalIteratorIndependence.RawRegistrationGap.request.next true := by
   rfl
 
 end Cordis.NegativeTests
