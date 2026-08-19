@@ -1909,10 +1909,15 @@ Build the structural slice in this order:
 13. Exercise Begin/Iter/Finish and Leave/Unload with an explicit orchestration retirement between
     the two trace segments. Prove the landing equations came from `executeOne`, the accumulator
     shape, inactive endpoint, restored observation, and negative target/inertia/raise guards.
+14. Wrap orchestration and lifecycle without changing either endpoint. Project to exactly ten rule
+    names while retaining the acted-on name for every rule. Keep Equation 51's identity/iterator/
+    recovery map separate from insert/retire/remove and phase edit footprints. Prove actual
+    installed status changes only at L-Begin/L-Unload, and package a trace whose initial registry
+    is explicitly empty.
 
-This reaches the lifecycle relation as a separate bounded layer. Do not claim the full ten-rule
-Definition 53 execution until orchestration and lifecycle share one indexed step/trace relation,
-and do not claim Theorem 59 while general unload recovery is still a supplied admission.
+This reaches a bounded finite Definition 53 relation. Do not claim Theorem 59 while general unload
+recovery is still a supplied admission and the remaining spatial/temporal/progress lemmas are
+unproved.
 
 ## 20. Exact verification and review commands
 

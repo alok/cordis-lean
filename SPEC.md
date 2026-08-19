@@ -26,7 +26,8 @@ codes now have external proof-carrying ordinary/registration semantics and a
 fueled recovery runner. The quotient-versus-exact Theorem 42 representative
 boundary is mechanized. The seven global lifecycle rule names now have exact
 phase-indexed transitions and preservation traces with an explicit unload
-recovery admission; `PairwiseOverlapComplete`, the combined ten-rule calculus,
+recovery admission, and one unified exact-endpoint relation now projects to the
+paper's ten rule names from an empty-registry origin. `PairwiseOverlapComplete`,
 task concurrency, and the paper's complete preservation/progress/confluence
 results remain open.
 

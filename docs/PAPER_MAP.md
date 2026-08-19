@@ -25,10 +25,11 @@
 > Lemma 18, and full Definition 19; `Cordis.OperationIndependence` adds full
 > total Definition 39, finite partial distinct-key Theorem 40, and Definition 41. `Cordis.Removal` proves finite exact Theorem 20/Corollary 21, while
 > `Cordis.MediatedIndependence` reifies branches and separates the observational
-> Theorem 42 statement from exact representative coherence. The remaining
+> Theorem 42 statement from exact representative coherence.
 > `PairwiseOverlapComplete` remains absent. `Cordis.GlobalLifecycle` now checks
 > the seven lifecycle rule names as eight phase-indexed constructors, while the
-> combined ten-rule Definition 53 trace and full global metatheory remain absent.
+> `Cordis.GlobalCalculus` combines those with orchestration in one ten-name,
+> exact-endpoint, empty-origin trace relation. Full global metatheory remains absent.
 >
 > `Cordis.Schedule` proves arbitrary finite semantic permutation of certified
 > commuting pure effects, while `Cordis.RichStream` models the current Harness
@@ -379,7 +380,8 @@ Local sources: [`Cordis/Transformation.lean`](../Cordis/Transformation.lean) and
 
 Local sources: [`Cordis/GlobalRegistry.lean`](../Cordis/GlobalRegistry.lean),
 [`Cordis/GlobalDynamics.lean`](../Cordis/GlobalDynamics.lean), and
-[`Cordis/GlobalLifecycle.lean`](../Cordis/GlobalLifecycle.lean).
+[`Cordis/GlobalLifecycle.lean`](../Cordis/GlobalLifecycle.lean), plus the combined
+[`Cordis/GlobalCalculus.lean`](../Cordis/GlobalCalculus.lean) relation.
 
 | Lean declaration                                                                                          | Status and exact Lean guarantee                                                                                                                                                                                                                            | Paper correspondence                                   | Boundary                                                                                                                                                     |
 | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -389,6 +391,7 @@ Local sources: [`Cordis/GlobalRegistry.lean`](../Cordis/GlobalRegistry.lean),
 | `OrchestrationStep`, `preserve_insert`, `preserve_retire`, `preserve_remove`, `Trace.preservesWellFormed` | **Proved:** explicit-freshness insert, unconditional retire, and retired/inactive/childless remove preserve strengthened well-formedness over traces.                                                                                                      | O-Insert/O-Retire/O-Remove; orchestration part of T59. | This is code-free structural preservation; external iterator/registration semantics are the next row, while lifecycle/full T59 remain open.                  |
 | `GlobalDynamics.Dynamics`, `RegistrationAdmission`, `IterationStep`, `Accumulator`, fueled `runFuel`      | **Checked/proved under explicit external laws:** ordinary and registration code execution reconstruct recovery, confinement/read/respect/WF evidence; traces and newest-first code accumulators preserve WF and recover; exhaustion retains the next code. | Definitions 47–48/51 and fueled D52 substrate.         | Ordinary WF/read/equivariance are explicit integrator obligations; phase updates are handled only by the next bounded layer.                                 |
 | `GlobalLifecycle.Transition`, `Landing`, `RecoveryAdmission`, lifecycle `Trace`                           | **Checked/proved:** exact target/phase guards, executed iterator landings, inertia, leave/unload, and all eight constructors preserve strengthened WF over finite traces.                                                                                  | Seven lifecycle rules from Sections 4.3.1–4.3.4.       | General unload recovery is a named admission; orchestration is not folded into this relation, oracle rejection is unmodeled, and full D53/T59 are unclaimed. |
+| `GlobalCalculus.Step`, combined `Trace`, `FromEmpty`, `installation_semantics`                            | **Proved:** one exact-endpoint relation projects to all ten rule names and acted-on names, separates Equation 51 maps from edits, preserves WF, and tracks actual installation-status boundaries from an empty registry.                                   | Bounded finite Definition 53 and first Lemma 54 fact.  | Sequential finite traces only; recovery admission remains supplied, oracle rejection is unmodeled, and the rest of Lemmas 54–59 is unproved.                 |
 
 ### Public surface, examples, and executable checks
 
@@ -430,12 +433,13 @@ The following are intentionally not presented as completed formalization work.
    mechanized. External ordinary/registration iterator-code semantics, explicit write/read
    obligations, recovery/WF witnesses, and a fueled Definition 52 substrate are also implemented.
    The seven lifecycle rule names, exact non-reliance guard, phase transitions, explicit inertia,
-   and rule-by-rule preservation are mechanized separately. The combined ten-rule Definition 53
-   relation and its single empty-registry-origin execution trace remain absent.
+   and rule-by-rule preservation are mechanized. A combined ten-rule-name relation now retains
+   exact endpoints, acted-on names, state-map/edit projections, and an empty-registry-origin trace.
 6. **Full preservation metatheory:** strengthened registry well-formedness and preservation by
-   the three orchestration rules and all seven lifecycle rule names are proved separately.
-   General L-Unload preservation consumes `RecoveryAdmission`; Lemmas 54–57, composition of the
-   two step relations, and full Theorem 59 remain absent.
+   the three orchestration rules, all seven lifecycle rule names, and their combined finite traces
+   are proved. Actual installed status changes only at L-Begin/L-Unload. General L-Unload
+   preservation consumes `RecoveryAdmission`; the remaining Lemmas 54–57 and full Theorem 59
+   remain absent.
 7. **Temporal composability:** Definition 60's iterator independence, Theorem 61's
    interleaved recovery exactness, and Corollary 62's terminal recovery are absent. The local
    `unload_recovers` theorem is not a substitute.

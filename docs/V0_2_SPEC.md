@@ -69,6 +69,8 @@ Current machine-checked evidence includes:
 - `Cordis.GlobalLifecycle`, encoding all seven lifecycle rule names as eight phase-indexed
   constructors with exact executed landings, inertia, unload recovery admission, and finite
   well-formedness-preserving traces;
+- `Cordis.GlobalCalculus`, combining orchestration and lifecycle into one ten-name exact-endpoint
+  relation with acted-on-name, state-map/edit, installation-boundary, and empty-origin evidence;
 - `Cordis.RuntimeRefinement`, decoding the supported current-Harness stream-chunk JSON-AST
   shapes into `RichStream.ValidatedTrace` while explicitly rejecting non-equivalent fields;
 - `Cordis.SessionRefinement`, statefully translating a supported source-shaped Harness session
@@ -326,7 +328,7 @@ future external adapter consumes the same proof-carrying request contract.
 
 ## Paper context and executable refinement
 
-The bounded algebra/context/global layer now has eleven explicit pieces:
+The bounded algebra/context/global layer now has thirteen explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -377,6 +379,10 @@ The bounded algebra/context/global layer now has eleven explicit pieces:
     `executeOne` equation, and every rule preserves strengthened well-formedness. General unload
     recovery remains the explicit `RecoveryAdmission`; the concrete heterogeneous path discharges
     it for two ambient-only inverses.
+13. `Cordis.GlobalCalculus` retains the exact source endpoints while projecting both source
+    relations to the paper's ten rule names and acted-on names. It separates Equation 51 state
+    maps from edit footprints, proves actual installed status changes only at L-Begin/L-Unload,
+    and packages a heterogeneous empty-registry-origin trace back to an empty registry.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -469,8 +475,7 @@ This slice does not by itself prove:
 - durable persistence, flush barriers, crash repair, resume, or fork correctness;
 - task/fiber scheduling, fairness, cancellation delivery, or wall-clock concurrency;
 - the stronger paired-inverse law from same-word tests without its explicit coherence premise;
-- `PairwiseOverlapComplete`, the combined ten-rule Definition 53 trace, full Theorem 59, or the
-  paper's global composability results;
+- `PairwiseOverlapComplete`, full Theorem 59, or the paper's global composability results;
 - native plugin isolation, process confinement, filesystem safety, or remote-service behavior;
 - global exactly-once execution across workers; or
 - that a model follows supplied schemas or chooses an appropriate tool.
