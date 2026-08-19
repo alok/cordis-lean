@@ -1035,7 +1035,7 @@ private def testGlobalNameLifecycle : IO Unit := do
   assertEqual "name lifecycle action covers the existing exact path"
     reflexiveRules [.begin, .iter, .finish, .leave, .unload]
   assertEqual "nonidentity lifecycle action renames owner and exact endpoint presence"
-    (GlobalNameLifecycle.lifecycleOwner
+    (GlobalLifecycleBisimulation.lifecycleOwner
         GlobalNameLifecycle.NonidentityRaiseExample.actedRaise.acted,
       ((GlobalNameAction.actState GlobalNameAction.Example.swapAction
         GlobalNameLifecycle.NonidentityRaiseExample.raiseAfter).registry true).isSome)
