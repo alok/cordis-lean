@@ -28,6 +28,7 @@ import Cordis.GlobalSpatial
 import Cordis.GlobalSupport
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
+import Cordis.GlobalTraceRewrite
 import Cordis.GlobalVestigial
 import Cordis.Harness
 import Cordis.Lifecycle
@@ -1019,6 +1020,11 @@ private def testGlobalActivationOrchestrationTransposition : IO Unit := do
   assertEqual "opposite fresh insertion orders retain different per-fiber birth ranks"
     (normalBirth, swappedBirth) (some 1, some 2)
 
+private def testGlobalTraceRewrite : IO Unit := do
+  assertEqual "an internal exact rewrite retains context and reverses the selected pair"
+    GlobalTraceRewrite.Example.ActivationOrchestration.executableProjection
+    ([.oInsert, .oInsert, .lBegin], [0, 1, 0])
+
 private def testGlobalProgress : IO Unit := do
   assertEqual "conditional progress constructs the expected concrete Begin rule"
     GlobalProgress.BeginExample.executableRule .begin
@@ -1360,6 +1366,7 @@ def run : IO Unit := do
   testGlobalLandingTransposition
   testGlobalActivationTransposition
   testGlobalActivationOrchestrationTransposition
+  testGlobalTraceRewrite
   testGlobalProgress
   testGlobalSupport
   testGlobalRelations

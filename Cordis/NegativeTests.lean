@@ -24,6 +24,7 @@ import Cordis.GlobalSpatial
 import Cordis.GlobalSupport
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
+import Cordis.GlobalTraceRewrite
 import Cordis.GlobalVestigial
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
@@ -608,6 +609,19 @@ example : GlobalLandingTransposition.LandingProgramWitness
 #guard_msgs (substring := true) in
 example : GlobalSupport.SupportOrder GlobalSupport.MixedCycle.final := {
   wellFounded := GlobalSupport.MixedCycle.precedence_wellFounded
+}
+
+/-! A same-order identity path cannot masquerade as an adjacent transposition. -/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : GlobalTraceRewrite.ExactAdjacentSwap
+    GlobalTraceRewrite.Example.ActivationOrchestration.normalPair := {
+  swapped := GlobalTraceRewrite.Example.ActivationOrchestration.normalPair
+  first_rule := by rfl
+  second_rule := by rfl
+  first_actor := by rfl
+  second_actor := by rfl
 }
 
 end Cordis.NegativeTests

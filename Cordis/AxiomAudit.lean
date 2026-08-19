@@ -26,6 +26,7 @@ import Cordis.GlobalSpatial
 import Cordis.GlobalSupport
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
+import Cordis.GlobalTraceRewrite
 import Cordis.GlobalVestigial
 import Cordis.Harness
 import Cordis.Lifecycle
@@ -667,6 +668,53 @@ namespace Cordis.GlobalSupport
 #print axioms PositiveRoot.order
 #print axioms PositiveRoot.support_eq_active_positive
 end Cordis.GlobalSupport
+namespace Cordis.GlobalTraceRewrite
+#print axioms StepPair.trace_rules
+#print axioms StepPair.trace_actors
+#print axioms Trace.rules_append
+#print axioms Trace.actors_append
+#print axioms Trace.records_append
+#print axioms AdjacentOccurrence.first_mem_records
+#print axioms AdjacentOccurrence.second_mem_records
+#print axioms AdjacentOccurrence.original_rules
+#print axioms AdjacentOccurrence.rewrite_rules
+#print axioms AdjacentOccurrence.original_actors
+#print axioms AdjacentOccurrence.rewrite_actors
+#print axioms AdjacentOccurrence.rules_perm
+#print axioms AdjacentOccurrence.actors_perm
+#print axioms AdjacentOccurrence.rewrite_aligned
+#print axioms AdjacentOccurrence.rewrite_states_length
+#print axioms AdjacentOccurrence.rewrite_preservesWellFormed
+#print axioms ProgramOccurrence.rule_eq
+#print axioms ProgramOccurrence.actor_eq
+#print axioms TraceProgramAssignment.headOccurrence
+#print axioms TraceProgramAssignment.tail
+#print axioms TraceProgramAssignment.append
+#print axioms AssignedAdjacentOccurrence.sourceAssignment
+#print axioms AssignedAdjacentOccurrence.rewrittenAssignment
+#print axioms reframeActivation_rule_eq
+#print axioms program_activation_diamond_right_rule_eq
+#print axioms transpose_program_activations_left_rule_eq
+#print axioms transpose_program_activations_right_rule_eq
+#print axioms swappedTransition_globalStep_eq
+#print axioms sameOrchestrationTemplate_global_tags
+#print axioms transpose_activation_orchestration_rule_eq
+#print axioms transposeActivationPair
+#print axioms transposeActivationOrchestrationPair
+#print axioms transposeActivationOccurrence
+#print axioms rewriteActivationOccurrence
+#print axioms transposeActivationOrchestrationOccurrence
+#print axioms rewriteActivationOrchestrationOccurrence
+#print axioms Example.ActivationPair.extractedLeftOccurrence_eq
+#print axioms Example.ActivationPair.extractedRightOccurrence_eq
+#print axioms Example.ActivationPair.assignedSwap
+#print axioms Example.ActivationOrchestration.rewritten_rules
+#print axioms Example.ActivationOrchestration.rewritten_actors
+#print axioms Example.ActivationOrchestration.rewritten_projection
+#print axioms registering_insert_parent_gap
+#print axioms registering_insert_birth_gap
+#print axioms bare_landing_has_no_unique_program
+end Cordis.GlobalTraceRewrite
 #print axioms Cordis.GlobalRelations.contextRelated_domain
 #print axioms Cordis.GlobalRelations.ruleSetoid
 #print axioms Cordis.GlobalRelations.ruleRelated_registry_domain

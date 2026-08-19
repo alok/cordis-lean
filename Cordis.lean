@@ -30,6 +30,7 @@ import Cordis.GlobalSpatial
 import Cordis.GlobalSupport
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
+import Cordis.GlobalTraceRewrite
 import Cordis.GlobalVestigial
 import Cordis.Harness
 import Cordis.Lifecycle
