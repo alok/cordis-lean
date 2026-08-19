@@ -13,6 +13,7 @@ import Cordis.GlobalLifecycle
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
+import Cordis.GlobalRuleObservations
 import Cordis.GlobalSpatial
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
@@ -981,6 +982,16 @@ private def testGlobalRuleInvariance : IO Unit := do
       (matched.rightAfter.registry 1).isSome)
     (1, true)
 
+private def testGlobalRuleObservations : IO Unit := do
+  assertEqual "rule observation intentionally ignores ambient state"
+    (GlobalRuleObservations.AmbientGap.baseline.ambient,
+      GlobalRuleObservations.AmbientGap.shifted.ambient)
+    (3, 4)
+  assertEqual "matched active fibers retain unequal private table observations"
+    (GlobalRegistry.Example.activeProviderFiber.table .counter,
+      GlobalRuleInvariance.HeterogeneousExample.rightProviderFiber.table .counter)
+    (some 7, some 9)
+
 private def testHarnessPhaseFailures : IO Unit := do
   let initial := Harness.RunnerState.initial 0
   match initial.beginStep with
@@ -1195,6 +1206,7 @@ def run : IO Unit := do
   testGlobalSpatial
   testGlobalVestigial
   testGlobalRuleInvariance
+  testGlobalRuleObservations
   testHarnessPhaseFailures
   testCounterAdmission
   testHarnessDemo

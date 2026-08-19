@@ -11,6 +11,7 @@ import Cordis.GlobalLifecycle
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
+import Cordis.GlobalRuleObservations
 import Cordis.GlobalSpatial
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
@@ -483,3 +484,26 @@ set_option format.width 200
 #print axioms Cordis.GlobalRuleInvariance.HeterogeneousExample.insertionMatch_successors
 #print axioms Cordis.GlobalRuleInvariance.InertiaGap.baseline_ruleRelated_shifted
 #print axioms Cordis.GlobalRuleInvariance.InertiaGap.ambientSensitiveInertia_not_respecting
+#print axioms Cordis.GlobalRuleObservations.matchedFiber
+#print axioms Cordis.GlobalRuleObservations.activeProvider_iff
+#print axioms Cordis.GlobalRuleObservations.activeFiberTables_related
+#print axioms Cordis.GlobalRuleObservations.isTargetView_iff
+#print axioms Cordis.GlobalRuleObservations.targetView_some_iff
+#print axioms Cordis.GlobalRuleObservations.targetView_none_iff
+#print axioms Cordis.GlobalRuleObservations.targetView_changed_iff
+#print axioms Cordis.GlobalRuleObservations.resolvesTo_iff
+#print axioms Cordis.GlobalRuleObservations.relied_iff
+#print axioms Cordis.GlobalRuleObservations.notRelied_iff
+#print axioms Cordis.GlobalRuleObservations.quiescent_iff
+#print axioms Cordis.GlobalRuleObservations.beginGuard_nonempty_iff
+#print axioms Cordis.GlobalRuleObservations.reloadingTargetGuard_nonempty_iff
+#print axioms Cordis.GlobalRuleObservations.leaveGuard_nonempty_iff
+#print axioms Cordis.GlobalRuleObservations.divertGuard_nonempty_iff
+#print axioms Cordis.GlobalRuleObservations.unloadGuard_nonempty_iff
+#print axioms Cordis.GlobalRuleObservations.HeterogeneousExample.provider_counter_iff
+#print axioms Cordis.GlobalRuleObservations.HeterogeneousExample.active_tables_related
+#print axioms Cordis.GlobalRuleObservations.HeterogeneousExample.right_target
+#print axioms Cordis.GlobalRuleObservations.HeterogeneousExample.right_quiescent
+#print axioms Cordis.GlobalRuleObservations.HeterogeneousExample.ruleRelated_without_effectRelated
+#print axioms Cordis.GlobalRuleObservations.EffectObservationGap.effectRelated_without_ruleRelated
+#print axioms Cordis.GlobalRuleObservations.AmbientGap.ruleRelated_without_effectRelated

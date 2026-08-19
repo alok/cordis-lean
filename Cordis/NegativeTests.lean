@@ -9,6 +9,7 @@ import Cordis.GlobalLifecycle
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
+import Cordis.GlobalRuleObservations
 import Cordis.GlobalSpatial
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
@@ -468,6 +469,14 @@ example : GlobalRuleInvariance.InertiaRespectsRuleRelated
     GlobalRuleInvariance.HeterogeneousExample.values
     GlobalDynamics.Example.dynamics
     GlobalRuleInvariance.InertiaGap.ambientSensitiveInertia := by
+  rfl
+
+/-! Rule observation does not fabricate exact active-context or ambient equality. -/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : GlobalRegistry.activeContext GlobalRuleObservations.HeterogeneousExample.leftState =
+    GlobalRegistry.activeContext GlobalRuleObservations.HeterogeneousExample.rightState := by
   rfl
 
 end Cordis.NegativeTests
