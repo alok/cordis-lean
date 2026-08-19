@@ -8,6 +8,7 @@ import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
+import Cordis.GlobalNameLifecycle
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
@@ -497,6 +498,15 @@ example : GlobalRuleObservations.FiberTableRelated
 #guard_msgs (substring := true) in
 example : Function.Injective
     (GlobalNameAction.ConstantNameGap.badAssumption.actName ()) := by
+  rfl
+
+/-! Carrier actions do not fabricate fixed catalog-entry semantics. -/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : GlobalNameAction.NameAction.CatalogEntryInvariant
+    GlobalNameLifecycle.NonidentityRaiseExample.entryBreakingAction
+    GlobalNameAction.Example.exampleCatalog := by
   rfl
 
 end Cordis.NegativeTests

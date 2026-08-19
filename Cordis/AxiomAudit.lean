@@ -10,6 +10,7 @@ import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
+import Cordis.GlobalNameLifecycle
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
@@ -553,3 +554,32 @@ set_option format.width 200
 #print axioms Cordis.GlobalNameAction.Example.state_inverse
 #print axioms Cordis.GlobalNameAction.Example.acted_retire_name
 #print axioms Cordis.GlobalNameAction.ConstantNameGap.bad_actName_not_injective
+#print axioms Cordis.GlobalNameLifecycle.actRegistrationRequest_trans
+#print axioms Cordis.GlobalNameLifecycle.actRunOutput_trans
+#print axioms Cordis.GlobalNameLifecycle.retireByName_equivariant
+#print axioms Cordis.GlobalNameLifecycle.applyUndo_equivariant
+#print axioms Cordis.GlobalNameLifecycle.recover_equivariant
+#print axioms Cordis.GlobalNameLifecycle.actState_setPhase
+#print axioms Cordis.GlobalNameLifecycle.actRegistrationAdmission
+#print axioms Cordis.GlobalNameLifecycle.actIterationStep
+#print axioms Cordis.GlobalNameLifecycle.actRegistrationOracle_certify_ok
+#print axioms Cordis.GlobalNameLifecycle.executeOne_equivariant
+#print axioms Cordis.GlobalNameLifecycle.actLanding
+#print axioms Cordis.GlobalNameLifecycle.actRecoveryAdmission
+#print axioms Cordis.GlobalNameLifecycle.activeProvider_iff
+#print axioms Cordis.GlobalNameLifecycle.relied_iff
+#print axioms Cordis.GlobalNameLifecycle.targetView_equivariant
+#print axioms Cordis.GlobalNameLifecycle.actLifecycleTransition
+#print axioms Cordis.GlobalNameLifecycle.unactLifecycleTransition
+#print axioms Cordis.GlobalNameLifecycle.lifecycleNameEquivariance
+#print axioms Cordis.GlobalNameLifecycle.actUnifiedStep
+#print axioms Cordis.GlobalNameLifecycle.unactUnifiedStep
+#print axioms Cordis.GlobalNameLifecycle.unifiedNameEquivariance
+#print axioms Cordis.GlobalNameLifecycle.ReflexiveExample.existing_path_rules
+#print axioms Cordis.GlobalNameLifecycle.ReflexiveExample.unloading_path_rules
+#print axioms Cordis.GlobalNameLifecycle.ReflexiveExample.backward_begin_rule
+#print axioms Cordis.GlobalNameLifecycle.ReflexiveExample.unified_begin_rule
+#print axioms Cordis.GlobalNameLifecycle.NonidentityRaiseExample.acted_raise_endpoint
+#print axioms Cordis.GlobalNameLifecycle.NonidentityRaiseExample.entryBreakingAction_not_invariant
+#print axioms Cordis.GlobalNameLifecycle.NonidentityRaiseExample.successOnlyMap_loses_error_action
+#print axioms Cordis.GlobalNameLifecycle.NonidentityRaiseExample.constantErrorBadRun_not_equivariant

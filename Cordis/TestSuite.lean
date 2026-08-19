@@ -12,6 +12,7 @@ import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
+import Cordis.GlobalNameLifecycle
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
@@ -1024,6 +1025,27 @@ private def testGlobalNameAction : IO Unit := do
     (GlobalVestigial.orchestrationName GlobalNameAction.Example.actedRetireChild)
     false
 
+private def testGlobalNameLifecycle : IO Unit := do
+  let reflexiveRules :=
+    [GlobalNameLifecycle.ReflexiveExample.actedBegin.acted.rule,
+      GlobalNameLifecycle.ReflexiveExample.actedIter.acted.rule,
+      GlobalNameLifecycle.ReflexiveExample.actedFinish.acted.rule,
+      GlobalNameLifecycle.ReflexiveExample.actedLeave.acted.rule,
+      GlobalNameLifecycle.ReflexiveExample.actedUnload.acted.rule]
+  assertEqual "name lifecycle action covers the existing exact path"
+    reflexiveRules [.begin, .iter, .finish, .leave, .unload]
+  assertEqual "nonidentity lifecycle action renames owner and exact endpoint presence"
+    (GlobalNameLifecycle.lifecycleOwner
+        GlobalNameLifecycle.NonidentityRaiseExample.actedRaise.acted,
+      ((GlobalNameAction.actState GlobalNameAction.Example.swapAction
+        GlobalNameLifecycle.NonidentityRaiseExample.raiseAfter).registry true).isSome)
+    (true, true)
+  assertEqual "catalog entry counterexample moves a fixed entry code"
+    (GlobalNameLifecycle.NonidentityRaiseExample.entryBreakingAction.iterator
+        GlobalNameAction.Example.providerDecl.entry,
+      GlobalNameAction.Example.providerDecl.entry)
+    (true, false)
+
 private def testHarnessPhaseFailures : IO Unit := do
   let initial := Harness.RunnerState.initial 0
   match initial.beginStep with
@@ -1241,6 +1263,7 @@ def run : IO Unit := do
   testGlobalRuleObservations
   testGlobalLifecycleBisimulation
   testGlobalNameAction
+  testGlobalNameLifecycle
   testHarnessPhaseFailures
   testCounterAdmission
   testHarnessDemo
