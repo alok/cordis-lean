@@ -89,6 +89,14 @@ installation-status changes occur only at L-Begin/L-Unload. Its `FromEmpty` witn
 heterogeneous insert/activate/retire/unload/remove trace from an empty registry back to an empty
 registry with the ambient observation restored. This is finite trace preservation, not Theorem 59.
 
+`Cordis.GlobalTraceFacts` audits the first global trace lemma against that relation. All non-unload
+rules preserve every pre-existing foreign fiber exactly; unload needs the separate
+`RecoveryConfinement` law for foreign tables/control and actor static fields. A kernel countermodel
+proves bare `RecoveryAdmission` is insufficient even when both endpoints are well formed. Aligned
+trace records derive name-specific episode opening at L-Begin and closing at L-Unload while other
+fibers may cross their own boundaries. New-entry and retirement-write provenance remain explicit
+gaps for opaque undo codes.
+
 The included demo is deterministic and credential-free. Starting from counter
 state `2`, it reads, increments by `3` under limit `10`, reads again, and rejects
 an unknown `counter_destroy` call. It finishes at counter state `5`, protocol
@@ -244,6 +252,7 @@ placeholders.
 | External iterator/undo codes produce certified ordinary or registration steps, newest-first recovery, well-formed traces, and explicit fuel status | `GlobalDynamics.executeOne`, `Accumulator.seq`, `RunResult.recovers`, `RunResult.preservesWellFormed`                            | Definitions 47–48/51 and fueled Definition 52 substrate; supplied laws and phase updates remain separate.                    |
 | Phase-indexed lifecycle edges retain exact targets, executed landings, inertia, recovery, and well-formed endpoints                                | `GlobalLifecycle.Transition.preservesWellFormed`, `Trace.preservesWellFormed`, lifecycle example facts                           | Seven lifecycle rule names/eight constructors; orchestration is separate and general unload recovery is admitted explicitly. |
 | One exact-endpoint global relation has all ten rule names, acted-on names, map/edit projections, and empty-origin traces                           | `GlobalCalculus.Step`, `installation_semantics`, `FromEmpty.final_wellFormed`, unified example facts                             | Finite sequential Definition 53 model; recovery admission remains supplied and full Theorem 59 is unclaimed.                 |
+| Foreign tables/control and episode boundaries satisfy bounded Lemma 54 facts under explicit unload confinement                                     | `foreignTables_preserved`, `actorStatic_continuous`, `Trace.aligned`, `BoundedEpisode.*`, countermodel                           | Existing-fiber facts only; opaque recovery may add names, retire-write provenance and full temporal metatheory are open.     |
 | Supported current-Harness stream JSON refines to an intrinsic validated trace with exact replay, or fails with a structured decode/stream error    | `RuntimeRefinement.validateJsonTrace`, `ValidatedJsonTrace.replay_eq`, exact rejection theorems                                  | JSON AST only; unsupported blocks/failures/replay state are rejected, and completeness for Harness is not claimed.           |
 | A supported current-Harness session prefix assigns fresh local call IDs and jointly validates rich appends plus intrinsic protocol events          | `SessionRefinement.RefinedEvent`, `ValidatedJsonLog.projection_exact`, `validate_example`                                        | Restricted turn/step/tool subset; unsupported payloads, replacement, identities, and extensions fail closed.                 |
 | A rich provider assistant view cannot enter a session without one unique numeric `CallId` per ordered provider tool call                           | `StreamSession.CallIdAssignment`, `toSessionToolCalls_length`, `appendAssistant`                                                 | Assignment authenticity and provider-ID globalization remain adapter obligations.                                            |
@@ -285,6 +294,7 @@ placeholders.
 | `Cordis.GlobalDynamics`           | External code interpretation, ordinary/registration certification, confinement/read obligations, fueled traces, and accumulated recovery.                       |
 | `Cordis.GlobalLifecycle`          | Phase-indexed lifecycle rules, exact executed landings, inertia/recovery admissions, preservation traces, and a concrete activation/deactivation path.          |
 | `Cordis.GlobalCalculus`           | Unified ten-name exact-endpoint steps, state-map/edit projections, installed-status semantics, and empty-registry-origin traces.                                |
+| `Cordis.GlobalTraceFacts`         | Conditional recovery confinement, foreign/static/committed continuity, aligned trace episodes, and a bare-admission countermodel.                               |
 | `Cordis.RuntimeRefinement`        | Path-aware current-Harness `StreamChunk` JSON-AST decoding into proof-producing rich-stream validation with explicit unsupported cases.                         |
 | `Cordis.SessionRefinement`        | Stateful supported-subset Harness session decoding with fresh call-ID assignment and joint Session/Protocol proof-producing validation.                         |
 | `Cordis.StreamSession`            | Proof-carrying provider-string-ID to numeric-`CallId` assignment and rich assistant insertion into the canonical session surface.                               |

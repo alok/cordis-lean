@@ -1922,9 +1922,15 @@ Build the structural slice in this order:
     recovery map separate from insert/retire/remove and phase edit footprints. Prove actual
     installed status changes only at L-Begin/L-Unload, and package a trace whose initial registry
     is explicitly empty.
+15. Audit Lemma 54 against the actual recovery API. Prove every non-unload constructor preserves
+    pre-existing foreign fibers exactly. For unload, require a step-indexed `RecoveryConfinement`
+    covering foreign tables/control and actor static fields; show with a finite countermodel that
+    endpoint well-formedness alone does not imply it. Align trace state/step lists and make episode
+    boundary exclusion specific to the observed name, so other fibers may begin or unload inside
+    its episode. Keep fresh-entry and retirement-write provenance separate for opaque undo codes.
 
 This reaches a bounded finite Definition 53 relation. Do not claim Theorem 59 while general unload
-recovery is still a supplied admission and the remaining spatial/temporal/progress lemmas are
+recovery confinement is still supplied and the remaining spatial/temporal/progress lemmas are
 unproved.
 
 ## 20. Exact verification and review commands

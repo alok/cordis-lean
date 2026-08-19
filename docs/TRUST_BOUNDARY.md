@@ -37,6 +37,9 @@ An executed landing must be reconstructed by `executeOne`, and unload alone cons
 `RecoveryAdmission`. A second module combines orchestration and lifecycle into one ten-name,
 exact-endpoint relation with an empty-registry-origin trace. It is still not Theorem 59:
 arbitrary-interleaving recovery remains supplied evidence and most global lemmas are unproved.
+The first trace audit makes that gap executable: bare unload admission can preserve well-formed
+endpoints while changing a foreign table, so existing-fiber Lemma 54 facts require a separate
+`RecoveryConfinement` certificate.
 
 CORDIS Lean proves properties of typed, pure Lean values. It does not by itself prove that a
 model response, JSON parser, TypeScript Harness process, operating-system resource, or remote
@@ -361,6 +364,7 @@ Executable rejection is valuable, but it is not a refinement theorem.
 | `GlobalDynamics`                            | Interprets opaque codes externally and reconstructs ordinary/registration steps, recovery, confinement/read/WF evidence, and fueled traces with explicit exhaustion.                                                                 | Most laws are integrator obligations; phase updates and unload policy are handled only by the next bounded layer.                                                                                |
 | `GlobalLifecycle`                           | Checks exact target/phase guards, executed landings, inertia, unload recovery, all-edge WF preservation, and finite lifecycle traces.                                                                                                | Orchestration remains separate; general `RecoveryAdmission` is supplied, oracle rejection has no lifecycle edge, and full Definition 53/Theorem 59 are unclaimed.                                |
 | `GlobalCalculus`                            | Unifies orchestration/lifecycle endpoints under ten rule names, retains acted-on names, separates state maps from edits, proves installation-boundary semantics, and packages empty-origin traces.                                   | Finite sequential Definition 53 model; general recovery is admitted, oracle rejection remains absent, and full Theorem 59 is unclaimed.                                                          |
+| `GlobalTraceFacts`                          | Proves non-unload foreign exactness, conditional unload table/control/static continuity, aligned name-specific episodes, and a kernel bare-admission countermodel.                                                                   | Bounded existing-fiber Lemma 54 fragments; new-entry/retire-write provenance and remaining global metatheory are unproved.                                                                       |
 | `CertifiedTwoBatch`                         | Requires same-successor, pointwise same-recovery, and result-stability certificate fields before either order is permitted.                                                                                                          | The certificate is supplied, exactly two pure calls are modeled, and no actual concurrency or external-effect safety follows.                                                                    |
 | `Registry.setAt`                            | Uses dependent equality transport so a value cannot be installed at a differently typed key.                                                                                                                                         | No runtime aliasing, notification, or mutable-store semantics are modeled.                                                                                                                       |
 | `View.resolve`                              | Requires `needs op` before a binding can be requested.                                                                                                                                                                               | Construction of the view and completeness of its registry snapshot remain obligations.                                                                                                           |
@@ -527,6 +531,15 @@ preserves well-formedness from an explicitly empty registry, and constructor ana
 actual installed predicate changes only at L-Begin and L-Unload. This is bounded sequential
 preservation; it does not discharge the recovery admission or the remaining global metatheory.
 
+`GlobalTraceFacts` makes the next condition explicit. `RecoveryConfinement` preserves every
+pre-existing foreign table and control record and the actor's static fields during accumulated
+recovery. All non-unload rules prove these facts without an extra premise. A finite countermodel
+shows a bare `RecoveryAdmission` can instead change a foreign table while both endpoints remain
+well formed. Under the stronger law, aligned per-name episodes propagate installation and
+committed views and identify their opening/closing rules exactly. The law does not forbid opaque
+recovery from adding a brand-new name and does not prove that each retirement came from
+`UndoCode.retire`.
+
 The older finite `Cordis.Lifecycle` model separately assumes:
 
 - inactive states retain the modeled recovered value, and `unload` returns specifically to the
@@ -604,8 +617,9 @@ Without additional proofs or tests, do not state that:
 - `GlobalDynamics` verifies a real code interpreter rather than requiring its recovery,
   confinement, read-agreement, equivariance, and WF laws as fields; `GlobalLifecycle` discharges
   arbitrary-interleaving recovery without its named admission; `GlobalCalculus` proves full
-  Theorem 59, progress/confluence, or runtime completeness; or strengthened birth order is
-  literally paper Definition 58;
+  Theorem 59, progress/confluence, or runtime completeness; `GlobalTraceFacts` proves fresh-name
+  or retirement-write provenance for opaque undo codes; or strengthened birth order is literally
+  paper Definition 58;
 - `RuntimeRefinement` accepts the full Harness stream union, is complete for the tolerant
   TypeScript assembler, verifies provider streaming, or proves chunk storage;
 - `SessionRefinement` accepts the complete Harness event union, preserves every source field in

@@ -29,8 +29,11 @@ phase-indexed transitions and preservation traces with an explicit unload
 recovery admission, and one unified exact-endpoint relation now projects to the
 paper's ten rule names from an empty-registry origin. Arbitrary finite
 outcome-selected computation trees now satisfy a corrected exact whole-run
-interchange theorem; the paper's full transformation-monoid Theorem 42, task
-concurrency, and complete preservation/progress/confluence results remain open.
+interchange theorem. Bounded Lemma 54 foreign/episode facts are proved under a
+named unload-confinement law, and a kernel countermodel shows bare recovery
+admission is insufficient. The paper's full transformation-monoid Theorem 42,
+task concurrency, and complete preservation/progress/confluence results remain
+open.
 
 Repository: `cordis-lean`
 
