@@ -285,6 +285,22 @@ newly allocated entry does not restore `nextBirth`, fixed names can receive diff
 removed bare name can be redrawn. General lifecycle episode deletion, a birth-erased suffix
 simulation, canonical form, and confluence remain absent.
 
+`Cordis.GlobalPaperRelation` removes the allocator mismatch from the observation language itself.
+Relative to current `RuleRelated`, `PaperFiberControl` erases only `Fiber.birth` and the state-level
+`nextBirth` clock while retaining component, parent, retirement, and the complete dependent phase.
+The full-domain, outside-deleted, and combined effect/outside-control relations are proved Setoids;
+the stricter current rule relation weakens into the new full relation.
+
+This relation has operational content. Between two independently well-formed full-domain related
+states, all three orchestration constructors reconstruct real peer steps in both directions, with
+related successors and actual `RetainedStep` assignment transport. From a well-formed source
+carrying a finite `VestigialNames` certificate, removal is `DeletionRelated` and safe foreign
+orchestration traces replay directionally to the erased shadow through a genuine
+`DeletionReplay`. Opposite insertion-order endpoints are now
+related while remaining unequal and not current-`RuleRelated`. Outside-deleted reverse replay and
+lifecycle simulation are still false in general; a clock-sensitive L-DivertAbort model proves no
+assigned lifecycle simulation bundle exists for its instance.
+
 `Cordis.GlobalRelations` supplies the two deliberately incomparable global observation candidates
 that the temporal layer had left abstract. Rule observation keeps the derived dependent context up
 to key-indexed value setoids and keeps registry domain/control exactly; effect observation keeps
@@ -591,6 +607,7 @@ placeholders.
 | `Cordis.GlobalSupport`                              | Reachable mixed-order/nonunique-support countermodels, combined-order recursion and uniqueness, state-local provision/failure/parent laws, corrected support-equals-active theorem, and necessity/positive examples.                                                                    |
 | `Cordis.GlobalTraceRewrite`                         | Exact indexed adjacent trace windows, occurrence/program assignment, assignment-preserving activation and orchestration adapters, rule/actor permutations, and a nonempty-context executable rewrite.                                                                                   |
 | `Cordis.GlobalDeletion`                             | Intrinsic relation-indexed keep/drop replay, assignment reconstruction, multi-vestigial exact orchestration suffixes, positional templates, semantic redraw detection, and parent/allocator countermodels.                                                                              |
+| `Cordis.GlobalPaperRelation`                        | Birth/clock-erased rule and outside-deletion Setoids, strict-rule bridges, bidirectional well-formed orchestration simulation, certified-WF directional deleted-shadow replay, and lifecycle countermodels.                                                                             |
 | `Cordis.GlobalRelations`                            | Key-indexed rule observation, ambient/table effect observation, setoid and temporal-undo bridges, and incomparability examples.                                                                                                                                                         |
 | `Cordis.GlobalRuleInvariance`                       | Dependent fiber-control transport, exact bidirectional orchestration matching, heterogeneous related tables, and an inertia countermodel.                                                                                                                                               |
 | `Cordis.GlobalRuleObservations`                     | Provider/target/reliance/quiescence transport, dependent phase guards, active-table relations, and explicit relation-separation examples.                                                                                                                                               |

@@ -114,6 +114,9 @@ Current machine-checked evidence includes:
 - `Cordis.GlobalDeletion`, constructing intrinsic relation-indexed keep/drop replays and exact
   assignment-carrying safe orchestration suffixes after finite families of already-vestigial
   entries, while kernel-separating parent, redraw, and allocator obstructions to full Lemma 72;
+- `Cordis.GlobalPaperRelation`, erasing only the reference allocator clock/birth ranks from current
+  rule observation, proving full-domain bidirectional well-formed orchestration replay, and
+  constructing directed relation-aware vestigial suffix replay with lifecycle countermodels;
 - `Cordis.GlobalProgress`, distinguishing configured-oracle rejection from the permissive raw
   relation, kernel-refuting progress under exhausted names, and proving conditional state-local
   no-deadlock from finite precedence and exact execution/recovery authorities;
@@ -449,6 +452,18 @@ template and matched assignment. Full-trace countermodels show parent enablement
 surviving birth ranks, and bare-name redraw each require stronger deletion semantics. The module
 does not delete a general closed lifecycle episode or claim Lemma 72/Theorem 73.
 
+The paper-visible relation slice is specified in
+[`GLOBAL_PAPER_RELATION_SPEC.md`](GLOBAL_PAPER_RELATION_SPEC.md) and implemented by
+`Cordis.GlobalPaperRelation`. It defines full-domain and outside-deleted rule observations that
+retain component, parent, retirement, and the complete dependent phase while omitting only the
+reference allocator clock and per-fiber birth relative to current `RuleRelated`; the deletion
+relation conjoins outside control with exact effect observation. Actual peer orchestration steps,
+successor relations, and assignment transports are proved in both directions for the full-domain
+relation. Finite vestigial removal and safe foreign orchestration traces use the combined deletion
+relation directionally from a well-formed source carrying a `VestigialNames` certificate. A real
+clock-sensitive L-DivertAbort with no exact-rule peer refutes
+unconditional lifecycle simulation.
+
 The corrected progress slice is specified in
 [`GLOBAL_PROGRESS_SPEC.md`](GLOBAL_PROGRESS_SPEC.md) and implemented by `Cordis.GlobalProgress`.
 It exposes configured-oracle rejection and raw freshness exhaustion, defines provider precedence
@@ -463,7 +478,7 @@ relation whose union cycles, so the module requires `SupportOrder` directly. It 
 combined-edge well-founded recursion, proves uniqueness, and derives support-equals-active at
 quiescence under state-local provision totality, failure exclusion, and active-parent closure.
 
-The bounded algebra/context/global layer now has thirty-six explicit pieces:
+The bounded algebra/context/global layer now has thirty-seven explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -670,7 +685,16 @@ The bounded algebra/context/global layer now has thirty-six explicit pieces:
     parent/clock/redraw/birth countermodels keep the boundary executable. General closing-episode
     deletion, lifecycle suffix simulation, birth-erased endpoints, Lemma 72, normalization, and
     confluence remain absent.
-35. `Cordis.GlobalProgress` gives Definition 65 its exact state-local provider precedence and an
+35. `Cordis.GlobalPaperRelation` defines the finite paper-visible control obtained by erasing only
+    `nextBirth` and per-fiber birth from current rule observation. It proves three observation
+    Setoids, weakening from strict `RuleRelated`, allocator-gap relatedness, and actual bidirectional
+    O-Insert/O-Retire/O-Remove replay with related well-formed successors and assignment-carrying
+    `RetainedStep`s. From a well-formed source carrying `VestigialNames`, finite erasure satisfies
+    combined effect/outside control and safe orchestration traces replay directionally. Outside
+    reverse replay and lifecycle simulation are
+    kernel-refuted; there is no birth-erased activation swap, general episode deletion,
+    normalization, or confluence.
+36. `Cordis.GlobalProgress` gives Definition 65 its exact state-local provider precedence and an
     explicit finite increasing rank. A configured oracle-rejection model separates fixed-program
     applicability from the raw existential-oracle relation; a Boolean freshness-exhaustion model
     is well formed and nonquiescent yet admits no raw lifecycle rule. `OracleTotal` constructs
@@ -679,7 +703,7 @@ The bounded algebra/context/global layer now has thirty-six explicit pieces:
     argument proves state-local no-deadlock for every lifecycle phase. The module stops before the
     quantitative `(K + 4)` bound, target-turn finiteness, maximal termination, fairness, or
     trace-wide program assignment.
-36. `Cordis.GlobalSupport` proves the printed Lemma 68 inference false with a reachable
+37. `Cordis.GlobalSupport` proves the printed Lemma 68 inference false with a reachable
     `FromEmpty` mixed parent/provider cycle and two distinct Definition 67 solutions.
     `SupportOrder` therefore stores well-foundedness of the combined relation itself; `supported`
     uses edge-indexed well-founded recursion and is the unique solution. `TotalOnProvisionAt`,

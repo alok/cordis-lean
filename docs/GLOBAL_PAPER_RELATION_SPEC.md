@@ -2,7 +2,7 @@
 
 <!-- markdownlint-disable MD013 -->
 
-Status: planned
+Status: implemented by `Cordis.GlobalPaperRelation`
 
 Source basis: CORDIS paper revision
 `948a07b369c62adb3b12e102458be5c18dfb69b9`, especially Equation 53,
@@ -40,10 +40,10 @@ The module must do more than define a relation. It must:
    independently well-formed full-domain related states;
 1. return actual `GlobalDeletion.RetainedStep` values with assignment
    transport;
-1. prove finite vestigial removal satisfies the combined deletion relation;
-   and
-1. construct a directional safe orchestration trace replay under that
-   relation.
+1. prove that, from a well-formed source carrying a finite `VestigialNames`
+   certificate, removal satisfies the combined deletion relation; and
+1. from that same certified source, construct a directional safe
+   orchestration trace replay under the relation.
 
 The module must also state an exact lifecycle assigned-simulation frontier and
 kernel-separate at least one required lower law—such as inertia respect—from
@@ -550,6 +550,8 @@ structure ForwardDeletedOrchestrationReplay
     RetainedStep
       (shadowBefore := removeNames before names)
       (Step.orchestration source)
+  remove_after :
+    removeNames after names = retained.shadowAfter
   before_related :
     DeletionRelated values (fun name => name ∈ names)
       before (removeNames before names)
@@ -558,8 +560,6 @@ structure ForwardDeletedOrchestrationReplay
   after_related :
     DeletionRelated values (fun name => name ∈ names)
       after retained.shadowAfter
-  remove_after :
-    removeNames after names = retained.shadowAfter
   remains : VestigialNames after names
 ```
 
@@ -791,9 +791,9 @@ The exact positive claim is:
 > Erasing Lean's allocator clock and per-fiber birth ranks yields a finite
 > paper-visible rule observation under which all three well-formed orchestration
 > rules admit real bidirectional peer steps and assignment-preserving retained
-> replay. When a finite family is already proved vestigial, safe foreign
-> orchestration traces replay directionally from the source to the erased shadow
-> under the combined effect/outside-control deletion relation.
+> replay. From a well-formed source carrying a finite `VestigialNames`
+> certificate, safe foreign orchestration traces replay directionally to the
+> erased shadow under the combined effect/outside-control deletion relation.
 
 ## 20. Verification and integration requirements
 

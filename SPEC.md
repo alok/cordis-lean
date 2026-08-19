@@ -159,6 +159,24 @@ no-redraw and vestigial-or-absent vocabulary, but no lifecycle/oracle/recovery s
 birth-erased outside relation. Lemma 72, Theorem 73, canonical form, confluence, and both
 normalization and maximal-lifecycle termination remain open.
 
+The paper-relation layer then erases the allocator artifacts that the reference refinement added
+but the paper does not observe. Its full-domain relation compares active values plus exact
+component/parent/retirement/phase control while omitting `nextBirth` and per-fiber birth; the
+outside-deleted variant ignores selected slots, and `DeletionRelated` conjoins it with global
+effect observation. All three are Setoids, and current stricter `RuleRelated` implies the new full
+relation.
+
+This is not definition-only infrastructure. Between independently well-formed full-domain related
+states, O-Insert, O-Retire, and O-Remove have real peer steps in both directions, with related
+successors and assignment-preserving `RetainedStep`s. From a well-formed source carrying a finite
+`VestigialNames` certificate, erasure satisfies the combined deletion relation and safe foreign
+orchestration traces replay directionally through an intrinsic all-keep `DeletionReplay`. The
+opposite-allocation endpoints are related despite exact
+state and current-rule-relation inequality. A clock-sensitive target-changed model has an actual
+L-DivertAbort but no same-lifecycle-rule peer, refuting any unconditional assigned lifecycle
+simulation. General lifecycle replay, relation-aware activation swaps, Lemma 72, normalization,
+and confluence remain open.
+
 The progress layer proves that printed Theorem 66 also needs stronger executable premises. A
 configured oracle may reject a registration that the raw relation can admit through another
 oracle, while finite Boolean name exhaustion produces a well-formed nonquiescent state with no raw

@@ -384,6 +384,7 @@ Executable rejection is valuable, but it is not a refinement theorem.
 | `GlobalActivationOrchestrationTransposition` | Kernel-refutes the literal clause-(2) child condition, classifies registration, derives legal early orchestration/positive targets, and proves an occurrence-framed exact exchange with the same template and endpoint; includes birth/frame gaps and structural/ordinary/registering examples.                                        | Corrected partial fixed-oracle Lemma 71(2) analogue. Registering×Insert is excluded, frames are supplied, and the parent countermodel is compact structural evidence. No birth-erasing quotient, arbitrary stored-trace rewrite, literal paper clause, Lemma 72, or confluence.                                                  |
 | `GlobalTraceRewrite`                         | Locates exact dependent two-step windows, identifies actual fixed-program activation/orchestration occurrences, splices the corrected transposition through retained context, and reconstructs the occurrence-indexed assignment ledger; rules and actors are adjacent permutations.                                                   | Exact stored-trace consequence of the bounded corrected Lemma 71 analogues. It does not derive occurrence laws, admit registering×Insert, weaken endpoints to a birth-erased relation, simulate arbitrary suffixes, normalize traces, delete vestiges, or prove Lemma 72/confluence.                                             |
 | `GlobalDeletion`                             | Builds intrinsic relation-indexed keep/drop replay and output assignments; exactly replays safe foreign orchestration suffixes after finite already-vestigial families; kernel-checks parent, redraw, clock, and surviving-birth obstructions.                                                                                         | Bounded deletion substrate below Lemma 72. It does not delete a general lifecycle episode, derive provenance or no-redraw, simulate lifecycle suffixes, define a birth-erased relation, normalize traces, or prove Lemma 72/Theorem 73/confluence.                                                                               |
+| `GlobalPaperRelation`                        | Erases allocator clock/birth from current rule observation, proves full/outside/deletion Setoids and strict bridges, reconstructs orchestration bidirectionally between two WF full-domain states, and from a WF source with `VestigialNames` gives directional safe deleted-shadow replay.                                            | Finite structural paper-relation slice. No one-sided WF transport, outside bisimulation, lifecycle simulation, name quotient, relation-aware activation swap, general episode deletion, Lemma 72, normalization, or confluence.                                                                                                  |
 | `GlobalProgress`                             | Separates fixed-program oracle rejection from raw oracle-existential applicability, kernel-refutes raw progress under finite-name exhaustion, and proves state-local no-deadlock from explicit finite precedence, current execution/recovery readiness, and committed-provider soundness.                                              | Corrected conditional no-deadlock fragment of Theorem 66. Printed assumptions omit admission/freshness totality. No quantitative bound, target-turn finiteness, maximal termination, fairness, trace program assignment, support, deletion, or confluence.                                                                       |
 | `GlobalSupport`                              | Kernel-refutes combined support order from separate acyclicity, defines the unique support predicate by edge-indexed well-founded recursion, and proves corrected support-equals-active under state-local provision totality, no failure, and active-parent closure; includes independent necessity models.                            | Corrected local Definitions 67/69 and Lemmas 68/70 analogues. Combined order and parent closure are supplied rather than trace-derived; totality is state-local. No component-wide provenance, deletion, canonical form, or confluence.                                                                                          |
 | `GlobalRelations`                            | Defines key-indexed rule observation and ambient/table effect observation as setoids, bridges respectful undo to the temporal interface, and separates the candidates by executable models.                                                                                                                                            | Finite Equation 53/Lemmas 55–57 candidates only; rule bisimulation, name-action laws, and the full global lemmas remain unproved.                                                                                                                                                                                                |
@@ -426,7 +427,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 821
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 882
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.
@@ -690,6 +691,21 @@ vocabulary. It proves no general lifecycle episode projection, lifecycle/oracle/
 matching, birth-erased
 outside relation, Lemma 72, normalization, or confluence.
 
+`GlobalPaperRelation` supplies that missing finite outside relation without overstating it.
+Relative to current `RuleRelated`, it erases only `nextBirth` and `Fiber.birth`; all control
+already observed by the strict relation remains. Opposite insertion endpoints become related,
+while exact equality and current rule relation still fail. With independent well-formedness on
+both sources, the module reconstructs actual peer O-Insert/O-Retire/O-Remove steps in both
+directions and derives assignment-preserving retained replay. Finite vestigial removal satisfies
+combined effect/outside control, and safe orchestration traces replay directionally from a
+well-formed source carrying a `VestigialNames` certificate to the erased shadow.
+
+The outside relation is only a symmetric observation Setoid, not an operational bisimulation.
+Existing parent, redraw, provision, and parent-removal countermodels block the reverse theorem.
+Lifecycle behavior remains external: a clock-sensitive related pair has an actual L-DivertAbort on
+one side and no same-lifecycle-rule peer on the other, proving no nonempty assigned lifecycle
+simulation bundle exists for that instance.
+
 `GlobalRelations` then makes the two observation interfaces concrete without identifying them.
 `RuleRelated` observes the derived coeffect context through supplied key-indexed setoids and keeps
 the registry domain, fiber control, and local birth clock exactly. `EffectRelated` instead keeps
@@ -877,6 +893,11 @@ Without additional proofs or tests, do not state that:
   from rule tags, treats name-level ledgers as fiber lifetimes, derives no-redraw or vestigiality
   from well-formedness, ignores parent closure or allocator history, simulates lifecycle suffixes,
   or proves Lemma 72, Theorem 73, normalization, confluence, or termination;
+  `GlobalPaperRelation` transports well-formedness from one related state, upgrades birth-erased
+  observation to current `RuleRelated`, provides outside-deleted or lifecycle bisimulation,
+  derives fixed-program lifecycle assignments from tags, supplies name quotienting, performs
+  relation-aware activation swaps, or proves general deletion, normalization, confluence, or
+  termination;
   `GlobalProgress` derives fresh-name/admission totality from finite names, treats raw existential
   oracle choice as fixed-program provenance, derives recovery or occurrence readiness from WF, or
   upgrades state-local no-deadlock to the quantitative/maximal-termination clauses of Theorem 66;

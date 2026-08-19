@@ -1697,6 +1697,7 @@ The assurance layers can be summarized as follows:
 | Activation/orchestration | The literal child condition is kernel-refuted; the corrected theorem reconstructs the early same-template orchestration and moved activation under registration safety and one occurrence frame.                                            | Corrected partial fixed-oracle Lemma 71(2) analogue; registering×Insert is excluded, frames are supplied, and no birth-erasing quotient, stored-trace rewrite, Lemma 72, or confluence is proved.               |
 | Exact trace rewrite      | A dependent adjacent window, actual fixed-program occurrence ledger, and assigned corrected swap reconstruct an intrinsic complete trace with the same outer endpoints and reversed rule/actor projections.                                 | Exact stored-trace consequence only; occurrence laws remain supplied, registering×Insert and relation-only endpoints are excluded, and there is no suffix simulation, normalization, deletion, or confluence.   |
 | Bounded deletion replay  | Positional keep/drop certificates construct a dependent shadow trace and assignment; finite already-vestigial families admit exact same-template safe foreign-orchestration suffix replay.                                                  | Deletion substrate only; no general lifecycle episode projection, provenance/no-redraw derivation, birth-erased outside relation, Lemma 72, normalization, or confluence.                                       |
+| Paper-visible relation   | Allocator clock/birth are erased from strict rule observation; full-domain related WF states match orchestration bidirectionally, while a WF source with `VestigialNames` supports directional safe replay.                                 | Finite structural relation slice; no one-sided WF transport, outside/lifecycle bisimulation, name quotient, relation-aware activation swap, Lemma 72, normalization, or confluence.                             |
 | Conditional progress     | Fixed-oracle rejection and finite-name exhaustion refute unconditional progress; explicit precedence rank, current landing-or-raise/recovery readiness, and committed-provider soundness prove state-local no-deadlock.                     | Corrected Theorem 66 no-deadlock fragment only; no quantitative bound, target-turn finiteness, maximal termination, trace assignment, fairness, support, or confluence.                                         |
 | Corrected support        | A reachable mixed cycle refutes separate acyclicity; combined-order well-founded recursion gives unique support, and state-local totality/failure/parent closure identifies it with active names.                                           | Corrected local Definitions 67/69 and Lemmas 68/70; combined order and parent closure are supplied, totality is state-local, and no trace provenance, deletion, or confluence follows.                          |
 | Policy                   | One exact-subject pure trace dispatches at most once; completed traces dispatch exactly once.                                                                                                                                               | Global linearity, worker exclusion, retries, persistence, and idempotency.                                                                                                                                      |
@@ -2149,7 +2150,19 @@ Build the structural slice in this order:
     orchestration trace, retaining positional edit-template and assignment evidence. Exercise an
     actual `[drop, keep]` filter. Stop before lifecycle episode projection, lifecycle/oracle/recovery
     suffix simulation, a birth-erased outside relation, Lemma 72, normalization, or confluence.
-33. Audit progress before attempting termination. Separate a configured program whose fixed oracle
+33. Define the paper-visible relation before relation-aware rewriting. Project fiber control to
+    component, parent, retirement, and exact dependent phase, deliberately erasing only the
+    reference `birth` and `nextBirth` fields relative to current rule observation. Prove full,
+    outside-deleted, and combined effect/outside Setoids plus strict-relation bridges and domain
+    consequences. Between two independently well-formed full-domain related states, reconstruct
+    real O-Insert/O-Retire/O-Remove peers in both directions and derive `RetainedStep` assignment
+    transports. Show opposite insertion schedules are related while exact/current-rule equality
+    fail. From a well-formed source carrying `VestigialNames`, prove finite erasure satisfies the
+    deletion relation and replay safe foreign orchestration traces directionally. Retain
+    parent/redraw/provision/parent-removal asymmetry and
+    a clock-sensitive unmatched DivertAbort countermodel. Stop before outside/lifecycle
+    bisimulation, name quotienting, relation-aware activation swaps, Lemma 72, or normalization.
+34. Audit progress before attempting termination. Separate a configured program whose fixed oracle
     rejects from the raw lifecycle relation that can choose another oracle. Kernel-check a stronger
     Boolean freshness-exhaustion state with no possible registration admission or lifecycle rule.
     Define provider-to-consumer `PrecedesAt` and an explicit finite increasing rank. Derive
@@ -2160,7 +2173,7 @@ Build the structural slice in this order:
     following any installed consumer to either an applicable rule or a rank contradiction. Stop
     before the `(K + 4)` bound, target-turn finiteness, maximal-execution termination, trace-wide
     program assignment, fairness, support, deletion, or confluence.
-34. Audit support order before defining the support set. Build a legal `FromEmpty` trace whose
+35. Audit support order before defining the support set. Build a legal `FromEmpty` trace whose
     provider precedence is well founded and parent relation birth-acyclic but whose union has a
     two-cycle and two Definition 67 solutions. Define `SupportOrder` from combined
     well-foundedness directly. Use an edge-indexed `WellFounded.fix`, prove its unfolding equation,
@@ -2196,6 +2209,14 @@ multi-vestigial safe orchestration suffixes. Its parent, redraw, clock, and surv
 countermodels expose why general lifecycle episode deletion still needs temporal recovery,
 lifecycle/oracle suffix simulation, lifetime-aware no-redraw, corrected support authority, and a
 birth-erased outside relation. It proves neither Lemma 72 nor normalization/confluence.
+`GlobalPaperRelation` now supplies that finite relation: it erases only allocator clock/birth from
+current rule control, relates the opposite insertion endpoints, and proves bidirectional
+well-formed orchestration replay with assignment transport. From a well-formed source carrying
+`VestigialNames`, finite removal and safe foreign orchestration traces satisfy the combined
+effect/outside relation directionally. Existing
+outside-deletion asymmetry and a clock-sensitive unmatched L-DivertAbort prevent any lifecycle or
+reverse-suffix upgrade; relation-aware activation swapping, Lemma 72, and normalization remain
+absent.
 `GlobalProgress` separately refutes unconditional progress
 under configured-oracle rejection and exhausted names, then proves only conditional state-local
 no-deadlock from explicit rank/readiness/soundness authorities. It does not prove quantitative or
