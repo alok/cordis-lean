@@ -176,6 +176,10 @@ no `IO`, launches no tasks, and proves no concurrency or safe-parallel-execution
   `PartialTransformation` then closes the partial forward/yielded-inverse Kleisli monoids under
   identity/composition and proves full cross-closure commutation plus success-conditional yield
   stability. A countermodel proves the whole-run certificate is strictly weaker.
+  `ObservationalPartialTransformation` proves the current `CoeffectAt` laws make every adaptive
+  generator relation-respecting and then descends that full closure theorem to related
+  representatives with exact partial-domain agreement. Its separate `RespectGap` demonstrates
+  why exact commutation is not enough for arbitrary maps.
 
 ### Current stream JSON refinement
 
@@ -365,6 +369,7 @@ Executable rejection is valuable, but it is not a refinement theorem.
 | `MediatedIndependence`                      | Reifies selected branches, states quotient closure, bridges it to exact closure under representative coherence, and checks a finite exact-representative counterexample.                                                             | Its old individual-domain `PairwiseOverlapComplete` is false for partial computation versus unit; the next row supplies the corrected bounded theorem.                                           |
 | `MediatedTheorem`                           | Corrects composite partial domains and constructively swaps arbitrary finite outcome-selected trees with exact after/undo and conditional inverse stability, then derives the observational form.                                    | Finite whole-run analogue only; old `PairwiseOverlapComplete` is false for partial unit, and the next row proves the stronger partial monoid result.                                             |
 | `PartialTransformation`                     | Builds the complete partial forward/actual-yielded-inverse Kleisli closures and proves all cross transformations commute plus success-conditional domain/inverse stability.                                                          | Full finite exact partial D17/D19/T42 analogue; not the paper's literal total/quotient, external, asynchronous, or infinite setting.                                                             |
+| `ObservationalPartialTransformation`        | Proves adaptive computation generators respect the finite context relation and descends exact closure independence to domain-sensitive related partial maps; checks a generic respect counterexample.                                | Finite observational partial/Kleisli analogue under exact `PairwiseOverlap`; not quotient-only operation independence or the paper's unrestricted total setting.                                 |
 | `GlobalRegistry`                            | Checks code-only component/fiber/global data, unique providers/targets, birth-ranked acyclicity, and preservation by insert/retire/remove orchestration.                                                                             | Uses a strengthened parent invariant and noncomputable derived views; no code interpreter, read confinement, lifecycle rules, or full Theorem 59.                                                |
 | `GlobalDynamics`                            | Interprets opaque codes externally and reconstructs ordinary/registration steps, recovery, confinement/read/WF evidence, and fueled traces with explicit exhaustion.                                                                 | Most laws are integrator obligations; phase updates and unload policy are handled only by the next bounded layer.                                                                                |
 | `GlobalLifecycle`                           | Checks exact target/phase guards, executed landings, inertia, unload recovery, all-edge WF preservation, and finite lifecycle traces.                                                                                                | Orchestration remains separate; general `RecoveryAdmission` is supplied, oracle rejection has no lifecycle edge, and full Definition 53/Theorem 59 are unclaimed.                                |
@@ -636,8 +641,8 @@ Without additional proofs or tests, do not state that:
   I/O atomic, or provides process-wide exactly-once execution;
 - the local `Cordis.Harness` verifies or is behaviorally equivalent to DeepSeek Harness;
 - `Approximation` constructs Definition 32's recursive fixed point, fixed-generator tests imply
-  paired-inverse coherence, or the finite exact partial/Kleisli theorem is the paper's literal
-  total/quotient Theorem 42;
+  paired-inverse coherence, or the finite exact/observational partial-Kleisli theorems are the
+  paper's literal total/quotient Theorem 42;
 - finite exact `Removal` proves observational, asynchronous, infinite, or external-effect
   recovery;
 - `GlobalDynamics` verifies a real code interpreter rather than requiring its recovery,

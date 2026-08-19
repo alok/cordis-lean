@@ -67,6 +67,9 @@ Current machine-checked evidence includes:
   observational finite whole-run interchange for arbitrary outcome-selected computation trees;
 - `Cordis.PartialTransformation`, proving full finite partial/Kleisli transformation-monoid
   commutation and success-conditional domain/inverse stability for those computation trees;
+- `Cordis.ObservationalPartialTransformation`, proving those adaptive forward and inverse
+  generators respect contextual equivalence and descending the complete closure theorem to
+  domain-sensitive related partial maps;
 - `Cordis.GlobalDynamics`, interpreting opaque iterator/undo codes externally with exact ordinary
   recovery, observational registration recovery, explicit confinement/read/equivariance
   obligations, and a total fueled Definition 52 runner with accumulated recovery/WF evidence;
@@ -339,7 +342,7 @@ future external adapter consumes the same proof-carrying request contract.
 
 ## Paper context and executable refinement
 
-The bounded algebra/context/global layer now has eighteen explicit pieces:
+The bounded algebra/context/global layer now has nineteen explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -419,6 +422,12 @@ The bounded algebra/context/global layer now has eighteen explicit pieces:
     law instantiates `GlobalTemporal.EffectEquiv`. Executable examples prove the two candidates are
     incomparable and that an arbitrary dynamics relation may be too weak. Rule bisimulation, name
     equivariance, and vestigial rule simulation remain explicit missing laws.
+19. `Cordis.ObservationalPartialTransformation` relates partial maps on all related input
+    representatives, requiring identical `Option` definedness and related successful outputs. It
+    derives forward and yielded-inverse generator respect structurally from existing `CoeffectAt`
+    domain/successor/inverse/outcome laws, including exact heterogeneous outcomes and branch
+    choices, then descends full exact partial closure independence. A generic finite model proves
+    exact commutation alone does not imply observational commutation without this respect law.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a

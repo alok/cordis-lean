@@ -36,12 +36,15 @@ commutation certificates now yield parameterized finite interleaved recovery;
 countermodels separate that algebra from canonical paper `≈`, off-source
 totality, and RecoveryConfinement alone. The complete finite partial/Kleisli
 transformation monoids now satisfy a Definition 19/Theorem 42 analogue, with
-whole-run equality proved strictly weaker. Separate finite rule/effect observation
-setoids now make the paper's two incomparable global relations explicit and bridge
-respectful undo interpretation into the temporal algebra, without assuming the
-missing rule bisimulation. The paper's literal total/quotient setting, Lemmas
-55–57, task concurrency, and complete preservation/progress/confluence results
-remain open.
+whole-run equality proved strictly weaker. The complete theorem now also descends
+through the finite context relation: related partial representatives agree on
+definedness and return related successors, because the existing operation laws
+prove every adaptive forward and yielded-inverse generator respectful. Separate
+finite rule/effect observation setoids make the paper's two incomparable global
+relations explicit and bridge respectful undo interpretation into the temporal
+algebra, without assuming the missing rule bisimulation. The paper's literal
+total/quotient setting, Lemmas 55–57, task concurrency, and complete
+preservation/progress/confluence results remain open.
 
 Repository: `cordis-lean`
 

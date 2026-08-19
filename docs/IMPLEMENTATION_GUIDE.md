@@ -1845,11 +1845,21 @@ Implement this layer in paper dependency order.
     inverse/forward, inverse/inverse, and yield-stability generator laws structurally. Promote
     them through identity/composition closure. Derive whole-run interchange from this certificate,
     and kernel-check that whole-run equality does not imply cross-seed inverse commutation.
+19. Descend the exact partial closure through contextual equivalence explicitly. Define related
+    partial maps over two related representatives so `none`/`some` disagreement is rejected, and
+    require every generator to respect that relation. Prove adaptive computation evaluation
+    respects domains, successors, complete inverses, exact heterogeneous outcomes, and selected
+    continuations by structural induction. Then show the existing `CoeffectAt` laws discharge
+    generator respect and reuse the exact closure theorem. Include a counterexample where an
+    exactly commuting map copies hidden representation state into an observed field, demonstrating
+    why exact commutation alone cannot supply quotient independence.
 
-The result is the full finite exact partial/Kleisli analogue of Definitions 17/19 and Theorem 42,
-not the paper's literal total/quotient setting. Likewise, do not confuse it with exact
-representative equality: the universal-equivalence cell counterexample still requires
-`ExactRepresentativeCoherence` for exact promotion.
+The result is the full finite exact and relation-respecting partial/Kleisli analogue of Definitions
+17/19 and Theorem 42, not the paper's literal total/quotient setting. The observational theorem
+still starts from exact `PairwiseOverlap`, which is stronger than quotient-only operation
+independence. Likewise, do not confuse it with exact representative equality: the
+universal-equivalence cell counterexample still requires `ExactRepresentativeCoherence` for exact
+promotion.
 
 The important review question at each step is whether a theorem describes the paper object
 directly, a bounded approximation, or an integrator-supplied obligation. Put that distinction in
