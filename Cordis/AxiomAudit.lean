@@ -17,6 +17,7 @@ import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
 import Cordis.GlobalNameLifecycle
+import Cordis.GlobalProgress
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
@@ -600,6 +601,38 @@ namespace Cordis.GlobalActivationOrchestrationTransposition
 #print axioms RegisteringFinishRetire.transposition
 #print axioms RegisteringFinishRetire.original_safe_child
 end Cordis.GlobalActivationOrchestrationTransposition
+namespace Cordis.GlobalProgress
+#print axioms RegistrationRejectionGap.fixed_program_rejection_gap
+#print axioms RegistrationRejectionGap.raw_relation_can_change_oracle
+#print axioms RegistrationRejectionGap.changed_execution_not_ready
+#print axioms RegistrationRejectionGap.aborting_inertia_restores_a_rule
+#print axioms FreshnessExhaustionGap.no_admission
+#print axioms FreshnessExhaustionGap.no_lifecycle_transition
+#print axioms FreshnessExhaustionGap.raw_progress_fails
+#print axioms FreshnessExhaustionGap.no_freshSupply_bool
+#print axioms FinitePrecedenceRank.wellFounded
+#print axioms FinitePrecedenceRank.transGen_rank_lt
+#print axioms FinitePrecedenceRank.no_transGen_self
+#print axioms OracleTotal.toLandingOrRaiseTotal
+#print axioms RecoveryTotal.readyAt
+#print axioms unloading_provider_changes_committed_target
+#print axioms relied_precedes
+#print axioms ReloadingReadyAt.ofTotal
+#print axioms FinitePrecedenceRank.exists_rank_maximal
+#print axioms FinitePrecedenceRank.successor_not_maximal
+#print axioms lifecycle_progress
+#print axioms BeginExample.precedence_wellFounded
+#print axioms BeginExample.precedence_acyclic
+#print axioms BeginExample.true_rank_maximal
+#print axioms BeginExample.no_precedence_successor
+#print axioms BeginExample.progress
+#print axioms BeginExample.executableRule_eq
+#print axioms BeginExample.explicitTransition_witnesses_progress
+#print axioms OracleExample.oracleTotal
+#print axioms OracleExample.total
+#print axioms OracleExample.origin_ready
+#print axioms OracleExample.concrete_landing
+end Cordis.GlobalProgress
 #print axioms Cordis.GlobalRelations.contextRelated_domain
 #print axioms Cordis.GlobalRelations.ruleSetoid
 #print axioms Cordis.GlobalRelations.ruleRelated_registry_domain

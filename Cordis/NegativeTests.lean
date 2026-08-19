@@ -15,6 +15,7 @@ import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
 import Cordis.GlobalNameLifecycle
+import Cordis.GlobalProgress
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
@@ -588,5 +589,16 @@ example : GlobalTransposition.LifecycleYieldAgrees
     kind := rfl
   }
   rfl
+
+/-! A landing produced by another oracle cannot witness configured-program readiness. -/
+
+/-- error: Type mismatch -/
+#guard_msgs (substring := true) in
+example : GlobalLandingTransposition.LandingProgramWitness
+    GlobalForeignPhase.OracleGap.program
+    GlobalProgress.RegistrationRejectionGap.permissiveLanding := {
+  reachable := GlobalIteratorIndependence.Reach.root
+  program_executed := GlobalProgress.RegistrationRejectionGap.permissive_executed
+}
 
 end Cordis.NegativeTests

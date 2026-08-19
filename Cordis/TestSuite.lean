@@ -19,6 +19,7 @@ import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
 import Cordis.GlobalNameLifecycle
+import Cordis.GlobalProgress
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
@@ -1017,6 +1018,12 @@ private def testGlobalActivationOrchestrationTransposition : IO Unit := do
   assertEqual "opposite fresh insertion orders retain different per-fiber birth ranks"
     (normalBirth, swappedBirth) (some 1, some 2)
 
+private def testGlobalProgress : IO Unit := do
+  assertEqual "conditional progress constructs the expected concrete Begin rule"
+    GlobalProgress.BeginExample.executableRule .begin
+  assertEqual "the concrete progress source is inactive rather than already installed"
+    GlobalProgress.BeginExample.executableSourcePhase true
+
 private def testGlobalRelations : IO Unit := do
   let absentTable : Option Nat :=
     GlobalRelations.tableAt GlobalRelations.Example.emptyState false ()
@@ -1348,6 +1355,7 @@ def run : IO Unit := do
   testGlobalLandingTransposition
   testGlobalActivationTransposition
   testGlobalActivationOrchestrationTransposition
+  testGlobalProgress
   testGlobalRelations
   testGlobalSpatial
   testGlobalVestigial
