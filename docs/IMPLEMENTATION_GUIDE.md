@@ -1978,12 +1978,22 @@ Build the structural slice in this order:
     sufficient confinement only when every actor is foreign. Classify one reloading lifecycle step
     by target equality/diversion/raise without claiming an initial interval, eventual close, or
     recovery theorem.
+19. Treat vestigial removal as a commuting-square problem, not as informal invisibility. Package
+    retirement, exact successful inactivity, an empty dependent table, and childlessness. Prove
+    normalized effect observation equates the state with removal. For orchestration, retain exact
+    rule kind, acted name, endpoint deletion, and vestigiality in forward/backward square records.
+    Forward insertion must not adopt the vestigial entry as parent. Backward simulation must
+    exclude drawing its name, provision overlap, and removal of its parent. Kernel-check every
+    exception on well-formed states. The last exception corrects a directional error in pinned
+    Lemma 57(2): no child pointing to `n` does not imply `n` has no parent `m`.
 
 This reaches a bounded finite Definition 53 relation. Do not claim Theorem 59 while general unload
 recovery confinement is still supplied, or full T61/Cor62 while the canonical relation,
 off-source totality, and Definition 60/reordering laws are supplied. The two candidate relations do
 not themselves prove Lemmas 55–57. The finite spatial facts do not supply maximal episodes,
-same-owner table confinement, or full T63/T64. Progress and confluence remain unproved.
+same-owner table confinement, or full T63/T64. The corrected vestigial orchestration squares do
+not prove lifecycle/iterator invisibility or the paper's literal unqualified clauses. Progress and
+confluence remain unproved.
 
 ## 20. Exact verification and review commands
 

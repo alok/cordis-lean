@@ -85,6 +85,9 @@ Current machine-checked evidence includes:
   reordering certificates;
 - `Cordis.GlobalRelations`, defining incomparable finite rule/effect observation setoids and an
   explicit respectful-undo bridge into the temporal algebra without claiming rule bisimulation;
+- `Cordis.GlobalVestigial`, proving exact effect-equivalence to removal and corrected
+  bidirectional orchestration squares, with well-formed witnesses for both paper insert exceptions
+  and the two omitted parent-pointer exceptions;
 - `Cordis.GlobalSpatial`, proving finite dependency provision, explicitly witnessed nested episode
   order, provider-resolution/no-unload consequences, conditional table constancy, and local
   reloading classification;
@@ -345,7 +348,7 @@ future external adapter consumes the same proof-carrying request contract.
 
 ## Paper context and executable refinement
 
-The bounded algebra/context/global layer now has twenty explicit pieces:
+The bounded algebra/context/global layer now has twenty-one explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -438,6 +441,13 @@ The bounded algebra/context/global layer now has twenty explicit pieces:
     from an explicit per-record premise, with a foreign-actor sufficient-confinement corollary.
     Reloading steps are locally classified as target-stable, diverting, or raising; maximal
     episodes, same-owner table confinement, eventual close, and recovery are not inferred.
+21. `Cordis.GlobalVestigial` packages the exact retired/inactive-success/empty-table/childless
+    witness and proves it `EffectRelated` to entry removal. Safe foreign orchestration steps form
+    exact forward and backward removal squares retaining kind, actor, endpoint deletion, and
+    vestigiality. The forward theorem excludes adopting the vestigial entry as parent. The backward
+    theorem excludes drawing its name, claiming its provision, and removing its parent. A
+    well-formed kernel model proves all four cases necessary and exposes two omissions in the
+    pinned raw Lemma 57. Full lifecycle and iterator invisibility remain unproved.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a

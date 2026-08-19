@@ -395,6 +395,8 @@ Local sources: [`Cordis/GlobalRegistry.lean`](../Cordis/GlobalRegistry.lean),
 [`Cordis/GlobalTraceFacts.lean`](../Cordis/GlobalTraceFacts.lean) audit, followed by
 [`Cordis/GlobalTemporal.lean`](../Cordis/GlobalTemporal.lean)'s conditional recovery algebra and
 [`Cordis/GlobalRelations.lean`](../Cordis/GlobalRelations.lean)'s explicit observation candidates,
+the corrected vestigial-entry slice in
+[`Cordis/GlobalVestigial.lean`](../Cordis/GlobalVestigial.lean),
 with the finite spatial consequences in
 [`Cordis/GlobalSpatial.lean`](../Cordis/GlobalSpatial.lean).
 
@@ -409,7 +411,8 @@ with the finite spatial consequences in
 | `GlobalCalculus.Step`, combined `Trace`, `FromEmpty`, `installation_semantics`                            | **Proved:** one exact-endpoint relation projects to all ten rule names and acted-on names, separates Equation 51 maps from edits, preserves WF, and tracks actual installation-status boundaries from an empty registry.                                   | Bounded finite Definition 53 and first Lemma 54 fact.  | Sequential finite traces only; recovery admission remains supplied, oracle rejection is unmodeled, and trace facts are the next row.                         |
 | `RecoveryConfinement`, `foreignTables_preserved`, `actorStatic_continuous`, aligned trace/episode facts   | **Proved/conditional:** non-unload rules preserve foreign fibers exactly; unload confinement yields table/control/static continuity; name-specific episodes open/close at Begin/Unload.                                                                    | Bounded fragments of Lemma 54.                         | Bare recovery admission is formally insufficient; new-entry/retire-write provenance, temporal composability, and remaining global lemmas are open.           |
 | `Step.partialMap`, `EffectEquiv`, `TotalStepMap`, per-step commutation, `recover_interleaved`             | **Proved under explicit certificates:** fallible off-source maps totalize only with evidence; per-record recovery commutation folds over foreign replay; owner inversion and reordering yield finite relational recovery.                                  | Algebra underlying finite T61/Cor62.                   | Canonical paper `≈`, D60, off-source totality, reordering, and continuation stability are assumptions or absent; three countermodels expose the gaps.        |
-| `ValueSetoids`, `RuleRelated`, `EffectRelated`, their setoids, `EffectUndoRespect.temporalEffectEquiv`    | **Proved/checked:** rule observation retains related active coeffects plus exact registry domain/control; effect observation retains exact ambient/normalized tables; respectful undo supplies the temporal effect interface.                              | Finite candidates for Equation 53 and Lemmas 55–57.    | Local birth ranks/codes are stronger exact control; rule bisimulation, name actions, vestigial rule simulation, and Lemmas 55–57 are not derived.            |
+| `ValueSetoids`, `RuleRelated`, `EffectRelated`, their setoids, `EffectUndoRespect.temporalEffectEquiv`    | **Proved/checked:** rule observation retains related active coeffects plus exact registry domain/control; effect observation retains exact ambient/normalized tables; respectful undo supplies the temporal effect interface.                              | Finite candidates for Equation 53 and Lemmas 55–57.    | Local birth ranks/codes are stronger exact control; rule bisimulation, name actions, and the full global lemmas are not derived.                             |
+| `Vestigial`, `effectRelated_remove`, forward/backward removal squares and exception countermodels         | **Proved/corrected:** a vestigial entry is effect-equivalent to absence; safe insert/retire/remove steps commute exactly with deletion; four well-formed models certify every required exception.                                                          | Effect clause and orchestration fragment of Lemma 57.  | Pinned L57(1) omits parent adoption; L57(2) omits parent removal in addition to its two insert exceptions. Lifecycle/iterator simulation is absent.          |
 | `begin_dependencies_provided`, `LocatedEpisode`, `NestedEpisodes`, resolution/no-unload/table facts       | **Proved/conditional:** admitted begins provide dependencies; explicitly nested episodes have strict boundary order; committed provider resolution persists and blocks unload; per-record table confinement composes.                                      | Finite fragments of Theorem 63.                        | Nesting is supplied rather than inferred from maximal episodes; table constancy is conditional and foreign discharge excludes same-name iterator edits.      |
 | `reloading_target_dichotomy`                                                                              | **Proved:** one lifecycle step from a known reloading source is iter/finish with the same target, divert with a changed target, or raise.                                                                                                                  | Local structural fragment of Theorem 64.               | No initial reloading interval, eventual close, parameterized Corollary 62 recovery, or full resolution-coherence theorem is claimed.                         |
 
@@ -471,9 +474,13 @@ The following are intentionally not presented as completed formalization work.
    non-unload foreign preservation, conditional unload confinement, committed/static continuity,
    aligned name-specific episode boundaries, and accumulator-map uniqueness. A kernel
    countermodel shows bare admission can mutate a foreign table. `GlobalRelations` now defines
-   separate rule/effect observation candidates and proves their setoid and incomparability facts,
-   but rule bisimulation, name equivariance, vestigial rule simulation, new-entry/retirement
-   provenance, the actual Lemmas 55–57, and full Theorem 59 remain absent.
+   separate rule/effect observation candidates and proves their setoid and incomparability facts.
+   `GlobalVestigial` proves the effect-equivalence sentence and corrected orchestration-only
+   simulation. Kernel models show the pinned forward clause misses O-Insert adopting the
+   vestigial parent and the backward clause misses O-Remove of the vestigial fiber's parent; the
+   latter is a third exception beyond the paper's two insert cases. Rule bisimulation, name
+   equivariance, lifecycle/iterator vestigial simulation, new-entry/retirement provenance, the
+   actual full Lemmas 55–57, and full Theorem 59 remain absent.
 7. **Temporal composability:** a parameterized finite recovery algebra is now proved. It reifies
    partial off-source step maps, requires relation-indexed totalizations and per-step recovery
    commutation, derives whole-replay commutation, and combines explicit owner inversion/reordering

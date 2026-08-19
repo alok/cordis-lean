@@ -376,7 +376,8 @@ Executable rejection is valuable, but it is not a refinement theorem.
 | `GlobalCalculus`                            | Unifies orchestration/lifecycle endpoints under ten rule names, retains acted-on names, separates state maps from edits, proves installation-boundary semantics, and packages empty-origin traces.                                   | Finite sequential Definition 53 model; general recovery is admitted, oracle rejection remains absent, and full Theorem 59 is unclaimed.                                                          |
 | `GlobalTraceFacts`                          | Proves non-unload foreign exactness, conditional unload table/control/static continuity, aligned name-specific episodes, and a kernel bare-admission countermodel.                                                                   | Bounded existing-fiber Lemma 54 fragments; new-entry/retire-write provenance and remaining global metatheory are unproved.                                                                       |
 | `GlobalTemporal`                            | Reifies fallible off-source step maps and proves per-step commutation composes to finite relation-indexed recovery with explicit inverse/reorder/unload certificates.                                                                | Parameterized T61/Cor62 algebra only; canonical `≈`, D60, totality, continuation stability, and arbitrary trace reordering remain absent.                                                        |
-| `GlobalRelations`                           | Defines key-indexed rule observation and ambient/table effect observation as setoids, bridges respectful undo to the temporal interface, and separates the candidates by executable models.                                          | Finite Equation 53/Lemmas 55–57 candidates only; rule bisimulation, name-action laws, vestigial rule simulation, and the global lemmas remain unproved.                                          |
+| `GlobalRelations`                           | Defines key-indexed rule observation and ambient/table effect observation as setoids, bridges respectful undo to the temporal interface, and separates the candidates by executable models.                                          | Finite Equation 53/Lemmas 55–57 candidates only; rule bisimulation, name-action laws, and the full global lemmas remain unproved.                                                                |
+| `GlobalVestigial`                           | Proves vestigial removal effect-equivalent and gives exact bidirectional orchestration removal squares under all kernel-necessary exceptions, with well-formed countermodels.                                                        | Corrected L57 orchestration fragment only; pinned clauses omit parent adoption/removal, and iterator/lifecycle/oracle/inertia/recovery insensitivity is unproved.                                |
 | `GlobalSpatial`                             | Proves dependency provision, explicit nested episode order, committed resolution/no-unload propagation, conditional table constancy, and local reloading-step classification.                                                        | Finite T63/T64 fragments only; nesting/maximality, same-owner confinement, initial intervals, eventual close, and recovery conclusions remain premises or absent.                                |
 | `CertifiedTwoBatch`                         | Requires same-successor, pointwise same-recovery, and result-stability certificate fields before either order is permitted.                                                                                                          | The certificate is supplied, exactly two pure calls are modeled, and no actual concurrency or external-effect safety follows.                                                                    |
 | `Registry.setAt`                            | Uses dependent equality transport so a value cannot be installed at a differently typed key.                                                                                                                                         | No runtime aliasing, notification, or mutable-store semantics are modeled.                                                                                                                       |
@@ -572,6 +573,15 @@ the temporal recovery interface, and `RuleBisimulation` names—rather than prov
 simulation obligation. Kernel examples establish both incomparability directions and separate the
 arbitrary dynamics relation from the effect candidate.
 
+`GlobalVestigial` proves that the paper's exact vestigial witness—retired, successful inactive,
+empty table, and no children—is `EffectRelated` to deleting its entry. For orchestration, the
+theorem surface is corrected rather than copied. Forward simulation excludes insertion whose
+parent is the vestigial name. Backward simulation excludes drawing that name, provision overlap,
+and O-Remove of the vestigial fiber's own parent. Exact removal-square equations preserve rule
+kind, acted name, and vestigiality. A well-formed three-name model proves all four exceptions are
+real. The backward parent-removal example pinpoints a directional error in the pinned paper proof:
+“no fiber has parent `n`” does not imply that `n` has no parent `m`.
+
 `GlobalSpatial` consumes the exact trace facts without upgrading them to maximal episodes. A
 well-formed L-Begin target satisfies every declared dependency. Two episodes obtain strict
 provider/consumer boundary order only from `NestedEpisodes`, whose fields explicitly exhibit both
@@ -665,6 +675,8 @@ Without additional proofs or tests, do not state that:
   `GlobalRelations` proves Lemma 55 rule bisimulation, name equivariance, or vestigial rule
   simulation merely by defining candidate setoids; or strengthened birth order is literally paper
   Definition 58;
+- `GlobalVestigial` proves the literal unqualified Lemma 57 clauses or extends its corrected
+  orchestration squares to iterator, lifecycle, oracle, inertia, or accumulated recovery behavior;
 - `GlobalSpatial` derives maximal episode containment, same-owner table immutability, eventual
   closing, or full Theorem 63/64 recovery merely from its explicit nested/confinement witnesses;
 - `RuntimeRefinement` accepts the full Harness stream union, is complete for the tolerant

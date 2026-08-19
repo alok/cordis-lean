@@ -42,12 +42,16 @@ definedness and return related successors, because the existing operation laws
 prove every adaptive forward and yielded-inverse generator respectful. Separate
 finite rule/effect observation setoids make the paper's two incomparable global
 relations explicit and bridge respectful undo interpretation into the temporal
-algebra, without assuming the missing rule bisimulation. Finite located episodes
-now prove dependency provision, explicit nested opening/closing order, persistent
-provider resolution/no-unload, conditional table-value constancy, and a local
-reloading target/divert/raise classification. Maximal episodes and the full
-T63/T64 recovery conclusions remain open, as do the paper's literal
-total/quotient setting, Lemmas 55–57, task concurrency, and complete
+algebra, without assuming the missing rule bisimulation. Vestigial removal is now
+proved effect-equivalent, and corrected bidirectional orchestration simulations
+make four exact exceptions explicit. Well-formed countermodels show the pinned
+Lemma 57 raw clauses omit forward parent adoption and backward parent removal;
+the latter is a third backward exception. Finite located episodes prove
+dependency provision, explicit nested opening/closing order, persistent provider
+resolution/no-unload, conditional table-value constancy, and a local reloading
+target/divert/raise classification. Full Lemmas 55–57, maximal episodes and the
+full T63/T64 recovery conclusions remain open, as do the paper's literal
+total/quotient setting, task concurrency, and complete
 preservation/progress/confluence results.
 
 Repository: `cordis-lean`
