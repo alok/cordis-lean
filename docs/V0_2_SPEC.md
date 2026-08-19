@@ -108,6 +108,9 @@ Current machine-checked evidence includes:
 - `Cordis.GlobalActivationOrchestrationTransposition`, kernel-refuting the literal clause-(2)
   registration condition, exposing occurrence-specific orchestration framing, and proving the
   corrected exact exchange while excluding registering activation/O-Insert;
+- `Cordis.GlobalProgress`, distinguishing configured-oracle rejection from the permissive raw
+  relation, kernel-refuting progress under exhausted names, and proving conditional state-local
+  no-deadlock from finite precedence and exact execution/recovery authorities;
 - `Cordis.GlobalRelations`, defining incomparable finite rule/effect observation setoids and an
   explicit respectful-undo bridge into the temporal algebra without claiming rule bisimulation;
 - `Cordis.GlobalRuleInvariance`, proving well-formed bidirectional orchestration matching across
@@ -416,7 +419,14 @@ the literal Lemma 71(2) condition—new-parent enablement and birth-rank order�
 strongest exact representative theorem under orchestration-sensitive registration safety and one
 occurrence-specific execution frame. Registering activation/O-Insert remains excluded.
 
-The bounded algebra/context/global layer now has thirty-two explicit pieces:
+The corrected progress slice is specified in
+[`GLOBAL_PROGRESS_SPEC.md`](GLOBAL_PROGRESS_SPEC.md) and implemented by `Cordis.GlobalProgress`.
+It exposes configured-oracle rejection and raw freshness exhaustion, defines provider precedence
+and a finite increasing rank, derives fixed-program landing-or-raise readiness from explicit oracle
+totality, and proves conditional state-local lifecycle no-deadlock. It does not prove the
+quantitative or maximal-termination clauses of Theorem 66.
+
+The bounded algebra/context/global layer now has thirty-three explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -606,6 +616,15 @@ The bounded algebra/context/global layer now has thirty-two explicit pieces:
     Birth-clock and state-sensitive-oracle models prove the frame is not derivable; structural,
     ordinary, and registering examples exercise the corrected matrix. This is not literal Lemma
     71(2), a birth-erasing quotient, stored-trace rewriting, Lemma 72, or confluence.
+33. `Cordis.GlobalProgress` gives Definition 65 its exact state-local provider precedence and an
+    explicit finite increasing rank. A configured oracle-rejection model separates fixed-program
+    applicability from the raw existential-oracle relation; a Boolean freshness-exhaustion model
+    is well formed and nonquiescent yet admits no raw lifecycle rule. `OracleTotal` constructs
+    fixed-program landing-or-raise totality, while the headline theorem consumes only exact current
+    reloading and recovery witnesses. With committed-provider soundness, a maximal-rank unloading
+    argument proves state-local no-deadlock for every lifecycle phase. The module stops before the
+    quantitative `(K + 4)` bound, target-turn finiteness, maximal termination, fairness, or
+    trace-wide program assignment.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -736,6 +755,8 @@ This slice does not by itself prove:
   independence, or base dynamics; exact registering-activation/O-Insert exchange; repair of the
   literal Lemma 71(2) premise without the corrected parent/birth restrictions; or arbitrary trace
   rewriting from the occurrence-local exchange theorem;
+- paper Theorem 66 from finite names/precedence alone, the quantitative lifecycle-step bound,
+  target-turn finiteness, maximal-execution termination, or scheduler fairness;
 - native plugin isolation, process confinement, filesystem safety, or remote-service behavior;
 - global exactly-once execution across workers; or
 - that a model follows supplied schemas or chooses an appropriate tool.

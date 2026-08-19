@@ -128,6 +128,16 @@ preserves the activation's positive target structurally, rebuilds the moved fixe
 activation, and proves the exact normal final endpoint. This is a corrected bounded analogue, not
 literal Lemma 71(2), a birth-erasing quotient, or arbitrary trace rewriting.
 
+The progress layer proves that printed Theorem 66 also needs stronger executable premises. A
+configured oracle may reject a registration that the raw relation can admit through another
+oracle, while finite Boolean name exhaustion produces a well-formed nonquiescent state with no raw
+lifecycle transition at all. The corrected theorem assumes a finite increasing provider-precedence
+rank, statically sound committed providers, exact landing-or-raise readiness for every current
+reloading occurrence, and recovery readiness for every current unrelied unloading occurrence. It
+then proves state-local no-deadlock by choosing a maximal-rank unloading provider when necessary.
+The quantitative step bound, target-turn finiteness, maximal-execution termination, and fairness
+remain open trace/provenance work.
+
 Repository: `cordis-lean`
 
 Lean toolchain: `leanprover/lean4:v4.33.0`

@@ -382,6 +382,7 @@ Executable rejection is valuable, but it is not a refinement theorem.
 | `GlobalLandingTransposition`                 | Adds exact cross-forward yield syntax and fixed-program landing provenance, derives foreign positive-target preservation from WF, reframes off-axis landings, and constructs actual L-Iter/L-Finish transitions in both orders with one exact final state; includes positive and necessity models.                                     | Landing-only four-pair theorem. Requires WF, distinct owners, exact cross-forward stability, both phase compatibilities, and common-source program-aligned activations. No Begin pair, trace-step identity, episode assignment, or full Lemma 71.                                                                                |
 | `GlobalActivationTransposition`              | Adds root-aligned Begin, exact foreign lookup/positive-target framing, fixed-program endpoint/rule determinism, all nine common-source Begin/Iter/Finish diamonds, and an actual-second-step swapped transition; includes branch and necessity witnesses.                                                                              | Partial fixed-oracle Lemma 71(1) analogue. Requires WF, distinct owners, common applicability, explicit provenance, and branch-relevant frame/exact-yield laws. No orchestration clause (2), arbitrary stored-trace rewrite, episode assignment, literal total/quotient Lemma 71, or confluence.                                 |
 | `GlobalActivationOrchestrationTransposition` | Kernel-refutes the literal clause-(2) child condition, classifies registration, derives legal early orchestration/positive targets, and proves an occurrence-framed exact exchange with the same template and endpoint; includes birth/frame gaps and structural/ordinary/registering examples.                                        | Corrected partial fixed-oracle Lemma 71(2) analogue. Registering×Insert is excluded, frames are supplied, and the parent countermodel is compact structural evidence. No birth-erasing quotient, arbitrary stored-trace rewrite, literal paper clause, Lemma 72, or confluence.                                                  |
+| `GlobalProgress`                             | Separates fixed-program oracle rejection from raw oracle-existential applicability, kernel-refutes raw progress under finite-name exhaustion, and proves state-local no-deadlock from explicit finite precedence, current execution/recovery readiness, and committed-provider soundness.                                              | Corrected conditional no-deadlock fragment of Theorem 66. Printed assumptions omit admission/freshness totality. No quantitative bound, target-turn finiteness, maximal termination, fairness, trace program assignment, support, deletion, or confluence.                                                                       |
 | `GlobalRelations`                            | Defines key-indexed rule observation and ambient/table effect observation as setoids, bridges respectful undo to the temporal interface, and separates the candidates by executable models.                                                                                                                                            | Finite Equation 53/Lemmas 55–57 candidates only; rule bisimulation, name-action laws, and the full global lemmas remain unproved.                                                                                                                                                                                                |
 | `GlobalRuleInvariance`                       | Matches every well-formed insert/retire/remove step bidirectionally across rule-related states with exact peer endpoints and related well-formed successors, without equating tables.                                                                                                                                                  | Orchestration-only L55 fragment; ambient-sensitive inertia is a checked lifecycle obstruction and further dynamics/recovery laws are absent.                                                                                                                                                                                     |
 | `GlobalRuleObservations`                     | Transports provider identity, dependent targets, committed resolution, reliance, phases, quiescence, and all structural lifecycle guards across well-formed rule-related states.                                                                                                                                                       | Assumption-free L55 observation substrate; it executes no lifecycle step and leaves landing/error/inertia/oracle/recovery contracts explicit.                                                                                                                                                                                    |
@@ -422,7 +423,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 671
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 701
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.
@@ -639,6 +640,15 @@ normal final endpoint. Separate birth-clock and retirement-sensitive-oracle mode
 nonregistration nor registration safety derives the semantic frame. This is not literal Lemma
 71(2), a birth-erasing relation, or a trace-rewrite theorem.
 
+`GlobalProgress` exposes two further executable authorities omitted by printed Theorem 66.
+Configured-program rejection can block a fixed landing even while the raw relation chooses another
+oracle, and an exhausted Boolean carrier blocks every possible registration admission and every raw
+lifecycle rule. The positive theorem therefore receives a finite provider-precedence rank,
+committed-provider provision soundness, exact landing-or-raise readiness at each current reloading
+fiber, and recovery readiness at each current unrelied unloading fiber. A maximal-rank unloading
+argument proves state-local no-deadlock without aborting inertia. The module does not prove the
+quantitative bound, target-turn finiteness, maximal termination, or fairness.
+
 `GlobalRelations` then makes the two observation interfaces concrete without identifying them.
 `RuleRelated` observes the derived coeffect context through supplied key-indexed setoids and keeps
 the registry domain, fiber control, and local birth clock exactly. `EffectRelated` instead keeps
@@ -818,6 +828,9 @@ Without additional proofs or tests, do not state that:
   safety, base dynamics, independence, or WF, admits registering activation/O-Insert into exact
   equality, erases birth rank through current `RuleRelated`, repairs the literal parent premise
   without the stronger safety condition, or rewrites arbitrary stored traces;
+  `GlobalProgress` derives fresh-name/admission totality from finite names, treats raw existential
+  oracle choice as fixed-program provenance, derives recovery or occurrence readiness from WF, or
+  upgrades state-local no-deadlock to the quantitative/maximal-termination clauses of Theorem 66;
   `GlobalRelations` proves full Lemma 55 rule bisimulation, full lifecycle name equivariance, or
   vestigial rule simulation merely by defining candidate setoids; or strengthened birth order is
   literally paper Definition 58;

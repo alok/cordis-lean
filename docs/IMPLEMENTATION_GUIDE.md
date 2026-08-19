@@ -1695,6 +1695,7 @@ The assurance layers can be summarized as follows:
 | Landing transposition    | Exact cross-forward yield syntax and fixed-program landings lift the framed raw endpoint to all four common-source L-Iter/L-Finish transition pairs with one exact final state; positive targets are preserved structurally under WF.       | Exact cross-forward law, both phase compatibilities, program-aligned common applicability, distinct owners, and WF are supplied; no Begin pair, trace-step identity, episode assignment, or full Lemma 71.      |
 | Activation transposition | Root-aligned Begin and program-aligned Iter/Finish form all nine exact common-source diamonds; fixed-program endpoint uniqueness reconciles a supplied actual second activation and derives the swapped transition.                         | Partial fixed-oracle Lemma 71(1) analogue under explicit WF, distinct owners, common applicability, provenance, and branch-relevant frame/exact-yield laws; no clause (2), stored-trace rewrite, or confluence. |
 | Activation/orchestration | The literal child condition is kernel-refuted; the corrected theorem reconstructs the early same-template orchestration and moved activation under registration safety and one occurrence frame.                                            | Corrected partial fixed-oracle Lemma 71(2) analogue; registering×Insert is excluded, frames are supplied, and no birth-erasing quotient, stored-trace rewrite, Lemma 72, or confluence is proved.               |
+| Conditional progress     | Fixed-oracle rejection and finite-name exhaustion refute unconditional progress; explicit precedence rank, current landing-or-raise/recovery readiness, and committed-provider soundness prove state-local no-deadlock.                     | Corrected Theorem 66 no-deadlock fragment only; no quantitative bound, target-turn finiteness, maximal termination, trace assignment, fairness, support, or confluence.                                         |
 | Policy                   | One exact-subject pure trace dispatches at most once; completed traces dispatch exactly once.                                                                                                                                               | Global linearity, worker exclusion, retries, persistence, and idempotency.                                                                                                                                      |
 | Batch                    | Two certified pure calls have equal proof-carrying outcomes in either represented order.                                                                                                                                                    | Real parallel execution, arbitrary batch sizes, cancellation, and external effect safety.                                                                                                                       |
 | Runner                   | One pure state jointly certifies replay, model/lease/ID history, records, and boundary projection.                                                                                                                                          | TypeScript equivalence, network/model adapters, durable transactions, real tool I/O, and process-wide exactly-once behavior.                                                                                    |
@@ -2122,6 +2123,17 @@ Build the structural slice in this order:
     structural/ordinary/registering positive examples. Call this a corrected bounded Lemma 71(2)
     analogue; exclude registering activation/O-Insert, birth erasure, arbitrary trace rewriting,
     Lemma 72, and confluence.
+31. Audit progress before attempting termination. Separate a configured program whose fixed oracle
+    rejects from the raw lifecycle relation that can choose another oracle. Kernel-check a stronger
+    Boolean freshness-exhaustion state with no possible registration admission or lifecycle rule.
+    Define provider-to-consumer `PrecedesAt` and an explicit finite increasing rank. Derive
+    program-wide landing-or-raise totality from an explicit oracle-admission law, but make the
+    headline theorem consume only exact current reloading witnesses and state-local recovery
+    readiness. Name committed-provider provision soundness so a relied provider yields a strict
+    precedence edge. Prove state-local no-deadlock by selecting a maximal-rank unloading fiber and
+    following any installed consumer to either an applicable rule or a rank contradiction. Stop
+    before the `(K + 4)` bound, target-turn finiteness, maximal-execution termination, trace-wide
+    program assignment, fairness, support, deletion, or confluence.
 
 This reaches a bounded finite Definition 53 relation and an oracle-specific finite partial/Kleisli
 Definition 60 analogue. Do not claim Theorem 59 while general unload recovery confinement is still
@@ -2139,8 +2151,11 @@ uses fixed-program endpoint determinism to reconcile a supplied actual second ac
 `GlobalActivationOrchestrationTransposition` then refutes the literal clause-(2) premise and proves
 the corrected occurrence-framed exchange while excluding registering activation/O-Insert. Neither
 module rewrites arbitrary stored traces, assigns episode programs, erases birth rank, or proves the
-paper's literal total/quotient Lemma 71. The two candidate relations do not themselves prove Lemmas
-55–57. The finite spatial facts do not supply maximal episodes,
+paper's literal total/quotient Lemma 71. `GlobalProgress` separately refutes unconditional progress
+under configured-oracle rejection and exhausted names, then proves only conditional state-local
+no-deadlock from explicit rank/readiness/soundness authorities. It does not prove quantitative or
+maximal termination. The two candidate relations do not themselves prove Lemmas 55–57. The finite
+spatial facts do not supply maximal episodes,
 same-owner table confinement, or full T63/T64. The corrected vestigial orchestration squares do
 not prove lifecycle/iterator invisibility or the paper's literal unqualified clauses. Progress and
 confluence remain unproved. The orchestration invariance certificate is not full Lemma 55.
