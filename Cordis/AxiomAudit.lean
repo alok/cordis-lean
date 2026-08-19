@@ -10,6 +10,7 @@ import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
+import Cordis.GlobalSpatial
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
 import Cordis.Harness
@@ -435,3 +436,18 @@ set_option format.width 200
 #print axioms Cordis.GlobalRelations.Example.rule_rejects_vestigial_absence
 #print axioms Cordis.GlobalRelations.Example.dynamics_relation_not_effect_candidate
 #print axioms Cordis.GlobalRelations.Example.counterexampleUndoRespect
+#print axioms Cordis.GlobalSpatial.begin_dependencies_provided
+#print axioms Cordis.GlobalSpatial.LocatedEpisode.records_eq
+#print axioms Cordis.GlobalSpatial.LocatedEpisode.open_before_close
+#print axioms Cordis.GlobalSpatial.NestedEpisodes.provider_opens_before_consumer
+#print axioms Cordis.GlobalSpatial.NestedEpisodes.consumer_closes_before_provider
+#print axioms Cordis.GlobalSpatial.InstalledResolution.relied
+#print axioms Cordis.GlobalSpatial.relied_provider_installed
+#print axioms Cordis.GlobalSpatial.unload_blocked_by_installed_consumer
+#print axioms Cordis.GlobalSpatial.Trace.installedResolution_throughout
+#print axioms Cordis.GlobalSpatial.Trace.noUnloadFor_of_installedResolution
+#print axioms Cordis.GlobalSpatial.BoundedEpisode.provider_noUnload_core
+#print axioms Cordis.GlobalSpatial.BoundedEpisode.provider_installed_at_closeBefore
+#print axioms Cordis.GlobalSpatial.traceTableConfinement_of_foreign
+#print axioms Cordis.GlobalSpatial.tableValue_throughout
+#print axioms Cordis.GlobalSpatial.reloading_target_dichotomy

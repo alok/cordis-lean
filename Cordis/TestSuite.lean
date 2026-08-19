@@ -12,6 +12,7 @@ import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
+import Cordis.GlobalSpatial
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
 import Cordis.Harness
@@ -936,6 +937,13 @@ private def testGlobalRelations : IO Unit := do
       (GlobalRelations.controlAt GlobalRelations.Example.vestigialState false).isSome)
     (false, true)
 
+private def testGlobalSpatial : IO Unit := do
+  assertEqual "spatial lifecycle classification retains the acted-on owner"
+    (GlobalSpatial.lifecycleOwner GlobalLifecycle.Example.iterTransition,
+      GlobalSpatial.lifecycleOwner GlobalLifecycle.Example.finishTransition,
+      GlobalSpatial.lifecycleOwner GlobalLifecycle.Example.leaveTransition)
+    (0, 0, 0)
+
 private def testHarnessPhaseFailures : IO Unit := do
   let initial := Harness.RunnerState.initial 0
   match initial.beginStep with
@@ -1147,6 +1155,7 @@ def run : IO Unit := do
   testGlobalTraceFacts
   testGlobalTemporal
   testGlobalRelations
+  testGlobalSpatial
   testHarnessPhaseFailures
   testCounterAdmission
   testHarnessDemo

@@ -8,6 +8,7 @@ import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
+import Cordis.GlobalSpatial
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
 import Cordis.Lifecycle
@@ -431,6 +432,14 @@ example : ObservationalPartialTransformation.Respects
 #guard_msgs (substring := true) in
 example : GlobalRelations.RuleRelated GlobalRelations.Example.universalValues
     GlobalRelations.Example.emptyState GlobalRelations.Example.vestigialState := by
+  rfl
+
+/-! Same-owner lifecycle traces cannot use the foreign-table confinement shortcut. -/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : GlobalSpatial.TraceForeignTo GlobalCalculus.Example.unifiedTrace 0 := by
+  intro _ _
   rfl
 
 end Cordis.NegativeTests
