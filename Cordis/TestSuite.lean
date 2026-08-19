@@ -7,6 +7,7 @@ import Cordis.Effect
 import Cordis.Examples.Counter
 import Cordis.Examples.CounterWire
 import Cordis.Examples.DependentChoice
+import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
 import Cordis.GlobalRegistry
@@ -839,6 +840,22 @@ private def testGlobalLifecycle : IO Unit := do
       | .inactive none => pure ()
       | _ => fail "global lifecycle unload reached the wrong phase"
 
+open GlobalCalculus.Example in
+private def testGlobalCalculus : IO Unit := do
+  assertEqual "unified global calculus has the paper's ten-name inventory"
+    GlobalCalculus.allRules.length 10
+  assertEqual "unified global trace projects exact rule names"
+    unifiedTrace.rules
+    [.oInsert, .lBegin, .lIter, .lFinish, .oRetire, .lLeave, .lUnload, .oRemove]
+  assertEqual "unified global trace separates Equation 51 state maps from edits"
+    unifiedTrace.stateMaps
+    [.identity, .identity, .iterator, .iterator, .identity, .identity,
+      .accumulatedRecovery, .identity]
+  assertEqual "unified global trace restores its ambient observation"
+    removedState.ambient emptyStart.ambient
+  assertEqual "unified global trace returns to an empty registry"
+    (removedState.registry 0).isNone true
+
 private def testHarnessPhaseFailures : IO Unit := do
   let initial := Harness.RunnerState.initial 0
   match initial.beginStep with
@@ -1043,6 +1060,7 @@ def run : IO Unit := do
   testMediatedIndependenceBoundary
   testGlobalDynamics
   testGlobalLifecycle
+  testGlobalCalculus
   testHarnessPhaseFailures
   testCounterAdmission
   testHarnessDemo

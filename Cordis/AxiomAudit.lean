@@ -5,6 +5,7 @@ import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.Effect
 import Cordis.Examples.DependentChoice
+import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
 import Cordis.GlobalRegistry
@@ -334,3 +335,16 @@ set_option format.width 200
 #print axioms Cordis.GlobalLifecycle.Example.stable_leave_guard_rejected
 #print axioms Cordis.GlobalLifecycle.Example.abort_guard_rejected
 #print axioms Cordis.GlobalLifecycle.Example.raise_guard_rejected
+#print axioms Cordis.GlobalCalculus.allRules_nodup
+#print axioms Cordis.GlobalCalculus.Step.actor_exact
+#print axioms Cordis.GlobalCalculus.Step.orchestration_map_identity
+#print axioms Cordis.GlobalCalculus.Step.identity_map_iff_footprint
+#print axioms Cordis.GlobalCalculus.Step.recovery_map_iff
+#print axioms Cordis.GlobalCalculus.Step.preservesWellFormed
+#print axioms Cordis.GlobalCalculus.Step.installation_semantics
+#print axioms Cordis.GlobalCalculus.Step.installedAt_change_only_boundary
+#print axioms Cordis.GlobalCalculus.Trace.preservesWellFormed
+#print axioms Cordis.GlobalCalculus.FromEmpty.final_wellFormed
+#print axioms Cordis.GlobalCalculus.Example.unified_rule_projection
+#print axioms Cordis.GlobalCalculus.Example.unified_stateMap_projection
+#print axioms Cordis.GlobalCalculus.Example.unified_endpoint_exact

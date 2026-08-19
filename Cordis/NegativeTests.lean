@@ -3,6 +3,7 @@ import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.Examples.DependentChoice
+import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
 import Cordis.GlobalRegistry
@@ -363,5 +364,13 @@ example : MediatedIndependence.ExactRepresentativeCoherence
 example : GlobalLifecycle.Example.inertia.canAbort 0 10
     GlobalLifecycle.Example.beginState := by
   trivial
+
+/-! A state containing a registered fiber cannot witness Definition 53's empty origin. -/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : GlobalCalculus.EmptyRegistry GlobalLifecycle.Example.start := by
+  intro name
+  rfl
 
 end Cordis.NegativeTests
