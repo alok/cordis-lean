@@ -93,6 +93,8 @@ Current machine-checked evidence includes:
   from noncircular landing, error, inertia, and recovery-admission compatibility records;
 - `Cordis.GlobalNameAction`, defining lawful executable nominal actions through dependent global
   state and proving inverse, strengthened well-formedness, and orchestration equivariance;
+- `Cordis.GlobalNameLifecycle`, deriving registration/oracle/execution/landing/recovery actions and
+  all lifecycle/unified name equivariance from exact dynamics, inertia, and catalog-entry laws;
 - `Cordis.GlobalVestigial`, proving exact effect-equivalence to removal and corrected
   bidirectional orchestration squares, with well-formed witnesses for both paper insert exceptions
   and the two omitted parent-pointer exceptions;
@@ -356,7 +358,7 @@ future external adapter consumes the same proof-carrying request contract.
 
 ## Paper context and executable refinement
 
-The bounded algebra/context/global layer now has twenty-five explicit pieces:
+The bounded algebra/context/global layer now has twenty-six explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -479,7 +481,14 @@ The bounded algebra/context/global layer now has twenty-five explicit pieces:
     finite registries, and states. Identity/composition/inverse and exact lookup/state recovery are
     proved layer by layer. Strengthened well-formedness is invariant, and all orchestration rules
     commute bidirectionally with renaming. A Boolean swap exercises parents/views/undos/values;
-    a constant noninjective action proves the old placeholder insufficient. Lifecycle laws remain.
+    a constant noninjective action proves the old placeholder insufficient. The next row adds the
+    conditional lifecycle laws.
+26. `Cordis.GlobalNameLifecycle` acts ordinary and registration results, conjugates child-dependent
+    continuations and oracles, maps both `Except` branches, and derives acted admissions,
+    proof-carrying iterator steps, Landing, recovery, targets, and reliance. Exact dynamics-output,
+    external-undo, dynamics-equivalence, inertia, and fixed-entry laws yield forward/backward
+    equivariance for all lifecycle and unified rules on well-formed states. A nonidentity L-Raise
+    and entry/error/run counterexamples exercise the boundary; primitive laws remain external.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a

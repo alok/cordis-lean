@@ -381,6 +381,7 @@ Executable rejection is valuable, but it is not a refinement theorem.
 | `GlobalRuleObservations`                    | Transports provider identity, dependent targets, committed resolution, reliance, phases, quiescence, and all structural lifecycle guards across well-formed rule-related states.                                                     | Assumption-free L55 observation substrate; it executes no lifecycle step and leaves landing/error/inertia/oracle/recovery contracts explicit.                                                    |
 | `GlobalLifecycleBisimulation`               | Under noncircular landing, run-error, inertia, and recovery-admission contracts, matches all lifecycle/unified rules bidirectionally with exact valid related endpoints.                                                             | Conditional well-formed L55 analogue; external contracts are supplied, raw no-WF bisimulation is uninhabited, and Finish requires related yielded tables.                                        |
 | `GlobalNameAction`                          | Defines executable bijections over all stored payloads, canonical dependent state action, identity/composition/inverse, WF equivalence, and exact bidirectional orchestration equivariance.                                          | Structural/orchestration L56 fragment; catalog entry, dynamics, oracle, recovery, inertia, and lifecycle action laws remain separate.                                                            |
+| `GlobalNameLifecycle`                       | From exact dynamics/inertia/catalog-entry action laws, derives registration, oracle, execution, landing, recovery, lifecycle, inverse, and unified name actions with exact endpoints.                                                | Conditional well-formed fixed-catalog L56 analogue; primitive semantic laws are supplied and arbitrary base Dynamics is not automatically equivariant.                                           |
 | `GlobalVestigial`                           | Proves vestigial removal effect-equivalent and gives exact bidirectional orchestration removal squares under all kernel-necessary exceptions, with well-formed countermodels.                                                        | Corrected L57 orchestration fragment only; pinned clauses omit parent adoption/removal, and iterator/lifecycle/oracle/inertia/recovery insensitivity is unproved.                                |
 | `GlobalSpatial`                             | Proves dependency provision, explicit nested episode order, committed resolution/no-unload propagation, conditional table constancy, and local reloading-step classification.                                                        | Finite T63/T64 fragments only; nesting/maximality, same-owner confinement, initial intervals, eventual close, and recovery conclusions remain premises or absent.                                |
 | `CertifiedTwoBatch`                         | Requires same-successor, pointwise same-recovery, and result-stability certificate fields before either order is permitted.                                                                                                          | The certificate is supplied, exactly two pure calls are modeled, and no actual concurrency or external-effect safety follows.                                                                    |
@@ -617,6 +618,15 @@ commutation, and orchestration-step equivariance are proved. A nonidentity Boole
 exercises the full structure. The old assumption admits a constant noninjective name map under an
 owner-insensitive dynamics, so its lone run equation cannot imply Lemma 56.
 
+`GlobalNameLifecycle` keeps the external seam smaller than the delivered theorem. The primitive
+record contains exact acted `runIterator` output—including errors and name-dependent registration
+continuations—external-undo commutation, dynamics-equivalence invariance, inertia invariance, and
+fixed catalog entries. Registration admissions, a conjugated oracle, proof-carrying iteration,
+`executeOne`, Landing, accumulated recovery, target views, reliance, all lifecycle transitions,
+inverse actions, and unified steps are derived. The theorem is restricted to well-formed sources
+because target selection uses uniqueness. A nonidentity L-Raise renames owner and stored error;
+counterexamples show why fixed entries and error-aware run action matter.
+
 `GlobalVestigial` proves that the paper's exact vestigial witness—retired, successful inactive,
 empty table, and no children—is `EffectRelated` to deleting its entry. For orchestration, the
 theorem surface is corrected rather than copied. Forward simulation excludes insertion whose
@@ -727,6 +737,8 @@ Without additional proofs or tests, do not state that:
   `Dynamics`, or upgrades its conditional well-formed certificate to the raw no-WF API;
 - `GlobalNameAction` proves dynamics, registration-oracle, recovery, inertia, or lifecycle
   equivariance merely from carrier bijections and the separate catalog-entry fixed-point law;
+- `GlobalNameLifecycle` derives its primitive dynamics/inertia/catalog-entry laws from arbitrary
+  base `Dynamics`, acts component/catalog identities, or removes its well-formed-source boundary;
 - `GlobalVestigial` proves the literal unqualified Lemma 57 clauses or extends its corrected
   orchestration squares to iterator, lifecycle, oracle, inertia, or accumulated recovery behavior;
 - `GlobalSpatial` derives maximal episode containment, same-owner table immutability, eventual

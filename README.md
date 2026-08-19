@@ -167,6 +167,16 @@ nontrivial Boolean swap exercises parents, views, undo names, values, and an act
 constant noninjective old-style action still satisfies the prior single run equation, formally
 showing why that placeholder was insufficient. Lifecycle/dynamics equivariance remains separate.
 
+`Cordis.GlobalNameLifecycle` closes that conditional boundary for well-formed states. Three
+primitive contracts—exact dynamics action, inertia action, and fixed catalog entry codes—derive
+the action on results, child-conjugated registration continuations, error-aware run outputs,
+registration admissions, a conjugated oracle, iterator steps, `executeOne`, landings, accumulated
+recovery, target views, reliance, all eight lifecycle transitions, and all ten unified rules.
+Backward equivariance is derived from inverse actions. A nonidentity L-Raise renames its owner and
+stored error exactly; entry-code, success-only error mapping, and constant-error counterexamples
+show why the primitive laws matter. The theorem is a conditional fixed-catalog finite Lemma 56
+analogue, not an unconditional property of arbitrary `Dynamics`.
+
 `Cordis.GlobalVestigial` proves the effect-observation sentence of Lemma 57 exactly and then
 mechanizes the corrected orchestration fragment. Removing a retired, successful-inactive,
 empty-table, childless entry is `EffectRelated`; safe foreign insert/retire/remove steps form exact
@@ -349,6 +359,7 @@ placeholders.
 | Rule-related well-formed states have the same provider names, targets, reliance, quiescence, phase patterns, and structural lifecycle guards       | `activeProvider_iff`, `targetView_*`, `relied_iff`, `quiescent_iff`, five guard-availability iff theorems                              | Assumption-free lifecycle-observation substrate; landing, run-error, inertia, oracle, and recovery transport remain open.    |
 | Four noncircular external contracts yield exact bidirectional matching for all eight lifecycle constructors and all ten unified rule names         | `LifecycleTransportAssumptions`, `matchLifecycleForward/Backward`, `wellFormedRuleBisimulation`, Finish seam countermodel              | Conditional well-formed L55 analogue; the contracts are supplied rather than derived from base `Dynamics`.                   |
 | A lawful bijection acts through every stored payload and preserves state inversion, well-formedness, and all three orchestration rules             | `NameAction`, `actState_*`, `wellFormed_act_iff`, `orchestrationEquivariance`, swap and old-skeleton examples                          | Structural/orchestration L56 fragment; dynamics, oracle, recovery, inertia, and lifecycle action laws remain external.       |
+| Three primitive semantic action laws derive registration, execution, landing, recovery, all-eight lifecycle, and unified ten-rule equivariance     | `DynamicsNameEquivariant`, `actRegistrationAdmission`, `executeOne_equivariant`, `unifiedNameEquivariance`, nonidentity examples       | Conditional well-formed fixed-catalog L56 analogue; the primitive dynamics/inertia laws remain supplied.                     |
 | Vestigial removal is effect-equivalent and safe orchestration steps commute with it under complete, kernel-necessary exceptions                    | `Vestigial.effectRelated_remove`, `forward_orchestration`, `backward_orchestration`, four well-formed exception witnesses              | Corrected orchestration fragment of L57; the pinned raw clauses omit two parent-pointer cases, and lifecycle is unproved.    |
 | Located dependency episodes retain provider resolution and no-unload facts, with explicit nesting offsets and conditional table constancy          | `begin_dependencies_provided`, `NestedEpisodes.*`, `resolution_throughout_interior`, `provider_noUnload_core`, `tableValue_throughout` | Finite fragments of T63/T64; maximal episodes, same-owner table confinement, eventual close, and recovery remain open.       |
 | Supported current-Harness stream JSON refines to an intrinsic validated trace with exact replay, or fails with a structured decode/stream error    | `RuntimeRefinement.validateJsonTrace`, `ValidatedJsonTrace.replay_eq`, exact rejection theorems                                        | JSON AST only; unsupported blocks/failures/replay state are rejected, and completeness for Harness is not claimed.           |
@@ -395,6 +406,7 @@ placeholders.
 | `Cordis.GlobalLifecycle`                    | Phase-indexed lifecycle rules, exact executed landings, inertia/recovery admissions, preservation traces, and a concrete activation/deactivation path.          |
 | `Cordis.GlobalLifecycleBisimulation`        | Noncircular external transport contracts, all-eight lifecycle matching, unified well-formed ten-rule certificate, and Finish seam evidence.                     |
 | `Cordis.GlobalNameAction`                   | Executable bijection action on dependent global data, group/inverse laws, well-formedness and orchestration equivariance, and a weak-old-API counterexample.    |
+| `Cordis.GlobalNameLifecycle`                | Canonical result/oracle/landing/recovery actions and conditional bidirectional lifecycle/unified name equivariance with necessity witnesses.                    |
 | `Cordis.GlobalCalculus`                     | Unified ten-name exact-endpoint steps, state-map/edit projections, installed-status semantics, and empty-registry-origin traces.                                |
 | `Cordis.GlobalTraceFacts`                   | Conditional recovery confinement, foreign/static/committed continuity, aligned trace episodes, and a bare-admission countermodel.                               |
 | `Cordis.GlobalTemporal`                     | Partial off-source step maps, relation-indexed totalization/commutation/reordering, finite recovery, unload bridge, and countermodels.                          |

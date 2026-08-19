@@ -67,7 +67,10 @@ Name equivariance now has an executable structural core: lawful bijections act t
 payloads, dependent tables/views/undo stacks/phases, the finite registry, and global state; state
 inversion, strengthened well-formedness, and all orchestration rules are equivariant. A kernel
 countermodel refutes the old opaque action record. Full dynamics and lifecycle Lemma 56 still
-requires run/oracle/recovery/inertia compatibility.
+requires explicit semantics. Under exact dynamics action, inertia action, and fixed catalog entry
+codes, those semantics now derive registration/oracle/execute-one/Landing/recovery actions and
+bidirectional equivariance for all lifecycle and unified rules over well-formed states. This is a
+conditional fixed-catalog Lemma 56 analogue, not a base-Dynamics theorem.
 
 Repository: `cordis-lean`
 

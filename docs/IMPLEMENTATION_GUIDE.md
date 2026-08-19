@@ -2020,6 +2020,15 @@ Build the structural slice in this order:
     the action, and build forward/backward orchestration witnesses with renamed actors. Keep catalog
     entry invariance separate for L-Begin. Refute the old record with a noninjective name map that
     satisfies its lone run equation, and defer dynamics/lifecycle action laws explicitly.
+24. Extend name action through execution with the smallest noncircular semantic record. Act
+    ordinary results, registration requests with inverse-name continuation conjugation, iterator
+    results, and both `Except` branches. Require exact run-output action, external-undo commutation,
+    dynamics-equivalence invariance, inertia invariance, and fixed catalog entries. From these
+    derive undo/recovery, registration admission, a conjugated oracle, proof-carrying iterator
+    steps, `executeOne`, Landing, recovery admission, target/reliance action, and all eight lifecycle
+    endpoints. Derive inverse assumptions and backward/unified action rather than postulating them.
+    Exercise a nonidentity Raise and prove fixed-entry and error-aware-run necessity. Keep source
+    well-formedness and fixed component/catalog boundaries explicit.
 
 This reaches a bounded finite Definition 53 relation. Do not claim Theorem 59 while general unload
 recovery confinement is still supplied, or full T61/Cor62 while the canonical relation,
@@ -2031,6 +2040,7 @@ confluence remain unproved. The orchestration invariance certificate is not full
 The lifecycle observation substrate still executes no rule.
 The conditional lifecycle certificate does not derive its external contracts from `Dynamics`.
 The structural name action does not prove full lifecycle Lemma 56.
+The lifecycle name theorem remains conditional on primitive semantic action laws.
 
 ## 20. Exact verification and review commands
 

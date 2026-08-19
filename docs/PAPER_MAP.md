@@ -403,6 +403,8 @@ the conditional lifecycle theorem in
 [`Cordis/GlobalLifecycleBisimulation.lean`](../Cordis/GlobalLifecycleBisimulation.lean),
 the structural nominal action in
 [`Cordis/GlobalNameAction.lean`](../Cordis/GlobalNameAction.lean),
+the conditional dynamics/lifecycle action in
+[`Cordis/GlobalNameLifecycle.lean`](../Cordis/GlobalNameLifecycle.lean),
 the corrected vestigial-entry slice in
 [`Cordis/GlobalVestigial.lean`](../Cordis/GlobalVestigial.lean),
 with the finite spatial consequences in
@@ -424,6 +426,7 @@ with the finite spatial consequences in
 | active-provider/target/reliance/quiescence transport and five structural guard certificates               | **Proved:** well-formed rule-related states retain provider identity, dependent targets, committed resolution, reliance, exact phase patterns, quiescence, and begin/reloading/leave/divert/unload guard availability.                                     | Assumption-free observation core of Lemma 55.          | No lifecycle step is executed; landing tables, run errors, inertia, registration/oracle, and recovery admission remain explicit missing laws.                |
 | noncircular landing/error/inertia/recovery contracts, all-eight lifecycle and unified matching            | **Proved conditionally:** supplied cross-source external laws produce exact same-rule/name peer transitions for every lifecycle constructor and a well-formed ten-rule certificate with related endpoints.                                                 | Conditional well-formed analogue of Lemma 55.          | Contracts are not derived from base Dynamics; raw no-WF RuleBisimulation is not inhabited. Finish alone requires explicitly related newly active tables.     |
 | `NameAction`, dependent data/state action laws, `wellFormed_act_iff`, orchestration equivariance          | **Proved:** an executable bijection renames parent/view/retire references and acts on all payloads; actions compose/invert exactly, preserve strengthened WF, and commute bidirectionally with insert/retire/remove.                                       | Structural/orchestration fragment of Lemma 56.         | Keys/components/catalog stay fixed; entry invariance is separate, and dynamics/oracle/recovery/inertia/lifecycle equivariance is not yet proved.             |
+| canonical result/request/oracle/landing/recovery actions and lifecycle/unified action certificates        | **Proved conditionally:** exact run, external-undo, dynamics-equivalence, inertia, and catalog-entry action laws derive all-eight lifecycle and ten-rule forward/backward equivariance with exact acted endpoints/names.                                   | Conditional fixed-catalog analogue of Lemma 56.        | External laws and source WF are required; component/catalog action and unconditional arbitrary-Dynamics equivariance are not claimed.                        |
 | `Vestigial`, `effectRelated_remove`, forward/backward removal squares and exception countermodels         | **Proved/corrected:** a vestigial entry is effect-equivalent to absence; safe insert/retire/remove steps commute exactly with deletion; four well-formed models certify every required exception.                                                          | Effect clause and orchestration fragment of Lemma 57.  | Pinned L57(1) omits parent adoption; L57(2) omits parent removal in addition to its two insert exceptions. Lifecycle/iterator simulation is absent.          |
 | `begin_dependencies_provided`, `LocatedEpisode`, `NestedEpisodes`, resolution/no-unload/table facts       | **Proved/conditional:** admitted begins provide dependencies; explicitly nested episodes have strict boundary order; committed provider resolution persists and blocks unload; per-record table confinement composes.                                      | Finite fragments of Theorem 63.                        | Nesting is supplied rather than inferred from maximal episodes; table constancy is conditional and foreign discharge excludes same-name iterator edits.      |
 | `reloading_target_dichotomy`                                                                              | **Proved:** one lifecycle step from a known reloading source is iter/finish with the same target, divert with a changed target, or raise.                                                                                                                  | Local structural fragment of Theorem 64.               | No initial reloading interval, eventual close, parameterized Corollary 62 recovery, or full resolution-coherence theorem is claimed.                         |
@@ -499,8 +502,10 @@ The following are intentionally not presented as completed formalization work.
    independently necessary; the result is not an unconditional paper Lemma 55 theorem.
    `GlobalNameAction` replaces the old opaque placeholder with actual invertible actions on every
    stored payload, proves state/WF inversion and the three orchestration cases, and kernel-refutes
-   the old record with a constant noninjective name map. Full Lemma 56 still needs run-result,
-   oracle/admission, external-undo/recovery, inertia, and lifecycle action laws.
+   the old record with a constant noninjective name map. `GlobalNameLifecycle` assumes only exact
+   run, external-undo, dynamics-equivalence, inertia, and catalog-entry action laws, derives
+   admission/oracle/execute-one/landing/recovery actions, and proves every lifecycle/unified case
+   bidirectionally. This remains a conditional well-formed fixed-catalog Lemma 56 analogue.
    `GlobalVestigial` proves the effect-equivalence sentence and corrected orchestration-only
    simulation. Kernel models show the pinned forward clause misses O-Insert adopting the
    vestigial parent and the backward clause misses O-Remove of the vestigial fiber's parent; the
