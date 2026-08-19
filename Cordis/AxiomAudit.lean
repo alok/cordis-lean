@@ -802,6 +802,7 @@ namespace Cordis.GlobalPaperRelation
 #print axioms BirthGap.strict_rule_relation_fails
 #print axioms BirthGap.exact_states_differ
 #print axioms BirthGap.matched_retire_successors
+#print axioms BirthGap.matchedRetire_tags
 #print axioms BirthGap.forwardMatchedAssignment
 #print axioms BirthGap.backwardMatchedAssignment
 #print axioms OneSidedWellFormedGap.related
@@ -822,6 +823,7 @@ namespace Cordis.GlobalPaperRelation
 #print axioms ForwardDeletedTraceReplay.final_related
 #print axioms ForwardDeletedTraceReplay.transportAssignment
 #print axioms DirectedReplayExample.final_related
+#print axioms DirectedReplayExample.replay_shadow_rules
 #print axioms DirectedReplayExample.shadowAssignment
 end Cordis.GlobalPaperRelation
 #print axioms Cordis.GlobalRelations.contextRelated_domain

@@ -1055,9 +1055,15 @@ private def testGlobalPaperRelation : IO Unit := do
   let swappedBirth :=
     (GlobalActivationOrchestrationTransposition.LiteralPaperGap.swapped.registry 1).map
       (fun fiber => fiber.birth)
-  assertEqual "paper-visible control agrees while allocator birth differs"
+  assertEqual "paper-visible parent and retirement agree while allocator birth differs"
     (normalControl, swappedControl, normalBirth, swappedBirth)
     (some (some 0, false), some (some 0, false), some 1, some 2)
+  assertEqual "birth-erased orchestration replay retains the exact rule and actor"
+    GlobalPaperRelation.BirthGap.executableMatchedTags
+    (.retire, 1)
+  let _directedReplayFinal := GlobalPaperRelation.DirectedReplayExample.final_related
+  assertEqual "directed paper-relation replay retains the safe suffix rule"
+    GlobalPaperRelation.DirectedReplayExample.executableReplayRules [.oRetire]
 
 private def testGlobalProgress : IO Unit := do
   assertEqual "conditional progress constructs the expected concrete Begin rule"
