@@ -399,6 +399,8 @@ the orchestration invariance theorem in
 [`Cordis/GlobalRuleInvariance.lean`](../Cordis/GlobalRuleInvariance.lean),
 the lifecycle-observation substrate in
 [`Cordis/GlobalRuleObservations.lean`](../Cordis/GlobalRuleObservations.lean),
+the conditional lifecycle theorem in
+[`Cordis/GlobalLifecycleBisimulation.lean`](../Cordis/GlobalLifecycleBisimulation.lean),
 the corrected vestigial-entry slice in
 [`Cordis/GlobalVestigial.lean`](../Cordis/GlobalVestigial.lean),
 with the finite spatial consequences in
@@ -418,6 +420,7 @@ with the finite spatial consequences in
 | `ValueSetoids`, `RuleRelated`, `EffectRelated`, their setoids, `EffectUndoRespect.temporalEffectEquiv`    | **Proved/checked:** rule observation retains related active coeffects plus exact registry domain/control; effect observation retains exact ambient/normalized tables; respectful undo supplies the temporal effect interface.                              | Finite candidates for Equation 53 and Lemmas 55–57.    | Local birth ranks/codes are stronger exact control; rule bisimulation, name actions, and the full global lemmas are not derived.                             |
 | `FiberMatch`, active-value/context edit lemmas, `matchOrchestrationForward/Backward`, certificate         | **Proved:** under source well-formedness, every insert/retire/remove step has a same-kind/name peer at a rule-related state; exact endpoints are well formed and rule-related without equating private tables.                                             | Orchestration-only fragment of Lemma 55.               | Full lifecycle invariance needs iterator/read, oracle/landing, recovery, and inertia laws; an ambient-sensitive inertia countermodel is checked.             |
 | active-provider/target/reliance/quiescence transport and five structural guard certificates               | **Proved:** well-formed rule-related states retain provider identity, dependent targets, committed resolution, reliance, exact phase patterns, quiescence, and begin/reloading/leave/divert/unload guard availability.                                     | Assumption-free observation core of Lemma 55.          | No lifecycle step is executed; landing tables, run errors, inertia, registration/oracle, and recovery admission remain explicit missing laws.                |
+| noncircular landing/error/inertia/recovery contracts, all-eight lifecycle and unified matching            | **Proved conditionally:** supplied cross-source external laws produce exact same-rule/name peer transitions for every lifecycle constructor and a well-formed ten-rule certificate with related endpoints.                                                 | Conditional well-formed analogue of Lemma 55.          | Contracts are not derived from base Dynamics; raw no-WF RuleBisimulation is not inhabited. Finish alone requires explicitly related newly active tables.     |
 | `Vestigial`, `effectRelated_remove`, forward/backward removal squares and exception countermodels         | **Proved/corrected:** a vestigial entry is effect-equivalent to absence; safe insert/retire/remove steps commute exactly with deletion; four well-formed models certify every required exception.                                                          | Effect clause and orchestration fragment of Lemma 57.  | Pinned L57(1) omits parent adoption; L57(2) omits parent removal in addition to its two insert exceptions. Lifecycle/iterator simulation is absent.          |
 | `begin_dependencies_provided`, `LocatedEpisode`, `NestedEpisodes`, resolution/no-unload/table facts       | **Proved/conditional:** admitted begins provide dependencies; explicitly nested episodes have strict boundary order; committed provider resolution persists and blocks unload; per-record table confinement composes.                                      | Finite fragments of Theorem 63.                        | Nesting is supplied rather than inferred from maximal episodes; table constancy is conditional and foreign discharge excludes same-name iterator edits.      |
 | `reloading_target_dichotomy`                                                                              | **Proved:** one lifecycle step from a known reloading source is iter/finish with the same target, divert with a changed target, or raise.                                                                                                                  | Local structural fragment of Theorem 64.               | No initial reloading interval, eventual close, parameterized Corollary 62 recovery, or full resolution-coherence theorem is claimed.                         |
@@ -487,7 +490,10 @@ The following are intentionally not presented as completed formalization work.
    alone. `GlobalRuleObservations` nevertheless transports every assumption-free provider, target,
    resolution, reliance, phase, quiescence, and structural-guard observation. A Finish landing
    must still relate newly active tables that were private while reloading; iterator/read,
-   registration, landing, recovery, and inertia-respect laws remain absent.
+   registration, landing, recovery, and inertia-respect laws remain absent from the base API.
+   `GlobalLifecycleBisimulation` names those laws noncircularly and proves all eight lifecycle plus
+   all ten unified cases conditionally. Its Finish countermodel proves the related-table clause
+   independently necessary; the result is not an unconditional paper Lemma 55 theorem.
    `GlobalVestigial` proves the effect-equivalence sentence and corrected orchestration-only
    simulation. Kernel models show the pinned forward clause misses O-Insert adopting the
    vestigial parent and the backward clause misses O-Remove of the vestigial fiber's parent; the

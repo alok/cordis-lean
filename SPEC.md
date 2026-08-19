@@ -47,7 +47,11 @@ without equating private tables; a kernel model shows ambient-sensitive inertia
 still blocks full lifecycle Lemma 55. The assumption-free lifecycle observation
 substrate now transports provider names, targets, committed resolution, reliance,
 quiescence, phase patterns, and structural guards; newly active landing tables
-remain an explicit Finish obligation. Vestigial removal is proved
+remain an explicit Finish obligation. Under explicit noncircular landing,
+run-error, inertia, and recovery-admission contracts, all eight lifecycle cases
+and the unified ten-rule relation now satisfy a well-formed bidirectional
+`RuleRelated` certificate; a kernel model proves the Finish table clause
+necessary. This conditional result is not base-Dynamics Lemma 55. Vestigial removal is proved
 effect-equivalent, and corrected bidirectional orchestration simulations make
 four exact exceptions explicit. Well-formed countermodels show the pinned Lemma
 57 raw clauses omit forward parent adoption and backward parent removal; the

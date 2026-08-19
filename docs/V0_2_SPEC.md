@@ -89,6 +89,8 @@ Current machine-checked evidence includes:
   rule-related states while preserving unequal observationally related private values;
 - `Cordis.GlobalRuleObservations`, transporting provider identity, targets, reliance, phase
   patterns, quiescence, and structural lifecycle guards without external execution assumptions;
+- `Cordis.GlobalLifecycleBisimulation`, deriving all-eight lifecycle and unified ten-rule matching
+  from noncircular landing, error, inertia, and recovery-admission compatibility records;
 - `Cordis.GlobalVestigial`, proving exact effect-equivalence to removal and corrected
   bidirectional orchestration squares, with well-formed witnesses for both paper insert exceptions
   and the two omitted parent-pointer exceptions;
@@ -352,7 +354,7 @@ future external adapter consumes the same proof-carrying request contract.
 
 ## Paper context and executable refinement
 
-The bounded algebra/context/global layer now has twenty-three explicit pieces:
+The bounded algebra/context/global layer now has twenty-four explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -464,6 +466,12 @@ The bounded algebra/context/global layer now has twenty-three explicit pieces:
     `RuleRelated` sources alone. Active matched tables are pointwise related. Reloading tables are
     private, so a future Finish landing must explicitly relate the newly active tables. Examples
     separate rule observation from effect observation and ambient equality in both directions.
+24. `Cordis.GlobalLifecycleBisimulation` names four external contracts without mentioning rules:
+    peer landing with exact undo/next and a completion-table relation, exact iterator-error
+    transport, inertia respect, and peer recovery admission with related endpoint. These produce
+    exact bidirectional matches for all eight lifecycle constructors and combine with orchestration
+    into a well-formed ten-rule certificate. A parity countermodel proves Finish cannot recover the
+    newly active table relation from reloading source observation. The contracts remain supplied.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a

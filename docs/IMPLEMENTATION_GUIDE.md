@@ -2003,6 +2003,14 @@ Build the structural slice in this order:
     L-Finish requires the landing contract to relate the two newly active tables. Keep rule and
     effect relations incomparable with executable examples, and do not let ambient-insensitive
     rule observation stand in for iterator, inertia, or recovery behavior.
+22. State external lifecycle compatibility below the rule relation. A landing match must provide a
+    real peer landing, equal undo/next codes, related landing endpoints, and related yielded tables
+    on the done branch. Add exact raw-error transport, inertia respect, and peer recovery admission
+    with related final endpoints; none may mention a transition, step, or bisimulation. Prove
+    phase-update context visibility separately for nonactive, activate, and deactivate modes, then
+    construct all eight lifecycle cases and combine them with orchestration under well-formedness.
+    Add a reloading-table countermodel showing why Finish alone needs the yielded-table premise.
+    Keep the result conditional and distinct from the raw no-well-formedness API.
 
 This reaches a bounded finite Definition 53 relation. Do not claim Theorem 59 while general unload
 recovery confinement is still supplied, or full T61/Cor62 while the canonical relation,
@@ -2012,6 +2020,7 @@ same-owner table confinement, or full T63/T64. The corrected vestigial orchestra
 not prove lifecycle/iterator invisibility or the paper's literal unqualified clauses. Progress and
 confluence remain unproved. The orchestration invariance certificate is not full Lemma 55.
 The lifecycle observation substrate still executes no rule.
+The conditional lifecycle certificate does not derive its external contracts from `Dynamics`.
 
 ## 20. Exact verification and review commands
 
