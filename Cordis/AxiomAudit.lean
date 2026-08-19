@@ -10,6 +10,7 @@ import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
+import Cordis.GlobalRuleInvariance
 import Cordis.GlobalSpatial
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
@@ -467,3 +468,18 @@ set_option format.width 200
 #print axioms Cordis.GlobalVestigial.Counterexample.claimingInsert_claims_vestigial_provision
 #print axioms Cordis.GlobalVestigial.Counterexample.removesVestigialParent
 #print axioms Cordis.GlobalVestigial.Counterexample.parent_not_childless_before
+#print axioms Cordis.GlobalRuleInvariance.matchFiber
+#print axioms Cordis.GlobalRuleInvariance.activeValue_insert_iff
+#print axioms Cordis.GlobalRuleInvariance.activeValue_retire_iff
+#print axioms Cordis.GlobalRuleInvariance.activeValue_remove_iff
+#print axioms Cordis.GlobalRuleInvariance.activeContext_eq_of_activeValue_iff
+#print axioms Cordis.GlobalRuleInvariance.orchestration_activeContext_eq
+#print axioms Cordis.GlobalRuleInvariance.contextRelated_after_orchestration
+#print axioms Cordis.GlobalRuleInvariance.matchOrchestrationForward
+#print axioms Cordis.GlobalRuleInvariance.matchOrchestrationBackward
+#print axioms Cordis.GlobalRuleInvariance.orchestrationRuleBisimulation
+#print axioms Cordis.GlobalRuleInvariance.HeterogeneousExample.source_values_are_related
+#print axioms Cordis.GlobalRuleInvariance.HeterogeneousExample.states_ruleRelated
+#print axioms Cordis.GlobalRuleInvariance.HeterogeneousExample.insertionMatch_successors
+#print axioms Cordis.GlobalRuleInvariance.InertiaGap.baseline_ruleRelated_shifted
+#print axioms Cordis.GlobalRuleInvariance.InertiaGap.ambientSensitiveInertia_not_respecting

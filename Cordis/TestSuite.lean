@@ -12,6 +12,7 @@ import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
+import Cordis.GlobalRuleInvariance
 import Cordis.GlobalSpatial
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
@@ -965,6 +966,21 @@ private def testGlobalVestigial : IO Unit := do
         GlobalVestigial.Counterexample.removeParentAfterChild))
     (.fresh, .parent)
 
+private def testGlobalRuleInvariance : IO Unit := do
+  assertEqual "rule invariance example keeps unequal parity-related counter values"
+    (GlobalRegistry.Example.providerTable .counter,
+      GlobalRuleInvariance.HeterogeneousExample.rightTable .counter)
+    (some 7, some 9)
+  assertEqual "rule invariance example keeps unequal length-related labels"
+    (GlobalRegistry.Example.providerTable .label,
+      GlobalRuleInvariance.HeterogeneousExample.rightTable .label)
+    (some "ready", some "other")
+  let matched := GlobalRuleInvariance.HeterogeneousExample.insertionMatch
+  assertEqual "matched orchestration step retains inserted actor and endpoint presence"
+    (GlobalVestigial.orchestrationName matched.matched,
+      (matched.rightAfter.registry 1).isSome)
+    (1, true)
+
 private def testHarnessPhaseFailures : IO Unit := do
   let initial := Harness.RunnerState.initial 0
   match initial.beginStep with
@@ -1178,6 +1194,7 @@ def run : IO Unit := do
   testGlobalRelations
   testGlobalSpatial
   testGlobalVestigial
+  testGlobalRuleInvariance
   testHarnessPhaseFailures
   testCounterAdmission
   testHarnessDemo

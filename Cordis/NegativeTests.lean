@@ -8,6 +8,7 @@ import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
+import Cordis.GlobalRuleInvariance
 import Cordis.GlobalSpatial
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
@@ -457,6 +458,16 @@ example : GlobalVestigial.AvoidsVestigialParent
 example : ¬GlobalVestigial.RemovesVestigialParent
     GlobalVestigial.Counterexample.vestigial
     GlobalVestigial.Counterexample.removeParentAfterChild := by
+  rfl
+
+/-! Rule observation alone cannot transport an ambient-sensitive abort policy. -/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : GlobalRuleInvariance.InertiaRespectsRuleRelated
+    GlobalRuleInvariance.HeterogeneousExample.values
+    GlobalDynamics.Example.dynamics
+    GlobalRuleInvariance.InertiaGap.ambientSensitiveInertia := by
   rfl
 
 end Cordis.NegativeTests
