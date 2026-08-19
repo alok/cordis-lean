@@ -11,6 +11,7 @@ import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
 import Cordis.GlobalRegistry
+import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
 import Cordis.Harness
 import Cordis.Lifecycle
@@ -889,6 +890,15 @@ private def testGlobalTraceFacts : IO Unit := do
   assertEqual "bare unload admission can mutate a foreign table in the kernel countermodel"
     (beforeForeign, afterForeign) (some 7, some 8)
 
+private def testGlobalTemporal : IO Unit := do
+  assertEqual "exact iterator map can fail when re-executed off-source"
+    (GlobalTemporal.Step.partialMap GlobalCalculus.Example.iterStep
+      GlobalCalculus.Example.emptyStart).isNone true
+  let recovered := GlobalDynamics.Example.dynamics.recover [.external 0]
+    GlobalTemporal.Counterexample.interleavedState
+  assertEqual "structural recovery confinement alone misses foreign ambient commutation"
+    (recovered.ambient, GlobalTemporal.Counterexample.foreignReplayState.ambient) (7, 6)
+
 private def testHarnessPhaseFailures : IO Unit := do
   let initial := Harness.RunnerState.initial 0
   match initial.beginStep with
@@ -1096,6 +1106,7 @@ def run : IO Unit := do
   testGlobalLifecycle
   testGlobalCalculus
   testGlobalTraceFacts
+  testGlobalTemporal
   testHarnessPhaseFailures
   testCounterAdmission
   testHarnessDemo

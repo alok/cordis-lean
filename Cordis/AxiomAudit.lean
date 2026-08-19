@@ -9,6 +9,7 @@ import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
 import Cordis.GlobalRegistry
+import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
 import Cordis.Harness
 import Cordis.Lifecycle
@@ -382,3 +383,15 @@ set_option format.width 200
 #print axioms Cordis.GlobalTraceFacts.BoundedEpisode.close_rule
 #print axioms Cordis.GlobalTraceFacts.Counterexample.bareAdmission_breaks_foreignTables
 #print axioms Cordis.GlobalTraceFacts.Counterexample.bareAdmission_not_recoveryConfinement
+#print axioms Cordis.GlobalTemporal.Step.partialMap_source
+#print axioms Cordis.GlobalTemporal.EffectEquiv.recover_respects
+#print axioms Cordis.GlobalTemporal.Intervening.replay_respects
+#print axioms Cordis.GlobalTemporal.Intervening.endpoint_related
+#print axioms Cordis.GlobalTemporal.accumulatedCommutes_of_perStep
+#print axioms Cordis.GlobalTemporal.recover_interleaved
+#print axioms Cordis.GlobalTemporal.terminal_recovery
+#print axioms Cordis.GlobalTemporal.terminal_unload_recovery
+#print axioms Cordis.GlobalTemporal.Counterexample.iterator_has_no_totalization
+#print axioms Cordis.GlobalTemporal.Counterexample.universal_relation_is_vacuous_here
+#print axioms Cordis.GlobalTemporal.Counterexample.ambientRecovery_confinement
+#print axioms Cordis.GlobalTemporal.Counterexample.recoveryConfinement_not_temporal

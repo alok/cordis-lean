@@ -7,6 +7,7 @@ import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
 import Cordis.GlobalRegistry
+import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
@@ -391,5 +392,14 @@ example : GlobalTraceFacts.RecoveryConfinement
     GlobalTraceFacts.Counterexample.dynamics
     (GlobalTraceFacts.Counterexample.state 7) false [.external ()] := by
   constructor
+
+/-! An exact iterator landing does not make its map executable at every off-source state. -/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : GlobalTemporal.Step.partialMap GlobalCalculus.Example.iterStep
+    GlobalCalculus.Example.emptyStart =
+      some GlobalLifecycle.Example.firstStep.after := by
+  rfl
 
 end Cordis.NegativeTests
