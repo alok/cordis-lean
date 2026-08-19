@@ -130,6 +130,15 @@ proved setoids, and a named undo-respect law bridges the effect candidate to `Gl
 Executable separations show neither candidate, nor an arbitrary dynamics setoid, can silently stand
 in for the others. Rule bisimulation remains an explicit obligation, so Lemma 55 is not claimed.
 
+`Cordis.GlobalRuleInvariance` discharges the well-formed orchestration portion of that obligation.
+Every O-Insert, O-Retire, or O-Remove step at either of two `RuleRelated` states reconstructs a
+same-kind, same-name peer step with exact dependent endpoints, well-formed successors, and another
+`RuleRelated` pair. `FiberControl` transports only component, parent, birth, retirement, and phase;
+private tables may remain unequal. A parity/length example exercises unequal related Nat/String
+values. Full lifecycle Lemma 55 is not derivable: an ambient-sensitive abort policy distinguishes
+well-formed `RuleRelated` states, and iterator, oracle, landing, and recovery transport laws are
+also absent.
+
 `Cordis.GlobalVestigial` proves the effect-observation sentence of Lemma 57 exactly and then
 mechanizes the corrected orchestration fragment. Removing a retired, successful-inactive,
 empty-table, childless entry is `EffectRelated`; safe foreign insert/retire/remove steps form exact
@@ -307,7 +316,8 @@ placeholders.
 | One exact-endpoint global relation has all ten rule names, acted-on names, map/edit projections, and empty-origin traces                           | `GlobalCalculus.Step`, `installation_semantics`, `FromEmpty.final_wellFormed`, unified example facts                                   | Finite sequential Definition 53 model; recovery admission remains supplied and full Theorem 59 is unclaimed.                 |
 | Foreign tables/control and episode boundaries satisfy bounded Lemma 54 facts under explicit unload confinement                                     | `foreignTables_preserved`, `actorStatic_continuous`, `Trace.aligned`, `BoundedEpisode.*`, countermodel                                 | Existing-fiber facts only; opaque recovery may add names, retire-write provenance and full temporal metatheory are open.     |
 | Per-step commutation certificates compose to finite interleaved recovery under an explicit effect relation and reorder certificate                 | `EffectEquiv`, `TotalStepMap`, `accumulatedCommutes_of_perStep`, `recover_interleaved`, temporal counterexamples                       | Parameterized relational algebra; off-source totality, canonical paper `≈`, D60 and arbitrary T61/Cor62 remain unproved.     |
-| Rule and effect observations are explicit incomparable setoids, and respectful undo interpretation instantiates temporal effect equivalence        | `GlobalRelations.RuleRelated`, `EffectRelated`, `EffectUndoRespect.temporalEffectEquiv`, separation examples                           | Finite candidates for Equation 53/Lemmas 55–57; rule bisimulation, renaming, and the lemmas themselves remain obligations.   |
+| Rule and effect observations are explicit incomparable setoids, and respectful undo interpretation instantiates temporal effect equivalence        | `GlobalRelations.RuleRelated`, `EffectRelated`, `EffectUndoRespect.temporalEffectEquiv`, separation examples                           | Finite candidates for Equation 53/Lemmas 55–57; full lifecycle bisimulation, renaming, and the lemmas remain obligations.    |
+| Every well-formed orchestration step has a same-kind/name peer step at a `RuleRelated` state with related well-formed successors                   | `matchOrchestrationForward`, `matchOrchestrationBackward`, `orchestrationRuleBisimulation`, heterogeneous and inertia examples         | Orchestration-only L55 fragment; ambient-sensitive inertia refutes full lifecycle invariance under the current relation.     |
 | Vestigial removal is effect-equivalent and safe orchestration steps commute with it under complete, kernel-necessary exceptions                    | `Vestigial.effectRelated_remove`, `forward_orchestration`, `backward_orchestration`, four well-formed exception witnesses              | Corrected orchestration fragment of L57; the pinned raw clauses omit two parent-pointer cases, and lifecycle is unproved.    |
 | Located dependency episodes retain provider resolution and no-unload facts, with explicit nesting offsets and conditional table constancy          | `begin_dependencies_provided`, `NestedEpisodes.*`, `resolution_throughout_interior`, `provider_noUnload_core`, `tableValue_throughout` | Finite fragments of T63/T64; maximal episodes, same-owner table confinement, eventual close, and recovery remain open.       |
 | Supported current-Harness stream JSON refines to an intrinsic validated trace with exact replay, or fails with a structured decode/stream error    | `RuntimeRefinement.validateJsonTrace`, `ValidatedJsonTrace.replay_eq`, exact rejection theorems                                        | JSON AST only; unsupported blocks/failures/replay state are rejected, and completeness for Harness is not claimed.           |
@@ -356,6 +366,7 @@ placeholders.
 | `Cordis.GlobalTraceFacts`                   | Conditional recovery confinement, foreign/static/committed continuity, aligned trace episodes, and a bare-admission countermodel.                               |
 | `Cordis.GlobalTemporal`                     | Partial off-source step maps, relation-indexed totalization/commutation/reordering, finite recovery, unload bridge, and countermodels.                          |
 | `Cordis.GlobalRelations`                    | Key-indexed rule observation, ambient/table effect observation, setoid and temporal-undo bridges, and incomparability examples.                                 |
+| `Cordis.GlobalRuleInvariance`               | Dependent fiber-control transport, exact bidirectional orchestration matching, heterogeneous related tables, and an inertia countermodel.                       |
 | `Cordis.GlobalVestigial`                    | Exact effect-equivalence to removal, corrected bidirectional orchestration squares, and well-formed counterexamples to omitted parent cases.                    |
 | `Cordis.GlobalSpatial`                      | Located/nested episode order, persistent dependency resolution, provider no-unload, conditional table constancy, and local reloading classification.            |
 | `Cordis.RuntimeRefinement`                  | Path-aware current-Harness `StreamChunk` JSON-AST decoding into proof-producing rich-stream validation with explicit unsupported cases.                         |

@@ -1986,6 +1986,15 @@ Build the structural slice in this order:
     exclude drawing its name, provision overlap, and removal of its parent. Kernel-check every
     exception on well-formed states. The last exception corrects a directional error in pinned
     Lemma 57(2): no child pointing to `n` does not imply `n` has no parent `m`.
+20. Prove rule invariance one rule family at a time. For orchestration, extract a peer fiber from
+    exact domain/control equality without equating its private table. Reconstruct insert freshness,
+    parent presence, and provision disjointness; retire the peer fiber; and transport remove's
+    retirement, noninstallation, and childless premises through control fields. Prove ActiveValue
+    iff lemmas for all three edits, then use well-formed uniqueness to recover exact per-side
+    active-context invariance. Package bidirectional same-kind/name peer steps with exact endpoints,
+    endpoint well-formedness, and successor `RuleRelated`. Before extending to lifecycle rules,
+    require iterator/read, oracle/landing, recovery, and inertia-respect laws; an ambient-sensitive
+    abort-policy countermodel shows these are semantic requirements, not proof conveniences.
 
 This reaches a bounded finite Definition 53 relation. Do not claim Theorem 59 while general unload
 recovery confinement is still supplied, or full T61/Cor62 while the canonical relation,
@@ -1993,7 +2002,7 @@ off-source totality, and Definition 60/reordering laws are supplied. The two can
 not themselves prove Lemmas 55–57. The finite spatial facts do not supply maximal episodes,
 same-owner table confinement, or full T63/T64. The corrected vestigial orchestration squares do
 not prove lifecycle/iterator invisibility or the paper's literal unqualified clauses. Progress and
-confluence remain unproved.
+confluence remain unproved. The orchestration invariance certificate is not full Lemma 55.
 
 ## 20. Exact verification and review commands
 

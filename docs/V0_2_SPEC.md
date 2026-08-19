@@ -85,6 +85,8 @@ Current machine-checked evidence includes:
   reordering certificates;
 - `Cordis.GlobalRelations`, defining incomparable finite rule/effect observation setoids and an
   explicit respectful-undo bridge into the temporal algebra without claiming rule bisimulation;
+- `Cordis.GlobalRuleInvariance`, proving well-formed bidirectional orchestration matching across
+  rule-related states while preserving unequal observationally related private values;
 - `Cordis.GlobalVestigial`, proving exact effect-equivalence to removal and corrected
   bidirectional orchestration squares, with well-formed witnesses for both paper insert exceptions
   and the two omitted parent-pointer exceptions;
@@ -348,7 +350,7 @@ future external adapter consumes the same proof-carrying request contract.
 
 ## Paper context and executable refinement
 
-The bounded algebra/context/global layer now has twenty-one explicit pieces:
+The bounded algebra/context/global layer now has twenty-two explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -448,6 +450,12 @@ The bounded algebra/context/global layer now has twenty-one explicit pieces:
     theorem excludes drawing its name, claiming its provision, and removing its parent. A
     well-formed kernel model proves all four cases necessary and exposes two omissions in the
     pinned raw Lemma 57. Full lifecycle and iterator invisibility remain unproved.
+22. `Cordis.GlobalRuleInvariance` transports exact fiber controls but never private table equality.
+    Under well-formedness, insert/retire/remove preserve each side's active context; every source
+    step therefore has a same-kind/name peer with exact well-formed endpoint and a rule-related
+    successor. A heterogeneous example uses unequal parity-related naturals and length-related
+    strings. A separate well-formed ambient-sensitive inertia model proves `RuleRelated` alone
+    cannot transport L-DivertAbort, so full Lemma 55 still needs explicit lifecycle laws.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a

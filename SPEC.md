@@ -42,11 +42,13 @@ definedness and return related successors, because the existing operation laws
 prove every adaptive forward and yielded-inverse generator respectful. Separate
 finite rule/effect observation setoids make the paper's two incomparable global
 relations explicit and bridge respectful undo interpretation into the temporal
-algebra, without assuming the missing rule bisimulation. Vestigial removal is now
-proved effect-equivalent, and corrected bidirectional orchestration simulations
-make four exact exceptions explicit. Well-formed countermodels show the pinned
-Lemma 57 raw clauses omit forward parent adoption and backward parent removal;
-the latter is a third backward exception. Finite located episodes prove
+algebra. Bidirectional well-formed orchestration rule invariance is now proved
+without equating private tables; a kernel model shows ambient-sensitive inertia
+still blocks full lifecycle Lemma 55. Vestigial removal is proved
+effect-equivalent, and corrected bidirectional orchestration simulations make
+four exact exceptions explicit. Well-formed countermodels show the pinned Lemma
+57 raw clauses omit forward parent adoption and backward parent removal; the
+latter is a third backward exception. Finite located episodes prove
 dependency provision, explicit nested opening/closing order, persistent provider
 resolution/no-unload, conditional table-value constancy, and a local reloading
 target/divert/raise classification. Full Lemmas 55–57, maximal episodes and the

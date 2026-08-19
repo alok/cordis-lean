@@ -377,6 +377,7 @@ Executable rejection is valuable, but it is not a refinement theorem.
 | `GlobalTraceFacts`                          | Proves non-unload foreign exactness, conditional unload table/control/static continuity, aligned name-specific episodes, and a kernel bare-admission countermodel.                                                                   | Bounded existing-fiber Lemma 54 fragments; new-entry/retire-write provenance and remaining global metatheory are unproved.                                                                       |
 | `GlobalTemporal`                            | Reifies fallible off-source step maps and proves per-step commutation composes to finite relation-indexed recovery with explicit inverse/reorder/unload certificates.                                                                | Parameterized T61/Cor62 algebra only; canonical `≈`, D60, totality, continuation stability, and arbitrary trace reordering remain absent.                                                        |
 | `GlobalRelations`                           | Defines key-indexed rule observation and ambient/table effect observation as setoids, bridges respectful undo to the temporal interface, and separates the candidates by executable models.                                          | Finite Equation 53/Lemmas 55–57 candidates only; rule bisimulation, name-action laws, and the full global lemmas remain unproved.                                                                |
+| `GlobalRuleInvariance`                      | Matches every well-formed insert/retire/remove step bidirectionally across rule-related states with exact peer endpoints and related well-formed successors, without equating tables.                                                | Orchestration-only L55 fragment; ambient-sensitive inertia is a checked lifecycle obstruction and further dynamics/recovery laws are absent.                                                     |
 | `GlobalVestigial`                           | Proves vestigial removal effect-equivalent and gives exact bidirectional orchestration removal squares under all kernel-necessary exceptions, with well-formed countermodels.                                                        | Corrected L57 orchestration fragment only; pinned clauses omit parent adoption/removal, and iterator/lifecycle/oracle/inertia/recovery insensitivity is unproved.                                |
 | `GlobalSpatial`                             | Proves dependency provision, explicit nested episode order, committed resolution/no-unload propagation, conditional table constancy, and local reloading-step classification.                                                        | Finite T63/T64 fragments only; nesting/maximality, same-owner confinement, initial intervals, eventual close, and recovery conclusions remain premises or absent.                                |
 | `CertifiedTwoBatch`                         | Requires same-successor, pointwise same-recovery, and result-stability certificate fields before either order is permitted.                                                                                                          | The certificate is supplied, exactly two pure calls are modeled, and no actual concurrency or external-effect safety follows.                                                                    |
@@ -573,6 +574,16 @@ the temporal recovery interface, and `RuleBisimulation` names—rather than prov
 simulation obligation. Kernel examples establish both incomparability directions and separate the
 arbitrary dynamics relation from the effect candidate.
 
+`GlobalRuleInvariance` proves the complete bidirectional result for the three orchestration
+constructors over well-formed sources. `FiberMatch` retains registry presence and exact control
+equality while deliberately allowing unequal tables. Active-value equivalences show that inactive
+insertion, retirement, and removal of a noninstalled fiber leave each side's active context exact;
+the predecessor context relation then supplies observational successor values. Matched steps keep
+kind, acted name, exact dependent endpoint, endpoint well-formedness, and `RuleRelated`. A
+heterogeneous example uses unequal parity-related naturals and length-related strings. Full
+lifecycle Lemma 55 remains false for the current interface: a well-formed ambient-only state change
+is invisible to `RuleRelated` but can flip `InertiaPolicy.canAbort`.
+
 `GlobalVestigial` proves that the paper's exact vestigial witness—retired, successful inactive,
 empty table, and no children—is `EffectRelated` to deleting its entry. For orchestration, the
 theorem surface is corrected rather than copied. Forward simulation excludes insertion whose
@@ -672,9 +683,11 @@ Without additional proofs or tests, do not state that:
   Theorem 59, progress/confluence, or runtime completeness; `GlobalTraceFacts` proves fresh-name
   or retirement-write provenance for opaque undo codes; `GlobalTemporal` derives canonical paper
   `≈`, off-source totality, D60, or arbitrary T61/Cor62 from current step evidence;
-  `GlobalRelations` proves Lemma 55 rule bisimulation, name equivariance, or vestigial rule
+  `GlobalRelations` proves full Lemma 55 rule bisimulation, name equivariance, or vestigial rule
   simulation merely by defining candidate setoids; or strengthened birth order is literally paper
   Definition 58;
+- `GlobalRuleInvariance` extends its well-formed orchestration certificate to lifecycle rules
+  without iterator/read, oracle/landing, recovery-admission, and inertia-respect laws;
 - `GlobalVestigial` proves the literal unqualified Lemma 57 clauses or extends its corrected
   orchestration squares to iterator, lifecycle, oracle, inertia, or accumulated recovery behavior;
 - `GlobalSpatial` derives maximal episode containment, same-owner table immutability, eventual
