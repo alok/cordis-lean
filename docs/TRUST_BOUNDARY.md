@@ -377,6 +377,7 @@ Executable rejection is valuable, but it is not a refinement theorem.
 | `GlobalTraceFacts`                          | Proves non-unload foreign exactness, conditional unload table/control/static continuity, aligned name-specific episodes, and a kernel bare-admission countermodel.                                                                   | Bounded existing-fiber Lemma 54 fragments; new-entry/retire-write provenance and remaining global metatheory are unproved.                                                                       |
 | `GlobalTemporal`                            | Reifies fallible off-source step maps and proves per-step commutation composes to finite relation-indexed recovery with explicit inverse/reorder/unload certificates.                                                                | Parameterized T61/Cor62 algebra only; canonical `≈`, D60, totality, continuation stability, and arbitrary trace reordering remain absent.                                                        |
 | `GlobalRelations`                           | Defines key-indexed rule observation and ambient/table effect observation as setoids, bridges respectful undo to the temporal interface, and separates the candidates by executable models.                                          | Finite Equation 53/Lemmas 55–57 candidates only; rule bisimulation, name-action laws, vestigial rule simulation, and the global lemmas remain unproved.                                          |
+| `GlobalSpatial`                             | Proves dependency provision, explicit nested episode order, committed resolution/no-unload propagation, conditional table constancy, and local reloading-step classification.                                                        | Finite T63/T64 fragments only; nesting/maximality, same-owner confinement, initial intervals, eventual close, and recovery conclusions remain premises or absent.                                |
 | `CertifiedTwoBatch`                         | Requires same-successor, pointwise same-recovery, and result-stability certificate fields before either order is permitted.                                                                                                          | The certificate is supplied, exactly two pure calls are modeled, and no actual concurrency or external-effect safety follows.                                                                    |
 | `Registry.setAt`                            | Uses dependent equality transport so a value cannot be installed at a differently typed key.                                                                                                                                         | No runtime aliasing, notification, or mutable-store semantics are modeled.                                                                                                                       |
 | `View.resolve`                              | Requires `needs op` before a binding can be requested.                                                                                                                                                                               | Construction of the view and completeness of its registry snapshot remain obligations.                                                                                                           |
@@ -571,6 +572,16 @@ the temporal recovery interface, and `RuleBisimulation` names—rather than prov
 simulation obligation. Kernel examples establish both incomparability directions and separate the
 arbitrary dynamics relation from the effect candidate.
 
+`GlobalSpatial` consumes the exact trace facts without upgrading them to maximal episodes. A
+well-formed L-Begin target satisfies every declared dependency. Two episodes obtain strict
+provider/consumer boundary order only from `NestedEpisodes`, whose fields explicitly exhibit both
+episodes inside one master-trace decomposition. Within a consumer's boundary-free interior,
+sufficient confinement preserves its committed provider resolution, makes that provider `Relied`,
+and rules out the provider's L-Unload. Table-value constancy needs `TraceTableConfinement` for each
+record; foreign-actor confinement proves it only when the trace never acts on that provider. The
+local reloading theorem classifies a single next lifecycle rule and deliberately says nothing
+about eventual close or accumulated recovery.
+
 The older finite `Cordis.Lifecycle` model separately assumes:
 
 - inactive states retain the modeled recovered value, and `unload` returns specifically to the
@@ -654,6 +665,8 @@ Without additional proofs or tests, do not state that:
   `GlobalRelations` proves Lemma 55 rule bisimulation, name equivariance, or vestigial rule
   simulation merely by defining candidate setoids; or strengthened birth order is literally paper
   Definition 58;
+- `GlobalSpatial` derives maximal episode containment, same-owner table immutability, eventual
+  closing, or full Theorem 63/64 recovery merely from its explicit nested/confinement witnesses;
 - `RuntimeRefinement` accepts the full Harness stream union, is complete for the tolerant
   TypeScript assembler, verifies provider streaming, or proves chunk storage;
 - `SessionRefinement` accepts the complete Harness event union, preserves every source field in

@@ -394,7 +394,9 @@ Local sources: [`Cordis/GlobalRegistry.lean`](../Cordis/GlobalRegistry.lean),
 [`Cordis/GlobalCalculus.lean`](../Cordis/GlobalCalculus.lean) relation and
 [`Cordis/GlobalTraceFacts.lean`](../Cordis/GlobalTraceFacts.lean) audit, followed by
 [`Cordis/GlobalTemporal.lean`](../Cordis/GlobalTemporal.lean)'s conditional recovery algebra and
-[`Cordis/GlobalRelations.lean`](../Cordis/GlobalRelations.lean)'s explicit observation candidates.
+[`Cordis/GlobalRelations.lean`](../Cordis/GlobalRelations.lean)'s explicit observation candidates,
+with the finite spatial consequences in
+[`Cordis/GlobalSpatial.lean`](../Cordis/GlobalSpatial.lean).
 
 | Lean declaration                                                                                          | Status and exact Lean guarantee                                                                                                                                                                                                                            | Paper correspondence                                   | Boundary                                                                                                                                                     |
 | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -408,6 +410,8 @@ Local sources: [`Cordis/GlobalRegistry.lean`](../Cordis/GlobalRegistry.lean),
 | `RecoveryConfinement`, `foreignTables_preserved`, `actorStatic_continuous`, aligned trace/episode facts   | **Proved/conditional:** non-unload rules preserve foreign fibers exactly; unload confinement yields table/control/static continuity; name-specific episodes open/close at Begin/Unload.                                                                    | Bounded fragments of Lemma 54.                         | Bare recovery admission is formally insufficient; new-entry/retire-write provenance, temporal composability, and remaining global lemmas are open.           |
 | `Step.partialMap`, `EffectEquiv`, `TotalStepMap`, per-step commutation, `recover_interleaved`             | **Proved under explicit certificates:** fallible off-source maps totalize only with evidence; per-record recovery commutation folds over foreign replay; owner inversion and reordering yield finite relational recovery.                                  | Algebra underlying finite T61/Cor62.                   | Canonical paper `≈`, D60, off-source totality, reordering, and continuation stability are assumptions or absent; three countermodels expose the gaps.        |
 | `ValueSetoids`, `RuleRelated`, `EffectRelated`, their setoids, `EffectUndoRespect.temporalEffectEquiv`    | **Proved/checked:** rule observation retains related active coeffects plus exact registry domain/control; effect observation retains exact ambient/normalized tables; respectful undo supplies the temporal effect interface.                              | Finite candidates for Equation 53 and Lemmas 55–57.    | Local birth ranks/codes are stronger exact control; rule bisimulation, name actions, vestigial rule simulation, and Lemmas 55–57 are not derived.            |
+| `begin_dependencies_provided`, `LocatedEpisode`, `NestedEpisodes`, resolution/no-unload/table facts       | **Proved/conditional:** admitted begins provide dependencies; explicitly nested episodes have strict boundary order; committed provider resolution persists and blocks unload; per-record table confinement composes.                                      | Finite fragments of Theorem 63.                        | Nesting is supplied rather than inferred from maximal episodes; table constancy is conditional and foreign discharge excludes same-name iterator edits.      |
+| `reloading_target_dichotomy`                                                                              | **Proved:** one lifecycle step from a known reloading source is iter/finish with the same target, divert with a changed target, or raise.                                                                                                                  | Local structural fragment of Theorem 64.               | No initial reloading interval, eventual close, parameterized Corollary 62 recovery, or full resolution-coherence theorem is claimed.                         |
 
 ### Public surface, examples, and executable checks
 
@@ -478,9 +482,13 @@ The following are intentionally not presented as completed formalization work.
    ambient/table `EffectRelated` candidate now exists, but its required undo and rule laws are
    explicit certificates; Definition 60 iterator-family independence, arbitrary Theorem 61, and
    Corollary 62 remain absent.
-8. **Spatial composability:** Theorem 63's dependency episode ordering and Theorem 64's
-   complete resolution-coherence statement are absent. The lifecycle guard and view-retention
-   theorem establish only local constructor facts.
+8. **Spatial composability:** finite fragments are now proved. L-Begin target evidence supplies
+   every dependency; an explicit `NestedEpisodes` master-trace decomposition gives strict
+   provider-before-consumer opening and consumer-before-provider closing; boundary-free committed
+   resolution blocks provider unload; and per-record confinement yields table-value constancy.
+   `reloading_target_dichotomy` classifies one reloading step. The API still lacks maximal episode
+   extraction, unconditional same-owner table constancy, an initial-interval theorem, eventual
+   close, and the Corollary 62 recovery conclusion, so full Theorems 63–64 remain absent.
 9. **Progress:** Definition 65's precedence relation and Theorem 66's no-deadlock and bounded
    termination result are absent.
 10. **Confluence:** Definitions 67 and 69, Lemmas 68 and 70–72, and Theorem 73's canonical

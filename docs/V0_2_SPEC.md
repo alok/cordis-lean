@@ -85,6 +85,9 @@ Current machine-checked evidence includes:
   reordering certificates;
 - `Cordis.GlobalRelations`, defining incomparable finite rule/effect observation setoids and an
   explicit respectful-undo bridge into the temporal algebra without claiming rule bisimulation;
+- `Cordis.GlobalSpatial`, proving finite dependency provision, explicitly witnessed nested episode
+  order, provider-resolution/no-unload consequences, conditional table constancy, and local
+  reloading classification;
 - `Cordis.RuntimeRefinement`, decoding the supported current-Harness stream-chunk JSON-AST
   shapes into `RichStream.ValidatedTrace` while explicitly rejecting non-equivalent fields;
 - `Cordis.SessionRefinement`, statefully translating a supported source-shaped Harness session
@@ -342,7 +345,7 @@ future external adapter consumes the same proof-carrying request contract.
 
 ## Paper context and executable refinement
 
-The bounded algebra/context/global layer now has nineteen explicit pieces:
+The bounded algebra/context/global layer now has twenty explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -428,6 +431,13 @@ The bounded algebra/context/global layer now has nineteen explicit pieces:
     domain/successor/inverse/outcome laws, including exact heterogeneous outcomes and branch
     choices, then descends full exact partial closure independence. A generic finite model proves
     exact commutation alone does not imply observational commutation without this respect law.
+20. `Cordis.GlobalSpatial` proves that a well-formed begin target provides every dependency and
+    that installed committed provider resolution persists through a sufficiently confined,
+    consumer-boundary-free trace, preventing provider unload. `NestedEpisodes` supplies the exact
+    shared-master decomposition needed for strict boundary inequalities. Table constancy composes
+    from an explicit per-record premise, with a foreign-actor sufficient-confinement corollary.
+    Reloading steps are locally classified as target-stable, diverting, or raising; maximal
+    episodes, same-owner table confinement, eventual close, and recovery are not inferred.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a

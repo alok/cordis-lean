@@ -1969,11 +1969,21 @@ Build the structural slice in this order:
     separations in both directions. Require a named undo-respect law before using the effect
     relation in temporal recovery, and name the rule-bisimulation obligation instead of claiming
     Lemma 55 from a relation definition alone.
+18. State spatial consequences over one exact master trace. Prove L-Begin dependency satisfaction
+    from target-view soundness and well-formedness. Because independently bounded episodes do not
+    imply nesting, require an explicit prefix/interior decomposition before deriving strict open
+    and close offsets. Propagate an installed consumer's committed provider resolution through a
+    sufficiently confined boundary-free interior and use the non-reliance guard to reject provider
+    unload. Make provider-table constancy a separate per-record premise; discharge it from
+    sufficient confinement only when every actor is foreign. Classify one reloading lifecycle step
+    by target equality/diversion/raise without claiming an initial interval, eventual close, or
+    recovery theorem.
 
 This reaches a bounded finite Definition 53 relation. Do not claim Theorem 59 while general unload
 recovery confinement is still supplied, or full T61/Cor62 while the canonical relation,
 off-source totality, and Definition 60/reordering laws are supplied. The two candidate relations do
-not themselves prove Lemmas 55–57. The remaining spatial/progress/confluence lemmas are unproved.
+not themselves prove Lemmas 55–57. The finite spatial facts do not supply maximal episodes,
+same-owner table confinement, or full T63/T64. Progress and confluence remain unproved.
 
 ## 20. Exact verification and review commands
 
