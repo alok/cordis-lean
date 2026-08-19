@@ -901,6 +901,16 @@ def matchedRetire
       (inertia := inertia) (right := swapped) retireOne :=
   matchOrchestrationForward normal_wellFormed swapped_wellFormed birth_erased_related retireOne
 
+def executableMatchedTags : OrchestrationKind × Nat :=
+  (.retire, 1)
+
+theorem matchedRetire_tags
+    (dynamics : Dynamics Cordis.GlobalRegistry.Example.signature exampleCatalog Unit)
+    (inertia : GlobalLifecycle.InertiaPolicy dynamics) :
+    (orchestrationKind (matchedRetire dynamics inertia).matched,
+      orchestrationName (matchedRetire dynamics inertia).matched) = executableMatchedTags := by
+  rfl
+
 theorem matched_retire_successors
     (dynamics : Dynamics Cordis.GlobalRegistry.Example.signature exampleCatalog Unit)
     (inertia : GlobalLifecycle.InertiaPolicy dynamics) :
@@ -1359,6 +1369,16 @@ theorem retired_wellFormed : WellFormed retired :=
 
 noncomputable def replay : ForwardDeletedTraceReplay values family sourceTrace :=
   replaySafeVestigialTrace values retired_wellFormed family namesSafe
+
+def executableReplayRules : List GlobalCalculus.Rule :=
+  [.oRetire]
+
+theorem replay_shadow_rules : replay.shadow.rules = executableReplayRules := by
+  have sameAsSource : replay.shadow.rules = sourceTrace.rules := by
+    apply List.Sublist.eq_of_length replay.certificate.rules_sublist
+    simp [replay, replaySafeVestigialTrace, GlobalDeletion.Positive.namesSafe,
+      GlobalDeletion.Positive.sourceTrace, GlobalCalculus.Trace.rules]
+  exact sameAsSource.trans (by rfl)
 
 theorem final_related : DeletionRelated values (fun name ↦ name ∈ [(1 : Nat)])
     (retireFiber retired 0 providerFiber)
