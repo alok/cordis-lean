@@ -496,8 +496,8 @@ The exact positive claim is:
 > A nonquiescent well-formed finite state has an applicable lifecycle rule when
 > its provider precedence carries an explicit finite increasing rank, committed
 > providers are statically sound, every reloading occurrence is assigned a
-> fixed reachable landing-or-raise-total program, and every unrelied unloading
-> occurrence admits recovery.
+> fixed reachable program with an exact landing-or-raise witness, and every
+> unrelied unloading occurrence admits recovery.
 
 ## 15. Verification and integration requirements
 
