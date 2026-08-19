@@ -7,6 +7,7 @@ import Cordis.Effect
 import Cordis.Examples.Counter
 import Cordis.Examples.CounterWire
 import Cordis.Examples.DependentChoice
+import Cordis.GlobalActivationOrchestrationTransposition
 import Cordis.GlobalActivationTransposition
 import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
@@ -1003,6 +1004,19 @@ private def testGlobalActivationTransposition : IO Unit := do
       GlobalActivationTransposition.Example.FinishPair.right.rule)
     (.finish, .finish)
 
+private def testGlobalActivationOrchestrationTransposition : IO Unit := do
+  assertEqual "corrected exchange exposes the early Insert actor and moved Begin rule"
+    GlobalActivationOrchestrationTransposition.BeginInsert.executableTags
+    (.insert, 1, .begin)
+  let normalBirth :=
+    (GlobalActivationOrchestrationTransposition.LiteralPaperGap.normal.registry 1).map
+      (fun fiber => fiber.birth)
+  let swappedBirth :=
+    (GlobalActivationOrchestrationTransposition.LiteralPaperGap.swapped.registry 1).map
+      (fun fiber => fiber.birth)
+  assertEqual "opposite fresh insertion orders retain different per-fiber birth ranks"
+    (normalBirth, swappedBirth) (some 1, some 2)
+
 private def testGlobalRelations : IO Unit := do
   let absentTable : Option Nat :=
     GlobalRelations.tableAt GlobalRelations.Example.emptyState false ()
@@ -1333,6 +1347,7 @@ def run : IO Unit := do
   testGlobalForeignPhase
   testGlobalLandingTransposition
   testGlobalActivationTransposition
+  testGlobalActivationOrchestrationTransposition
   testGlobalRelations
   testGlobalSpatial
   testGlobalVestigial

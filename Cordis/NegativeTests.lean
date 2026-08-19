@@ -3,6 +3,7 @@ import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.Examples.DependentChoice
+import Cordis.GlobalActivationOrchestrationTransposition
 import Cordis.GlobalActivationTransposition
 import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
@@ -573,5 +574,19 @@ example : GlobalActivationTransposition.ProgramActivation
     GlobalLifecycle.Example.start :=
   .begin GlobalLifecycle.Example.inactiveProvider
     GlobalActivationTransposition.RootProvenanceGap.validGuard (by rfl)
+
+/-! Registration safety cannot fabricate exact oracle/yield framing after O-Retire. -/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : GlobalTransposition.LifecycleYieldAgrees
+    GlobalActivationOrchestrationTransposition.RetireOracleGap.movedStep
+    GlobalActivationOrchestrationTransposition.RetireOracleGap.originalStep := by
+  refine {
+    undo_eq := ?_
+    continuation := rfl
+    kind := rfl
+  }
+  rfl
 
 end Cordis.NegativeTests

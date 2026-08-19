@@ -8,6 +8,7 @@ import Cordis.Effect
 import Cordis.Examples.Counter
 import Cordis.Examples.CounterWire
 import Cordis.Examples.DependentChoice
+import Cordis.GlobalActivationOrchestrationTransposition
 import Cordis.GlobalActivationTransposition
 import Cordis.GenericHarness
 import Cordis.GlobalCalculus

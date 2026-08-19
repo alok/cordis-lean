@@ -5,6 +5,7 @@ import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.Effect
 import Cordis.Examples.DependentChoice
+import Cordis.GlobalActivationOrchestrationTransposition
 import Cordis.GlobalActivationTransposition
 import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
@@ -563,6 +564,42 @@ end Cordis.GlobalLandingTransposition.ProgramAlignedLandingActivation
 #print axioms Cordis.GlobalActivationTransposition.bare_landing_does_not_determine_program
 #print axioms
   Cordis.GlobalActivationTransposition.semantic_independence_does_not_supply_exact_swap_laws
+namespace Cordis.GlobalActivationOrchestrationTransposition
+#print axioms sourceRegisteredChild_ordinary
+#print axioms sourceRegisteredChild_registration
+#print axioms ProgramActivation.registeredChild_begin
+#print axioms ProgramActivation.registeredChild_landing
+#print axioms sourceRegisteredChild_ne_none_of_registration
+#print axioms orchestrationReplay_before
+#print axioms ProgramActivation.lookup_after_eq_of_nonregistering
+#print axioms ProgramActivation.lookup_before_of_after_of_not_registered
+#print axioms ProgramActivation.owner_after_static
+#print axioms ProgramActivation.endpoint_component_present
+#print axioms reconstructOrchestration
+#print axioms orchestration_preserves_positive_target
+#print axioms retireFiber_setPhase_commute
+#print axioms removeFiber_setPhase_commute
+#print axioms orchestrationReplay_setPhase_commute
+#print axioms Landing.reframeFromEditTemplate
+#print axioms reframeActivationAcrossEdit
+#print axioms transpose_activation_orchestration
+#print axioms LiteralPaperGap.parent_adoption_blocks_early_insert
+#print axioms LiteralPaperGap.registration_insert_birth_order_differs
+#print axioms LiteralPaperGap.birth_order_not_ruleRelated
+#print axioms InsertClockGap.no_insert_execution_frame
+#print axioms InsertClockGap.wellformed_nonregistration_do_not_supply_frame
+#print axioms RetireOracleGap.no_retire_execution_frame
+#print axioms RetireOracleGap.registration_safety_does_not_supply_frame
+#print axioms RetireOracleGap.raw_registration_request_is_unchanged
+#print axioms BeginInsert.transposition
+#print axioms BeginInsert.exposedTags_eq_executableTags
+#print axioms BeginRetire.transposition
+#print axioms OrdinaryFinishInsert.occurrenceFrame
+#print axioms OrdinaryFinishInsert.transposition
+#print axioms RegisteringFinishRetire.occurrenceFrame
+#print axioms RegisteringFinishRetire.transposition
+#print axioms RegisteringFinishRetire.original_safe_child
+end Cordis.GlobalActivationOrchestrationTransposition
 #print axioms Cordis.GlobalRelations.contextRelated_domain
 #print axioms Cordis.GlobalRelations.ruleSetoid
 #print axioms Cordis.GlobalRelations.ruleRelated_registry_domain
