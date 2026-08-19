@@ -7,6 +7,7 @@ import Cordis.Effect
 import Cordis.Examples.Counter
 import Cordis.Examples.CounterWire
 import Cordis.Examples.DependentChoice
+import Cordis.GlobalActivationTransposition
 import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalIteratorIndependence
@@ -985,6 +986,23 @@ private def testGlobalLandingTransposition : IO Unit := do
     GlobalLandingTransposition.Example.executableRulePair
     (.iter, .finish)
 
+private def testGlobalActivationTransposition : IO Unit := do
+  assertEqual "all-nine activation layer retains the exact Iter/Finish pair"
+    GlobalActivationTransposition.Example.LandingPair.executableRulePair
+    (.iter, .finish)
+  assertEqual "Begin/Begin needs no iterator compatibility law"
+    (GlobalActivationTransposition.Example.BeginPairs.beginLeft.rule,
+      GlobalActivationTransposition.Example.BeginPairs.beginRight.rule)
+    (.begin, .begin)
+  assertEqual "Begin/Finish consumes only the landing program frame"
+    (GlobalActivationTransposition.Example.BeginPairs.mixedBegin.rule,
+      GlobalActivationTransposition.Example.BeginPairs.mixedFinish.rule)
+    (.begin, .finish)
+  assertEqual "the all-nine constructor includes the Finish/Finish branch"
+    (GlobalActivationTransposition.Example.FinishPair.left.rule,
+      GlobalActivationTransposition.Example.FinishPair.right.rule)
+    (.finish, .finish)
+
 private def testGlobalRelations : IO Unit := do
   let absentTable : Option Nat :=
     GlobalRelations.tableAt GlobalRelations.Example.emptyState false ()
@@ -1314,6 +1332,7 @@ def run : IO Unit := do
   testGlobalTransposition
   testGlobalForeignPhase
   testGlobalLandingTransposition
+  testGlobalActivationTransposition
   testGlobalRelations
   testGlobalSpatial
   testGlobalVestigial

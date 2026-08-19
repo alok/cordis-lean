@@ -5,6 +5,7 @@ import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.Effect
 import Cordis.Examples.DependentChoice
+import Cordis.GlobalActivationTransposition
 import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalIteratorIndependence
@@ -532,6 +533,36 @@ end Cordis.GlobalLandingTransposition.ProgramAlignedLandingActivation
   Cordis.GlobalLandingTransposition.OracleProvenanceGap.landingTwo_not_aligned_with_programOne
 #print axioms
   Cordis.GlobalLandingTransposition.OracleProvenanceGap.landingOne_not_aligned_with_programTwo
+#print axioms Cordis.GlobalActivationTransposition.ProgramActivation.transition_rule
+#print axioms Cordis.GlobalActivationTransposition.ProgramActivation.source_present
+#print axioms Cordis.GlobalActivationTransposition.ProgramActivation.source_not_active
+#print axioms Cordis.GlobalActivationTransposition.ProgramActivation.preservesWellFormed
+#print axioms Cordis.GlobalActivationTransposition.ProgramActivation.foreignLookupFrame
+#print axioms Cordis.GlobalActivationTransposition.ForeignLookupFrame.activeProvider_forward
+#print axioms Cordis.GlobalActivationTransposition.ForeignLookupFrame.targetView_some_forward
+#print axioms Cordis.GlobalActivationTransposition.ProgramActivation.foreign_target
+#print axioms Cordis.GlobalActivationTransposition.ProgramActivation.after_unique
+#print axioms Cordis.GlobalActivationTransposition.ProgramActivation.rule_unique
+#print axioms Cordis.GlobalActivationTransposition.program_activation_diamond
+#print axioms Cordis.GlobalActivationTransposition.transpose_program_activations
+#print axioms
+  Cordis.GlobalActivationTransposition.ProgramActivationTransposition.swappedTransition
+#print axioms Cordis.GlobalActivationTransposition.Example.LandingPair.transposition
+#print axioms Cordis.GlobalActivationTransposition.Example.LandingPair.swappedTransition
+#print axioms Cordis.GlobalActivationTransposition.Example.BeginPairs.beginBeginDiamond
+#print axioms Cordis.GlobalActivationTransposition.Example.BeginPairs.beginFinishDiamond
+#print axioms Cordis.GlobalActivationTransposition.Example.FinishPair.independent
+#print axioms Cordis.GlobalActivationTransposition.Example.FinishPair.exact
+#print axioms Cordis.GlobalActivationTransposition.Example.FinishPair.compatible
+#print axioms Cordis.GlobalActivationTransposition.Example.FinishPair.diamond
+#print axioms Cordis.GlobalActivationTransposition.RootProvenanceGap.root_not_catalog_entry
+#print axioms
+  Cordis.GlobalActivationTransposition.SameOwnerGap.same_owner_phase_updates_do_not_commute
+#print axioms
+  Cordis.GlobalActivationTransposition.common_source_applicability_is_necessary
+#print axioms Cordis.GlobalActivationTransposition.bare_landing_does_not_determine_program
+#print axioms
+  Cordis.GlobalActivationTransposition.semantic_independence_does_not_supply_exact_swap_laws
 #print axioms Cordis.GlobalRelations.contextRelated_domain
 #print axioms Cordis.GlobalRelations.ruleSetoid
 #print axioms Cordis.GlobalRelations.ruleRelated_registry_domain

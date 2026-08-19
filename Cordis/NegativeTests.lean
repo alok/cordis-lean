@@ -3,6 +3,7 @@ import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.Examples.DependentChoice
+import Cordis.GlobalActivationTransposition
 import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalIteratorIndependence
@@ -562,5 +563,15 @@ example : GlobalLandingTransposition.LandingProgramWitness
     GlobalLandingTransposition.OracleProvenanceGap.programOne
     GlobalLandingTransposition.OracleProvenanceGap.landingTwo :=
   GlobalLandingTransposition.OracleProvenanceGap.landingTwo_program_aligned
+
+/-! A valid Begin guard cannot be attributed to a program with the wrong root code. -/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : GlobalActivationTransposition.ProgramActivation
+    GlobalActivationTransposition.RootProvenanceGap.wrongProgram
+    GlobalLifecycle.Example.start :=
+  .begin GlobalLifecycle.Example.inactiveProvider
+    GlobalActivationTransposition.RootProvenanceGap.validGuard (by rfl)
 
 end Cordis.NegativeTests
