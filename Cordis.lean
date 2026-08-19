@@ -21,6 +21,7 @@ import Cordis.Lifecycle
 import Cordis.MediatedIndependence
 import Cordis.MediatedTheorem
 import Cordis.OperationIndependence
+import Cordis.ObservationalPartialTransformation
 import Cordis.OperationalEquivalence
 import Cordis.PartialTransformation
 import Cordis.Policy

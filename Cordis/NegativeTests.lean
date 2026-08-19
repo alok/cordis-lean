@@ -16,6 +16,7 @@ import Cordis.MediatedTheorem
 import Cordis.Policy
 import Cordis.Protocol
 import Cordis.OperationIndependence
+import Cordis.ObservationalPartialTransformation
 import Cordis.OperationalEquivalence
 import Cordis.PartialTransformation
 import Cordis.QuotientEffect
@@ -412,6 +413,16 @@ example : PartialTransformation.Commutes
     (PartialTransformation.total PartialTransformation.WholeRunGap.falseResult.undo)
     (PartialTransformation.total PartialTransformation.WholeRunGap.trueResult.undo) := by
   intro state
+  rfl
+
+/-! Exact commutation does not fabricate quotient respect. -/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : ObservationalPartialTransformation.Respects
+    ObservationalPartialTransformation.RespectGap.modelRelation
+    ObservationalPartialTransformation.RespectGap.badPartial := by
+  intro _ _ _
   rfl
 
 /-! Effect observation does not fabricate rule-level registry-domain equality. -/

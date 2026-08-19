@@ -17,6 +17,7 @@ import Cordis.Lifecycle
 import Cordis.MediatedIndependence
 import Cordis.MediatedTheorem
 import Cordis.OperationIndependence
+import Cordis.ObservationalPartialTransformation
 import Cordis.OperationalEquivalence
 import Cordis.PartialTransformation
 import Cordis.Policy
@@ -343,6 +344,16 @@ set_option format.width 200
 #print axioms Cordis.PartialTransformation.Example.fullIndependent
 #print axioms Cordis.PartialTransformation.WholeRunGap.wholeRun
 #print axioms Cordis.PartialTransformation.WholeRunGap.full_independence_fails
+#print axioms Cordis.ObservationalPartialTransformation.Closure.respects
+#print axioms Cordis.ObservationalPartialTransformation.closure_iff_exact
+#print axioms Cordis.ObservationalPartialTransformation.evaluate_related
+#print axioms Cordis.ObservationalPartialTransformation.computation_generators_respect
+#print axioms Cordis.ObservationalPartialTransformation.independent_of_exact
+#print axioms Cordis.ObservationalPartialTransformation.pairwiseOverlap_independent
+#print axioms Cordis.ObservationalPartialTransformation.pairwiseOverlap_full_and_wholeRun
+#print axioms Cordis.ObservationalPartialTransformation.RespectGap.bad_not_respects
+#print axioms Cordis.ObservationalPartialTransformation.RespectGap.observational_commutation_fails
+#print axioms Cordis.ObservationalPartialTransformation.Example.independent
 #print axioms Cordis.GlobalDynamics.Dynamics.applyUndo_respects
 #print axioms Cordis.GlobalDynamics.Dynamics.recover_respects
 #print axioms Cordis.GlobalDynamics.Dynamics.recover_append

@@ -19,6 +19,7 @@ import Cordis.Lifecycle
 import Cordis.MediatedIndependence
 import Cordis.MediatedTheorem
 import Cordis.OperationIndependence
+import Cordis.ObservationalPartialTransformation
 import Cordis.OperationalEquivalence
 import Cordis.PartialTransformation
 import Cordis.Policy
@@ -844,6 +845,16 @@ private def testPartialTransformation : IO Unit := do
   assertEqual "whole-run equality can hide noncommuting cross-seed inverses"
     (falseThenTrue, trueThenFalse) (some false, some true)
 
+private def testObservationalPartialTransformation : IO Unit := do
+  let left := ObservationalPartialTransformation.RespectGap.left
+  let right := ObservationalPartialTransformation.RespectGap.right
+  assertEqual "respect-gap inputs agree on their visible observation"
+    (left.visible, right.visible) (false, false)
+  assertEqual "the exact bad map leaks hidden representation into visible observation"
+    ((ObservationalPartialTransformation.RespectGap.bad left).visible,
+      (ObservationalPartialTransformation.RespectGap.bad right).visible)
+    (false, true)
+
 open GlobalDynamics.Example in
 private def testGlobalDynamics : IO Unit := do
   assertEqual "fueled global iterator executes ordinary then registration steps"
@@ -1129,6 +1140,7 @@ def run : IO Unit := do
   testMediatedIndependenceBoundary
   testMediatedWholeRun
   testPartialTransformation
+  testObservationalPartialTransformation
   testGlobalDynamics
   testGlobalLifecycle
   testGlobalCalculus
