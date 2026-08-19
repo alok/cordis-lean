@@ -7,6 +7,7 @@ import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
 import Cordis.GlobalRegistry
+import Cordis.GlobalTraceFacts
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
 import Cordis.MediatedTheorem
@@ -381,5 +382,14 @@ example : GlobalCalculus.EmptyRegistry GlobalLifecycle.Example.start := by
 example : OperationIndependence.Computation
     MediatedTheorem.Example.IndependentBranching.demoCoeffects :=
   MediatedTheorem.Example.IndependentBranching.leftNext true
+
+/-! Bare unload admission cannot fabricate the missing foreign-recovery confinement law. -/
+
+/-- error: unsolved goals -/
+#guard_msgs (substring := true) in
+example : GlobalTraceFacts.RecoveryConfinement
+    GlobalTraceFacts.Counterexample.dynamics
+    (GlobalTraceFacts.Counterexample.state 7) false [.external ()] := by
+  constructor
 
 end Cordis.NegativeTests

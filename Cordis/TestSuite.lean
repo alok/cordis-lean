@@ -11,6 +11,7 @@ import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
 import Cordis.GlobalRegistry
+import Cordis.GlobalTraceFacts
 import Cordis.Harness
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
@@ -876,6 +877,18 @@ private def testGlobalCalculus : IO Unit := do
   assertEqual "unified global trace returns to an empty registry"
     (removedState.registry 0).isNone true
 
+private def testGlobalTraceFacts : IO Unit := do
+  let states := GlobalTraceFacts.Trace.states GlobalCalculus.Example.unifiedTrace
+  let records := GlobalTraceFacts.Trace.records GlobalCalculus.Example.unifiedTrace
+  assertEqual "global trace state projection has one more endpoint than records"
+    states.length (records.length + 1)
+  let beforeForeign : Option Nat :=
+    (GlobalTraceFacts.Counterexample.state 7).registry true >>= fun fiber ↦ fiber.table ()
+  let afterForeign : Option Nat :=
+    GlobalTraceFacts.Counterexample.inactiveAfter.registry true >>= fun fiber ↦ fiber.table ()
+  assertEqual "bare unload admission can mutate a foreign table in the kernel countermodel"
+    (beforeForeign, afterForeign) (some 7, some 8)
+
 private def testHarnessPhaseFailures : IO Unit := do
   let initial := Harness.RunnerState.initial 0
   match initial.beginStep with
@@ -1082,6 +1095,7 @@ def run : IO Unit := do
   testGlobalDynamics
   testGlobalLifecycle
   testGlobalCalculus
+  testGlobalTraceFacts
   testHarnessPhaseFailures
   testCounterAdmission
   testHarnessDemo

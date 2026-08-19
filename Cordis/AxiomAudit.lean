@@ -9,6 +9,7 @@ import Cordis.GlobalCalculus
 import Cordis.GlobalDynamics
 import Cordis.GlobalLifecycle
 import Cordis.GlobalRegistry
+import Cordis.GlobalTraceFacts
 import Cordis.Harness
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
@@ -365,3 +366,19 @@ set_option format.width 200
 #print axioms Cordis.GlobalCalculus.Example.unified_rule_projection
 #print axioms Cordis.GlobalCalculus.Example.unified_stateMap_projection
 #print axioms Cordis.GlobalCalculus.Example.unified_endpoint_exact
+#print axioms Cordis.GlobalTraceFacts.iteration_foreign_lookup
+#print axioms Cordis.GlobalTraceFacts.iteration_owner_static
+#print axioms Cordis.GlobalTraceFacts.foreignExact_of_notUnload
+#print axioms Cordis.GlobalTraceFacts.foreignTables_preserved
+#print axioms Cordis.GlobalTraceFacts.foreignControl_continuous
+#print axioms Cordis.GlobalTraceFacts.actorStatic_continuous
+#print axioms Cordis.GlobalTraceFacts.namedCommitted_continuous
+#print axioms Cordis.GlobalTraceFacts.accumulatedRecovery_iff_unload
+#print axioms Cordis.GlobalTraceFacts.Trace.aligned
+#print axioms Cordis.GlobalTraceFacts.Trace.states_length
+#print axioms Cordis.GlobalTraceFacts.Trace.installedAt_forward
+#print axioms Cordis.GlobalTraceFacts.BoundedEpisode.interior_close_installed
+#print axioms Cordis.GlobalTraceFacts.BoundedEpisode.open_rule
+#print axioms Cordis.GlobalTraceFacts.BoundedEpisode.close_rule
+#print axioms Cordis.GlobalTraceFacts.Counterexample.bareAdmission_breaks_foreignTables
+#print axioms Cordis.GlobalTraceFacts.Counterexample.bareAdmission_not_recoveryConfinement
