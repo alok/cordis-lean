@@ -94,6 +94,10 @@ Current machine-checked evidence includes:
   `ObservationalIndependent` for the `EffectEquiv` square with its separate `ProgramRespects`, and
   exposing exact lifecycle undo-code agreement, structural phase-edit commutation, and a
   noninjective-undo counterexample without claiming a lifecycle transition swap;
+- `Cordis.GlobalForeignPhase`, factoring foreign-phase compatibility into explicit readable-edit,
+  ordinary exact-successor, and same-child oracle laws, deriving registration framing
+  structurally, constructing exact one-/two-sided framed raw executions with retained lookups, and
+  kernel-separating all three missing premises;
 - `Cordis.GlobalRelations`, defining incomparable finite rule/effect observation setoids and an
   explicit respectful-undo bridge into the temporal algebra without claiming rule bisimulation;
 - `Cordis.GlobalRuleInvariance`, proving well-formed bidirectional orchestration matching across
@@ -375,12 +379,13 @@ The bounded transposition slice is specified in
 diamond from the stronger foreign-phase, exact-undo-code, guard, and edited-endpoint laws required
 by paper Lemma 71.
 
-The next lower-frame slice is specified in
-[`GLOBAL_FOREIGN_PHASE_SPEC.md`](GLOBAL_FOREIGN_PHASE_SPEC.md). It will test the strict separation
-between iterator independence and foreign control blindness, then derive the latter only from
-explicit read, ordinary-successor, and registration-oracle frame laws.
+The lower foreign-phase frame slice is specified in
+[`GLOBAL_FOREIGN_PHASE_SPEC.md`](GLOBAL_FOREIGN_PHASE_SPEC.md) and implemented by
+`Cordis.GlobalForeignPhase`. It kernel-separates iterator independence from foreign control
+blindness and derives the required compatibility only from explicit read, ordinary-successor, and
+registration-oracle frame laws.
 
-The bounded algebra/context/global layer now has twenty-eight explicit pieces:
+The bounded algebra/context/global layer now has twenty-nine explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -531,6 +536,15 @@ The bounded algebra/context/global layer now has twenty-eight explicit pieces:
     noncircular foreign-edit law for which this module constructs no inhabitant. A finite
     interpreter proves semantic inverse equality does not imply exact stored-code equality. No
     lifecycle transition or paper Lemma 71 case is transposed.
+29. `Cordis.GlobalForeignPhase` uses `Dynamics.run_read_confined` only after
+    `ForeignPhaseReadable` admits the point update, then refines the ordinary successor with an
+    exact frame and stabilizes registration with same-child oracle certification. The registration
+    successor equation is derived from request equality, freshness, and insertion/phase
+    commutation. `phase_framed_diamond` combines two compatibility certificates with the raw
+    independent diamond and retains both actual post-raw owner lookups. Independent, readable, and
+    raw-registration-stable countermodels separately prove that none of the three lower laws is
+    implicit. Supplied phases remain arbitrary typed edits; no lifecycle `Transition`, guard,
+    target, or Lemma 71 exchange is constructed.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -600,7 +614,11 @@ The slice requires all existing gates plus the following new coverage:
   observational-independence, and `TotalStepMap` witnesses;
 - the raw independent iterator diamond and both totalized pre-edit map squares; and
 - a runtime probe on which distinct stored undo codes produce the same projection, plus static
-  proof that their interpreted functions are equal but lifecycle-visible exact agreement fails.
+  proof that their interpreted functions are equal but lifecycle-visible exact agreement fails;
+- a fully independent two-owner program whose observed undo syntax changes after a foreign phase
+  edit, with static proof that compatibility fails; and
+- readable ordinary and registration models that separately fail exact successor framing and
+  same-child oracle stability.
 
 Headline theorems must be added to `Cordis/AxiomAudit.lean`. The full project must remain free of
 `sorry`, `admit`, project-defined axioms, `unsafe`, `partial`, external implementation overrides,
@@ -641,6 +659,9 @@ This slice does not by itself prove:
   Theorem 61/Corollary 62;
 - promotion of the raw iterator diamond or totalized pre-edit map squares to lifecycle Lemma 71
   without exact code, fixed program/oracle, foreign-phase, guard, and edited-endpoint laws;
+- derivation of foreign-phase readability, ordinary exact framing, or same-child oracle stability
+  from `Independent`, base `Dynamics`, or raw request equality; or promotion of the framed raw
+  diamond to lifecycle-rule phases, guards, targets, transitions, or either Lemma 71 clause;
 - native plugin isolation, process confinement, filesystem safety, or remote-service behavior;
 - global exactly-once execution across workers; or
 - that a model follows supplied schemas or chooses an appropriate tool.

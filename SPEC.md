@@ -93,6 +93,14 @@ foreign-phase compatibility contract without constructing an inhabitant. A finit
 interpreter proves semantic inverse equality cannot recover stored code equality. These are
 ingredients toward Lemma 71, not a lifecycle-step transposition or mixed-trace reorder theorem.
 
+The foreign-phase layer now derives that compatibility contract from explicit read-equivalence,
+ordinary exact-successor, and same-child registration-oracle frame laws. It uses the existing raw
+diamond plus both compatibility certificates to prove exact equality after arbitrary supplied
+distinct-name phase updates, retaining the actual post-raw fiber lookups. Full independence,
+readability, and raw registration stability are each kernel-separated from the stronger premises
+they do not imply. The result remains about framed raw executions; it does not construct lifecycle
+rules or their guards and targets.
+
 Repository: `cordis-lean`
 
 Lean toolchain: `leanprover/lean4:v4.33.0`

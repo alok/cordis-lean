@@ -2,7 +2,7 @@
 
 <!-- markdownlint-disable MD013 -->
 
-Status: next implementation slice after `Cordis.GlobalTransposition`
+Status: implemented by `Cordis.GlobalForeignPhase`
 
 Source basis: CORDIS paper revision
 `948a07b369c62adb3b12e102458be5c18dfb69b9`, especially Definition 48's read
