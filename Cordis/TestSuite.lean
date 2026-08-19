@@ -1034,6 +1034,12 @@ private def testGlobalDeletion : IO Unit := do
     (GlobalDeletion.Positive.deletionSourceTrace.rules,
       GlobalDeletion.Positive.deletionShadowTrace.rules)
     ([.oRemove, .oRetire], [.oRetire])
+  assertEqual "safe vestigial suffix exposes the rule copied by the exact trace square"
+    GlobalDeletion.Positive.sourceTrace.rules [.oRetire]
+  assertEqual "safe vestigial suffix exposes the actor copied by the exact trace square"
+    (GlobalDeletion.Positive.sourceTrace.actors.map fun actor => match actor with
+      | .fiber name => name)
+    [0]
 
 private def testGlobalProgress : IO Unit := do
   assertEqual "conditional progress constructs the expected concrete Begin rule"
