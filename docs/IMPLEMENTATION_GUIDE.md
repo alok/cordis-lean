@@ -1951,11 +1951,19 @@ Build the structural slice in this order:
     inversion, and trace reordering explicitly. Derive whole-replay commutation by induction, then
     add the unload bridge. Kernel-check failures of off-source totality, universal-relation
     adequacy, and RecoveryConfinement-as-temporal-independence.
+17. Keep the paper's rule and effect observations distinct. Parameterize rule-level context values
+    by key-indexed setoids, retain registry domain/control exactly, and include any local proof
+    clocks that affect rule applicability. For effect observation, retain ambient state and
+    normalized table lookups while deliberately forgetting lifecycle control and treating an
+    absent fiber like an empty vestigial table. Prove both relations are setoids and add concrete
+    separations in both directions. Require a named undo-respect law before using the effect
+    relation in temporal recovery, and name the rule-bisimulation obligation instead of claiming
+    Lemma 55 from a relation definition alone.
 
 This reaches a bounded finite Definition 53 relation. Do not claim Theorem 59 while general unload
 recovery confinement is still supplied, or full T61/Cor62 while the canonical relation,
-off-source totality, and Definition 60/reordering laws are supplied. The remaining
-spatial/progress/confluence lemmas are unproved.
+off-source totality, and Definition 60/reordering laws are supplied. The two candidate relations do
+not themselves prove Lemmas 55–57. The remaining spatial/progress/confluence lemmas are unproved.
 
 ## 20. Exact verification and review commands
 

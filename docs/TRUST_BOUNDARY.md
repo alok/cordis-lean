@@ -371,6 +371,7 @@ Executable rejection is valuable, but it is not a refinement theorem.
 | `GlobalCalculus`                            | Unifies orchestration/lifecycle endpoints under ten rule names, retains acted-on names, separates state maps from edits, proves installation-boundary semantics, and packages empty-origin traces.                                   | Finite sequential Definition 53 model; general recovery is admitted, oracle rejection remains absent, and full Theorem 59 is unclaimed.                                                          |
 | `GlobalTraceFacts`                          | Proves non-unload foreign exactness, conditional unload table/control/static continuity, aligned name-specific episodes, and a kernel bare-admission countermodel.                                                                   | Bounded existing-fiber Lemma 54 fragments; new-entry/retire-write provenance and remaining global metatheory are unproved.                                                                       |
 | `GlobalTemporal`                            | Reifies fallible off-source step maps and proves per-step commutation composes to finite relation-indexed recovery with explicit inverse/reorder/unload certificates.                                                                | Parameterized T61/Cor62 algebra only; canonical `≈`, D60, totality, continuation stability, and arbitrary trace reordering remain absent.                                                        |
+| `GlobalRelations`                           | Defines key-indexed rule observation and ambient/table effect observation as setoids, bridges respectful undo to the temporal interface, and separates the candidates by executable models.                                          | Finite Equation 53/Lemmas 55–57 candidates only; rule bisimulation, name-action laws, vestigial rule simulation, and the global lemmas remain unproved.                                          |
 | `CertifiedTwoBatch`                         | Requires same-successor, pointwise same-recovery, and result-stability certificate fields before either order is permitted.                                                                                                          | The certificate is supplied, exactly two pure calls are modeled, and no actual concurrency or external-effect safety follows.                                                                    |
 | `Registry.setAt`                            | Uses dependent equality transport so a value cannot be installed at a differently typed key.                                                                                                                                         | No runtime aliasing, notification, or mutable-store semantics are modeled.                                                                                                                       |
 | `View.resolve`                              | Requires `needs op` before a binding can be requested.                                                                                                                                                                               | Construction of the view and completeness of its registry snapshot remain obligations.                                                                                                           |
@@ -555,6 +556,16 @@ Those certificates compose to finite interleaved and terminal unload recovery. C
 that an exact landing may fail off-source, a universal dynamics relation is vacuous for table
 recovery, and `RecoveryConfinement` alone does not imply temporal exactness.
 
+`GlobalRelations` then makes the two observation interfaces concrete without identifying them.
+`RuleRelated` observes the derived coeffect context through supplied key-indexed setoids and keeps
+the registry domain, fiber control, and local birth clock exactly. `EffectRelated` instead keeps
+ambient state and every normalized table lookup exactly while forgetting lifecycle control and
+identifying an absent fiber with a vestigial empty table. Both are proved equivalence relations.
+`EffectUndoRespect` is still a supplied semantic law before this effect relation can instantiate
+the temporal recovery interface, and `RuleBisimulation` names—rather than proves—the missing rule
+simulation obligation. Kernel examples establish both incomparability directions and separate the
+arbitrary dynamics relation from the effect candidate.
+
 The older finite `Cordis.Lifecycle` model separately assumes:
 
 - inactive states retain the modeled recovered value, and `unload` returns specifically to the
@@ -634,8 +645,10 @@ Without additional proofs or tests, do not state that:
   arbitrary-interleaving recovery without its named admission; `GlobalCalculus` proves full
   Theorem 59, progress/confluence, or runtime completeness; `GlobalTraceFacts` proves fresh-name
   or retirement-write provenance for opaque undo codes; `GlobalTemporal` derives canonical paper
-  `≈`, off-source totality, D60, or arbitrary T61/Cor62 from current step evidence; or strengthened
-  birth order is literally paper Definition 58;
+  `≈`, off-source totality, D60, or arbitrary T61/Cor62 from current step evidence;
+  `GlobalRelations` proves Lemma 55 rule bisimulation, name equivariance, or vestigial rule
+  simulation merely by defining candidate setoids; or strengthened birth order is literally paper
+  Definition 58;
 - `RuntimeRefinement` accepts the full Harness stream union, is complete for the tolerant
   TypeScript assembler, verifies provider streaming, or proves chunk storage;
 - `SessionRefinement` accepts the complete Harness event union, preserves every source field in

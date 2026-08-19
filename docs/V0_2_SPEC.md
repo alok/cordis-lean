@@ -80,6 +80,8 @@ Current machine-checked evidence includes:
 - `Cordis.GlobalTemporal`, reifying fallible off-source step maps and deriving finite
   relation-indexed interleaved/unload recovery from explicit totality, commutation, inversion, and
   reordering certificates;
+- `Cordis.GlobalRelations`, defining incomparable finite rule/effect observation setoids and an
+  explicit respectful-undo bridge into the temporal algebra without claiming rule bisimulation;
 - `Cordis.RuntimeRefinement`, decoding the supported current-Harness stream-chunk JSON-AST
   shapes into `RichStream.ValidatedTrace` while explicitly rejecting non-equivalent fields;
 - `Cordis.SessionRefinement`, statefully translating a supported source-shaped Harness session
@@ -337,7 +339,7 @@ future external adapter consumes the same proof-carrying request contract.
 
 ## Paper context and executable refinement
 
-The bounded algebra/context/global layer now has seventeen explicit pieces:
+The bounded algebra/context/global layer now has eighteen explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -411,6 +413,12 @@ The bounded algebra/context/global layer now has seventeen explicit pieces:
     forward/forward, forward/inverse, and inverse/inverse laws through the complete closures and
     preserves the other computation's domain and inverse under every successful foreign map. The
     whole-run theorem follows, while a kernel countermodel refutes its converse.
+18. `Cordis.GlobalRelations` supplies key-indexed value setoids, observes the active context and
+    exact registry domain/control for rule equivalence, and observes exact ambient state plus
+    normalized tables for effect equivalence. Both candidates are setoids; a named undo-respect
+    law instantiates `GlobalTemporal.EffectEquiv`. Executable examples prove the two candidates are
+    incomparable and that an arbitrary dynamics relation may be too weak. Rule bisimulation, name
+    equivariance, and vestigial rule simulation remain explicit missing laws.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a

@@ -390,7 +390,8 @@ Local sources: [`Cordis/GlobalRegistry.lean`](../Cordis/GlobalRegistry.lean),
 [`Cordis/GlobalLifecycle.lean`](../Cordis/GlobalLifecycle.lean), plus the combined
 [`Cordis/GlobalCalculus.lean`](../Cordis/GlobalCalculus.lean) relation and
 [`Cordis/GlobalTraceFacts.lean`](../Cordis/GlobalTraceFacts.lean) audit, followed by
-[`Cordis/GlobalTemporal.lean`](../Cordis/GlobalTemporal.lean)'s conditional recovery algebra.
+[`Cordis/GlobalTemporal.lean`](../Cordis/GlobalTemporal.lean)'s conditional recovery algebra and
+[`Cordis/GlobalRelations.lean`](../Cordis/GlobalRelations.lean)'s explicit observation candidates.
 
 | Lean declaration                                                                                          | Status and exact Lean guarantee                                                                                                                                                                                                                            | Paper correspondence                                   | Boundary                                                                                                                                                     |
 | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -403,6 +404,7 @@ Local sources: [`Cordis/GlobalRegistry.lean`](../Cordis/GlobalRegistry.lean),
 | `GlobalCalculus.Step`, combined `Trace`, `FromEmpty`, `installation_semantics`                            | **Proved:** one exact-endpoint relation projects to all ten rule names and acted-on names, separates Equation 51 maps from edits, preserves WF, and tracks actual installation-status boundaries from an empty registry.                                   | Bounded finite Definition 53 and first Lemma 54 fact.  | Sequential finite traces only; recovery admission remains supplied, oracle rejection is unmodeled, and trace facts are the next row.                         |
 | `RecoveryConfinement`, `foreignTables_preserved`, `actorStatic_continuous`, aligned trace/episode facts   | **Proved/conditional:** non-unload rules preserve foreign fibers exactly; unload confinement yields table/control/static continuity; name-specific episodes open/close at Begin/Unload.                                                                    | Bounded fragments of Lemma 54.                         | Bare recovery admission is formally insufficient; new-entry/retire-write provenance, temporal composability, and remaining global lemmas are open.           |
 | `Step.partialMap`, `EffectEquiv`, `TotalStepMap`, per-step commutation, `recover_interleaved`             | **Proved under explicit certificates:** fallible off-source maps totalize only with evidence; per-record recovery commutation folds over foreign replay; owner inversion and reordering yield finite relational recovery.                                  | Algebra underlying finite T61/Cor62.                   | Canonical paper `≈`, D60, off-source totality, reordering, and continuation stability are assumptions or absent; three countermodels expose the gaps.        |
+| `ValueSetoids`, `RuleRelated`, `EffectRelated`, their setoids, `EffectUndoRespect.temporalEffectEquiv`    | **Proved/checked:** rule observation retains related active coeffects plus exact registry domain/control; effect observation retains exact ambient/normalized tables; respectful undo supplies the temporal effect interface.                              | Finite candidates for Equation 53 and Lemmas 55–57.    | Local birth ranks/codes are stronger exact control; rule bisimulation, name actions, vestigial rule simulation, and Lemmas 55–57 are not derived.            |
 
 ### Public surface, examples, and executable checks
 
@@ -457,15 +459,18 @@ The following are intentionally not presented as completed formalization work.
    preservation consumes `RecoveryAdmission`. Bounded Lemma 54 facts are now proved: exact
    non-unload foreign preservation, conditional unload confinement, committed/static continuity,
    aligned name-specific episode boundaries, and accumulator-map uniqueness. A kernel
-   countermodel shows bare admission can mutate a foreign table. New-entry/retirement provenance,
-   the remaining Lemmas 55–57, and full Theorem 59 remain absent.
+   countermodel shows bare admission can mutate a foreign table. `GlobalRelations` now defines
+   separate rule/effect observation candidates and proves their setoid and incomparability facts,
+   but rule bisimulation, name equivariance, vestigial rule simulation, new-entry/retirement
+   provenance, the actual Lemmas 55–57, and full Theorem 59 remain absent.
 7. **Temporal composability:** a parameterized finite recovery algebra is now proved. It reifies
    partial off-source step maps, requires relation-indexed totalizations and per-step recovery
    commutation, derives whole-replay commutation, and combines explicit owner inversion/reordering
    with an unload bridge. Countermodels show exact steps may fail off-source, arbitrary dynamics
-   equivalence may be vacuous, and RecoveryConfinement alone is insufficient. Canonical paper
-   `≈`, Definition 60 iterator-family independence, arbitrary Theorem 61, and Corollary 62 remain
-   absent.
+   equivalence may be vacuous, and RecoveryConfinement alone is insufficient. A finite
+   ambient/table `EffectRelated` candidate now exists, but its required undo and rule laws are
+   explicit certificates; Definition 60 iterator-family independence, arbitrary Theorem 61, and
+   Corollary 62 remain absent.
 8. **Spatial composability:** Theorem 63's dependency episode ordering and Theorem 64's
    complete resolution-coherence statement are absent. The lifecycle guard and view-retention
    theorem establish only local constructor facts.
