@@ -12,6 +12,7 @@ import Cordis.GlobalDynamics
 import Cordis.GlobalIteratorIndependence
 import Cordis.GlobalTransposition
 import Cordis.GlobalForeignPhase
+import Cordis.GlobalLandingTransposition
 import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
@@ -976,8 +977,13 @@ private def testGlobalForeignPhase : IO Unit := do
     (GlobalForeignPhase.IndependenceGap.selectedUndo false
         GlobalForeignPhase.IndependenceGap.before,
       GlobalForeignPhase.IndependenceGap.selectedUndo false
-        GlobalForeignPhase.IndependenceGap.afterPhaseEdit)
+      GlobalForeignPhase.IndependenceGap.afterPhaseEdit)
     (false, true)
+
+private def testGlobalLandingTransposition : IO Unit := do
+  assertEqual "landing activation diamond preserves the exact Iter/Finish rule pair"
+    GlobalLandingTransposition.Example.executableRulePair
+    (.iter, .finish)
 
 private def testGlobalRelations : IO Unit := do
   let absentTable : Option Nat :=
@@ -1307,6 +1313,7 @@ def run : IO Unit := do
   testGlobalIteratorIndependence
   testGlobalTransposition
   testGlobalForeignPhase
+  testGlobalLandingTransposition
   testGlobalRelations
   testGlobalSpatial
   testGlobalVestigial

@@ -10,6 +10,7 @@ import Cordis.GlobalDynamics
 import Cordis.GlobalIteratorIndependence
 import Cordis.GlobalTransposition
 import Cordis.GlobalForeignPhase
+import Cordis.GlobalLandingTransposition
 import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
@@ -495,6 +496,42 @@ set_option format.width 200
 #print axioms Cordis.GlobalForeignPhase.OracleGap.moved_executeOne_rejected
 #print axioms
   Cordis.GlobalForeignPhase.OracleGap.raw_read_stability_does_not_imply_oracle_frame
+#print axioms Cordis.GlobalLandingTransposition.LifecycleYieldAgrees.refl
+#print axioms Cordis.GlobalLandingTransposition.LifecycleYieldAgrees.trans
+#print axioms Cordis.GlobalLandingTransposition.lifecycle_forward_diamond
+#print axioms Cordis.GlobalLandingTransposition.LandingProgramWitness.step_eq
+#print axioms Cordis.GlobalLandingTransposition.no_program_witness_of_undo_ne
+#print axioms
+  Cordis.GlobalLandingTransposition.ProgramAlignedLandingActivation.transition_rule
+#print axioms
+  Cordis.GlobalLandingTransposition.ProgramAlignedLandingActivation.preservesWellFormed
+#print axioms
+  Cordis.GlobalLandingTransposition.ProgramAlignedLandingActivation.foreign_present_after
+namespace Cordis.GlobalLandingTransposition.ProgramAlignedLandingActivation
+#print axioms targetView_preserved_by_foreign_landing
+end Cordis.GlobalLandingTransposition.ProgramAlignedLandingActivation
+#print axioms Cordis.GlobalLandingTransposition.reframeActivation
+#print axioms Cordis.GlobalLandingTransposition.landing_activation_diamond
+#print axioms Cordis.GlobalLandingTransposition.YieldSyntaxGap.semantic_cross_yield
+#print axioms Cordis.GlobalLandingTransposition.YieldSyntaxGap.no_exact_cross_yield
+#print axioms Cordis.GlobalLandingTransposition.YieldSyntaxGap.programs_independent
+#print axioms
+  Cordis.GlobalLandingTransposition.YieldSyntaxGap.no_right_lifecycle_yield_stable
+#print axioms
+  Cordis.GlobalLandingTransposition.YieldSyntaxGap.not_forward_lifecycle_independent
+#print axioms Cordis.GlobalLandingTransposition.Example.diamond
+#print axioms Cordis.GlobalLandingTransposition.Example.executableRulePair_eq
+#print axioms
+  Cordis.GlobalLandingTransposition.ProviderFinishGap.before_consumer_target_none
+#print axioms Cordis.GlobalLandingTransposition.ProviderFinishGap.after_consumer_target
+#print axioms
+  Cordis.GlobalLandingTransposition.ProviderFinishGap.consumer_begin_not_available_at_predecessor
+#print axioms
+  Cordis.GlobalLandingTransposition.OracleProvenanceGap.selected_children_differ
+#print axioms
+  Cordis.GlobalLandingTransposition.OracleProvenanceGap.landingTwo_not_aligned_with_programOne
+#print axioms
+  Cordis.GlobalLandingTransposition.OracleProvenanceGap.landingOne_not_aligned_with_programTwo
 #print axioms Cordis.GlobalRelations.contextRelated_domain
 #print axioms Cordis.GlobalRelations.ruleSetoid
 #print axioms Cordis.GlobalRelations.ruleRelated_registry_domain

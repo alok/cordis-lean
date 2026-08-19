@@ -14,6 +14,7 @@ import Cordis.GlobalDynamics
 import Cordis.GlobalIteratorIndependence
 import Cordis.GlobalTransposition
 import Cordis.GlobalForeignPhase
+import Cordis.GlobalLandingTransposition
 import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction

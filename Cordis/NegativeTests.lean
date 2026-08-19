@@ -8,6 +8,7 @@ import Cordis.GlobalDynamics
 import Cordis.GlobalIteratorIndependence
 import Cordis.GlobalTransposition
 import Cordis.GlobalForeignPhase
+import Cordis.GlobalLandingTransposition
 import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
@@ -552,5 +553,14 @@ example : GlobalTransposition.LifecycleYieldAgrees
 example : GlobalTransposition.ForeignPhaseCompatibility
     GlobalForeignPhase.IndependenceGap.observedProgram :=
   GlobalForeignPhase.IndependenceGap.programs_independent
+
+/-! A bare landing aligned with one oracle cannot be reassigned to another fixed program. -/
+
+/-- error: Type mismatch -/
+#guard_msgs (substring := true) in
+example : GlobalLandingTransposition.LandingProgramWitness
+    GlobalLandingTransposition.OracleProvenanceGap.programOne
+    GlobalLandingTransposition.OracleProvenanceGap.landingTwo :=
+  GlobalLandingTransposition.OracleProvenanceGap.landingTwo_program_aligned
 
 end Cordis.NegativeTests
