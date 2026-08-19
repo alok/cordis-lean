@@ -948,8 +948,6 @@ theorem independent_not_foreignPhaseCompatible :
   subst movedStep
   exact lifecycle_yields_do_not_agree agrees
 
-#eval (selectedUndo false before, selectedUndo false afterPhaseEdit)
-
 end IndependenceGap
 
 /-! ## Read confinement does not supply an exact ordinary successor frame -/
