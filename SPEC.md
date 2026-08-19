@@ -115,8 +115,9 @@ law surface is branch-minimal: Begin/Begin needs no iterator law, mixed pairs ne
 program's foreign-phase compatibility, and landing pairs retain exact
 `ForwardLifecycleIndependent`. A paper-shaped wrapper accepts an actual normal-order second
 activation and derives the swapped actual lifecycle transition at the same endpoint. This is a
-partial, fixed-oracle, exact-representative Lemma 71(1) analogue; arbitrary stored-trace rewriting,
-episode-level program assignment, and the paper's literal total/quotient theorem remain open.
+partial, fixed-oracle, exact-representative Lemma 71(1) analogue; that activation-only module does
+not itself rewrite a stored trace, assign episode programs, or prove the paper's literal
+total/quotient theorem.
 
 The activation/orchestration audit shows that the literal clause (2) premise is false. A
 registration can create a distinct parent required by a later O-Insert without registering that
@@ -127,6 +128,20 @@ frame. It reconstructs the early legal orchestration step with the same kind, ac
 preserves the activation's positive target structurally, rebuilds the moved fixed-program
 activation, and proves the exact normal final endpoint. This is a corrected bounded analogue, not
 literal Lemma 71(2), a birth-erasing quotient, or arbitrary trace rewriting.
+
+The exact trace-rewrite layer closes the local-to-intrinsic-trace bridge for those corrected
+branches. `AdjacentOccurrence` retains an exact dependent before/window/after decomposition;
+`ProgramOccurrence` identifies actual stored lifecycle steps with fixed root-aligned program and
+oracle evidence; and both semantic adapters return assignments for their moved pair. Rewriting
+therefore preserves the complete trace's exact outer indices, alignment, length invariants, and
+final well-formedness while proving that rules and actors undergo one adjacent permutation. Exact
+membership theorems locate the original selected records; they do not identify those dependent
+records with the moved replacements. A
+nonempty-prefix example rewrites `[O-Insert, L-Begin, O-Insert]` to
+`[O-Insert, O-Insert, L-Begin]`. This does not derive branch laws for arbitrary records. A merely
+birth-erased local endpoint still cannot attach to the retained exact suffix without a separate
+bisimulation, so registering activation/O-Insert, normalization, deletion, Lemma 72, and
+confluence remain open.
 
 The progress layer proves that printed Theorem 66 also needs stronger executable premises. A
 configured oracle may reject a registration that the raw relation can admit through another

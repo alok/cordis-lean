@@ -1695,6 +1695,7 @@ The assurance layers can be summarized as follows:
 | Landing transposition    | Exact cross-forward yield syntax and fixed-program landings lift the framed raw endpoint to all four common-source L-Iter/L-Finish transition pairs with one exact final state; positive targets are preserved structurally under WF.       | Exact cross-forward law, both phase compatibilities, program-aligned common applicability, distinct owners, and WF are supplied; no Begin pair, trace-step identity, episode assignment, or full Lemma 71.      |
 | Activation transposition | Root-aligned Begin and program-aligned Iter/Finish form all nine exact common-source diamonds; fixed-program endpoint uniqueness reconciles a supplied actual second activation and derives the swapped transition.                         | Partial fixed-oracle Lemma 71(1) analogue under explicit WF, distinct owners, common applicability, provenance, and branch-relevant frame/exact-yield laws; no clause (2), stored-trace rewrite, or confluence. |
 | Activation/orchestration | The literal child condition is kernel-refuted; the corrected theorem reconstructs the early same-template orchestration and moved activation under registration safety and one occurrence frame.                                            | Corrected partial fixed-oracle Lemma 71(2) analogue; registering×Insert is excluded, frames are supplied, and no birth-erasing quotient, stored-trace rewrite, Lemma 72, or confluence is proved.               |
+| Exact trace rewrite      | A dependent adjacent window, actual fixed-program occurrence ledger, and assigned corrected swap reconstruct an intrinsic complete trace with the same outer endpoints and reversed rule/actor projections.                                 | Exact stored-trace consequence only; occurrence laws remain supplied, registering×Insert and relation-only endpoints are excluded, and there is no suffix simulation, normalization, deletion, or confluence.   |
 | Conditional progress     | Fixed-oracle rejection and finite-name exhaustion refute unconditional progress; explicit precedence rank, current landing-or-raise/recovery readiness, and committed-provider soundness prove state-local no-deadlock.                     | Corrected Theorem 66 no-deadlock fragment only; no quantitative bound, target-turn finiteness, maximal termination, trace assignment, fairness, support, or confluence.                                         |
 | Corrected support        | A reachable mixed cycle refutes separate acyclicity; combined-order well-founded recursion gives unique support, and state-local totality/failure/parent closure identifies it with active names.                                           | Corrected local Definitions 67/69 and Lemmas 68/70; combined order and parent closure are supplied, totality is state-local, and no trace provenance, deletion, or confluence follows.                          |
 | Policy                   | One exact-subject pure trace dispatches at most once; completed traces dispatch exactly once.                                                                                                                                               | Global linearity, worker exclusion, retries, persistence, and idempotency.                                                                                                                                      |
@@ -2124,7 +2125,19 @@ Build the structural slice in this order:
     structural/ordinary/registering positive examples. Call this a corrected bounded Lemma 71(2)
     analogue; exclude registering activation/O-Insert, birth erasure, arbitrary trace rewriting,
     Lemma 72, and confluence.
-31. Audit progress before attempting termination. Separate a configured program whose fixed oracle
+31. Lift the corrected local swaps into exact stored-trace rewrites. Package an indexed
+    `StepPair`, an `ExactAdjacentSwap` with reversed rule/actor projections, and an
+    `AdjacentOccurrence` whose dependent before/window/after decomposition cannot accept a
+    mismatched endpoint. Give actual activation steps supplied `ProgramOccurrence` evidence and
+    mirror the trace with an occurrence-indexed `TraceProgramAssignment`; never infer a program or
+    oracle from a bare transition. Prove concrete moved-rule coherence from the existing
+    transposition constructors, then make both actual-pair adapters return assignments for their
+    moved steps. Rebuild the complete rewritten ledger from the retained context assignments and
+    prove rule/actor permutations, original selected-record membership, rewritten alignment,
+    length, and final well-formedness. Exercise a nonempty prefix. Keep registering
+    activation/O-Insert, birth-erased suffix simulation, arbitrary normalization, deletion, Lemma
+    72, and confluence outside this exact-state layer.
+32. Audit progress before attempting termination. Separate a configured program whose fixed oracle
     rejects from the raw lifecycle relation that can choose another oracle. Kernel-check a stronger
     Boolean freshness-exhaustion state with no possible registration admission or lifecycle rule.
     Define provider-to-consumer `PrecedesAt` and an explicit finite increasing rank. Derive
@@ -2135,7 +2148,7 @@ Build the structural slice in this order:
     following any installed consumer to either an applicable rule or a rank contradiction. Stop
     before the `(K + 4)` bound, target-turn finiteness, maximal-execution termination, trace-wide
     program assignment, fairness, support, deletion, or confluence.
-32. Audit support order before defining the support set. Build a legal `FromEmpty` trace whose
+33. Audit support order before defining the support set. Build a legal `FromEmpty` trace whose
     provider precedence is well founded and parent relation birth-acyclic but whose union has a
     two-cycle and two Definition 67 solutions. Define `SupportOrder` from combined
     well-foundedness directly. Use an edge-indexed `WellFounded.fix`, prove its unfolding equation,
@@ -2160,9 +2173,13 @@ under exact cross-forward syntax, fixed-program provenance, common-source applic
 `GlobalActivationTransposition` adds root-aligned Begin and all nine activation-only pairs, then
 uses fixed-program endpoint determinism to reconcile a supplied actual second activation.
 `GlobalActivationOrchestrationTransposition` then refutes the literal clause-(2) premise and proves
-the corrected occurrence-framed exchange while excluding registering activation/O-Insert. Neither
-module rewrites arbitrary stored traces, assigns episode programs, erases birth rank, or proves the
-paper's literal total/quotient Lemma 71. `GlobalProgress` separately refutes unconditional progress
+the corrected occurrence-framed exchange while excluding registering activation/O-Insert.
+`GlobalTraceRewrite` now identifies actual fixed-program steps in an intrinsic adjacent window,
+splices those exact corrected swaps through retained trace context, and reconstructs the moved
+assignment ledger. It still neither derives laws for arbitrary occurrences nor transports an exact
+suffix from a merely birth-erased endpoint; registering activation/O-Insert, arbitrary
+normalization, episode programs, deletion, and the paper's literal total/quotient Lemma 71 remain
+outside the result. `GlobalProgress` separately refutes unconditional progress
 under configured-oracle rejection and exhausted names, then proves only conditional state-local
 no-deadlock from explicit rank/readiness/soundness authorities. It does not prove quantitative or
 maximal termination. `GlobalSupport` refutes the printed combined-order inference, then proves
@@ -2171,8 +2188,9 @@ totality/failure exclusion, and active-parent closure. It does not derive trace 
 deletion. The two candidate relations do not themselves prove Lemmas 55–57. The finite spatial
 facts do not supply maximal episodes,
 same-owner table confinement, or full T63/T64. The corrected vestigial orchestration squares do
-not prove lifecycle/iterator invisibility or the paper's literal unqualified clauses. Progress and
-confluence remain unproved. The orchestration invariance certificate is not full Lemma 55.
+not prove lifecycle/iterator invisibility or the paper's literal unqualified clauses.
+Unconditional/quantitative progress and confluence remain unproved. The orchestration invariance
+certificate is not full Lemma 55.
 The lifecycle observation substrate still executes no rule.
 The conditional lifecycle certificate does not derive its external contracts from `Dynamics`.
 The structural name action does not prove full lifecycle Lemma 56.
