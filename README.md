@@ -269,6 +269,22 @@ reconstruct the complete rewritten ledger. A nonempty-prefix example rewrites
 Registering activation/O-Insert, birth-erased endpoints, suffix simulation, arbitrary
 normalization, deletion, and confluence remain outside this exact-state layer.
 
+`Cordis.GlobalDeletion` adds the corrected bounded deletion substrate. `DeletionReplay` consumes an
+intrinsic source trace positionally: a keep supplies one real replayed dependent step and transports
+its program assignment, while a drop leaves the shadow state fixed and forces the recursive tail
+to re-establish the chosen relation. The generated shadow trace is intrinsically adjacent; its
+rules and actors are sublists of the source, its final state is related, and its complete assignment
+ledger is derived rather than assumed.
+
+The substantive exact theorem removes a finite family of entries already proved vestigial and
+replays an arbitrary safe foreign orchestration suffix with the same rule, actor, and full edit
+template at every position. Separately, a positive keep/drop certificate filters
+`[O-Remove(1), O-Retire(0)]` to `[O-Retire(0)]` with decisions `[drop, keep]`. Countermodels prove
+why this is not paper Lemma 72: a surviving insertion may require a deleted parent, removing a
+newly allocated entry does not restore `nextBirth`, fixed names can receive different birth ranks, and a
+removed bare name can be redrawn. General lifecycle episode deletion, a birth-erased suffix
+simulation, canonical form, and confluence remain absent.
+
 `Cordis.GlobalRelations` supplies the two deliberately incomparable global observation candidates
 that the temporal layer had left abstract. Rule observation keeps the derived dependent context up
 to key-indexed value setoids and keeps registry domain/control exactly; effect observation keeps
@@ -574,6 +590,7 @@ placeholders.
 | `Cordis.GlobalProgress`                             | Fixed-oracle and freshness-exhaustion deadlocks, finite provider precedence/rank, exact landing-or-raise and recovery authorities, maximal-unloading reasoning, conditional state-local no-deadlock, and executable examples.                                                           |
 | `Cordis.GlobalSupport`                              | Reachable mixed-order/nonunique-support countermodels, combined-order recursion and uniqueness, state-local provision/failure/parent laws, corrected support-equals-active theorem, and necessity/positive examples.                                                                    |
 | `Cordis.GlobalTraceRewrite`                         | Exact indexed adjacent trace windows, occurrence/program assignment, assignment-preserving activation and orchestration adapters, rule/actor permutations, and a nonempty-context executable rewrite.                                                                                   |
+| `Cordis.GlobalDeletion`                             | Intrinsic relation-indexed keep/drop replay, assignment reconstruction, multi-vestigial exact orchestration suffixes, positional templates, semantic redraw detection, and parent/allocator countermodels.                                                                              |
 | `Cordis.GlobalRelations`                            | Key-indexed rule observation, ambient/table effect observation, setoid and temporal-undo bridges, and incomparability examples.                                                                                                                                                         |
 | `Cordis.GlobalRuleInvariance`                       | Dependent fiber-control transport, exact bidirectional orchestration matching, heterogeneous related tables, and an inertia countermodel.                                                                                                                                               |
 | `Cordis.GlobalRuleObservations`                     | Provider/target/reliance/quiescence transport, dependent phase guards, active-table relations, and explicit relation-separation examples.                                                                                                                                               |

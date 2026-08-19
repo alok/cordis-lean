@@ -2,7 +2,7 @@
 
 <!-- markdownlint-disable MD013 -->
 
-Status: planned
+Status: implemented by `Cordis.GlobalDeletion`
 
 Source basis: CORDIS paper revision
 `948a07b369c62adb3b12e102458be5c18dfb69b9`, especially Lemma 57,
@@ -314,8 +314,10 @@ existential `StepRecord` membership: an equal self-loop record outside the
 episode core could otherwise be misclassified.
 
 Both predicates remain bare-name policies. The suffix theorem must additionally
-use the no-redraw boundary below; neither predicate distinguishes earlier or
-later lifetimes on its own.
+use the no-redraw boundary below when it permits drops by deleted actor name;
+neither predicate distinguishes earlier or later lifetimes on its own. The
+exact foreign-orchestration theorem of Sections 10–11 excludes every deleted
+actor outright and therefore does not separately consume `NoRedraw`.
 
 ## 7. One retained occurrence
 

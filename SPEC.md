@@ -143,6 +143,22 @@ birth-erased local endpoint still cannot attach to the retained exact suffix wit
 bisimulation, so registering activation/O-Insert, normalization, deletion, Lemma 72, and
 confluence remain open.
 
+The bounded deletion layer now gives trace filtering an intrinsic semantics. `DeletionReplay`
+consumes source constructors in order, either replaying one actual dependent step with an explicit
+assignment transport or dropping that exact occurrence while the shadow state stays fixed. It
+derives the shadow rule/actor sublists, final relation, alignment, length bounds, and complete
+`TraceProgramAssignment`. A separate theorem removes a finite list of entries already proved
+vestigial and replays any safe foreign orchestration suffix exactly, retaining the full edit
+template position by position. The executable example records `[drop, keep]` while filtering
+`[O-Remove(1), O-Retire(0)]` to `[O-Retire(0)]`.
+
+This is not the paper's closing-episode deletion theorem. A full intrinsic counterexample shows a
+retained O-Insert can lose its parent; other kernel witnesses expose unrecovered `nextBirth`,
+changed surviving birth ranks, and redraw of a removed bare name. The module supplies semantic
+no-redraw and vestigial-or-absent vocabulary, but no lifecycle/oracle/recovery suffix simulation or
+birth-erased outside relation. Lemma 72, Theorem 73, canonical form, confluence, and both
+normalization and maximal-lifecycle termination remain open.
+
 The progress layer proves that printed Theorem 66 also needs stronger executable premises. A
 configured oracle may reject a registration that the raw relation can admit through another
 oracle, while finite Boolean name exhaustion produces a well-formed nonquiescent state with no raw

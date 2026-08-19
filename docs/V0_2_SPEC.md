@@ -111,6 +111,9 @@ Current machine-checked evidence includes:
 - `Cordis.GlobalTraceRewrite`, locating exact adjacent windows inside intrinsic dependent traces,
   assigning fixed programs to actual activation occurrences, and splicing assignment-preserving
   activation/activation or corrected activation/orchestration swaps into retained trace context;
+- `Cordis.GlobalDeletion`, constructing intrinsic relation-indexed keep/drop replays and exact
+  assignment-carrying safe orchestration suffixes after finite families of already-vestigial
+  entries, while kernel-separating parent, redraw, and allocator obstructions to full Lemma 72;
 - `Cordis.GlobalProgress`, distinguishing configured-oracle rejection from the permissive raw
   relation, kernel-refuting progress under exhausted names, and proving conditional state-local
   no-deadlock from finite precedence and exact execution/recovery authorities;
@@ -436,6 +439,16 @@ not weaken endpoint equality to a
 birth-erased relation, because a merely related local endpoint cannot typecheck against the exact
 retained suffix without a separate suffix-simulation theorem.
 
+The bounded deletion slice is specified in
+[`GLOBAL_DELETION_SPEC.md`](GLOBAL_DELETION_SPEC.md) and implemented by
+`Cordis.GlobalDeletion`. `DeletionReplay` constructs one shadow trace positionally from local keep
+or drop evidence and derives its assignment ledger, final relation, alignment, sublist facts, and
+length bounds. A separate exact theorem iterates the corrected vestigial forward square over a
+finite family and an arbitrary safe foreign orchestration trace, retaining a full positional edit
+template and matched assignment. Full-trace countermodels show parent enablement, `nextBirth`,
+surviving birth ranks, and bare-name redraw each require stronger deletion semantics. The module
+does not delete a general closed lifecycle episode or claim Lemma 72/Theorem 73.
+
 The corrected progress slice is specified in
 [`GLOBAL_PROGRESS_SPEC.md`](GLOBAL_PROGRESS_SPEC.md) and implemented by `Cordis.GlobalProgress`.
 It exposes configured-oracle rejection and raw freshness exhaustion, defines provider precedence
@@ -450,7 +463,7 @@ relation whose union cycles, so the module requires `SupportOrder` directly. It 
 combined-edge well-founded recursion, proves uniqueness, and derives support-equals-active at
 quiescence under state-local provision totality, failure exclusion, and active-parent closure.
 
-The bounded algebra/context/global layer now has thirty-five explicit pieces:
+The bounded algebra/context/global layer now has thirty-six explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -648,7 +661,16 @@ The bounded algebra/context/global layer now has thirty-five explicit pieces:
     example rewrites the selected Begin/Insert window while retaining a preceding O-Insert. The
     layer excludes registering activation/O-Insert, relation-only endpoints, suffix simulation,
     deletion, arbitrary normalization, and confluence.
-34. `Cordis.GlobalProgress` gives Definition 65 its exact state-local provider precedence and an
+34. `Cordis.GlobalDeletion` gives deletion a constructor-indexed replay semantics rather than
+    filtering existential `StepRecord` values. Each retained step supplies an actual matched step
+    and assignment transport; each dropped position is explicitly authorized; rules and actors
+    form sublists, and the shadow relation, alignment, length, and assignment facts are derived.
+    For finite entries already proved vestigial, safe foreign orchestration suffixes replay exactly
+    after removal with positional same-template evidence. A real `[drop, keep]` example and
+    parent/clock/redraw/birth countermodels keep the boundary executable. General closing-episode
+    deletion, lifecycle suffix simulation, birth-erased endpoints, Lemma 72, normalization, and
+    confluence remain absent.
+35. `Cordis.GlobalProgress` gives Definition 65 its exact state-local provider precedence and an
     explicit finite increasing rank. A configured oracle-rejection model separates fixed-program
     applicability from the raw existential-oracle relation; a Boolean freshness-exhaustion model
     is well formed and nonquiescent yet admits no raw lifecycle rule. `OracleTotal` constructs
@@ -657,7 +679,7 @@ The bounded algebra/context/global layer now has thirty-five explicit pieces:
     argument proves state-local no-deadlock for every lifecycle phase. The module stops before the
     quantitative `(K + 4)` bound, target-turn finiteness, maximal termination, fairness, or
     trace-wide program assignment.
-35. `Cordis.GlobalSupport` proves the printed Lemma 68 inference false with a reachable
+36. `Cordis.GlobalSupport` proves the printed Lemma 68 inference false with a reachable
     `FromEmpty` mixed parent/provider cycle and two distinct Definition 67 solutions.
     `SupportOrder` therefore stores well-foundedness of the combined relation itself; `supported`
     uses edge-indexed well-founded recursion and is the unique solution. `TotalOnProvisionAt`,
