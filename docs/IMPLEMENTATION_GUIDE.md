@@ -1694,6 +1694,7 @@ The assurance layers can be summarized as follows:
 | Foreign-phase frame      | Explicit readable-edit, ordinary-successor, and same-child oracle laws derive compatibility; two compatible independent programs yield an exact framed raw endpoint with retained post-raw lookups.                                         | Lower laws, distinct owners, reaches, executions, post-raw lookups, and typed phases are supplied; no lifecycle phase provenance, fixed episode/program assignment, guards/targets, `Transition`, or Lemma 71.  |
 | Landing transposition    | Exact cross-forward yield syntax and fixed-program landings lift the framed raw endpoint to all four common-source L-Iter/L-Finish transition pairs with one exact final state; positive targets are preserved structurally under WF.       | Exact cross-forward law, both phase compatibilities, program-aligned common applicability, distinct owners, and WF are supplied; no Begin pair, trace-step identity, episode assignment, or full Lemma 71.      |
 | Activation transposition | Root-aligned Begin and program-aligned Iter/Finish form all nine exact common-source diamonds; fixed-program endpoint uniqueness reconciles a supplied actual second activation and derives the swapped transition.                         | Partial fixed-oracle Lemma 71(1) analogue under explicit WF, distinct owners, common applicability, provenance, and branch-relevant frame/exact-yield laws; no clause (2), stored-trace rewrite, or confluence. |
+| Activation/orchestration | The literal child condition is kernel-refuted; the corrected theorem reconstructs the early same-template orchestration and moved activation under registration safety and one occurrence frame.                                            | Corrected partial fixed-oracle Lemma 71(2) analogue; registering×Insert is excluded, frames are supplied, and no birth-erasing quotient, stored-trace rewrite, Lemma 72, or confluence is proved.               |
 | Policy                   | One exact-subject pure trace dispatches at most once; completed traces dispatch exactly once.                                                                                                                                               | Global linearity, worker exclusion, retries, persistence, and idempotency.                                                                                                                                      |
 | Batch                    | Two certified pure calls have equal proof-carrying outcomes in either represented order.                                                                                                                                                    | Real parallel execution, arbitrary batch sizes, cancellation, and external effect safety.                                                                                                                       |
 | Runner                   | One pure state jointly certifies replay, model/lease/ID history, records, and boundary projection.                                                                                                                                          | TypeScript equivalence, network/model adapters, durable transactions, real tool I/O, and process-wide exactly-once behavior.                                                                                    |
@@ -2108,6 +2109,19 @@ Build the structural slice in this order:
     attribution and same-owner phase noncommutation; reuse the existing applicability, oracle, and
     exact-yield countermodels. Call this a partial fixed-oracle exact-representative Lemma 71(1)
     analogue, not clause (2), arbitrary trace rewriting, episode assignment, or confluence.
+30. Audit activation/orchestration exchange counterexample-first. Kernel-check that a registering
+    activation can create a distinct parent needed by a later O-Insert and that opposite legal
+    insertions assign different exact birth ranks; show the current rule relation still observes
+    the latter. Classify the exact registered child. For O-Insert require no registration; for
+    Retire/Remove require only child/actor inequality. Reify the actual normal orchestration as a
+    total replay and retain kind, actor, and exact replay template. For a landing require one
+    occurrence-specific existential frame with moved fixed-oracle execution, exact lifecycle yield,
+    and raw replay square; Begin requires only `True`. Derive the legal early orchestration guards,
+    positive activation target, moved landing, and distinct edit/phase commutation, then prove the
+    supplied normal final endpoint. Add birth-clock and retirement-sensitive-oracle frame gaps and
+    structural/ordinary/registering positive examples. Call this a corrected bounded Lemma 71(2)
+    analogue; exclude registering activation/O-Insert, birth erasure, arbitrary trace rewriting,
+    Lemma 72, and confluence.
 
 This reaches a bounded finite Definition 53 relation and an oracle-specific finite partial/Kleisli
 Definition 60 analogue. Do not claim Theorem 59 while general unload recovery confinement is still
@@ -2121,10 +2135,12 @@ readability, exact ordinary-frame, and same-child oracle laws, then proves a fra
 lifecycle-rule—diamond. `GlobalLandingTransposition` reaches actual Iter/Finish transitions only
 under exact cross-forward syntax, fixed-program provenance, common-source applicability, and WF;
 `GlobalActivationTransposition` adds root-aligned Begin and all nine activation-only pairs, then
-uses fixed-program endpoint determinism to reconcile a supplied actual second activation. It still
-does not prove activation/orchestration clause (2), arbitrary stored-trace rewriting, episode
-assignment, or the paper's literal total/quotient Lemma 71. The two candidate relations do not
-themselves prove Lemmas 55–57. The finite spatial facts do not supply maximal episodes,
+uses fixed-program endpoint determinism to reconcile a supplied actual second activation.
+`GlobalActivationOrchestrationTransposition` then refutes the literal clause-(2) premise and proves
+the corrected occurrence-framed exchange while excluding registering activation/O-Insert. Neither
+module rewrites arbitrary stored traces, assigns episode programs, erases birth rank, or proves the
+paper's literal total/quotient Lemma 71. The two candidate relations do not themselves prove Lemmas
+55–57. The finite spatial facts do not supply maximal episodes,
 same-owner table confinement, or full T63/T64. The corrected vestigial orchestration squares do
 not prove lifecycle/iterator invisibility or the paper's literal unqualified clauses. Progress and
 confluence remain unproved. The orchestration invariance certificate is not full Lemma 55.

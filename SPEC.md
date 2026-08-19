@@ -115,9 +115,18 @@ law surface is branch-minimal: Begin/Begin needs no iterator law, mixed pairs ne
 program's foreign-phase compatibility, and landing pairs retain exact
 `ForwardLifecycleIndependent`. A paper-shaped wrapper accepts an actual normal-order second
 activation and derives the swapped actual lifecycle transition at the same endpoint. This is a
-partial, fixed-oracle, exact-representative Lemma 71(1) analogue; activation/orchestration clause
-(2), arbitrary stored-trace rewriting, episode-level program assignment, and the paper's literal
-total/quotient theorem remain open.
+partial, fixed-oracle, exact-representative Lemma 71(1) analogue; arbitrary stored-trace rewriting,
+episode-level program assignment, and the paper's literal total/quotient theorem remain open.
+
+The activation/orchestration audit shows that the literal clause (2) premise is false. A
+registration can create a distinct parent required by a later O-Insert without registering that
+step's actor, and exact insertion orders swap the proof-only birth ranks. The corrected theorem
+therefore excludes registering activation/O-Insert, requires child/actor inequality for
+Retire/Remove, and asks an iterator-backed activation for one occurrence-specific exact execution
+frame. It reconstructs the early legal orchestration step with the same kind, actor, and replay,
+preserves the activation's positive target structurally, rebuilds the moved fixed-program
+activation, and proves the exact normal final endpoint. This is a corrected bounded analogue, not
+literal Lemma 71(2), a birth-erasing quotient, or arbitrary trace rewriting.
 
 Repository: `cordis-lean`
 

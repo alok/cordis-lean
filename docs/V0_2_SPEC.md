@@ -105,6 +105,9 @@ Current machine-checked evidence includes:
 - `Cordis.GlobalActivationTransposition`, combining program-root-aligned L-Begin with those
   landings, proving fixed-program endpoint/rule determinism, and constructing all nine
   common-source Begin/Iter/Finish diamonds plus an actual-second-step transposition wrapper;
+- `Cordis.GlobalActivationOrchestrationTransposition`, kernel-refuting the literal clause-(2)
+  registration condition, exposing occurrence-specific orchestration framing, and proving the
+  corrected exact exchange while excluding registering activation/O-Insert;
 - `Cordis.GlobalRelations`, defining incomparable finite rule/effect observation setoids and an
   explicit respectful-undo bridge into the temporal algebra without claiming rule bisimulation;
 - `Cordis.GlobalRuleInvariance`, proving well-formed bidirectional orchestration matching across
@@ -406,7 +409,14 @@ Begin/Iter/Finish pairs. Its actual-second-step wrapper is a partial, fixed-orac
 exact-representative Lemma 71(1) analogue; activation/orchestration exchange, arbitrary trace
 rewriting, episode assignment, and the literal paper theorem remain separate.
 
-The bounded algebra/context/global layer now has thirty-one explicit pieces:
+The corrected activation/orchestration slice is specified in
+[`GLOBAL_ACTIVATION_ORCHESTRATION_TRANSPOSITION_SPEC.md`](GLOBAL_ACTIVATION_ORCHESTRATION_TRANSPOSITION_SPEC.md)
+and implemented by `Cordis.GlobalActivationOrchestrationTransposition`. It exposes two failures of
+the literal Lemma 71(2) condition—new-parent enablement and birth-rank order—then proves the
+strongest exact representative theorem under orchestration-sensitive registration safety and one
+occurrence-specific execution frame. Registering activation/O-Insert remains excluded.
+
+The bounded algebra/context/global layer now has thirty-two explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -585,6 +595,17 @@ The bounded algebra/context/global layer now has thirty-one explicit pieces:
     by uniqueness, and derives the swapped actual transition. Root mismatch and same-owner phase
     updates are kernel counterexamples. This is a partial, fixed-oracle bounded Lemma 71(1)
     analogue, not clause (2), arbitrary trace rewriting, episode assignment, or confluence.
+32. `Cordis.GlobalActivationOrchestrationTransposition` proves that the literal paper clause-(2)
+    side condition is insufficient: registration can enable a distinct O-Insert parent, and two
+    legal insertion orders differ in their exact per-fiber birth ranks and current rule relation.
+    `RegistrationSafe` therefore forbids any registration before O-Insert and requires only
+    child/actor inequality before Retire/Remove. `ExecutionFrameFor` is `True` for Begin and one
+    occurrence-specific moved fixed-oracle execution/yield/raw square for a landing. The headline
+    theorem reconstructs the earlier legal orchestration occurrence with the same replay template,
+    rebuilds the moved activation, and proves the supplied normal final endpoint exactly.
+    Birth-clock and state-sensitive-oracle models prove the frame is not derivable; structural,
+    ordinary, and registering examples exercise the corrected matrix. This is not literal Lemma
+    71(2), a birth-erasing quotient, stored-trace rewriting, Lemma 72, or confluence.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -710,9 +731,11 @@ This slice does not by itself prove:
   diamond to lifecycle-rule phases, guards, targets, transitions, or either Lemma 71 clause;
 - derivation of exact cross-forward `UndoCode` stability from semantic `Independent`, reassignment
   of a bare landing to an arbitrary program oracle, omission of source well-formedness or
-  common-source applicability, identity with an arbitrary stored trace step, activation/
-  orchestration clause (2), or the literal total/quotient Lemma 71 from the bounded all-nine
-  activation theorem;
+  common-source applicability, or identity with an arbitrary stored trace step;
+- derivation of orchestration execution framing from registration safety, well-formedness,
+  independence, or base dynamics; exact registering-activation/O-Insert exchange; repair of the
+  literal Lemma 71(2) premise without the corrected parent/birth restrictions; or arbitrary trace
+  rewriting from the occurrence-local exchange theorem;
 - native plugin isolation, process confinement, filesystem safety, or remote-service behavior;
 - global exactly-once execution across workers; or
 - that a model follows supplied schemas or chooses an appropriate tool.
