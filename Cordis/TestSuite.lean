@@ -20,6 +20,7 @@ import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
 import Cordis.GlobalNameLifecycle
+import Cordis.GlobalPaperRelation
 import Cordis.GlobalProgress
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
@@ -1041,6 +1042,23 @@ private def testGlobalDeletion : IO Unit := do
       | .fiber name => name)
     [0]
 
+private def testGlobalPaperRelation : IO Unit := do
+  let normalControl :=
+    (GlobalActivationOrchestrationTransposition.LiteralPaperGap.normal.registry 1).map
+      (fun fiber => (fiber.parent, fiber.retired))
+  let swappedControl :=
+    (GlobalActivationOrchestrationTransposition.LiteralPaperGap.swapped.registry 1).map
+      (fun fiber => (fiber.parent, fiber.retired))
+  let normalBirth :=
+    (GlobalActivationOrchestrationTransposition.LiteralPaperGap.normal.registry 1).map
+      (fun fiber => fiber.birth)
+  let swappedBirth :=
+    (GlobalActivationOrchestrationTransposition.LiteralPaperGap.swapped.registry 1).map
+      (fun fiber => fiber.birth)
+  assertEqual "paper-visible control agrees while allocator birth differs"
+    (normalControl, swappedControl, normalBirth, swappedBirth)
+    (some (some 0, false), some (some 0, false), some 1, some 2)
+
 private def testGlobalProgress : IO Unit := do
   assertEqual "conditional progress constructs the expected concrete Begin rule"
     GlobalProgress.BeginExample.executableRule .begin
@@ -1384,6 +1402,7 @@ def run : IO Unit := do
   testGlobalActivationOrchestrationTransposition
   testGlobalTraceRewrite
   testGlobalDeletion
+  testGlobalPaperRelation
   testGlobalProgress
   testGlobalSupport
   testGlobalRelations

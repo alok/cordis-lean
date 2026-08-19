@@ -16,6 +16,7 @@ import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
 import Cordis.GlobalNameLifecycle
+import Cordis.GlobalPaperRelation
 import Cordis.GlobalProgress
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
@@ -631,6 +632,16 @@ example : GlobalTraceRewrite.ExactAdjacentSwap
 #guard_msgs (substring := true) in
 example : GlobalRegistry.WellFormed
     (GlobalRegistry.removeFiber GlobalDeletion.ParentGap.adoptionAfter 1) := by
+  rfl
+
+/-! Erasing allocator ranks does not fabricate the repository's stricter rule relation. -/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : GlobalRelations.RuleRelated
+    GlobalActivationOrchestrationTransposition.LiteralPaperGap.exactValues
+    GlobalActivationOrchestrationTransposition.LiteralPaperGap.normal
+    GlobalActivationOrchestrationTransposition.LiteralPaperGap.swapped := by
   rfl
 
 end Cordis.NegativeTests

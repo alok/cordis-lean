@@ -18,6 +18,7 @@ import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
 import Cordis.GlobalNameLifecycle
+import Cordis.GlobalPaperRelation
 import Cordis.GlobalProgress
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
@@ -762,6 +763,67 @@ namespace Cordis.GlobalDeletion
 #print axioms registration_insert_birth_order_gap
 #print axioms registration_insert_rule_relation_gap
 end Cordis.GlobalDeletion
+namespace Cordis.GlobalPaperRelation
+#print axioms paperControlAt_eq_map_controlAt
+#print axioms birthErasedRuleRelated_refl
+#print axioms birthErasedRuleRelated_symm
+#print axioms birthErasedRuleRelated_trans
+#print axioms birthErasedRuleRelatedOutside_refl
+#print axioms birthErasedRuleRelatedOutside_symm
+#print axioms birthErasedRuleRelatedOutside_trans
+#print axioms deletionRelated_refl
+#print axioms deletionRelated_symm
+#print axioms deletionRelated_trans
+#print axioms birthErased_registry_domain
+#print axioms outside_registry_none_iff
+#print axioms birthErased_of_outsideEmpty
+#print axioms birthErased_of_ruleRelated
+#print axioms outside_mono
+#print axioms deletion_mono
+#print axioms paperFiberControl_installed_iff
+#print axioms paperFiberControl_active_iff
+#print axioms matchPaperFiber
+#print axioms paperControlAt_insert_related
+#print axioms paperControlAt_retire_related
+#print axioms paperControlAt_remove_related
+#print axioms contextRelated_after_orchestration
+#print axioms matchOrchestrationForward
+#print axioms matchOrchestrationBackward
+#print axioms ForwardPaperOrchestrationMatch.toRetainedStep
+#print axioms BackwardPaperOrchestrationMatch.toRetainedStep
+#print axioms birthErasedOrchestrationSimulation
+#print axioms LifecycleGap.sources_birth_erased
+#print axioms LifecycleGap.inertia_not_respected
+#print axioms ClockLifecycleGap.shifted_wellFormed
+#print axioms ClockLifecycleGap.sources_related
+#print axioms ClockLifecycleGap.no_shifted_divertAbort
+#print axioms ClockLifecycleGap.no_assigned_simulation
+#print axioms BirthGap.birth_erased_related
+#print axioms BirthGap.strict_rule_relation_fails
+#print axioms BirthGap.exact_states_differ
+#print axioms BirthGap.matched_retire_successors
+#print axioms BirthGap.forwardMatchedAssignment
+#print axioms BirthGap.backwardMatchedAssignment
+#print axioms OneSidedWellFormedGap.related
+#print axioms OneSidedWellFormedGap.malformed_not_wellFormed
+#print axioms VestigialGap.deletion_related
+#print axioms VestigialGap.global_rule_relation_fails
+#print axioms OutsideGap.unsafe_parent_step_rejected
+#print axioms OutsideGap.no_backward_same_tag_redraw
+#print axioms OutsideGap.provision_conflict_is_real
+#print axioms OutsideGap.parent_removal_conflict_is_real
+#print axioms vestigial_remove_deletion_related
+#print axioms vestigial_remove_wellFormed
+#print axioms vestigial_remove_not_birthErased
+#print axioms removeNames_wellFormed
+#print axioms vestigialNames_deletionRelated
+#print axioms replaySafeVestigialOrchestration
+#print axioms replaySafeVestigialTrace
+#print axioms ForwardDeletedTraceReplay.final_related
+#print axioms ForwardDeletedTraceReplay.transportAssignment
+#print axioms DirectedReplayExample.final_related
+#print axioms DirectedReplayExample.shadowAssignment
+end Cordis.GlobalPaperRelation
 #print axioms Cordis.GlobalRelations.contextRelated_domain
 #print axioms Cordis.GlobalRelations.ruleSetoid
 #print axioms Cordis.GlobalRelations.ruleRelated_registry_domain
