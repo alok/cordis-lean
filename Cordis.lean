@@ -21,6 +21,7 @@ import Cordis.MediatedIndependence
 import Cordis.MediatedTheorem
 import Cordis.OperationIndependence
 import Cordis.OperationalEquivalence
+import Cordis.PartialTransformation
 import Cordis.Policy
 import Cordis.Protocol
 import Cordis.QuotientEffect

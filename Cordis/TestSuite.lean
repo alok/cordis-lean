@@ -19,6 +19,7 @@ import Cordis.MediatedIndependence
 import Cordis.MediatedTheorem
 import Cordis.OperationIndependence
 import Cordis.OperationalEquivalence
+import Cordis.PartialTransformation
 import Cordis.Policy
 import Cordis.Protocol
 import Cordis.QuotientEffect
@@ -830,6 +831,18 @@ private def testMediatedWholeRun : IO Unit := do
   | none, none => fail "non-vacuous mediated example made both orders undefined"
   | _, _ => fail "mediated example disagreed on composite definedness"
 
+private def testPartialTransformation : IO Unit := do
+  let falseThenTrue : Option Bool :=
+    PartialTransformation.WholeRunGap.falseResult.undo
+      (PartialTransformation.WholeRunGap.trueResult.undo
+        PartialTransformation.WholeRunGap.falseContext) .cell
+  let trueThenFalse : Option Bool :=
+    PartialTransformation.WholeRunGap.trueResult.undo
+      (PartialTransformation.WholeRunGap.falseResult.undo
+        PartialTransformation.WholeRunGap.falseContext) .cell
+  assertEqual "whole-run equality can hide noncommuting cross-seed inverses"
+    (falseThenTrue, trueThenFalse) (some false, some true)
+
 open GlobalDynamics.Example in
 private def testGlobalDynamics : IO Unit := do
   assertEqual "fueled global iterator executes ordinary then registration steps"
@@ -1102,6 +1115,7 @@ def run : IO Unit := do
   testGlobalRegistry
   testMediatedIndependenceBoundary
   testMediatedWholeRun
+  testPartialTransformation
   testGlobalDynamics
   testGlobalLifecycle
   testGlobalCalculus

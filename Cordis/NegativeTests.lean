@@ -16,6 +16,7 @@ import Cordis.Policy
 import Cordis.Protocol
 import Cordis.OperationIndependence
 import Cordis.OperationalEquivalence
+import Cordis.PartialTransformation
 import Cordis.QuotientEffect
 import Cordis.Removal
 import Cordis.RichStream
@@ -400,6 +401,16 @@ example : GlobalTraceFacts.RecoveryConfinement
 example : GlobalTemporal.Step.partialMap GlobalCalculus.Example.iterStep
     GlobalCalculus.Example.emptyStart =
       some GlobalLifecycle.Example.firstStep.after := by
+  rfl
+
+/-! Whole-run equality cannot fabricate commutation of differently seeded inverse generators. -/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : PartialTransformation.Commutes
+    (PartialTransformation.total PartialTransformation.WholeRunGap.falseResult.undo)
+    (PartialTransformation.total PartialTransformation.WholeRunGap.trueResult.undo) := by
+  intro state
   rfl
 
 end Cordis.NegativeTests

@@ -17,6 +17,7 @@ import Cordis.MediatedIndependence
 import Cordis.MediatedTheorem
 import Cordis.OperationIndependence
 import Cordis.OperationalEquivalence
+import Cordis.PartialTransformation
 import Cordis.Policy
 import Cordis.QuotientEffect
 import Cordis.Registry
@@ -326,6 +327,21 @@ set_option format.width 200
 #print axioms Cordis.MediatedTheorem.Example.old_pairwiseOverlapComplete_fails
 #print axioms Cordis.MediatedTheorem.Example.IndependentBranching.overlap
 #print axioms Cordis.MediatedTheorem.Example.IndependentBranching.independent
+#print axioms Cordis.PartialTransformation.Closure.commute
+#print axioms Cordis.PartialTransformation.inverse_mem_stageInverseClosure
+#print axioms Cordis.PartialTransformation.stageInverseGenerators_commute
+#print axioms Cordis.PartialTransformation.yieldedInverses_commute
+#print axioms Cordis.PartialTransformation.evaluate_map_stageInverse
+#print axioms Cordis.PartialTransformation.yieldedInverse_forward_commutes
+#print axioms Cordis.PartialTransformation.evaluate_yield_stable_under_evaluate
+#print axioms Cordis.PartialTransformation.yieldStable_forward
+#print axioms Cordis.PartialTransformation.forward_commutes
+#print axioms Cordis.PartialTransformation.Independent.toRawMediated
+#print axioms Cordis.PartialTransformation.Independent.toBoundedPartial
+#print axioms Cordis.PartialTransformation.pairwiseOverlap_independent
+#print axioms Cordis.PartialTransformation.Example.fullIndependent
+#print axioms Cordis.PartialTransformation.WholeRunGap.wholeRun
+#print axioms Cordis.PartialTransformation.WholeRunGap.full_independence_fails
 #print axioms Cordis.GlobalDynamics.Dynamics.applyUndo_respects
 #print axioms Cordis.GlobalDynamics.Dynamics.recover_respects
 #print axioms Cordis.GlobalDynamics.Dynamics.recover_append
