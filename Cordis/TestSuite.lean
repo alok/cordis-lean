@@ -14,6 +14,7 @@ import Cordis.GlobalRegistry
 import Cordis.Harness
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
+import Cordis.MediatedTheorem
 import Cordis.OperationIndependence
 import Cordis.OperationalEquivalence
 import Cordis.Policy
@@ -808,6 +809,25 @@ private def testMediatedIndependenceBoundary : IO Unit := do
       trueThenFalse.map MediatedIndependence.Counterexample.Cell.hidden)
     (some true, some false)
 
+open MediatedTheorem.Example.IndependentBranching in
+private def testMediatedWholeRun : IO Unit := do
+  match MediatedTheorem.runSequential leftComputation rightComputation initial,
+      MediatedTheorem.runSequential rightComputation leftComputation initial with
+  | some leftThenRight, some rightThenLeft =>
+      let leftCounter : Option Nat := leftThenRight.after .counter
+      let rightCounter : Option Nat := rightThenLeft.after .counter
+      let leftLabel : Option String := leftThenRight.after .label
+      let rightLabel : Option String := rightThenLeft.after .label
+      let leftFlag : Option Bool := leftThenRight.after .flag
+      let rightFlag : Option Bool := rightThenLeft.after .flag
+      assertEqual "mediated tree swap preserves the counter" leftCounter rightCounter
+      assertEqual "mediated tree swap preserves the Nat-selected String branch"
+        (leftLabel, rightLabel) (some "a-three", some "a-three")
+      assertEqual "mediated tree swap preserves the foreign Boolean result"
+        (leftFlag, rightFlag) (some true, some true)
+  | none, none => fail "non-vacuous mediated example made both orders undefined"
+  | _, _ => fail "mediated example disagreed on composite definedness"
+
 open GlobalDynamics.Example in
 private def testGlobalDynamics : IO Unit := do
   assertEqual "fueled global iterator executes ordinary then registration steps"
@@ -1058,6 +1078,7 @@ def run : IO Unit := do
   testArbitraryRemoval
   testGlobalRegistry
   testMediatedIndependenceBoundary
+  testMediatedWholeRun
   testGlobalDynamics
   testGlobalLifecycle
   testGlobalCalculus

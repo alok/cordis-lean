@@ -16,6 +16,7 @@ import Cordis.GlobalRegistry
 import Cordis.Harness
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
+import Cordis.MediatedTheorem
 import Cordis.OperationIndependence
 import Cordis.OperationalEquivalence
 import Cordis.Policy

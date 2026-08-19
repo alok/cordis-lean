@@ -12,6 +12,7 @@ import Cordis.GlobalRegistry
 import Cordis.Harness
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
+import Cordis.MediatedTheorem
 import Cordis.OperationIndependence
 import Cordis.OperationalEquivalence
 import Cordis.Policy
@@ -307,6 +308,22 @@ set_option format.width 200
 #print axioms Cordis.MediatedIndependence.Counterexample.representative_coherence_fails
 #print axioms Cordis.MediatedIndependence.BranchExample.firstStage_outcome
 #print axioms Cordis.MediatedIndependence.BranchExample.path
+#print axioms Cordis.MediatedTheorem.PairwiseOverlap.left_continuation
+#print axioms Cordis.MediatedTheorem.liftedInverses_commute
+#print axioms Cordis.MediatedTheorem.stageInterchangeComplete
+#print axioms Cordis.MediatedTheorem.stageOutcomeAlignment
+#print axioms Cordis.MediatedTheorem.swap_executed_stages
+#print axioms Cordis.MediatedTheorem.evaluate_step
+#print axioms Cordis.MediatedTheorem.rawStage_interchange
+#print axioms Cordis.MediatedTheorem.rawStage_movesAcross
+#print axioms Cordis.MediatedTheorem.rawComputation_swap_success
+#print axioms Cordis.MediatedTheorem.evaluateSequential_commute
+#print axioms Cordis.MediatedTheorem.RawMediatedIndependence.toBoundedPartial
+#print axioms Cordis.MediatedTheorem.pairwiseOverlap_boundedPartialIndependence
+#print axioms Cordis.MediatedTheorem.partialPairwiseOverlapComplete
+#print axioms Cordis.MediatedTheorem.Example.old_pairwiseOverlapComplete_fails
+#print axioms Cordis.MediatedTheorem.Example.IndependentBranching.overlap
+#print axioms Cordis.MediatedTheorem.Example.IndependentBranching.independent
 #print axioms Cordis.GlobalDynamics.Dynamics.applyUndo_respects
 #print axioms Cordis.GlobalDynamics.Dynamics.recover_respects
 #print axioms Cordis.GlobalDynamics.Dynamics.recover_append

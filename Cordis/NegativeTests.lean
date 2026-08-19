@@ -9,6 +9,7 @@ import Cordis.GlobalLifecycle
 import Cordis.GlobalRegistry
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
+import Cordis.MediatedTheorem
 import Cordis.Policy
 import Cordis.Protocol
 import Cordis.OperationIndependence
@@ -372,5 +373,13 @@ example : GlobalLifecycle.Example.inertia.canAbort 0 10
 example : GlobalCalculus.EmptyRegistry GlobalLifecycle.Example.start := by
   intro name
   rfl
+
+/-! The heterogeneous mediated continuation still requires its exact `Nat` root outcome. -/
+
+/-- error: Application type mismatch -/
+#guard_msgs (substring := true) in
+example : OperationIndependence.Computation
+    MediatedTheorem.Example.IndependentBranching.demoCoeffects :=
+  MediatedTheorem.Example.IndependentBranching.leftNext true
 
 end Cordis.NegativeTests
