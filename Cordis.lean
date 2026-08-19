@@ -17,6 +17,7 @@ import Cordis.GlobalRegistry
 import Cordis.GlobalSpatial
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
+import Cordis.GlobalVestigial
 import Cordis.Harness
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence

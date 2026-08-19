@@ -15,6 +15,7 @@ import Cordis.GlobalRegistry
 import Cordis.GlobalSpatial
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
+import Cordis.GlobalVestigial
 import Cordis.Harness
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
@@ -944,6 +945,26 @@ private def testGlobalSpatial : IO Unit := do
       GlobalSpatial.lifecycleOwner GlobalLifecycle.Example.leaveTransition)
     (0, 0, 0)
 
+private def testGlobalVestigial : IO Unit := do
+  assertEqual "vestigial removal erases only the child registry entry"
+    ((GlobalVestigial.Counterexample.state.registry
+        GlobalVestigial.Counterexample.Name.vestigial).isSome,
+      (GlobalVestigial.Counterexample.withoutVestigial.registry
+        GlobalVestigial.Counterexample.Name.vestigial).isSome)
+    (true, false)
+  assertEqual "forward parent-adoption and backward parent-removal exceptions are distinct"
+    ((GlobalVestigial.orchestrationKind
+        GlobalVestigial.Counterexample.adoptingInsert),
+      (GlobalVestigial.orchestrationKind
+        GlobalVestigial.Counterexample.removeParentAfterChild))
+    (.insert, .remove)
+  assertEqual "exception steps retain their exact acted-on names"
+    ((GlobalVestigial.orchestrationName
+        GlobalVestigial.Counterexample.adoptingInsert),
+      (GlobalVestigial.orchestrationName
+        GlobalVestigial.Counterexample.removeParentAfterChild))
+    (.fresh, .parent)
+
 private def testHarnessPhaseFailures : IO Unit := do
   let initial := Harness.RunnerState.initial 0
   match initial.beginStep with
@@ -1156,6 +1177,7 @@ def run : IO Unit := do
   testGlobalTemporal
   testGlobalRelations
   testGlobalSpatial
+  testGlobalVestigial
   testHarnessPhaseFailures
   testCounterAdmission
   testHarnessDemo

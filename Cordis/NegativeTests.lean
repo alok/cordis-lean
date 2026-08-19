@@ -11,6 +11,7 @@ import Cordis.GlobalRegistry
 import Cordis.GlobalSpatial
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
+import Cordis.GlobalVestigial
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
 import Cordis.MediatedTheorem
@@ -440,6 +441,22 @@ example : GlobalRelations.RuleRelated GlobalRelations.Example.universalValues
 #guard_msgs (substring := true) in
 example : GlobalSpatial.TraceForeignTo GlobalCalculus.Example.unifiedTrace 0 := by
   intro _ _
+  rfl
+
+/-! Literal Lemma 57 cannot omit either newly exposed parent-pointer exception. -/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : GlobalVestigial.AvoidsVestigialParent
+    GlobalVestigial.Counterexample.Name.vestigial
+    GlobalVestigial.Counterexample.adoptingInsert := by
+  rfl
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : ¬GlobalVestigial.RemovesVestigialParent
+    GlobalVestigial.Counterexample.vestigial
+    GlobalVestigial.Counterexample.removeParentAfterChild := by
   rfl
 
 end Cordis.NegativeTests

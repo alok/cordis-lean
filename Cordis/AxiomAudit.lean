@@ -13,6 +13,7 @@ import Cordis.GlobalRegistry
 import Cordis.GlobalSpatial
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
+import Cordis.GlobalVestigial
 import Cordis.Harness
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
@@ -451,3 +452,18 @@ set_option format.width 200
 #print axioms Cordis.GlobalSpatial.traceTableConfinement_of_foreign
 #print axioms Cordis.GlobalSpatial.tableValue_throughout
 #print axioms Cordis.GlobalSpatial.reloading_target_dichotomy
+#print axioms Cordis.GlobalVestigial.Vestigial.effectRelated_remove
+#print axioms Cordis.GlobalVestigial.remove_insert_commute
+#print axioms Cordis.GlobalVestigial.remove_retire_commute
+#print axioms Cordis.GlobalVestigial.remove_remove_commute
+#print axioms Cordis.GlobalVestigial.Vestigial.forward_orchestration
+#print axioms Cordis.GlobalVestigial.Vestigial.backward_orchestration
+#print axioms Cordis.GlobalVestigial.Counterexample.state_wellFormed
+#print axioms Cordis.GlobalVestigial.Counterexample.withoutVestigial_wellFormed
+#print axioms Cordis.GlobalVestigial.Counterexample.effectRelated_withoutVestigial
+#print axioms Cordis.GlobalVestigial.Counterexample.adoptingInsert_uses_vestigial_parent
+#print axioms Cordis.GlobalVestigial.Counterexample.no_parent_witness_after_removal
+#print axioms Cordis.GlobalVestigial.Counterexample.redrawVestigial_draws_name
+#print axioms Cordis.GlobalVestigial.Counterexample.claimingInsert_claims_vestigial_provision
+#print axioms Cordis.GlobalVestigial.Counterexample.removesVestigialParent
+#print axioms Cordis.GlobalVestigial.Counterexample.parent_not_childless_before
