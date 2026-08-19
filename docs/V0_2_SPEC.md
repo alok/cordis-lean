@@ -83,6 +83,12 @@ Current machine-checked evidence includes:
 - `Cordis.GlobalTemporal`, reifying fallible off-source step maps and deriving finite
   relation-indexed interleaved/unload recovery from explicit totality, commutation, inversion, and
   reordering certificates;
+- `Cordis.GlobalIteratorIndependence`, generating oracle-specific iterator programs from reachable
+  partial forwards and actually yielded inverses, proving exact and `EffectEquiv`-observational
+  closure independence with separately supplied reachable-forward respect, occurrence-indexed
+  families, and explicit finite-reach/continuation-bound certificate types, and discharging
+  `GlobalTemporal.PerStepCommutes` from accumulator provenance, step-map membership, and supplied
+  `TotalStepMap` witnesses;
 - `Cordis.GlobalRelations`, defining incomparable finite rule/effect observation setoids and an
   explicit respectful-undo bridge into the temporal algebra without claiming rule bisimulation;
 - `Cordis.GlobalRuleInvariance`, proving well-formed bidirectional orchestration matching across
@@ -358,7 +364,7 @@ future external adapter consumes the same proof-carrying request contract.
 
 ## Paper context and executable refinement
 
-The bounded algebra/context/global layer now has twenty-six explicit pieces:
+The bounded algebra/context/global layer now has twenty-seven explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -489,6 +495,17 @@ The bounded algebra/context/global layer now has twenty-six explicit pieces:
     external-undo, dynamics-equivalence, inertia, and fixed-entry laws yield forward/backward
     equivariance for all lifecycle and unified rules on well-formed states. A nonidentity L-Raise
     and entry/error/run counterexamples exercise the boundary; primitive laws remain external.
+27. `Cordis.GlobalIteratorIndependence` fixes the owner, root code, registration oracle, and
+    dynamics of one iterator program; closes successful continuation reach under partial forwards
+    and actually yielded inverse maps; and promotes generator commutation plus complete yield
+    stability to exact program independence. Given separate `ProgramRespects` witnesses for both
+    programs' reachable forwards, that result descends to effect-relational independence; only
+    yielded inverse respect follows from `EffectEquiv.applyUndo_respects`. Families are indexed by
+    occurrences, so duplicate values require self-independence. `YieldedAccumulator`,
+    `StepMapMember`, and `ObservationalPerStepGenerated` retain the provenance, acted owner,
+    closure membership, foreign-name, and pre-existing `TotalStepMap` evidence needed for
+    `perStepCommutes_of_generated`. This is an oracle-specific finite partial/Kleisli Definition 60
+    analogue, not the displayed rule relation and not Theorem 61 or Corollary 62.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -549,7 +566,13 @@ The slice requires all existing gates plus the following new coverage:
 - realized heterogeneous branch paths plus the observational-versus-exact Theorem 42
   representative counterexample; and
 - ordinary/registration global iterator steps, fuel exhaustion, accumulated code recovery, and
-  trace-level well-formedness.
+  trace-level well-formedness;
+- reachable-root/continuation and actual-inverse generation for the existing lifecycle iterator
+  program, together with the real-program self-independence failure;
+- registration-child dependence of both continuation and retirement inverse, the duplicate-family
+  whole-run-versus-full-independence gap, and the indexed-step totalization counterexample; and
+- the `PerStepCommutes` bridge under explicit yielded-accumulator, step-membership,
+  observational-independence, and `TotalStepMap` witnesses.
 
 Headline theorems must be added to `Cordis/AxiomAudit.lean`. The full project must remain free of
 `sorry`, `admit`, project-defined axioms, `unsafe`, `partial`, external implementation overrides,
@@ -585,7 +608,9 @@ This slice does not by itself prove:
   total/quotient Theorem 42;
 - full Theorem 59 or the paper's global composability results;
 - new-entry or retirement-write provenance for opaque accumulated recovery;
-- canonical global `≃`/`≈`, Definition 60 iterator-family independence, or arbitrary T61/Cor62;
+- canonical identification of global `≃` and `≈`, an oracle-free or paper-total Definition 60,
+  automatic `TotalStepMap`, owner inverse stability, mixed-trace reordering, or arbitrary
+  Theorem 61/Corollary 62;
 - native plugin isolation, process confinement, filesystem safety, or remote-service behavior;
 - global exactly-once execution across workers; or
 - that a model follows supplied schemas or chooses an appropriate tool.

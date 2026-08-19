@@ -1680,18 +1680,19 @@ storage protocol, failure model, and refinement proof not present here.
 
 The assurance layers can be summarized as follows:
 
-| Layer              | Local status                                                                                                      | What remains outside                                                                                                         |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| `Lean.Json` codecs | Encode/decode round trips are proved for encoded ASTs.                                                            | Text parsing, rendering, schema semantics, and wire compatibility.                                                           |
-| Tool admission     | Name, declaration, decode, precondition, and supplied capability checks run before constructing a dependent call. | Correctness of the resolver, capability source, model, and correspondence to a live registry.                                |
-| Verified tool      | A pure implementation returns a postcondition proof for its abstract model.                                       | Honest correspondence between real I/O and the abstract successor.                                                           |
-| Effect recovery    | Captured inverses recover represented predecessors, exactly or modulo a supplied setoid.                          | Irreversible or unrepresented external observations and effects.                                                             |
-| Protocol           | Six local event variants are indexed, checked, reconstructed, and replayed in memory.                             | Full Harness event vocabulary, extension merging, payload fidelity, persistence, and crash recovery.                         |
-| Stream             | Finite text chunks respect budget and terminal state and assemble exactly.                                        | Provider streams, blocks, usage, tool calls, cancellation, transport, and backpressure.                                      |
-| Lifecycle          | A local finite transition carries an undo stack, committed view, and supplied withdrawal guard.                   | Complete live registry snapshots, races, fairness, reentrancy, and paper-wide multi-fiber metatheory.                        |
-| Policy             | One exact-subject pure trace dispatches at most once; completed traces dispatch exactly once.                     | Global linearity, worker exclusion, retries, persistence, and idempotency.                                                   |
-| Batch              | Two certified pure calls have equal proof-carrying outcomes in either represented order.                          | Real parallel execution, arbitrary batch sizes, cancellation, and external effect safety.                                    |
-| Runner             | One pure state jointly certifies replay, model/lease/ID history, records, and boundary projection.                | TypeScript equivalence, network/model adapters, durable transactions, real tool I/O, and process-wide exactly-once behavior. |
+| Layer                  | Local status                                                                                                                                                                                                                            | What remains outside                                                                                                                                                |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Lean.Json` codecs     | Encode/decode round trips are proved for encoded ASTs.                                                                                                                                                                                  | Text parsing, rendering, schema semantics, and wire compatibility.                                                                                                  |
+| Tool admission         | Name, declaration, decode, precondition, and supplied capability checks run before constructing a dependent call.                                                                                                                       | Correctness of the resolver, capability source, model, and correspondence to a live registry.                                                                       |
+| Verified tool          | A pure implementation returns a postcondition proof for its abstract model.                                                                                                                                                             | Honest correspondence between real I/O and the abstract successor.                                                                                                  |
+| Effect recovery        | Captured inverses recover represented predecessors, exactly or modulo a supplied setoid.                                                                                                                                                | Irreversible or unrepresented external observations and effects.                                                                                                    |
+| Protocol               | Six local event variants are indexed, checked, reconstructed, and replayed in memory.                                                                                                                                                   | Full Harness event vocabulary, extension merging, payload fidelity, persistence, and crash recovery.                                                                |
+| Stream                 | Finite text chunks respect budget and terminal state and assemble exactly.                                                                                                                                                              | Provider streams, blocks, usage, tool calls, cancellation, transport, and backpressure.                                                                             |
+| Lifecycle              | A local finite transition carries an undo stack, committed view, and supplied withdrawal guard.                                                                                                                                         | Complete live registry snapshots, races, fairness, reentrancy, and paper-wide multi-fiber metatheory.                                                               |
+| Global iterator family | Oracle-specific reachable partial forwards and actually yielded inverses form exact closures; supplied forward respect gives the effect-relational variant; explicit provenance/membership can discharge temporal per-step commutation. | Oracle-free or total Definition 60, rule/effect-relation identification, automatic totalization, owner inverse stability, reordering, Theorem 61, and Corollary 62. |
+| Policy                 | One exact-subject pure trace dispatches at most once; completed traces dispatch exactly once.                                                                                                                                           | Global linearity, worker exclusion, retries, persistence, and idempotency.                                                                                          |
+| Batch                  | Two certified pure calls have equal proof-carrying outcomes in either represented order.                                                                                                                                                | Real parallel execution, arbitrary batch sizes, cancellation, and external effect safety.                                                                           |
+| Runner                 | One pure state jointly certifies replay, model/lease/ID history, records, and boundary projection.                                                                                                                                      | TypeScript equivalence, network/model adapters, durable transactions, real tool I/O, and process-wide exactly-once behavior.                                        |
 
 Before extending the project with I/O, write a refinement boundary. For each
 external action, identify:
@@ -1761,7 +1762,8 @@ one-way supported-subset decoder are not a whole-runtime equivalence theorem.
 Use [`PAPER_MAP.md`](PAPER_MAP.md) as a backlog. Major missing areas include the
 effect-context tower, the paper's literal total/quotient Theorem 42 beyond the finite partial
 analogue, global trace metatheory,
-full preservation, interleaved temporal recovery, spatial composition, progress,
+full preservation, full Theorem 61/Corollary 62 temporal recovery beyond the oracle-specific
+finite Definition 60-to-`PerStepCommutes` bridge, spatial composition, progress,
 confluence, loader reconciliation, and HMR. The active line now covers finite local coeffects (Definitions 22–26),
 direct finite realization/isolation/interception models (27–31), finite
 unfoldings of 32, and the finite-context relation/reactive invariance of 33.
@@ -2029,11 +2031,30 @@ Build the structural slice in this order:
     endpoints. Derive inverse assumptions and backward/unified action rather than postulating them.
     Exercise a nonidentity Raise and prove fixed-entry and error-aware-run necessity. Keep source
     well-formedness and fixed component/catalog boundaries explicit.
+25. Add iterator-family independence without hiding registration choice or off-source partiality.
+    Define a `Program` from one owner, root iterator code, registration-error type, and fixed
+    registration oracle. Generate `Reach` only through successful `executeOne` continuations. Let
+    the program monoid be the least Kleisli identity/composition closure containing every reachable
+    partial forward map and every totalized inverse actually yielded by a reachable execution.
+    Define exact yield agreement over inverse map, continuation, and
+    ordinary-versus-registration component, then promote generator commutation and yield stability
+    to full `Independent`. Index family pairwise independence by occurrences so duplicate programs
+    force self-independence, and keep reachability finiteness and continuation bounds as explicit
+    certificate types. Build the `EffectEquiv` observational variant separately from the paper's
+    rule relation `≃`: require `ProgramRespects` for every reachable forward map, while deriving
+    yielded inverse respect from `EffectEquiv.applyUndo_respects`. For the temporal bridge, retain actual inverse provenance in
+    `YieldedAccumulator`, require acted-owner equality and closure membership in `StepMapMember`,
+    and require every foreign trace step to carry a program, owner/foreign observational independence,
+    membership, and an already constructed `TotalStepMap`. Prove only `PerStepCommutes`; do not
+    infer totalization, owner inverse stability, mixed-trace reordering, Theorem 61, or Corollary 62. Keep the registration-child, self-independence, whole-run, and totalization counterexamples
+    as part of the design explanation.
 
-This reaches a bounded finite Definition 53 relation. Do not claim Theorem 59 while general unload
-recovery confinement is still supplied, or full T61/Cor62 while the canonical relation,
-off-source totality, and Definition 60/reordering laws are supplied. The two candidate relations do
-not themselves prove Lemmas 55–57. The finite spatial facts do not supply maximal episodes,
+This reaches a bounded finite Definition 53 relation and an oracle-specific finite partial/Kleisli
+Definition 60 analogue. Do not claim Theorem 59 while general unload recovery confinement is still
+supplied, or Theorem 61/Corollary 62 while canonical relation identification, per-step
+`TotalStepMap`, owner inverse stability, and trace reordering remain supplied. The Definition 60
+bridge discharges only `PerStepCommutes`; it does not manufacture those remaining premises. The two
+candidate relations do not themselves prove Lemmas 55–57. The finite spatial facts do not supply maximal episodes,
 same-owner table confinement, or full T63/T64. The corrected vestigial orchestration squares do
 not prove lifecycle/iterator invisibility or the paper's literal unqualified clauses. Progress and
 confluence remain unproved. The orchestration invariance certificate is not full Lemma 55.

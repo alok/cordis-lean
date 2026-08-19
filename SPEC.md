@@ -72,6 +72,18 @@ codes, those semantics now derive registration/oracle/execute-one/Landing/recove
 bidirectional equivariance for all lifecycle and unified rules over well-formed states. This is a
 conditional fixed-catalog Lemma 56 analogue, not a base-Dynamics theorem.
 
+The active line now also includes an oracle-specific finite partial/Kleisli analogue of paper
+Definition 60. Reachable iterator codes are generated from successful continuation yields; their closures
+contain the reachable partial forwards and actually yielded totalized inverses; and exact plus
+`EffectEquiv`-observational independence retains inverse, continuation, and registration-component
+stability. The observational descent additionally receives `ProgramRespects` for both programs'
+reachable forward maps; only yielded inverse respect follows from `EffectEquiv.applyUndo_respects`.
+Occurrence-indexed families and separate caller-supplied finite-reach/continuation-bound certificate
+types expose the paper's finite assumptions rather than inferring them. A
+provenance-and-membership theorem discharges `GlobalTemporal.PerStepCommutes` only after receiving
+each foreign step's `TotalStepMap`; it does not derive totalization, owner inverse stability, trace
+reordering, Theorem 61, or Corollary 62.
+
 Repository: `cordis-lean`
 
 Lean toolchain: `leanprover/lean4:v4.33.0`
