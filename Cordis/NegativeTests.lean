@@ -21,6 +21,7 @@ import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
 import Cordis.GlobalRuleObservations
 import Cordis.GlobalSpatial
+import Cordis.GlobalSupport
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
 import Cordis.GlobalVestigial
@@ -599,6 +600,14 @@ example : GlobalLandingTransposition.LandingProgramWitness
     GlobalProgress.RegistrationRejectionGap.permissiveLanding := {
   reachable := GlobalIteratorIndependence.Reach.root
   program_executed := GlobalProgress.RegistrationRejectionGap.permissive_executed
+}
+
+/-! Provider precedence well-foundedness cannot stand in for the combined support order. -/
+
+/-- error: Type mismatch -/
+#guard_msgs (substring := true) in
+example : GlobalSupport.SupportOrder GlobalSupport.MixedCycle.final := {
+  wellFounded := GlobalSupport.MixedCycle.precedence_wellFounded
 }
 
 end Cordis.NegativeTests

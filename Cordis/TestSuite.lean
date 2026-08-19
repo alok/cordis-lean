@@ -25,6 +25,7 @@ import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
 import Cordis.GlobalRuleObservations
 import Cordis.GlobalSpatial
+import Cordis.GlobalSupport
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
 import Cordis.GlobalVestigial
@@ -1024,6 +1025,10 @@ private def testGlobalProgress : IO Unit := do
   assertEqual "the concrete progress source is inactive rather than already installed"
     GlobalProgress.BeginExample.executableSourcePhase true
 
+private def testGlobalSupport : IO Unit := do
+  assertEqual "separate acyclic relations can form one cyclic support dependency"
+    GlobalSupport.MixedCycle.cycleProjection (true, true, true)
+
 private def testGlobalRelations : IO Unit := do
   let absentTable : Option Nat :=
     GlobalRelations.tableAt GlobalRelations.Example.emptyState false ()
@@ -1356,6 +1361,7 @@ def run : IO Unit := do
   testGlobalActivationTransposition
   testGlobalActivationOrchestrationTransposition
   testGlobalProgress
+  testGlobalSupport
   testGlobalRelations
   testGlobalSpatial
   testGlobalVestigial

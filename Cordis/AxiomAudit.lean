@@ -23,6 +23,7 @@ import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
 import Cordis.GlobalRuleObservations
 import Cordis.GlobalSpatial
+import Cordis.GlobalSupport
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
 import Cordis.GlobalVestigial
@@ -633,6 +634,39 @@ namespace Cordis.GlobalProgress
 #print axioms OracleExample.origin_ready
 #print axioms OracleExample.concrete_landing
 end Cordis.GlobalProgress
+namespace Cordis.GlobalSupport
+#print axioms MixedCycle.final_wellFormed
+#print axioms MixedCycle.precedence_wellFounded
+#print axioms MixedCycle.support_cycle
+#print axioms MixedCycle.supportEdge_not_wellFounded
+#print axioms MixedCycle.empty_support_solution
+#print axioms MixedCycle.present_support_solution
+#print axioms MixedCycle.presentNames_eq_full
+#print axioms MixedCycle.no_unique_support
+#print axioms MixedCycle.cycleProjection_eq
+#print axioms MixedCycle.cycleProjection_sound
+#print axioms supported_iff
+#print axioms supported_solution
+#print axioms support_solution_unique
+#print axioms hasUniqueSupport
+#print axioms active_table_present_iff_provision
+#print axioms inactive_outcome_eq_none
+#print axioms activeNames_solution
+#print axioms support_eq_active
+#print axioms MixedCycle.activeState_wellFormed
+#print axioms MixedCycle.activeState_quiescent
+#print axioms MixedCycle.activeState_noFailed
+#print axioms MixedCycle.activeState_total
+#print axioms MixedCycle.active_parent_closed
+#print axioms MixedCycle.activeState_no_unique_support
+#print axioms MixedCycle.printed_hypotheses_hold
+#print axioms ActiveParentGap.order
+#print axioms ActiveParentGap.not_parent_closed
+#print axioms ActiveParentGap.support_ne_active
+#print axioms ActiveParentGap.activeNames_not_solution
+#print axioms PositiveRoot.order
+#print axioms PositiveRoot.support_eq_active_positive
+end Cordis.GlobalSupport
 #print axioms Cordis.GlobalRelations.contextRelated_domain
 #print axioms Cordis.GlobalRelations.ruleSetoid
 #print axioms Cordis.GlobalRelations.ruleRelated_registry_domain

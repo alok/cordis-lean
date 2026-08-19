@@ -27,6 +27,7 @@ import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
 import Cordis.GlobalRuleObservations
 import Cordis.GlobalSpatial
+import Cordis.GlobalSupport
 import Cordis.GlobalTemporal
 import Cordis.GlobalTraceFacts
 import Cordis.GlobalVestigial
