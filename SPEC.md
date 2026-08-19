@@ -138,6 +138,15 @@ then proves state-local no-deadlock by choosing a maximal-rank unloading provide
 The quantitative step bound, target-turn finiteness, maximal-execution termination, and fairness
 remain open trace/provenance work.
 
+The support layer exposes another printed-proof gap. A reachable, well-formed two-insert registry
+can have well-founded provider precedence and an acyclic parent relation while their union cycles,
+making Definition 67 support nonunique. The corrected API therefore requires a well-founded
+combined `SupportOrder`, defines support by edge-indexed recursion, and proves uniqueness. At a
+well-formed quiescent nonfailed state, state-local provision totality and explicit active-parent
+closure make active names a support solution; uniqueness yields `support_eq_active`. Separate
+countermodels prove both new authorities necessary. Current `FromEmpty` does not derive non-root
+registration provenance, matching retirement execution, or the combined order.
+
 Repository: `cordis-lean`
 
 Lean toolchain: `leanprover/lean4:v4.33.0`

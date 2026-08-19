@@ -1696,6 +1696,7 @@ The assurance layers can be summarized as follows:
 | Activation transposition | Root-aligned Begin and program-aligned Iter/Finish form all nine exact common-source diamonds; fixed-program endpoint uniqueness reconciles a supplied actual second activation and derives the swapped transition.                         | Partial fixed-oracle Lemma 71(1) analogue under explicit WF, distinct owners, common applicability, provenance, and branch-relevant frame/exact-yield laws; no clause (2), stored-trace rewrite, or confluence. |
 | Activation/orchestration | The literal child condition is kernel-refuted; the corrected theorem reconstructs the early same-template orchestration and moved activation under registration safety and one occurrence frame.                                            | Corrected partial fixed-oracle Lemma 71(2) analogue; registering×Insert is excluded, frames are supplied, and no birth-erasing quotient, stored-trace rewrite, Lemma 72, or confluence is proved.               |
 | Conditional progress     | Fixed-oracle rejection and finite-name exhaustion refute unconditional progress; explicit precedence rank, current landing-or-raise/recovery readiness, and committed-provider soundness prove state-local no-deadlock.                     | Corrected Theorem 66 no-deadlock fragment only; no quantitative bound, target-turn finiteness, maximal termination, trace assignment, fairness, support, or confluence.                                         |
+| Corrected support        | A reachable mixed cycle refutes separate acyclicity; combined-order well-founded recursion gives unique support, and state-local totality/failure/parent closure identifies it with active names.                                           | Corrected local Definitions 67/69 and Lemmas 68/70; combined order and parent closure are supplied, totality is state-local, and no trace provenance, deletion, or confluence follows.                          |
 | Policy                   | One exact-subject pure trace dispatches at most once; completed traces dispatch exactly once.                                                                                                                                               | Global linearity, worker exclusion, retries, persistence, and idempotency.                                                                                                                                      |
 | Batch                    | Two certified pure calls have equal proof-carrying outcomes in either represented order.                                                                                                                                                    | Real parallel execution, arbitrary batch sizes, cancellation, and external effect safety.                                                                                                                       |
 | Runner                   | One pure state jointly certifies replay, model/lease/ID history, records, and boundary projection.                                                                                                                                          | TypeScript equivalence, network/model adapters, durable transactions, real tool I/O, and process-wide exactly-once behavior.                                                                                    |
@@ -2134,6 +2135,16 @@ Build the structural slice in this order:
     following any installed consumer to either an applicable rule or a rank contradiction. Stop
     before the `(K + 4)` bound, target-turn finiteness, maximal-execution termination, trace-wide
     program assignment, fairness, support, deletion, or confluence.
+32. Audit support order before defining the support set. Build a legal `FromEmpty` trace whose
+    provider precedence is well founded and parent relation birth-acyclic but whose union has a
+    two-cycle and two Definition 67 solutions. Define `SupportOrder` from combined
+    well-foundedness directly. Use an edge-indexed `WellFounded.fix`, prove its unfolding equation,
+    and derive solution uniqueness. Add state-local active provision totality, failure exclusion,
+    and active-parent closure; prove active names solve the support equations and hence equal the
+    unique recursive support at quiescence. Kernel-check active mixed-order nonuniqueness and a
+    separate retired-parent/active-child gap under a valid support order. Stop before deriving
+    combined order or parent closure from `FromEmpty`, component-wide Definition 69, deletion, or
+    confluence.
 
 This reaches a bounded finite Definition 53 relation and an oracle-specific finite partial/Kleisli
 Definition 60 analogue. Do not claim Theorem 59 while general unload recovery confinement is still
@@ -2154,8 +2165,11 @@ module rewrites arbitrary stored traces, assigns episode programs, erases birth 
 paper's literal total/quotient Lemma 71. `GlobalProgress` separately refutes unconditional progress
 under configured-oracle rejection and exhausted names, then proves only conditional state-local
 no-deadlock from explicit rank/readiness/soundness authorities. It does not prove quantitative or
-maximal termination. The two candidate relations do not themselves prove Lemmas 55–57. The finite
-spatial facts do not supply maximal episodes,
+maximal termination. `GlobalSupport` refutes the printed combined-order inference, then proves
+unique support and support-equals-active only from explicit combined well-foundedness, state-local
+totality/failure exclusion, and active-parent closure. It does not derive trace provenance or
+deletion. The two candidate relations do not themselves prove Lemmas 55–57. The finite spatial
+facts do not supply maximal episodes,
 same-owner table confinement, or full T63/T64. The corrected vestigial orchestration squares do
 not prove lifecycle/iterator invisibility or the paper's literal unqualified clauses. Progress and
 confluence remain unproved. The orchestration invariance certificate is not full Lemma 55.

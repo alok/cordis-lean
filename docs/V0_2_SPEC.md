@@ -111,6 +111,9 @@ Current machine-checked evidence includes:
 - `Cordis.GlobalProgress`, distinguishing configured-oracle rejection from the permissive raw
   relation, kernel-refuting progress under exhausted names, and proving conditional state-local
   no-deadlock from finite precedence and exact execution/recovery authorities;
+- `Cordis.GlobalSupport`, kernel-refuting support well-foundedness from separate acyclicity,
+  defining the unique support predicate under an explicit combined order, and proving corrected
+  support-equals-active under state-local totality/failure/parent closure;
 - `Cordis.GlobalRelations`, defining incomparable finite rule/effect observation setoids and an
   explicit respectful-undo bridge into the temporal algebra without claiming rule bisimulation;
 - `Cordis.GlobalRuleInvariance`, proving well-formed bidirectional orchestration matching across
@@ -426,7 +429,14 @@ and a finite increasing rank, derives fixed-program landing-or-raise readiness f
 totality, and proves conditional state-local lifecycle no-deadlock. It does not prove the
 quantitative or maximal-termination clauses of Theorem 66.
 
-The bounded algebra/context/global layer now has thirty-three explicit pieces:
+The corrected support slice is specified in
+[`GLOBAL_SUPPORT_SPEC.md`](GLOBAL_SUPPORT_SPEC.md) and implemented by `Cordis.GlobalSupport`. A
+reachable legal two-insert trace gives well-founded provider precedence and an acyclic parent
+relation whose union cycles, so the module requires `SupportOrder` directly. It defines support by
+combined-edge well-founded recursion, proves uniqueness, and derives support-equals-active at
+quiescence under state-local provision totality, failure exclusion, and active-parent closure.
+
+The bounded algebra/context/global layer now has thirty-four explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -625,6 +635,15 @@ The bounded algebra/context/global layer now has thirty-three explicit pieces:
     argument proves state-local no-deadlock for every lifecycle phase. The module stops before the
     quantitative `(K + 4)` bound, target-turn finiteness, maximal termination, fairness, or
     trace-wide program assignment.
+34. `Cordis.GlobalSupport` proves the printed Lemma 68 inference false with a reachable
+    `FromEmpty` mixed parent/provider cycle and two distinct Definition 67 solutions.
+    `SupportOrder` therefore stores well-foundedness of the combined relation itself; `supported`
+    uses edge-indexed well-founded recursion and is the unique solution. `TotalOnProvisionAt`,
+    `NoFailedFiber`, and `ActiveParentClosed` make active names a support solution, yielding the
+    corrected `support_eq_active` theorem by uniqueness. A separate active-parent model proves that
+    closure assumption necessary, while a root-only positive state exercises the corrected theorem.
+    The module does not derive combined order or parent provenance from `FromEmpty`, does not prove
+    component-wide Definition 69 or printed Lemma 70, and stops before deletion/confluence.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -757,6 +776,8 @@ This slice does not by itself prove:
   rewriting from the occurrence-local exchange theorem;
 - paper Theorem 66 from finite names/precedence alone, the quantitative lifecycle-step bound,
   target-turn finiteness, maximal-execution termination, or scheduler fairness;
+- pinned Lemma 68 from separate provider/parent acyclicity, support-equals-active without explicit
+  combined order and active-parent closure, component-wide Definition 69, or printed Lemma 70;
 - native plugin isolation, process confinement, filesystem safety, or remote-service behavior;
 - global exactly-once execution across workers; or
 - that a model follows supplied schemas or chooses an appropriate tool.
