@@ -2011,6 +2011,15 @@ Build the structural slice in this order:
     construct all eight lifecycle cases and combine them with orchestration under well-formedness.
     Add a reloading-table countermodel showing why Finish alone needs the yielded-table premise.
     Keep the result conditional and distinct from the raw no-well-formedness API.
+23. Replace opaque equivariance placeholders with an executable structural action. Use a genuine
+    name bijection plus bijections on ambient state, each dependent value type, errors, iterator
+    codes, and external undo codes; keep keys/components/catalog fixed. Map parent pointers,
+    committed providers, retirement undos, phases, tables, and finite registry indices canonically.
+    Prove identity, composition, inverse, lookup, and exact state-recovery laws before attempting
+    rules. Transport all six well-formedness clauses, prove insert/retire/remove edits commute with
+    the action, and build forward/backward orchestration witnesses with renamed actors. Keep catalog
+    entry invariance separate for L-Begin. Refute the old record with a noninjective name map that
+    satisfies its lone run equation, and defer dynamics/lifecycle action laws explicitly.
 
 This reaches a bounded finite Definition 53 relation. Do not claim Theorem 59 while general unload
 recovery confinement is still supplied, or full T61/Cor62 while the canonical relation,
@@ -2021,6 +2030,7 @@ not prove lifecycle/iterator invisibility or the paper's literal unqualified cla
 confluence remain unproved. The orchestration invariance certificate is not full Lemma 55.
 The lifecycle observation substrate still executes no rule.
 The conditional lifecycle certificate does not derive its external contracts from `Dynamics`.
+The structural name action does not prove full lifecycle Lemma 56.
 
 ## 20. Exact verification and review commands
 

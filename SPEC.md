@@ -63,6 +63,12 @@ full T63/T64 recovery conclusions remain open, as do the paper's literal
 total/quotient setting, task concurrency, and complete
 preservation/progress/confluence results.
 
+Name equivariance now has an executable structural core: lawful bijections act through all stored
+payloads, dependent tables/views/undo stacks/phases, the finite registry, and global state; state
+inversion, strengthened well-formedness, and all orchestration rules are equivariant. A kernel
+countermodel refutes the old opaque action record. Full dynamics and lifecycle Lemma 56 still
+requires run/oracle/recovery/inertia compatibility.
+
 Repository: `cordis-lean`
 
 Lean toolchain: `leanprover/lean4:v4.33.0`

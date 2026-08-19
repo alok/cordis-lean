@@ -91,6 +91,8 @@ Current machine-checked evidence includes:
   patterns, quiescence, and structural lifecycle guards without external execution assumptions;
 - `Cordis.GlobalLifecycleBisimulation`, deriving all-eight lifecycle and unified ten-rule matching
   from noncircular landing, error, inertia, and recovery-admission compatibility records;
+- `Cordis.GlobalNameAction`, defining lawful executable nominal actions through dependent global
+  state and proving inverse, strengthened well-formedness, and orchestration equivariance;
 - `Cordis.GlobalVestigial`, proving exact effect-equivalence to removal and corrected
   bidirectional orchestration squares, with well-formed witnesses for both paper insert exceptions
   and the two omitted parent-pointer exceptions;
@@ -354,7 +356,7 @@ future external adapter consumes the same proof-carrying request contract.
 
 ## Paper context and executable refinement
 
-The bounded algebra/context/global layer now has twenty-four explicit pieces:
+The bounded algebra/context/global layer now has twenty-five explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -432,8 +434,8 @@ The bounded algebra/context/global layer now has twenty-four explicit pieces:
     exact registry domain/control for rule equivalence, and observes exact ambient state plus
     normalized tables for effect equivalence. Both candidates are setoids; a named undo-respect
     law instantiates `GlobalTemporal.EffectEquiv`. Executable examples prove the two candidates are
-    incomparable and that an arbitrary dynamics relation may be too weak. Rule bisimulation, name
-    equivariance, and vestigial rule simulation remain explicit missing laws.
+    incomparable and that an arbitrary dynamics relation may be too weak. Full raw rule
+    bisimulation, lifecycle name equivariance, and full vestigial simulation remain missing.
 19. `Cordis.ObservationalPartialTransformation` relates partial maps on all related input
     representatives, requiring identical `Option` definedness and related successful outputs. It
     derives forward and yielded-inverse generator respect structurally from existing `CoeffectAt`
@@ -472,6 +474,12 @@ The bounded algebra/context/global layer now has twenty-four explicit pieces:
     exact bidirectional matches for all eight lifecycle constructors and combine with orchestration
     into a well-formed ten-rule certificate. A parity countermodel proves Finish cannot recover the
     newly active table relation from reloading source observation. The contracts remain supplied.
+25. `Cordis.GlobalNameAction` gives executable bijections for names and every payload carrier,
+    then derives actions on dependent tables, committed providers, undo lists, phases, fibers,
+    finite registries, and states. Identity/composition/inverse and exact lookup/state recovery are
+    proved layer by layer. Strengthened well-formedness is invariant, and all orchestration rules
+    commute bidirectionally with renaming. A Boolean swap exercises parents/views/undos/values;
+    a constant noninjective action proves the old placeholder insufficient. Lifecycle laws remain.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a

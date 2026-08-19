@@ -380,6 +380,7 @@ Executable rejection is valuable, but it is not a refinement theorem.
 | `GlobalRuleInvariance`                      | Matches every well-formed insert/retire/remove step bidirectionally across rule-related states with exact peer endpoints and related well-formed successors, without equating tables.                                                | Orchestration-only L55 fragment; ambient-sensitive inertia is a checked lifecycle obstruction and further dynamics/recovery laws are absent.                                                     |
 | `GlobalRuleObservations`                    | Transports provider identity, dependent targets, committed resolution, reliance, phases, quiescence, and all structural lifecycle guards across well-formed rule-related states.                                                     | Assumption-free L55 observation substrate; it executes no lifecycle step and leaves landing/error/inertia/oracle/recovery contracts explicit.                                                    |
 | `GlobalLifecycleBisimulation`               | Under noncircular landing, run-error, inertia, and recovery-admission contracts, matches all lifecycle/unified rules bidirectionally with exact valid related endpoints.                                                             | Conditional well-formed L55 analogue; external contracts are supplied, raw no-WF bisimulation is uninhabited, and Finish requires related yielded tables.                                        |
+| `GlobalNameAction`                          | Defines executable bijections over all stored payloads, canonical dependent state action, identity/composition/inverse, WF equivalence, and exact bidirectional orchestration equivariance.                                          | Structural/orchestration L56 fragment; catalog entry, dynamics, oracle, recovery, inertia, and lifecycle action laws remain separate.                                                            |
 | `GlobalVestigial`                           | Proves vestigial removal effect-equivalent and gives exact bidirectional orchestration removal squares under all kernel-necessary exceptions, with well-formed countermodels.                                                        | Corrected L57 orchestration fragment only; pinned clauses omit parent adoption/removal, and iterator/lifecycle/oracle/inertia/recovery insensitivity is unproved.                                |
 | `GlobalSpatial`                             | Proves dependency provision, explicit nested episode order, committed resolution/no-unload propagation, conditional table constancy, and local reloading-step classification.                                                        | Finite T63/T64 fragments only; nesting/maximality, same-owner confinement, initial intervals, eventual close, and recovery conclusions remain premises or absent.                                |
 | `CertifiedTwoBatch`                         | Requires same-successor, pointwise same-recovery, and result-stability certificate fields before either order is permitted.                                                                                                          | The certificate is supplied, exactly two pure calls are modeled, and no actual concurrency or external-effect safety follows.                                                                    |
@@ -531,7 +532,8 @@ parent/provision legality, and observational vestigial recovery. `executeOne` re
 intrinsic certified step; the fueled runner retains continuation codes on exhaustion and carries
 newest-first accumulated recovery plus trace-level well-formedness. Ambient mutation is
 intentionally permitted, matching Definitions 45/48, and must be reversed by the supplied undo.
-Name equivariance is a separate optional assumption.
+The older optional name-equivariance assumption is under-specified; `GlobalNameAction` replaces
+its structural portion, while dynamics/lifecycle action laws remain separate.
 
 `GlobalLifecycle` consumes those certified steps in exact phase-indexed transitions. Landing
 constructors retain an oracle and the equation showing `executeOne` returned their step; the
@@ -604,6 +606,16 @@ is not circular. Those laws yield exact matches for all eight lifecycle construc
 with orchestration into a well-formed ten-rule certificate. A kernel model starts from related
 reloading states whose private tables have different parity and proves that activating them breaks
 `RuleRelated`, so the Finish table clause cannot be dropped.
+
+`GlobalNameAction` supplies a real structural nominal action. Because the project is Std-only, it
+defines a minimal executable equivalence with forward/inverse proofs, then bundles one name
+permutation with bijections on ambient data, each dependent value type, errors, iterator codes,
+and external undo codes. The derived action renames parent pointers, committed providers, and
+retirement undo names; reindexes the finite registry; and maps every phase/table payload. Exact
+identity, composition, inverse, lookup, state recovery, strengthened well-formedness, edit
+commutation, and orchestration-step equivariance are proved. A nonidentity Boolean example
+exercises the full structure. The old assumption admits a constant noninjective name map under an
+owner-insensitive dynamics, so its lone run equation cannot imply Lemma 56.
 
 `GlobalVestigial` proves that the paper's exact vestigial witness—retired, successful inactive,
 empty table, and no children—is `EffectRelated` to deleting its entry. For orchestration, the
@@ -704,15 +716,17 @@ Without additional proofs or tests, do not state that:
   Theorem 59, progress/confluence, or runtime completeness; `GlobalTraceFacts` proves fresh-name
   or retirement-write provenance for opaque undo codes; `GlobalTemporal` derives canonical paper
   `≈`, off-source totality, D60, or arbitrary T61/Cor62 from current step evidence;
-  `GlobalRelations` proves full Lemma 55 rule bisimulation, name equivariance, or vestigial rule
-  simulation merely by defining candidate setoids; or strengthened birth order is literally paper
-  Definition 58;
+  `GlobalRelations` proves full Lemma 55 rule bisimulation, full lifecycle name equivariance, or
+  vestigial rule simulation merely by defining candidate setoids; or strengthened birth order is
+  literally paper Definition 58;
 - `GlobalRuleInvariance` extends its well-formed orchestration certificate to lifecycle rules
   without iterator/read, oracle/landing, recovery-admission, and inertia-respect laws;
 - `GlobalRuleObservations` turns structural guard transport into transition bisimulation or
   reconstructs newly active landing tables from source rule observation;
 - `GlobalLifecycleBisimulation` derives its four external compatibility records from base
   `Dynamics`, or upgrades its conditional well-formed certificate to the raw no-WF API;
+- `GlobalNameAction` proves dynamics, registration-oracle, recovery, inertia, or lifecycle
+  equivariance merely from carrier bijections and the separate catalog-entry fixed-point law;
 - `GlobalVestigial` proves the literal unqualified Lemma 57 clauses or extends its corrected
   orchestration squares to iterator, lifecycle, oracle, inertia, or accumulated recovery behavior;
 - `GlobalSpatial` derives maximal episode containment, same-owner table immutability, eventual
