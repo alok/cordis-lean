@@ -116,6 +116,7 @@ import Cordis.Removal
 import Cordis.RichStream
 import Cordis.RuntimeRefinement
 import Cordis.RuntimeFailureRefinement
+import Cordis.RuntimeOutcomeRefinement
 import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
@@ -417,6 +418,14 @@ set_option format.width 200
 #print axioms Cordis.RuntimeFailureRefinement.reject_failureBeforeEnd
 #print axioms Cordis.RuntimeFailureRefinement.reject_malformedFailure
 #print axioms Cordis.RuntimeFailureRefinement.reject_opaqueReplayState
+#print axioms Cordis.RuntimeOutcomeRefinement.validateOutcome_success
+#print axioms Cordis.RuntimeOutcomeRefinement.validateOutcome_failure
+#print axioms Cordis.RuntimeOutcomeRefinement.validateOutcome_neither
+#print axioms Cordis.RuntimeOutcomeRefinement.ValidatedOutcome.success_decode_exact
+#print axioms Cordis.RuntimeOutcomeRefinement.ValidatedOutcome.failure_decode_exact
+#print axioms Cordis.RuntimeOutcomeRefinement.validate_successfulExample
+#print axioms Cordis.RuntimeOutcomeRefinement.validate_failureExample
+#print axioms Cordis.RuntimeOutcomeRefinement.neitherExample_rejected_by_both
 #print axioms Cordis.Observational.Quotient.Respects.comp
 #print axioms Cordis.Observational.Quotient.MapRelated.comp
 #print axioms Cordis.Observational.Quotient.AppliedRelated.trans
@@ -520,6 +529,8 @@ set_option format.width 200
 #print axioms Cordis.TextRefinement.validateSessionText
 #print axioms Cordis.TextRefinement.validateFailureText
 #print axioms Cordis.TextRefinement.validateFailureBytes
+#print axioms Cordis.TextRefinement.validateOutcomeText
+#print axioms Cordis.TextRefinement.validateOutcomeBytes
 #print axioms Cordis.TextRefinement.ValidatedStreamText.replay_eq
 #print axioms Cordis.TextRefinement.ValidatedFailureText.decoded_exact
 #print axioms Cordis.TextRefinement.ValidatedSessionText.projection_exact

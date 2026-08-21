@@ -1852,6 +1852,10 @@ their stated language.
 `error` and `aborted` finish branches: it retains the exact ordinary prefix and
 all `LlmFailure` fields without pretending that an open-block failure is a
 successful rich trace.
+`Cordis.RuntimeOutcomeRefinement` dispatches the supported successful and
+normalized-failure languages into one dependent result, preserving either
+certificate or both structured errors without selecting retry/cancellation
+policy.
 `Cordis.SessionArchive` is the adjacent lossless envelope layer: it retains every
 envelope-valid record, classifies unsupported required versus explicitly ignorable
 extensions, and attaches a `SessionRefinement.WireEvent` certificate when the

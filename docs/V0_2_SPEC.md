@@ -343,6 +343,9 @@ Current machine-checked evidence includes:
 - `Cordis.RuntimeFailureRefinement`, decoding the normalized current-Harness `error`/`aborted`
   finish union into an exact typed `LlmFailure` terminal certificate without claiming a normal
   rich-trace projection for open-block failures;
+- `Cordis.RuntimeOutcomeRefinement`, dispatching the supported successful and normalized failure
+  languages into one dependent outcome while retaining both structured errors when neither
+  language accepts;
 - `Cordis.SessionRefinement`, statefully translating a supported source-shaped Harness session
   prefix into joint `Session.ValidatedAppend` and intrinsic `Protocol.ValidatedEvent` witnesses;
 - `Cordis.SessionOpaqueMetadata`, quarantining only provider/tool-owned tool-result `error` and
@@ -981,6 +984,14 @@ prefix with the existing supported-chunk decoder, and retains the exact `LlmFail
 This certificate intentionally does not run `RichStream.validateTrace`: current Harness failures
 may end with open blocks, so no local rich/session finish, retry decision, cancellation policy, or
 provider-authenticity claim follows.
+
+`Cordis.RuntimeOutcomeRefinement` composes the two adjacent languages without erasing their
+dependent witnesses. It tries the successful validator first, then the normalized failure
+validator; a successful result contains the existing rich-stream certificate, a failure result
+contains the exact ordinary prefix and terminal, and a rejection contains both structured errors.
+This is a dispatcher rather than a policy layer: it does not reconstruct open blocks, choose
+retry/cancellation behavior, append a session message, authenticate a provider, or claim runtime
+equivalence.
 
 `Cordis.DeepSeekRichMixedStream` is a separate provider-wire projection, not an extension of
 `RuntimeRefinement`'s current-Harness JSON-AST decoder. It accepts one choice and at most one

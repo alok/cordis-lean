@@ -118,6 +118,7 @@ import Cordis.Removal
 import Cordis.RichStream
 import Cordis.RuntimeRefinement
 import Cordis.RuntimeFailureRefinement
+import Cordis.RuntimeOutcomeRefinement
 import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
@@ -1003,6 +1004,41 @@ private def testRuntimeFailureRefinement : IO Unit := do
           "nonnegative safe integer" .string))
   | .ok _ => fail "malformed failure metadata was accepted"
 
+private def testRuntimeOutcomeRefinement : IO Unit := do
+  match RuntimeOutcomeRefinement.validateOutcome RuntimeRefinement.exampleJson with
+  | .error error => fail s!"successful outcome dispatch failed: {reprStr error}"
+  | .ok outcome =>
+      match outcome with
+      | .success validated =>
+          assertEqual "outcome dispatch retains successful chunk sequence"
+            validated.chunks RuntimeRefinement.exampleChunks
+          assertEqual "outcome dispatch reports the successful branch"
+            outcome.kind RuntimeOutcomeRefinement.OutcomeKind.success
+          let _certificate := validated.decode_eq
+          pure ()
+      | .failure _ => fail "successful stream was dispatched as a failure"
+  match RuntimeOutcomeRefinement.validateOutcome RuntimeFailureRefinement.exampleJson with
+  | .error error => fail s!"failure outcome dispatch failed: {reprStr error}"
+  | .ok outcome =>
+      match outcome with
+      | .failure validated =>
+          assertEqual "outcome dispatch retains the failure discriminant"
+            validated.terminal.kind RuntimeFailureRefinement.FailureKind.error
+          assertEqual "outcome dispatch reports the failure branch"
+            outcome.kind RuntimeOutcomeRefinement.OutcomeKind.failure
+          let _certificate := validated.decoded_exact
+          pure ()
+      | .success _ => fail "in-band failure was dispatched as a successful stream"
+  match RuntimeOutcomeRefinement.validateOutcome RuntimeOutcomeRefinement.neitherExample with
+  | .error (.neither successError failureError) =>
+      assertEqual "outcome rejection retains the successful-language error"
+        successError (.decode (.unsupportedTag
+          [.index 0, .field "type"] "unsupported"))
+      assertEqual "outcome rejection retains the failure-language error"
+        failureError (.ordinary 0 (.unsupportedTag
+          [.field "type"] "unsupported"))
+  | .ok _ => fail "unsupported stream was accepted by the outcome dispatcher"
+
 private def testTextRefinement : IO Unit := do
   let streamSource := TextRefinement.renderJsonLines RuntimeRefinement.exampleJson
   match TextRefinement.validateStreamText streamSource with
@@ -1050,6 +1086,27 @@ private def testTextRefinement : IO Unit := do
   | .error (.inl .invalidUtf8) => pure ()
   | .error error => fail s!"failure UTF-8 returned the wrong error: {reprStr error}"
   | .ok _ => fail "invalid UTF-8 was accepted by failure refinement"
+  match TextRefinement.validateOutcomeText TextRefinement.outcomeTextExample with
+  | .error error => fail s!"unified JSONL outcome refinement failed: {reprStr error}"
+  | .ok validated =>
+      match validated.validated with
+      | .success success =>
+          assertEqual "unified JSONL outcome retains the successful prefix"
+            success.chunks RuntimeRefinement.exampleChunks
+      | .failure _ => fail "successful JSONL outcome was dispatched as a failure"
+  match TextRefinement.validateOutcomeText TextRefinement.failureTextExample with
+  | .error error => fail s!"unified failure JSONL outcome failed: {reprStr error}"
+  | .ok validated =>
+      match validated.validated with
+      | .failure failure =>
+          assertEqual "unified failure JSONL outcome retains its terminal kind"
+            failure.terminal.kind RuntimeFailureRefinement.FailureKind.error
+      | .success _ => fail "failure JSONL outcome was dispatched as a success"
+  match TextRefinement.validateOutcomeBytes TextRefinement.failureTextExample.toUTF8 with
+  | .error error => fail s!"unified failure UTF-8 outcome failed: {reprStr error}"
+  | .ok ⟨text, _⟩ =>
+      assertEqual "unified failure UTF-8 outcome retains source text"
+        text TextRefinement.failureTextExample
 
 private def testHarnessPersistence : IO Unit := do
   match HarnessPersistenceRefinement.validatePersistedJson
@@ -4913,6 +4970,7 @@ def run : IO Unit := do
   testUnifiedContexts
   testRuntimeRefinement
   testRuntimeFailureRefinement
+  testRuntimeOutcomeRefinement
   testTextRefinement
   testHarnessPersistence
   testHarnessPersistenceBytes

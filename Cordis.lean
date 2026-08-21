@@ -120,6 +120,7 @@ import Cordis.Removal
 import Cordis.RichStream
 import Cordis.RuntimeRefinement
 import Cordis.RuntimeFailureRefinement
+import Cordis.RuntimeOutcomeRefinement
 import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement

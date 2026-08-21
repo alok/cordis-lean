@@ -1,5 +1,6 @@
 import Cordis.RuntimeRefinement
 import Cordis.RuntimeFailureRefinement
+import Cordis.RuntimeOutcomeRefinement
 import Cordis.SessionRefinement
 import Lean.Data.Json.Parser
 import Lean.Data.Json.Printer
@@ -7,15 +8,16 @@ import Lean.Data.Json.Printer
 /-!
 # Text and UTF-8 refinement boundary
 
-The current stream and session refinements deliberately start at `Lean.Json`. This module adds the
-next executable boundary used by an append-only Harness log: newline-delimited UTF-8 text is parsed
-into exact JSON AST lines, and only then is the existing proof-producing refinement run.
+The current stream, normalized-failure, outcome, and session refinements deliberately start at
+`Lean.Json`. This module adds the next executable boundary used by an append-only Harness log:
+newline-delimited UTF-8 text is parsed into exact JSON AST lines, and only then is the existing
+proof-producing refinement run.
 
 The parser is the Lean library's JSON parser. Its behavior is therefore an explicit host/library
 boundary, not a new theorem that every external producer is valid JSON or follows DeepSeek's
 schema. Successful validation still carries the exact parsed lines and the existing intrinsic
-stream/session certificates. Blank interior lines, invalid JSON, invalid UTF-8, and semantic
-stream/session failures remain separated and fail closed.
+stream/session/outcome certificates. Blank interior lines, invalid JSON, invalid UTF-8, and
+semantic stream/session/outcome failures remain separated and fail closed.
 
 Rendering uses Lean's canonical compact JSON printer and is a convenience for deterministic test
 fixtures. No theorem here claims byte-for-byte compatibility with a deployed Harness logger,
@@ -86,6 +88,11 @@ structure ValidatedFailureText (source : String) where
   parsed : ParsedText source
   validated : RuntimeFailureRefinement.ValidatedFailureTrace parsed.lines
 
+/-- Unified successful/failure validation after parsing text. -/
+structure ValidatedOutcomeText (source : String) where
+  parsed : ParsedText source
+  validated : RuntimeOutcomeRefinement.ValidatedOutcome parsed.lines
+
 /-- Session validation after parsing text, retaining both text parsing and intrinsic validation. -/
 structure ValidatedSessionText (source : String) where
   parsed : ParsedText source
@@ -112,6 +119,20 @@ def validateFailureText (source : String) :
   | .error error => .error (.inl error)
   | .ok lines =>
       match _validated : RuntimeFailureRefinement.validateFailureTrace lines with
+      | .error error => .error (.inr error)
+      | .ok result => .ok {
+          parsed := { lines, parsed }
+          validated := result
+        }
+
+/-- Parse and validate either a successful or normalized failure JSONL stream. -/
+def validateOutcomeText (source : String) :
+    Except (TextError ⊕ RuntimeOutcomeRefinement.ValidationError)
+      (ValidatedOutcomeText source) :=
+  match parsed : parseJsonLines source with
+  | .error error => .error (.inl error)
+  | .ok lines =>
+      match _validated : RuntimeOutcomeRefinement.validateOutcome lines with
       | .error error => .error (.inr error)
       | .ok result => .ok {
           parsed := { lines, parsed }
@@ -152,6 +173,17 @@ def validateFailureBytes (source : ByteArray) :
   | none => .error (.inl .invalidUtf8)
   | some text =>
       match _validated : validateFailureText text with
+      | .error error => .error error
+      | .ok result => .ok ⟨text, result⟩
+
+/-- UTF-8 outcome validation returns the decoded source and either branch certificate. -/
+def validateOutcomeBytes (source : ByteArray) :
+    Except (TextError ⊕ RuntimeOutcomeRefinement.ValidationError)
+      (Σ text : String, ValidatedOutcomeText text) :=
+  match _decoded : String.fromUTF8? source with
+  | none => .error (.inl .invalidUtf8)
+  | some text =>
+      match _validated : validateOutcomeText text with
       | .error error => .error error
       | .ok result => .ok ⟨text, result⟩
 
@@ -208,6 +240,9 @@ def streamTextExample : String := renderJsonLines RuntimeRefinement.exampleJson
 
 def failureTextExample : String :=
   renderJsonLines RuntimeFailureRefinement.exampleJson
+
+def outcomeTextExample : String :=
+  renderJsonLines RuntimeRefinement.exampleJson
 
 def sessionTextExample : String := renderJsonLines SessionRefinement.exampleJson
 
