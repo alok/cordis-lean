@@ -96,6 +96,7 @@ import Cordis.RuntimeRefinement
 import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
+import Cordis.SessionOpaqueMetadata
 import Cordis.SessionArchive
 import Cordis.SessionEventArchive
 import Cordis.SessionPayloadArchive

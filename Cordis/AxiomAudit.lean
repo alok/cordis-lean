@@ -92,6 +92,7 @@ import Cordis.RuntimeRefinement
 import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
+import Cordis.SessionOpaqueMetadata
 import Cordis.SessionArchive
 import Cordis.SessionEventArchive
 import Cordis.SessionPayloadArchive
@@ -431,6 +432,12 @@ set_option format.width 200
 #print axioms Cordis.SessionRefinement.accept_errorTurnEndReason
 #print axioms Cordis.SessionRefinement.reject_mismatchedToolResultIds
 #print axioms Cordis.SessionRefinement.reject_underdeterminedTurnEnd
+#print axioms Cordis.SessionOpaqueMetadata.decodeEventRetainingMetadata
+#print axioms Cordis.SessionOpaqueMetadata.validateLogRetainingMetadata
+#print axioms Cordis.SessionOpaqueMetadata.metadata_example_valid
+#print axioms Cordis.SessionOpaqueMetadata.metadata_example_retained
+#print axioms Cordis.SessionOpaqueMetadata.metadata_example_exact
+#print axioms Cordis.SessionOpaqueMetadata.metadata_example_projection
 #print axioms Cordis.SessionArchive.decodeEnvelope_raw
 #print axioms Cordis.SessionArchive.decodeEnvelopeAtPath_raw
 #print axioms Cordis.SessionArchive.classify_raw

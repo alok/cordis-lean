@@ -94,6 +94,7 @@ import Cordis.RuntimeRefinement
 import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
+import Cordis.SessionOpaqueMetadata
 import Cordis.SessionArchive
 import Cordis.SessionEventArchive
 import Cordis.SessionPayloadArchive
@@ -3092,6 +3093,36 @@ private def testSessionRefinement : IO Unit := do
   | .error (.unsupportedField _ "temperature") => pure ()
   | result => fail s!"unsupported request-header field was not rejected: {reprStr result}"
 
+private def testSessionOpaqueMetadata : IO Unit := do
+  match SessionOpaqueMetadata.decodeEventRetainingMetadata
+      (List.getD SessionOpaqueMetadata.metadataExampleJson 5 .null) with
+  | .error error => fail s!"opaque tool-result metadata event failed: {reprStr error}"
+  | .ok retained =>
+      assertEqual "opaque tool-result metadata event is retained as a tool result"
+        retained.metadata.isSome true
+      assertEqual "opaque tool-result metadata event still decodes semantically"
+        (match retained.wire.payload with
+        | .toolResult _ => true
+        | _ => false) true
+      let _metadataCertificate := retained.metadata_eq
+      let _eventCertificate := retained.decode_eq
+      pure ()
+  match SessionOpaqueMetadata.validateLogRetainingMetadata
+      SessionOpaqueMetadata.metadataExampleJson with
+  | .error error => fail s!"opaque metadata session failed: {reprStr error}"
+  | .ok retained =>
+      assertEqual "opaque metadata validation keeps one metadata-bearing result"
+        (retained.metadata.filterMap (fun metadata =>
+          metadata.map (fun value => (value.error.isSome, value.metaValue.isSome))))
+        [(true, true)]
+      let _exactMetadataCertificate := SessionOpaqueMetadata.metadata_example_exact
+      assertEqual "opaque metadata validation reaches the existing derived endpoint"
+        (eraseState retained.validation.final.protocol) (.ready 2)
+      assertEqual "opaque metadata validation preserves the sanitized event count"
+        retained.sanitized.length SessionOpaqueMetadata.metadataExampleJson.length
+      let _projectionCertificate := SessionOpaqueMetadata.metadata_example_projection
+      pure ()
+
 private def testSessionArchive : IO Unit := do
   assertEqual "lossless archive classifies supported and extension envelopes"
     (SessionArchive.archiveTags SessionArchive.archiveExampleJson)
@@ -3903,6 +3934,7 @@ def run : IO Unit := do
   testCoeffectQuotientLift
   testOperationalEquivalence
   testSessionRefinement
+  testSessionOpaqueMetadata
   testSessionArchive
   testSessionEventArchive
   testSessionPayloadArchive

@@ -1892,6 +1892,12 @@ message/chunk source objects, and retains assistant usage/tool-result `error`/`m
 Shape failures attach to the already-retained event instead of dropping it. This moves the source
 contract inward without claiming provider/tool schema equivalence, replay, or local Session
 equivalence.
+`Cordis.SessionOpaqueMetadata` is the proof-carrying quarantine layer for the two tool-result
+fields that `SessionRefinement` intentionally does not interpret. Its sanitizer removes only
+`data.error` and `data.meta`, the retained-log certificate stores the exact original JSON values
+in source order, and the existing dependent validator proves the sanitized Session/Protocol
+projection. Keep this layer raw: adding provider/tool meanings here would exceed the audited
+source boundary.
 `Cordis.DeepSeekApi` now supplies the adjacent provider boundary: typed
 OpenAI-compatible chat requests become exact POST plans, successful responses
 retain parse/decode certificates, and transport, HTTP-status, and API errors

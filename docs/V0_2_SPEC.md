@@ -264,6 +264,8 @@ Current machine-checked evidence includes:
   shapes into `RichStream.ValidatedTrace` while explicitly rejecting non-equivalent fields;
 - `Cordis.SessionRefinement`, statefully translating a supported source-shaped Harness session
   prefix into joint `Session.ValidatedAppend` and intrinsic `Protocol.ValidatedEvent` witnesses;
+- `Cordis.SessionOpaqueMetadata`, quarantining only provider/tool-owned tool-result `error` and
+  `meta` JSON while retaining exact values and the sanitized Session/Protocol projection;
 - `Cordis.SessionArchive`, retaining every syntactically valid current-Harness event envelope
   losslessly, classifying supported records versus required/ignorable opaque extensions, and
   attaching the existing typed decoder certificate where available;
@@ -934,6 +936,12 @@ as a local `TurnEndReason` variant.
 `SessionRefinement.WireEvent` certificate; unknown or semantically unsupported records are retained
 as `opaqueRequired` or `opaqueIgnorable` rather than discarded. This does not assign extension
 payload types, replay semantics, or a local session projection to opaque records.
+
+`Cordis.SessionOpaqueMetadata` is a narrower bridge for a supported tool-result session whose
+`data.error` and `data.meta` fields are provider/tool-owned. It removes only those two fields
+before invoking the existing dependent session validator, retains each original JSON value in
+order, and proves that the sanitized Session/Protocol projection is unchanged. The certificate
+does not interpret either field or claim provider/tool schema equivalence.
 
 `Cordis.SessionEventArchive` closes the adjacent wire-vocabulary gap. It recognizes all thirteen
 pinned core tags, requires object-shaped `data`, rejects surface metadata on log-only tags, and
