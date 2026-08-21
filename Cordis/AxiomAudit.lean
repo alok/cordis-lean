@@ -453,8 +453,12 @@ set_option format.width 200
 #print axioms Cordis.TextRefinement.ValidatedSessionText.projection_exact
 #print axioms Cordis.TextRefinement.invalid_utf8_rejected
 #print axioms Cordis.DeepSeekApi.ChatRequest.toJson
+#print axioms Cordis.DeepSeekApi.ChatRequest.asStreaming
 #print axioms Cordis.DeepSeekApi.buildRequest
 #print axioms Cordis.DeepSeekApi.buildRequest_body_eq
+#print axioms Cordis.DeepSeekApi.buildStreamingRequest
+#print axioms Cordis.DeepSeekApi.buildStreamingRequest_body_eq
+#print axioms Cordis.DeepSeekApi.buildStreamingRequest_source_stream
 #print axioms Cordis.DeepSeekApi.decodeResponseJson
 #print axioms Cordis.DeepSeekApi.validateResponse
 #print axioms Cordis.DeepSeekApi.execute
@@ -509,6 +513,8 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekApiSession.Runner.appendApi
 #print axioms Cordis.DeepSeekApiSession.Runner.appendApi_session_messages
 #print axioms Cordis.DeepSeekHarness.buildChatRequest
+#print axioms Cordis.DeepSeekHarness.buildStreamingRequestPlan
+#print axioms Cordis.DeepSeekHarness.buildStreamingRequestPlan_source_stream
 #print axioms Cordis.DeepSeekHarness.executeFunctionCall
 #print axioms Cordis.DeepSeekHarness.executeFunctionCalls
 #print axioms Cordis.DeepSeekHarness.executeRound
@@ -1304,3 +1310,4 @@ end Cordis.GlobalPaperTraceNormalization
 #print axioms Cordis.DeepSeekStreamHarnessErrors.runConversationMultiStreamRecoverable
 #print axioms Cordis.DeepSeekStreamHarnessRetry.executeWithRetry
 #print axioms Cordis.DeepSeekStreamHarnessRetry.executeConversationMultiStreamRound
+#print axioms Cordis.DeepSeekStreamHarness.streamFlagFixtureProcess

@@ -149,6 +149,18 @@ def counterMultiToolStreamBody : String :=
   "data: " ++ Lean.Json.compress counterMultiToolFinishJson ++ "\n\n" ++
   "data: [DONE]\n\n"
 
+/-- A fixture that rejects a request unless the serialized body enables streaming. -/
+def streamFlagFixtureProcess (body : String) : ProcessConfig where
+  command := "sh"
+  args := fun _ => #[
+    "-c",
+    "request=$(cat); case \"$request\" in *'\"stream\":true'*) " ++
+      "printf '%s\\n__CORDIS_HTTP_STATUS__200\\n' \"$1\" ;; *) " ++
+      "printf 'missing-stream-flag\\n__CORDIS_HTTP_STATUS__400\\n' ;; esac",
+    "cordis-stream-flag-fixture",
+    body
+  ]
+
 def ConversationRunner.appendFinished
     (runner : ConversationRunner)
     {body : String}
@@ -248,7 +260,7 @@ def executeConversationStreamRound
     (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
     IO (Except StreamConversationError
       (Sigma fun body : String => StreamConversationRoundResult cfg before body)) := do
-  match buildRequestPlan baseUrl apiKey source runner.session with
+  match buildStreamingRequestPlan baseUrl apiKey source runner.session with
   | .error error => pure (.error (.request error))
   | .ok plan =>
       match ← DeepSeekCurlSession.executeWith finish config plan.request with

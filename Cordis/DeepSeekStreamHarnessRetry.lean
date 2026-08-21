@@ -181,7 +181,7 @@ def executeConversationMultiStreamRound
     (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
     IO (Except (ConversationError policy)
       (Sigma fun body : String => ConversationRoundResult policy cfg before body)) := do
-  match buildRequestPlan baseUrl apiKey source runner.session with
+  match buildStreamingRequestPlan baseUrl apiKey source runner.session with
   | .error error => pure (.error (.request error))
   | .ok plan =>
       match ← executeWithRetry policy config plan.request with

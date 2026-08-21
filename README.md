@@ -56,11 +56,13 @@ the source bytes, decoded UTF-8 text, parsed JSONL rows, packed-row expansion,
 and final Session/Protocol projection in one dependent certificate. Valid and
 malformed byte fixtures are executable evidence; JSON parsing/printer behavior,
 compression, filesystems, and crash durability remain explicit boundaries.
-`Cordis.DeepSeekApi` adds a typed, non-streaming OpenAI-compatible
-`/chat/completions` request plan and a fail-closed response decoder with
-dependent parse/decode certificates. Its transport is an explicit `IO` seam;
-the repository tests deterministic pure and process-backed fixtures, not
-credentials or a live model call.
+`Cordis.DeepSeekApi` adds a typed OpenAI-compatible `/chat/completions` request
+plan and a fail-closed response decoder with dependent parse/decode certificates.
+`ChatRequest` retains the provider's `stream` flag; `buildRequest` preserves the
+non-streaming default while `buildStreamingRequest` and its body certificate
+construct the explicit `stream: true` variant. Its transport is an explicit
+`IO` seam; the repository tests deterministic pure and process-backed fixtures,
+not credentials or a live model call.
 `Cordis.DeepSeekCurlTransport` supplies the first process-backed adapter:
 configured executables (normally `curl`) receive the request body on stdin,
 the URL and headers as direct arguments, and return a typed HTTP status/body
@@ -183,7 +185,9 @@ numeric call IDs, routes every streamed call through the same dependent admissio
 policy, and provider path, and appends certified tool results to the generic
 `ConversationRunner`. Both the one-call entry point and the typed
 `executeConversationMultiStreamRound` path are exercised by deterministic process
-fixtures, including a two-call terminal stream. `runConversationMultiStream` then
+fixtures, including a two-call terminal stream whose executable fixture rejects a
+request unless its serialized body contains `"stream":true`. The round builder
+retains a proof of that source flag. `runConversationMultiStream` then
 reuses those round certificates under explicit fuel, stopping on a text-only terminal
 response or returning typed exhaustion. Its returned runner is suitable for a
 subsequent request or fuel-bounded round. Incremental delivery, cancellation,

@@ -1736,6 +1736,14 @@ private def testDeepSeekHarness : IO Unit := do
         request.model "deterministic-counter"
       assertEqual "DeepSeek harness request prepends its explicit system message"
         request.messages.head (.system "Use the supplied proof-carrying counter tool.")
+  match DeepSeekHarness.buildStreamingRequestPlan "https://fixture.invalid"
+      { value := "fixture-key" } DeepSeekHarness.counterRequestSource
+      DeepSeekHarness.counterSession with
+  | .error error => fail s!"DeepSeek streaming request construction failed: {reprStr error}"
+  | .ok plan =>
+      assertEqual "DeepSeek streaming request enables the provider stream flag"
+        plan.source.stream true
+      let _bodyCertificate := plan.body_eq
   match DeepSeekHarness.sessionMessageToChatMessage
       (.toolResult { value := 7 } "failed" true) with
   | .error (.errorToolResult { value := 7 }) => pure ()
@@ -1934,15 +1942,8 @@ private def testDeepSeekHarness : IO Unit := do
         exhaustedBodiesSnapshot.length 1
 
 private def testDeepSeekStreamHarness : IO Unit := do
-  let process : Cordis.DeepSeekCurlTransport.ProcessConfig := {
-    command := "sh"
-    args := fun _ => #[
-      "-c",
-      "cat >/dev/null; printf '%s\\n__CORDIS_HTTP_STATUS__200\\n' \"$1\"",
-      "cordis-stream-counter-fixture",
-      DeepSeekStreamHarness.counterToolStreamBody
-    ]
-  }
+  let process := DeepSeekStreamHarness.streamFlagFixtureProcess
+    DeepSeekStreamHarness.counterToolStreamBody
   let initialRunner : DeepSeekHarness.ConversationRunner := {
     session := DeepSeekHarness.counterSession
     turn := 1
@@ -2649,7 +2650,7 @@ private def testDeepSeekStreamHarnessRetry : IO Unit := do
     toolCallCount_eq_nextCall := by rfl
   }
   match ← DeepSeekStreamHarnessRetry.executeConversationMultiStreamRound policy
-      (DeepSeekStreamHarnessRetry.fixtureStreamProcess
+      (DeepSeekStreamHarness.streamFlagFixtureProcess
         DeepSeekStreamHarness.counterToolStreamBody)
       "https://fixture.invalid" { value := "fixture-key" }
       DeepSeekHarness.counterRequestSource Cordis.Harness.counterConfig 0 initialRunner []

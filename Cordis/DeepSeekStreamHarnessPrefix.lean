@@ -116,7 +116,7 @@ def executeConversationMultiStreamPrefixRound
     (sourcesNodup : sourceEventSeqs.Nodup)
     (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
     IO (Except PrefixStreamConversationError (PrefixStreamRoundOutcome policy cfg before)) := do
-  match buildRequestPlan baseUrl apiKey source runner.session with
+  match buildStreamingRequestPlan baseUrl apiKey source runner.session with
   | .error error => pure (.error (.request error))
   | .ok plan =>
       match ← executeSsePrefix policy maxReads config plan.request with

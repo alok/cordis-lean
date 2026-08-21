@@ -1897,6 +1897,10 @@ fuel-bounded round runner; `runConversationMultiStream` composes those round cer
 explicit fuel and stops on a text-only terminal response or typed exhaustion. Incremental
 delivery, cancellation, backpressure, reconnects,
 provider-complete assembly, and deployed equivalence remain outside the adapter.
+The streamed builder is deliberately distinct from the non-streaming builder: it calls
+`buildStreamingRequestPlan`, whose dependent source/body certificates prove `stream: true`.
+The executable fixture consumes stdin and rejects a body without that serialized flag, so the
+round test checks the request-mode boundary rather than merely accepting any process output.
 `Cordis.DeepSeekStreamHarnessCancellation` adds a typed pre-round cancellation decision over
 that streamed loop, preserving the completed streamed prefix and runner/model endpoint while
 leaving interruption of an in-flight process read or external tool as an adapter-specific

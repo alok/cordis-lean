@@ -68,7 +68,7 @@ def executeConversationMultiStreamRoundRecoverable
     (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
     IO (Except StreamRecoverableConversationError
       (Sigma fun body : String => StreamRecoverableRoundResult cfg before body)) := do
-  match buildRequestPlan baseUrl apiKey source runner.session with
+  match buildStreamingRequestPlan baseUrl apiKey source runner.session with
   | .error error => pure (.error (.request error))
   | .ok plan =>
       match ← DeepSeekCurlSession.executeWith finishMulti config plan.request with

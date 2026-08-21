@@ -130,6 +130,7 @@ end ResponseFormat
 structure ChatRequest where
   model : String
   messages : MessageList ChatMessage
+  stream : Bool := false
   thinking : Option ThinkingMode := none
   reasoningEffort : Option ReasoningEffort := none
   maxTokens : Option Nat := none
@@ -182,7 +183,7 @@ def toJson (request : ChatRequest) : Lean.Json :=
   .mkObj (
     [("model", .str request.model),
       ("messages", .arr (request.messages.toList.map messageJson).toArray),
-      ("stream", .bool false)]
+      ("stream", .bool request.stream)]
       ++ optionalField "thinking" (request.thinking.map ThinkingMode.toJson)
       ++ optionalField "reasoning_effort" (request.reasoningEffort.map ReasoningEffort.toJson)
       ++ optionalField "max_tokens"
@@ -191,6 +192,17 @@ def toJson (request : ChatRequest) : Lean.Json :=
       ++ (if request.tools.isEmpty then [] else
         [("tools", .arr (request.tools.map toolJson).toArray)])
       ++ optionalField "tool_choice" (request.toolChoice.map ToolChoice.toJson))
+
+end ChatRequest
+
+namespace ChatRequest
+
+/-- Mark a request as the streaming variant without changing its other fields. -/
+def asStreaming (request : ChatRequest) : ChatRequest :=
+  { request with stream := true }
+
+@[simp] theorem asStreaming_stream (request : ChatRequest) :
+    (request.asStreaming).stream = true := rfl
 
 end ChatRequest
 
@@ -240,6 +252,22 @@ theorem buildRequest_body_eq
     (baseUrl : String) (apiKey : ApiKey) (source : ChatRequest) :
     (buildRequest baseUrl apiKey source).request.body = Lean.Json.compress source.toJson :=
   (buildRequest baseUrl apiKey source).body_eq
+
+/-- Build the same POST plan with the provider's streaming flag enabled. -/
+def buildStreamingRequest
+    (baseUrl : String) (apiKey : ApiKey) (source : ChatRequest) : RequestPlan :=
+  buildRequest baseUrl apiKey source.asStreaming
+
+theorem buildStreamingRequest_body_eq
+    (baseUrl : String) (apiKey : ApiKey) (source : ChatRequest) :
+    (buildStreamingRequest baseUrl apiKey source).request.body =
+      Lean.Json.compress source.asStreaming.toJson :=
+  (buildStreamingRequest baseUrl apiKey source).body_eq
+
+theorem buildStreamingRequest_source_stream
+    (baseUrl : String) (apiKey : ApiKey) (source : ChatRequest) :
+    (buildStreamingRequest baseUrl apiKey source).source.stream = true := by
+  rfl
 
 /-! ## Response vocabulary -/
 

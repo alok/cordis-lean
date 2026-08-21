@@ -134,6 +134,38 @@ def buildRequestPlan
   let request ← buildChatRequest source session
   .ok (buildRequest baseUrl apiKey request)
 
+/-- Build a request plan for a streamed round, retaining the exact `stream: true` source flag. -/
+def buildStreamingRequestPlan
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (source : RequestSource)
+    (session : Session.Session Session.noExtensions) :
+    Except RequestError RequestPlan := do
+  let request ← buildChatRequest source session
+  .ok (buildStreamingRequest baseUrl apiKey request)
+
+theorem buildStreamingRequestPlan_source_stream
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (source : RequestSource)
+    (session : Session.Session Session.noExtensions)
+    {plan : RequestPlan}
+    (plan_eq : buildStreamingRequestPlan baseUrl apiKey source session = .ok plan) :
+    plan.source.stream = true := by
+  unfold buildStreamingRequestPlan at plan_eq
+  cases requestResult : buildChatRequest source session with
+  | error error =>
+      rw [requestResult] at plan_eq
+      change (Except.error error : Except RequestError RequestPlan) = .ok plan at plan_eq
+      cases plan_eq
+  | ok request =>
+      rw [requestResult] at plan_eq
+      change (Except.ok (buildStreamingRequest baseUrl apiKey request) :
+        Except RequestError RequestPlan) = .ok plan at plan_eq
+      injection plan_eq with plan_eq'
+      cases plan_eq'
+      exact buildStreamingRequest_source_stream baseUrl apiKey request
+
 theorem sessionMessageToChatMessage_error_toolResult
     (id : CallId) (content : String) :
     sessionMessageToChatMessage (.toolResult id content true) =

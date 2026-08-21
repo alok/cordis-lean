@@ -139,9 +139,10 @@ Current machine-checked evidence includes:
   rich/session bridge and append-only runner while retaining wire and runner certificates;
 - `Cordis.DeepSeekStreamHarness`, composing complete-body terminal rich tool streams with the
   generic conversation runner, dependent tool execution, and certified typed-result append;
-  both the one-call path and the typed two-call `executeConversationMultiStreamRound` fixture
-  are exercised, and `runConversationMultiStream` composes those rounds under explicit fuel
-  until a text-only terminal response or typed exhaustion;
+  streamed rounds use a request source/body certificate proving `stream: true`, and an executable
+  fixture rejects the non-streaming body; both the one-call path and the typed two-call
+  `executeConversationMultiStreamRound` fixture are exercised, and `runConversationMultiStream`
+  composes those rounds under explicit fuel until a text-only terminal response or typed exhaustion;
 - `Cordis.DeepSeekStreamHarnessCancellation`, adding the same typed pre-round cancellation
   decision to the streamed loop while keeping in-flight process interruption external;
 - `Cordis.DeepSeekStreamHarnessPrefix`, connecting the line-oriented process-prefix state to
