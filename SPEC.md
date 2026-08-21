@@ -537,6 +537,7 @@ the empty-to-final lease-threading certificate.
 | `Cordis.DeepSeekCurlTransport`   | Process-backed `Transport` adapter that passes request bodies on stdin, URL/headers as direct executable arguments, and parses a typed status trailer; includes a deterministic `sh` fixture.     |
 | `Cordis.DeepSeekStream`          | Strict in-memory DeepSeek SSE framing and typed delta decoding with retained raw-frame certificates.                                                                                              |
 | `Cordis.DeepSeekCurlStream`      | Complete-body process-backed SSE validation with typed process/status/stream errors and a deterministic `sh` fixture; incremental reader semantics remain external.                               |
+| `Cordis.DeepSeekCurlSession`     | Complete-body process-backed terminal SSE composition into accepted rich/session values, retaining the wire certificate and runner append invariants; live/deployed semantics remain external.    |
 | `Cordis.DeepSeekRichStream`      | Source-honest text-only SSE projection into `RichStream.ValidatedTrace`, with wire/projection/rich certificates and fail-closed semantic errors.                                                  |
 | `Cordis.DeepSeekRichToolStream`  | Restricted one-tool SSE projection into rich tool-call blocks, preserving raw arguments and retaining wire/projection/rich certificates.                                                          |
 | `Cordis.DeepSeekRichMixedStream` | Composed one-choice text/reasoning/one-tool SSE projection with first-seen block indices, stateful tool metadata, exact rich-trace certificates, and same-frame mixed-kind rejection.             |
@@ -718,6 +719,10 @@ claim:
    strict SSE validator, preserving process/status/stream error distinctions;
    it does not implement a live reader, backpressure, cancellation, reconnect,
    or provider-complete assembler.
+   `Cordis.DeepSeekCurlSession` composes a terminal text fixture through the
+   rich projection and append-only runner, retaining both wire and runner
+   certificates; source-event evidence, local ID allocation, and deployed
+   session semantics remain explicit caller/runtime boundaries.
 1. **Production streaming.** Extend the bounded text model with transport,
    backpressure, cancellation, tool-call payload assembly, provider-complete
    parser state, and a live HTTP reader; the current `DeepSeekStream` module is

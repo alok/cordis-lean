@@ -5,6 +5,7 @@ import Cordis.ContextualEquivalence
 import Cordis.DeepSeekApi
 import Cordis.DeepSeekCurlTransport
 import Cordis.DeepSeekCurlStream
+import Cordis.DeepSeekCurlSession
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream

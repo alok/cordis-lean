@@ -6,6 +6,7 @@ import Cordis.ContextualEquivalence
 import Cordis.DeepSeekApi
 import Cordis.DeepSeekCurlTransport
 import Cordis.DeepSeekCurlStream
+import Cordis.DeepSeekCurlSession
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
@@ -382,6 +383,10 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekCurlTransport.curlTransport
 #print axioms Cordis.DeepSeekCurlStream.executeSse
 #print axioms Cordis.DeepSeekCurlStream.curlProcess
+#print axioms Cordis.DeepSeekCurlSession.executeWith
+#print axioms Cordis.DeepSeekCurlSession.appendProcessed_nextSeq
+#print axioms Cordis.DeepSeekCurlSession.appendProcessed_nextCall
+#print axioms Cordis.DeepSeekCurlSession.executeAndAppendText
 #print axioms Cordis.DeepSeekStream.decodeStreamChunkJson
 #print axioms Cordis.DeepSeekStream.parseSse
 #print axioms Cordis.DeepSeekStream.validateSse

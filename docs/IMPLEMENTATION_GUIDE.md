@@ -1821,6 +1821,10 @@ compatibility.
 validation. It preserves process, HTTP-status, framing, and stream errors before exposing any
 frames, while leaving incremental reads, buffering/backpressure, cancellation, reconnects, and
 provider-complete assembly as explicit deployment work.
+`Cordis.DeepSeekCurlSession` takes the terminal text subset one step further: it retains the
+process-backed wire certificate, runs the accepted rich/session projection, and returns the
+proof-carrying append-only runner. Source-event evidence, numeric local-ID assignment, and all
+live/deployed session behavior remain explicit inputs or external obligations.
 `Cordis.DeepSeekStream` supplies the next wire boundary: strict in-memory
 `data:` / `[DONE]` SSE framing, typed delta choices, retained raw-frame
 parse/decode certificates, and explicit invalid-UTF-8/JSON/terminal errors.

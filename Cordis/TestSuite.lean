@@ -6,6 +6,7 @@ import Cordis.ContextualEquivalence
 import Cordis.DeepSeekApi
 import Cordis.DeepSeekCurlTransport
 import Cordis.DeepSeekCurlStream
+import Cordis.DeepSeekCurlSession
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
@@ -993,6 +994,33 @@ private def testDeepSeekCurlStream : IO Unit := do
   | .error (.httpStatus 503 "unavailable") => pure ()
   | .error error => fail s!"HTTP status returned {reprStr error}"
   | .ok _ => fail "non-success SSE status was accepted"
+
+private def testDeepSeekCurlSession : IO Unit := do
+  match ← DeepSeekCurlSession.fixtureTextResponse with
+  | .error error => fail s!"process-backed DeepSeek session response failed: {reprStr error}"
+  | .ok ⟨body, processed⟩ =>
+      assertEqual "process-backed DeepSeek session preserves the source body"
+        body DeepSeekRichStream.exampleTextStreamBody
+      assertEqual "process-backed DeepSeek session extracts terminal text"
+        processed.finished.finished.view.content "Hello world"
+      assertEqual "process-backed DeepSeek session has no tool calls in text fixture"
+        processed.finished.finished.view.rawToolCalls.length 0
+  match ← DeepSeekCurlSession.fixtureTextAppend with
+  | .error error => fail s!"process-backed DeepSeek session append failed: {reprStr error}"
+  | .ok ⟨body, (processed, runner)⟩ =>
+      assertEqual "process-backed DeepSeek append retains the source body"
+        body DeepSeekRichStream.exampleTextStreamBody
+      assertEqual "process-backed DeepSeek append advances the runner sequence"
+        runner.session.nextSeq 1
+      assertEqual "process-backed DeepSeek append retains the typed assistant message"
+        runner.session.messages [.assistant "Hello world" []]
+      let _wireCertificate := processed.wire
+      let _finishedCertificate := processed.finished.finished.terminal_state
+      let _nextSeqCertificate := DeepSeekCurlSession.appendProcessed_nextSeq
+        runner processed [] (by simp) (by simp)
+      let _nextCallCertificate := DeepSeekCurlSession.appendProcessed_nextCall
+        runner processed [] (by simp) (by simp)
+      pure ()
 
 private def testDeepSeekStream : IO Unit := do
   match DeepSeekStream.validateSse DeepSeekStream.exampleStreamBody with
@@ -2188,6 +2216,7 @@ def run : IO Unit := do
   testDeepSeekApi
   testDeepSeekCurlTransport
   testDeepSeekCurlStream
+  testDeepSeekCurlSession
   testDeepSeekStream
   testDeepSeekRichStream
   testDeepSeekRichToolStream

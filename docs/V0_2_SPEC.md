@@ -123,6 +123,8 @@ Current machine-checked evidence includes:
   process failures, and a deterministic `sh` fixture;
 - `Cordis.DeepSeekCurlStream`, composing that process boundary with complete-body strict SSE
   validation and typed process/status/stream errors; incremental reader semantics remain external;
+- `Cordis.DeepSeekCurlSession`, composing a terminal process-backed text response through the
+  rich/session bridge and append-only runner while retaining wire and runner certificates;
 - `Cordis.DeepSeekSessionRunner`, composing accepted text, one-tool, mixed, and multi-call
   terminal traces into the pure append-only local session surface with exact sequence and
   tool-count invariants;
