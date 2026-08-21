@@ -39,6 +39,7 @@ import Cordis.GlobalNameAction
 import Cordis.GlobalNameLifecycle
 import Cordis.GlobalPaperRelation
 import Cordis.GlobalPaperTraceSimulation
+import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalProgress
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
@@ -1931,6 +1932,17 @@ private def testGlobalPaperTraceSimulation : IO Unit := do
       GlobalPaperTraceSimulation.DetailedRule.global)
     [.oRetire]
 
+private def testGlobalPaperTraceDeletion : IO Unit := do
+  assertEqual "assigned deletion replay retains the concrete detailed rule"
+    GlobalPaperTraceDeletion.Example.executableDetailedRules
+    [.orchestration .retire]
+  assertEqual "assigned deletion replay retains the concrete actor"
+    GlobalPaperTraceDeletion.Example.executableActorNames
+    [0]
+  assertEqual "assigned deletion replay exposes an executable keep decision"
+    GlobalPaperTraceDeletion.Example.executableDecisions
+    [.keep]
+
 private def testGlobalProgress : IO Unit := do
   assertEqual "conditional progress constructs the expected concrete Begin rule"
     GlobalProgress.BeginExample.executableRule .begin
@@ -2296,6 +2308,7 @@ def run : IO Unit := do
   testGlobalDeletion
   testGlobalPaperRelation
   testGlobalPaperTraceSimulation
+  testGlobalPaperTraceDeletion
   testGlobalProgress
   testGlobalSupport
   testGlobalRelations

@@ -37,6 +37,7 @@ import Cordis.GlobalNameAction
 import Cordis.GlobalNameLifecycle
 import Cordis.GlobalPaperRelation
 import Cordis.GlobalPaperTraceSimulation
+import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalProgress
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
@@ -998,6 +999,17 @@ namespace Cordis.GlobalPaperTraceSimulation
 #print axioms PositiveOrchestration.executableDetailedRules_eq_source
 #print axioms PositiveOrchestration.executableActorNames_eq_source
 end Cordis.GlobalPaperTraceSimulation
+namespace Cordis.GlobalPaperTraceDeletion
+#print axioms detailedRule_eq_of_orchestration
+#print axioms replay_detailedRules_eq
+#print axioms replay_decisions_allKeep
+#print axioms replaySafeVestigialTraceAssigned
+#print axioms AssignedDeletedTraceReplay.final_related
+#print axioms AssignedDeletedTraceReplay.rules_eq
+#print axioms AssignedDeletedTraceReplay.actors_eq
+#print axioms Example.executableDetailedRules_eq
+#print axioms Example.executableActorNames_eq
+end Cordis.GlobalPaperTraceDeletion
 #print axioms Cordis.GlobalRelations.contextRelated_domain
 #print axioms Cordis.GlobalRelations.ruleSetoid
 #print axioms Cordis.GlobalRelations.ruleRelated_registry_domain
