@@ -5,11 +5,13 @@
 > **Current-development addendum.** This document records the reviewed `0.1.0`
 > mapping at DeepSeek Harness `47f9438`. The active `0.2` contract and refreshed
 > Harness pin `99f6f02` live in [`V0_2_SPEC.md`](V0_2_SPEC.md). The new
-> `Cordis.GenericHarness`, `Cordis.Session`, and `Cordis.SessionValidation`
+> `Cordis.GenericHarness`, `Cordis.GenericSessionHarness`, `Cordis.Session`, and
+> `Cordis.SessionValidation`
 > implement a generic phase-indexed runner, exact-call policy denial,
 > visibility-indexed rich events, proof-producing surface-intent validation,
-> certified replacement, request reconstruction, and a proof that the counter
-> wrapper's rich protocol projection equals its structural runner log. This
+> certified replacement, request reconstruction, and a proof that generic rich
+> sessions (exercised by both the counter and dependent-choice catalogs) project
+> exactly to their structural runner logs. This
 > does not retroactively turn the tables below into a full paper or
 > TypeScript-equivalence claim.
 >
@@ -309,6 +311,24 @@ modeled counter history, allocated IDs, record lease chain, final lease pool, an
 call/result-ID projection of the in-memory log. This is a joint invariant of constructible
 `RunnerState` values. It is not an invariant of persisted Harness sessions or external tool
 effects, and it does not turn pure lease values into linear, process-global capabilities.
+
+### `Cordis.GenericSessionHarness`
+
+Local sources: [`Cordis/GenericSessionHarness.lean`](../Cordis/GenericSessionHarness.lean) and
+[`Cordis/Examples/DependentChoiceSession.lean`](../Cordis/Examples/DependentChoiceSession.lean).
+
+`GenericSessionHarness.RunnerState` factors the rich-session wrapper over an arbitrary
+`GenericHarness.Config`. Its request header, user/assistant surface messages, tool-call/result
+events, and turn/step boundaries are appended to one `Session`, while
+`protocolProjection_eq_log` and `protocolProjection_replays` tie that rich value to the
+generic runner's structural log. The dependent-choice fixture is a second, non-counter
+instantiation: its `Bool` request selects a `Nat` or `String` result, the revision call is
+admitted, the label call is rejected by policy, and both records remain in a reconstructible
+model request.
+
+This is a finite pure in-memory bridge. It does not prove transport, persistence, external
+tool execution, scheduling, crash recovery, or equivalence with the deployed TypeScript
+Harness.
 
 ### `Cordis.Codec`
 

@@ -1730,6 +1730,19 @@ policy. Preserve the exact call index in every result and policy trace. Keep
 phase errors out of the trusted API by indexing `Runner` by `SessionState`;
 retain a dynamic wrapper only at an untrusted boundary.
 
+The rich-session coupling is factored separately in
+[`../Cordis/GenericSessionHarness.lean`](../Cordis/GenericSessionHarness.lean).
+`GenericSessionHarness.RunnerState` keeps the erased runner phase and the
+append-only `Session` together with an exact projection proof. Its transitions
+record the request header, user/assistant surface, tool-call/result pair, and
+turn/step boundaries before returning the next pure state. The
+[`../Cordis/Examples/DependentChoiceSession.lean`](../Cordis/Examples/DependentChoiceSession.lean)
+fixture is important evidence: the same bridge carries a dependent non-counter
+catalog, retains both an admitted revision call and a policy-rejected label
+call, reconstructs a `ModelRequest`, and replays the exact generic log. This
+remains an in-memory proof boundary; transport, persistence, external effects,
+and deployed TypeScript equivalence are separate work.
+
 ### 19.2 Add a real JSON boundary
 
 Keep byte parsing separate from the proof-carrying AST codec. A useful next

@@ -32,6 +32,7 @@ import Cordis.Effect
 import Cordis.Examples.Counter
 import Cordis.Examples.CounterWire
 import Cordis.Examples.DependentChoice
+import Cordis.Examples.DependentChoiceSession
 import Cordis.GlobalActivationOrchestrationTransposition
 import Cordis.GlobalActivationTransposition
 import Cordis.GlobalCalculus
@@ -60,6 +61,7 @@ import Cordis.GlobalTraceFacts
 import Cordis.GlobalTraceRewrite
 import Cordis.GlobalVestigial
 import Cordis.Harness
+import Cordis.GenericSessionHarness
 import Cordis.HarnessPersistenceRefinement
 import Cordis.HarnessPersistenceIO
 import Cordis.Lifecycle
@@ -523,6 +525,44 @@ private def testDependentChoiceHarness : IO Unit := do
   assertEqual "dependent choice rejection preserves the structured model"
     Examples.DependentChoice.rejectedModel
     (some Examples.DependentChoice.initialWorkspace)
+
+private def testDependentChoiceSessionHarness : IO Unit := do
+  assertEqual "dependent-choice rich generic run succeeds"
+    Examples.DependentChoiceSession.runSucceeded true
+  assertEqual "dependent-choice rich generic run reconstructs a request"
+    Examples.DependentChoiceSession.requestPresent true
+  assertEqual "dependent-choice rich generic run retains both call records"
+    Examples.DependentChoiceSession.retainedRecordCount 2
+  match Examples.DependentChoiceSession.runState with
+  | none => fail "dependent-choice rich generic run unexpectedly failed"
+  | some state =>
+      assertEqual "dependent-choice rich generic final workspace" state.model
+        Examples.DependentChoice.initialWorkspace
+      assertEqual "dependent-choice rich generic protocol endpoint"
+        state.protocol (.ready 1)
+      assertEqual "dependent-choice rich generic log projection"
+        (Session.protocolProjection state.session.events) state.log
+      assertEqual "dependent-choice rich generic surface message count"
+        state.messages.length 4
+      assertEqual "dependent-choice rich generic outcomes"
+        (state.records.map GenericHarness.CallRecord.outcome)
+        [.succeeded,
+          .policyRejected .deny "label output rejected by exact-call policy"]
+      match state.modelRequest with
+      | none => fail "dependent-choice rich generic request disappeared"
+      | some request =>
+          assertEqual "dependent-choice rich generic request header"
+            request.header Examples.DependentChoiceSession.requestHeader
+          assertEqual "dependent-choice rich generic request surface"
+            request.messages state.messages
+          assertEqual "dependent-choice rich generic request log length"
+            request.logLength state.session.events.length
+      let _models :
+          GenericHarness.ModelsThreaded state.initialModel state.records state.model :=
+        state.models_threaded
+      let _leases :
+          GenericHarness.LeasesThreaded .empty state.records state.leases :=
+        state.leases_threaded
 
 private def testSessionValidation : IO Unit := do
   match Session.validateAppend Session.certifiedSession Session.replacementEvent with
@@ -3117,6 +3157,7 @@ def run : IO Unit := do
   testGlobalNameLifecycle
   testHarnessPhaseFailures
   testCounterAdmission
+  testDependentChoiceSessionHarness
   testHarnessDemo
   IO.println "CORDIS adversarial and integration tests passed"
 

@@ -7,7 +7,8 @@
 This specification defines the active implementation slice after the finite `0.1.0` counter
 kernel. The generic phase-indexed runner, exact-call allow/reject policy paths, structured
 non-counter example, intrinsic rich session/surface kernel, model-request reconstruction, and
-the counter wrapper's rich-to-structural log equality are implemented. `SessionValidation`
+the reusable generic rich-session bridge (with both counter and dependent-choice
+instantiations) are implemented. `SessionValidation`
 proof-produces append/replacement and finite-suffix certificates from parsed-but-untrusted typed
 events. A current-Harness `StreamChunk` subset is also decoded from `Lean.Json` ASTs into the
 intrinsic rich-stream validator. `TextRefinement` now adds a supported UTF-8 JSONL ingress that
@@ -32,6 +33,9 @@ Current machine-checked evidence includes:
   absence, and lease restoration theorems;
 - `Cordis.Examples.DependentChoice`, where `Bool` definitionally selects `Nat` or `String` and
   policy rejects the exact string-producing call before dispatch;
+- `Cordis.GenericSessionHarness` and `Cordis.Examples.DependentChoiceSession`, which append the
+  request header, user/assistant surface, successful dependent revision call, and policy-rejected
+  label call to one rich session while proving exact projection to the generic runner log;
 - `Cordis.Session.EventIntent`, `SurfaceTransition`, `ValidLog`, `ModelRequest`, certified
   replacement examples, and rich-to-structural `ProtocolCertificate`;
 - `Cordis.SessionValidation.RangeWitness`, `ValidatedAppend`, `ValidatedSuffix`, and
@@ -206,6 +210,9 @@ Current machine-checked evidence includes:
   reads, canonical replacement, and validated append-only rows over memory/filesystem backends;
   host acknowledgement, fsync, torn-tail repair, locking, and stable-media durability remain
   external;
+- `Cordis.GenericSessionHarness`, factoring the rich Session/request/projection wrapper over an
+  arbitrary `GenericHarness.Config`; the counter and dependent-choice configurations are both
+  executable fixtures;
 - `Cordis.StreamSession`, making the provider-string-ID to unique numeric-session-`CallId`
   assignment explicit before a validated rich assistant view enters the canonical surface;
 - `Harness.RunnerState.protocolProjection_eq_log` and `protocolProjection_replays`, tying the
@@ -442,7 +449,9 @@ must not import `Cordis.Examples.Counter` or `CounterWire`.
 
 The generic runner's canonical log is the rich `Cordis.Session` log. Structural protocol replay
 and call/result-boundary projections are derived from it rather than maintained as an unrelated
-second event list.
+second event list. `GenericSessionHarness.RunnerState` packages the same relationship for every
+catalog configuration; `Examples.DependentChoiceSession` proves the bridge is not counter-
+specialized.
 
 For every model step, the runner must record at least:
 

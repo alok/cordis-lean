@@ -30,6 +30,8 @@ import Cordis.DurableIO
 import Cordis.DurableSettlement
 import Cordis.Effect
 import Cordis.Examples.DependentChoice
+import Cordis.Examples.DependentChoiceSession
+import Cordis.GenericSessionHarness
 import Cordis.GlobalActivationOrchestrationTransposition
 import Cordis.GlobalActivationTransposition
 import Cordis.GlobalCalculus
@@ -168,6 +170,15 @@ set_option format.width 200
 #print axioms Cordis.GenericHarness.Runner.beginStep_log
 #print axioms Cordis.GenericHarness.Runner.finishStep_log
 #print axioms Cordis.GenericHarness.Runner.finishTurn_log
+#print axioms Cordis.GenericSessionHarness.RunnerState.protocolProjection_replays
+#print axioms Cordis.GenericSessionHarness.RunnerState.records_length_eq_nextCall
+#print axioms Cordis.GenericSessionHarness.RunnerState.models_threaded
+#print axioms Cordis.GenericSessionHarness.RunnerState.leases_threaded
+#print axioms Cordis.GenericSessionHarness.RunnerState.ids_eq_range
+#print axioms Cordis.GenericSessionHarness.RunnerState.callBoundaries_eq_records
+#print axioms Cordis.Examples.DependentChoiceSession.run_succeeds
+#print axioms Cordis.Examples.DependentChoiceSession.request_is_present
+#print axioms Cordis.Examples.DependentChoiceSession.retained_record_count
 #print axioms Cordis.Session.SurfaceTransition.replacement_exact_shadow
 #print axioms Cordis.Session.SurfaceTransition.replacement_coverage
 #print axioms Cordis.Session.ValidLog.length_eq_nextSeq

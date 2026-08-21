@@ -36,6 +36,7 @@ import Cordis.Examples.DependentChoice
 import Cordis.GlobalActivationOrchestrationTransposition
 import Cordis.GlobalActivationTransposition
 import Cordis.GenericHarness
+import Cordis.GenericSessionHarness
 import Cordis.GlobalCalculus
 import Cordis.GlobalDeletion
 import Cordis.GlobalDynamics
@@ -83,6 +84,7 @@ import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
 import Cordis.SessionValidation
+import Cordis.Examples.DependentChoiceSession
 import Cordis.Stream
 import Cordis.StreamSession
 import Cordis.TextRefinement
