@@ -115,6 +115,7 @@ import Cordis.Registry
 import Cordis.Removal
 import Cordis.RichStream
 import Cordis.RuntimeRefinement
+import Cordis.RuntimeFailureRefinement
 import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
@@ -408,6 +409,14 @@ set_option format.width 200
 #print axioms Cordis.RuntimeRefinement.decode_toolCallDelta_exact
 #print axioms Cordis.RuntimeRefinement.reject_nestedFieldType
 #print axioms Cordis.RuntimeRefinement.reject_unsafeInteger
+#print axioms Cordis.RuntimeFailureRefinement.decode_example_exact
+#print axioms Cordis.RuntimeFailureRefinement.validate_example_exact
+#print axioms Cordis.RuntimeFailureRefinement.decode_aborted_exact
+#print axioms Cordis.RuntimeFailureRefinement.ValidatedFailureTrace.decoded_exact
+#print axioms Cordis.RuntimeFailureRefinement.reject_successfulFinish
+#print axioms Cordis.RuntimeFailureRefinement.reject_failureBeforeEnd
+#print axioms Cordis.RuntimeFailureRefinement.reject_malformedFailure
+#print axioms Cordis.RuntimeFailureRefinement.reject_opaqueReplayState
 #print axioms Cordis.Observational.Quotient.Respects.comp
 #print axioms Cordis.Observational.Quotient.MapRelated.comp
 #print axioms Cordis.Observational.Quotient.AppliedRelated.trans

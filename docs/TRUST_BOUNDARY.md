@@ -225,7 +225,14 @@ permutation certificates from the caller.
 - Missing optional upstream usage counts become zero only in the named `WireUsage.toLocal`
   normalization.
 - Opaque replay state, image/tool-result blocks, and upstream error/abort `LlmFailure` payloads
-  are rejected because the local types are not equivalent.
+  are rejected by this successful-trace decoder because the local types are not equivalent.
+
+`RuntimeFailureRefinement.validateFailureTrace` is the adjacent normalized failure certificate. It
+requires the final JSON chunk to be an in-band `error` or `aborted` finish, retains the exact
+ordinary prefix and all typed `LlmFailure` fields, and rejects any chunk after the failure. It is
+deliberately not a `RichStream.ValidatedTrace`: upstream failure/abort paths may leave blocks open,
+so the certificate proves no local finish, retry/cancellation decision, provider authenticity, or
+normal rich/session projection.
 
 `TextRefinement` adds the preceding text boundary for supported append-only fixtures:
 `parseJsonLines` parses newline-delimited text with zero-based line errors, `parseJsonLinesBytes`
@@ -482,6 +489,7 @@ Executable rejection is valuable, but it is not a refinement theorem.
 | `Protocol.validateEvent` / `validateTrace` | Checks the six local event variants and returns exact intrinsic witnesses for successful inputs. | No translation or equivalence to the full Harness event union; no theorem equates every successful erased `replayRaw` call with witness reconstruction. |
 | `Stream.applyRaw` | Checks one text/finish protocol, explicit chunk budget, and terminal-state discipline. | No witness reconstruction for arbitrary accepted raw streams and no equivalence to Harness `StreamChunk` assembly or persistence. |
 | `RuntimeRefinement.validateJsonTrace` | Decodes a supported current-Harness stream JSON-AST subset, then returns an exact intrinsic `RichStream.ValidatedTrace` or a separated decode/semantic error. | No byte parser, full stream-union coverage, tolerant-assembler completeness, transport, storage, or whole-runtime equivalence. |
+| `RuntimeFailureRefinement.validateFailureTrace` | **Checked/proved:** decodes a terminal normalized `error`/`aborted` finish, retaining the exact ordinary prefix and typed `LlmFailure`; successful finishes, malformed fields, and post-failure chunks fail closed. | No open-block reconstruction, normal rich/session projection, retry/cancellation policy, provider authenticity, byte parser, or whole-runtime equivalence. |
 | `SessionRefinement.validateJsonLog` | Stateful supported-subset decoding returns exact rich append/replacement witnesses, selected request-header, route-context, todo, seed, and text/reasoning assistant-chunk log records, text/complete-assistant-tool-call surface metadata in `State.wireSurface`, runtime protocol witnesses when applicable, fresh local call-ID evidence reused by call/result events, and a cumulative projection theorem. | No complete event union, unsupported header/chunk shapes, reasoning surface blocks, unknown todo statuses, nonempty seed payloads, unsupported/malformed replacement shapes, persisted JSONL parser, timestamp truth, crash recovery, or whole-session equivalence. |
 | `SessionOpaqueMetadata.validateLogRetainingMetadata` | Sanitizes only `tool/result.data.error` and `tool/result.data.meta`, retains their exact source JSON in order, and composes the existing dependent Session/Protocol validation with an unchanged sanitized projection. | No provider/tool metadata semantics or schema equivalence, opaque replay/resume behavior, complete event-union coverage, persistence, or whole-session equivalence. |
 | `SessionArchive.archive`, `ArchivedLog.raw_eq` | **Checked/proved:** every envelope-valid current-Harness record is retained in input order; supported records carry the existing typed decoder certificate, while unknown/unsupported records remain explicitly `opaqueRequired` or `opaqueIgnorable`; the raw JSON AST is preserved exactly. | No extension payload semantics, opaque replay/resume behavior, complete event-union semantic validation, byte parser, timestamp truth, persistence, crash recovery, or whole-session equivalence. |
@@ -1221,6 +1229,9 @@ Without additional proofs or tests, do not state that:
   closing, or full Theorem 63/64 recovery merely from its explicit nested/confinement witnesses;
 - `RuntimeRefinement` accepts the full Harness stream union, is complete for the tolerant
   TypeScript assembler, verifies provider streaming, or proves chunk storage;
+- `RuntimeFailureRefinement` reconstructs open-block failure state, chooses retry/cancellation,
+  authenticates provider failure payloads, or equates its terminal certificate with a normal
+  rich/session finish;
 - `SessionRefinement` accepts the complete Harness event union, preserves every source field in
   the local event, validates persistence, or proves whole-session behavioral equivalence; its
   admitted text and complete assistant-tool-call surface subset retains selected source metadata

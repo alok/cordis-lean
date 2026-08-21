@@ -117,6 +117,7 @@ import Cordis.Registry
 import Cordis.Removal
 import Cordis.RichStream
 import Cordis.RuntimeRefinement
+import Cordis.RuntimeFailureRefinement
 import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
@@ -950,6 +951,57 @@ private def testRuntimeRefinement : IO Unit := do
       assertEqual "opaque upstream replay state fails closed"
         error (.unsupportedField [] "replayState")
   | .ok _ => fail "opaque upstream replay state was silently discarded"
+
+private def testRuntimeFailureRefinement : IO Unit := do
+  match RuntimeFailureRefinement.validateFailureTrace
+      RuntimeFailureRefinement.exampleJson with
+  | .error error => fail s!"in-band provider failure was rejected with {reprStr error}"
+  | .ok validated =>
+      assertEqual "failure refinement preserves the decoded ordinary prefix"
+        validated.chunks RuntimeFailureRefinement.exampleChunks
+      assertEqual "failure refinement preserves the in-band error discriminant"
+        validated.terminal.kind RuntimeFailureRefinement.FailureKind.error
+      assertEqual "failure refinement preserves every LlmFailure field"
+        validated.terminal.failure RuntimeFailureRefinement.exampleFailure
+      let _certificate :=
+        RuntimeFailureRefinement.ValidatedFailureTrace.decoded_exact validated
+      pure ()
+  match RuntimeFailureRefinement.validateFailureTrace
+      RuntimeFailureRefinement.abortedJson with
+  | .error error => fail s!"in-band abort was rejected with {reprStr error}"
+  | .ok validated =>
+      assertEqual "abort refinement preserves the aborted discriminant"
+        validated.terminal.kind RuntimeFailureRefinement.FailureKind.aborted
+      assertEqual "abort refinement preserves the request id"
+        validated.terminal.failure.requestId (some "req-abort")
+      assertEqual "abort refinement preserves absent optional retry metadata"
+        (validated.terminal.failure.status, validated.terminal.failure.providerRetryAfterMs)
+        (none, none)
+  match RuntimeFailureRefinement.decodeFailureTrace [Lean.Json.mkObj [
+    ("type", .str "finish"),
+    ("reason", Lean.Json.mkObj [("kind", .str "stop")])
+  ]] with
+  | .error error =>
+      assertEqual "successful finishes stay outside the failure validator"
+        error (.successfulFinish 0 .stop)
+  | .ok _ => fail "successful finish was accepted as an in-band failure"
+  match RuntimeFailureRefinement.decodeFailureTrace [Lean.Json.mkObj [
+    ("type", .str "finish"),
+    ("reason", Lean.Json.mkObj [
+      ("kind", .str "error"),
+      ("failure", Lean.Json.mkObj [
+        ("message", .str "bad"),
+        ("code", .str "E"),
+        ("status", .str "not-a-number")
+      ])
+    ])
+  ]] with
+  | .error error =>
+      assertEqual "malformed failure metadata reports its nested status path"
+        error (.terminal 0 (.typeMismatch
+          [.index 0, .field "reason", .field "failure", .field "status"]
+          "nonnegative safe integer" .string))
+  | .ok _ => fail "malformed failure metadata was accepted"
 
 private def testTextRefinement : IO Unit := do
   let streamSource := TextRefinement.renderJsonLines RuntimeRefinement.exampleJson
@@ -4838,6 +4890,7 @@ def run : IO Unit := do
   testContextualEquivalence
   testUnifiedContexts
   testRuntimeRefinement
+  testRuntimeFailureRefinement
   testTextRefinement
   testHarnessPersistence
   testHarnessPersistenceBytes

@@ -338,6 +338,9 @@ Current machine-checked evidence includes:
   reloading classification;
 - `Cordis.RuntimeRefinement`, decoding the supported current-Harness stream-chunk JSON-AST
   shapes into `RichStream.ValidatedTrace` while explicitly rejecting non-equivalent fields;
+- `Cordis.RuntimeFailureRefinement`, decoding the normalized current-Harness `error`/`aborted`
+  finish union into an exact typed `LlmFailure` terminal certificate without claiming a normal
+  rich-trace projection for open-block failures;
 - `Cordis.SessionRefinement`, statefully translating a supported source-shaped Harness session
   prefix into joint `Session.ValidatedAppend` and intrinsic `Protocol.ValidatedEvent` witnesses;
 - `Cordis.SessionOpaqueMetadata`, quarantining only provider/tool-owned tool-result `error` and
@@ -969,6 +972,14 @@ the intrinsic trace witness. Opaque replay state, image/tool-result blocks, upst
 sound supported-subset refinement; it is not a completeness or behavioral-equivalence theorem
 for the TypeScript `BlockAssembler`.
 
+`Cordis.RuntimeFailureRefinement` is the separate normalized failure branch. It requires a finite
+JSON-AST list whose last chunk is an in-band `error` or `aborted` finish, decodes the ordinary
+prefix with the existing supported-chunk decoder, and retains the exact `LlmFailure` fields
+(`message`, `code`, optional `status`, optional `providerRetryAfterMs`, and optional `requestId`).
+This certificate intentionally does not run `RichStream.validateTrace`: current Harness failures
+may end with open blocks, so no local rich/session finish, retry decision, cancellation policy, or
+provider-authenticity claim follows.
+
 `Cordis.DeepSeekRichMixedStream` is a separate provider-wire projection, not an extension of
 `RuntimeRefinement`'s current-Harness JSON-AST decoder. It accepts one choice and at most one
 indexed tool call, interleaving text, reasoning, and tool fragments across distinct frames;
@@ -1134,8 +1145,9 @@ not a retry, cancellation, persistence, external-effect, or deployed-error-equiv
 `Cordis.DeepSeekStreamFailure` covers the adjacent wire-only terminal-failure language. It accepts
 only complete strict bodies ending in `content_filter` or `insufficient_system_resource`, retaining
 the leading `DataFrame`s, terminal raw frame, singleton choice/reason, and optional usage. Ordinary
-rich finishes, wire `error`/`aborted` envelopes, and any normal rich/session projection remain
-outside this failure certificate.
+rich finishes, provider SSE `error`/`aborted` envelopes, and any normal rich/session projection
+remain outside this failure certificate. The normalized JSON `StreamChunk` failure union is
+handled separately by `Cordis.RuntimeFailureRefinement`.
 
 `Cordis.DeepSeekTerminalOutcome` composes that failure certificate with the four existing successful
 rich validators. It classifies failures first, then text, one-tool, mixed, and multi-call bodies,

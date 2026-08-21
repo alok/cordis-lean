@@ -1848,6 +1848,10 @@ Protocol witnesses, while admitted surface IDs/provider metadata remain in the
 refinement state and only text enters the smaller local message types. Both start
 at `Lean.Json`, decode exact current field/tag shapes, and fail closed outside
 their stated language.
+`Cordis.RuntimeFailureRefinement` separately covers the normalized in-band
+`error` and `aborted` finish branches: it retains the exact ordinary prefix and
+all `LlmFailure` fields without pretending that an open-block failure is a
+successful rich trace.
 `Cordis.SessionArchive` is the adjacent lossless envelope layer: it retains every
 envelope-valid record, classifies unsupported required versus explicitly ignorable
 extensions, and attaches a `SessionRefinement.WireEvent` certificate when the
@@ -2138,8 +2142,9 @@ deployed-provider semantics.
 `Cordis.DeepSeekStreamFailure` is the lower wire-only companion: build the strict SSE certificate
 first, classify only the two finish tags the current decoder actually exposes as provider failures,
 and retain the raw terminal data instead of coercing it into rich/session events. Do not add a
-normal block-end or `isError` projection here; those are different semantic policies, and the
-current source shape does not provide a general `error`/`aborted` envelope.
+normal block-end or `isError` projection here; those are different semantic policies. This
+provider SSE layer does not provide the normalized JSON `error`/`aborted` envelope; that branch is
+handled separately by `Cordis.RuntimeFailureRefinement`.
 
 `Cordis.DeepSeekTerminalOutcome` is the adjacent composition layer. It remains a dispatcher over
 complete-body certificates: classify provider failures first, then invoke the existing text,
@@ -2365,10 +2370,12 @@ representation is a canonical nonnegative integer no larger than JavaScript's sa
 limit. Preserve provider tool IDs and raw argument fragments as strings. Map missing optional
 usage counts to zero in one named function so reviewers can see the semantic choice.
 
-Fail closed when the upstream and local types differ. In the current slice that means opaque
-replay state, image/tool-result blocks, and error/abort `LlmFailure` values. Add exact rejection
-theorems for each unsupported boundary, and keep decode errors separate from semantic stream
-errors. The resulting theorem is supported-subset soundness, not assembler completeness.
+Fail closed when the upstream and local types differ. In the successful-trace slice that means
+opaque replay state, image/tool-result blocks, and error/abort `LlmFailure` values. The separate
+`RuntimeFailureRefinement` certificate handles the normalized error/abort terminal without
+silently widening `RichStream`; add exact rejection theorems for each boundary and keep decode
+errors separate from semantic stream errors. The resulting theorems are supported-subset
+soundness, not assembler completeness.
 
 For session events, use a stateful refiner rather than a context-free codec. Decode and retain
 the current `{type, seq, time, data, ignorable?, sourceEventSeqs?, surfaceOp?}` envelope, then:
