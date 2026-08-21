@@ -3,6 +3,7 @@ import Cordis.Codec
 import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
+import Cordis.DeepSeekApi
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -338,6 +339,12 @@ set_option format.width 200
 #print axioms Cordis.TextRefinement.ValidatedStreamText.replay_eq
 #print axioms Cordis.TextRefinement.ValidatedSessionText.projection_exact
 #print axioms Cordis.TextRefinement.invalid_utf8_rejected
+#print axioms Cordis.DeepSeekApi.ChatRequest.toJson
+#print axioms Cordis.DeepSeekApi.buildRequest
+#print axioms Cordis.DeepSeekApi.buildRequest_body_eq
+#print axioms Cordis.DeepSeekApi.decodeResponseJson
+#print axioms Cordis.DeepSeekApi.validateResponse
+#print axioms Cordis.DeepSeekApi.execute
 #print axioms Cordis.Transformation.Closure.commute
 #print axioms Cordis.Transformation.commute_of_generators
 #print axioms Cordis.Transformation.seq_monoid_subset_joint

@@ -1799,6 +1799,12 @@ field/tag shapes, and fail closed outside their stated language.
 fixtures and append-only adapters: it parses newline-delimited UTF-8 JSON into
 exact AST lines, retains source/line failures, and composes the two validators
 without weakening their dependent certificates.
+`Cordis.DeepSeekApi` now supplies the adjacent provider boundary: typed
+OpenAI-compatible chat requests become exact POST plans, successful responses
+retain parse/decode certificates, and transport, HTTP-status, and API errors
+remain separate. Keep the transport explicit and deterministic in Lean tests;
+do not present the fixture as live HTTP, credential validation, or complete
+provider/schema compatibility.
 Continue by defining translations for additional pinned Harness events and tool
 definitions and proving only the invariants actually shared by the two
 representations. Expect to model more payloads, surface semantics, session

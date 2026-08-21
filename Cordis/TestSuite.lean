@@ -3,6 +3,7 @@ import Cordis.Codec
 import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
+import Cordis.DeepSeekApi
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -836,6 +837,49 @@ private def testTextRefinement : IO Unit := do
   | .error error => fail s!"invalid UTF-8 returned the wrong error: {reprStr error}"
   | .ok _ => fail "invalid UTF-8 was accepted"
 
+private def testDeepSeekApi : IO Unit := do
+  let plan := DeepSeekApi.buildRequest "https://api.deepseek.com"
+    { value := "test-key" } DeepSeekApi.exampleRequest
+  assertEqual "DeepSeek request uses POST" plan.request.method .post
+  assertEqual "DeepSeek request targets chat completions"
+    plan.request.url "https://api.deepseek.com/chat/completions"
+  assertEqual "DeepSeek request carries content and authorization headers"
+    plan.request.headers.length 2
+  let _bodyCertificate := plan.body_eq
+  match ← DeepSeekApi.execute DeepSeekApi.exampleTransport plan with
+  | .error error => fail s!"DeepSeek fixture request failed: {reprStr error}"
+  | .ok ⟨body, validated⟩ =>
+      assertEqual "DeepSeek fixture body is preserved" body DeepSeekApi.exampleResponseBody
+      assertEqual "DeepSeek response id" validated.response.id "chatcmpl-example"
+      assertEqual "DeepSeek response model" validated.response.model "deepseek-reasoner"
+      assertEqual "DeepSeek response has one tool call"
+        validated.response.choices.head.message.toolCalls.length 1
+      assertEqual "DeepSeek response tool name"
+        (validated.response.choices.head.message.toolCalls.head?.map DeepSeekApi.FunctionCall.name)
+        (some "get_weather")
+      assertEqual "DeepSeek response finish reason"
+        validated.response.choices.head.finishReason (some .toolCalls)
+      let _parseCertificate := validated.parsed
+      let _decodeCertificate := validated.decoded
+  match DeepSeekApi.validateResponse "" with
+  | .error (.invalidJson _) => pure ()
+  | _ => fail "invalid DeepSeek JSON was accepted"
+  let badStatusTransport : DeepSeekApi.Transport := {
+    send := fun _request => pure <| .ok {
+      status := 401
+      body := "{\"error\":{\"message\":\"unauthorized\"}}"
+    }
+  }
+  match ← DeepSeekApi.execute badStatusTransport plan with
+  | .error (.httpStatus 401 _) => pure ()
+  | _ => fail "HTTP status boundary was not preserved"
+  let failingTransport : DeepSeekApi.Transport := {
+    send := fun _request => pure (.error "offline")
+  }
+  match ← DeepSeekApi.execute failingTransport plan with
+  | .error (.transport "offline") => pure ()
+  | _ => fail "transport failure was not preserved"
+
 private def testQuotientEffects : IO Unit := do
   let applied := Observational.Quotient.Example.program.run
     Observational.Quotient.Example.initial
@@ -1555,6 +1599,7 @@ def run : IO Unit := do
   testUnifiedContexts
   testRuntimeRefinement
   testTextRefinement
+  testDeepSeekApi
   testQuotientEffects
   testCoeffectQuotientLift
   testOperationalEquivalence
