@@ -1,5 +1,6 @@
 import Cordis.RuntimeOutcomeRefinement
 import Cordis.DeepSeekSessionRunner
+import Cordis.TextRefinement
 
 /-!
 # Current-Harness outcomes at the local session boundary
@@ -183,6 +184,50 @@ def validateAndDispatch
       | .error error => .error (.bridge error)
       | .ok result => .ok result
 
+/-- A text source plus its exact outcome certificate and session dispatch. -/
+structure TextDispatchResult (source : String) where
+  validated : TextRefinement.ValidatedOutcomeText source
+  dispatched : DispatchResult validated.parsed.lines
+
+inductive TextDispatchError where
+  | text (error : TextRefinement.TextError)
+  | validation (error : RuntimeOutcomeRefinement.ValidationError)
+  | bridge (error : DeepSeekSessionBridge.BridgeError)
+deriving DecidableEq, Repr
+
+/-- Parse UTF-8 text to exact JSON lines, then run the policy-free outcome/session bridge. -/
+def validateTextAndDispatch
+    (runner : Runner)
+    (source : String)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    Except TextDispatchError (TextDispatchResult source) :=
+  match TextRefinement.validateOutcomeText source with
+  | .error (.inl error) => .error (.text error)
+  | .error (.inr error) => .error (.validation error)
+  | .ok validated =>
+      match dispatchOutcome runner validated.validated sourceEventSeqs
+          sourcesNodup sourcesEarlier with
+      | .error error => .error (.bridge error)
+      | .ok dispatched => .ok { validated, dispatched }
+
+/-- UTF-8 bytes carry the decoded source text together with the same dispatch certificate. -/
+def validateBytesAndDispatch
+    (runner : Runner)
+    (source : ByteArray)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    Except TextDispatchError (Sigma fun text : String => TextDispatchResult text) :=
+  match TextRefinement.validateOutcomeBytes source with
+  | .error (.inl error) => .error (.text error)
+  | .error (.inr error) => .error (.validation error)
+  | .ok ⟨text, _validated⟩ =>
+      match validateTextAndDispatch runner text sourceEventSeqs sourcesNodup sourcesEarlier with
+      | .error error => .error error
+      | .ok result => .ok ⟨text, result⟩
+
 theorem validateAndDispatch_failureExample
     (runner : Runner)
     (sourceEventSeqs : List Nat)
@@ -226,6 +271,18 @@ def fixtureFailureDispatch :
 
 def fixtureSuccessDispatch : Except DispatchError (DispatchResult RuntimeRefinement.exampleJson) :=
   validateAndDispatch (Runner.empty 1) RuntimeRefinement.exampleJson []
+    emptySourcesNodup (emptySourcesEarlier (Runner.empty 1))
+
+def fixtureTextSuccessDispatch :
+    Except TextDispatchError (TextDispatchResult TextRefinement.outcomeTextExample) :=
+  validateTextAndDispatch (Runner.empty 1) TextRefinement.outcomeTextExample []
+    emptySourcesNodup (emptySourcesEarlier (Runner.empty 1))
+
+def fixtureBytesFailureDispatch :
+    Except TextDispatchError
+      (Sigma fun text : String => TextDispatchResult text) :=
+  validateBytesAndDispatch (Runner.empty 1)
+    TextRefinement.failureTextExample.toUTF8 []
     emptySourcesNodup (emptySourcesEarlier (Runner.empty 1))
 
 end Cordis.RuntimeOutcomeSession

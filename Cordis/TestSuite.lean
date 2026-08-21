@@ -1061,6 +1061,31 @@ private def testRuntimeOutcomeSession : IO Unit := do
         runner.session.nextSeq 1
       assertEqual "successful session dispatch appends the assistant text"
         runner.session.messages [.assistant "hello" []]
+  match RuntimeOutcomeSession.fixtureTextSuccessDispatch with
+  | .error error => fail s!"text outcome session dispatch failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "text outcome session dispatch retains parsed line count"
+        result.validated.parsed.lines.length RuntimeRefinement.exampleJson.length
+      assertEqual "text outcome session dispatch retains canonical source"
+        (TextRefinement.renderJsonLines result.validated.parsed.lines)
+        TextRefinement.outcomeTextExample
+      match result.dispatched with
+      | .appended _ runner =>
+          assertEqual "text outcome session dispatch advances the sequence"
+            runner.session.nextSeq 1
+      | .failure _ _ => fail "text success was preserved as a failure"
+  match RuntimeOutcomeSession.fixtureBytesFailureDispatch with
+  | .error error => fail s!"byte failure session dispatch failed: {reprStr error}"
+  | .ok ⟨text, result⟩ =>
+      assertEqual "byte failure session dispatch retains decoded source"
+        text TextRefinement.failureTextExample
+      match result.dispatched with
+      | .failure validated runner =>
+          assertEqual "byte failure session dispatch preserves failure kind"
+            validated.terminal.kind RuntimeFailureRefinement.FailureKind.error
+          assertEqual "byte failure session dispatch leaves sequence unchanged"
+            runner.session.nextSeq 0
+      | .appended _ _ => fail "byte failure was appended as an assistant message"
 
 private def testTextRefinement : IO Unit := do
   let streamSource := TextRefinement.renderJsonLines RuntimeRefinement.exampleJson

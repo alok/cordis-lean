@@ -435,6 +435,8 @@ set_option format.width 200
 #print axioms Cordis.RuntimeOutcomeSession.dispatchOutcome_success
 #print axioms Cordis.RuntimeOutcomeSession.validateAndDispatch_failureExample
 #print axioms Cordis.RuntimeOutcomeSession.validateAndDispatch_successExample
+#print axioms Cordis.RuntimeOutcomeSession.validateTextAndDispatch
+#print axioms Cordis.RuntimeOutcomeSession.validateBytesAndDispatch
 #print axioms Cordis.Observational.Quotient.Respects.comp
 #print axioms Cordis.Observational.Quotient.MapRelated.comp
 #print axioms Cordis.Observational.Quotient.AppliedRelated.trans
