@@ -14,6 +14,7 @@ import Cordis.DeepSeekCurlStream
 import Cordis.DeepSeekCurlSession
 import Cordis.DeepSeekCurlIncremental
 import Cordis.DeepSeekCurlPrefix
+import Cordis.DeepSeekCurlPrefixSession
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekStreamIncremental
 import Cordis.DeepSeekRichStream

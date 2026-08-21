@@ -9,6 +9,7 @@ import Cordis.DeepSeekCurlStream
 import Cordis.DeepSeekCurlSession
 import Cordis.DeepSeekCurlIncremental
 import Cordis.DeepSeekCurlPrefix
+import Cordis.DeepSeekCurlPrefixSession
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekStreamIncremental
 import Cordis.DeepSeekRichStream
@@ -1119,6 +1120,45 @@ private def testDeepSeekCurlPrefix : IO Unit := do
   | .error (.stream (.unexpectedLine _ "event: bad")) => pure ()
   | .error error => fail s!"malformed process-backed prefix returned {reprStr error}"
   | .ok _ => fail "malformed process-backed prefix was accepted"
+
+private def testDeepSeekCurlPrefixSession : IO Unit := do
+  match ← DeepSeekCurlPrefixSession.fixtureTextResponse with
+  | .error error => fail s!"process-backed prefix session fixture failed: {reprStr error}"
+  | .ok processed =>
+      assertEqual "process-backed prefix session retains raw text body"
+        processed.observed.rawBody DeepSeekRichStream.exampleTextStreamBody
+      assertEqual "process-backed prefix session retains terminal status"
+        processed.observed.status (some 200)
+      assertEqual "process-backed prefix session retains normalized wire frames"
+        processed.wire.frames.length 3
+      assertEqual "process-backed prefix session extracts terminal text"
+        processed.finished.finished.view.content "Hello world"
+      let _wireCertificate := processed.wire.parsed
+      let _finishCertificate := processed.finished.finished.terminal_state
+  match ← DeepSeekCurlPrefixSession.fixtureTextAppend with
+  | .error error => fail s!"process-backed prefix session append failed: {reprStr error}"
+  | .ok (processed, runner) =>
+      assertEqual "process-backed prefix session append advances the sequence"
+        runner.session.nextSeq 1
+      assertEqual "process-backed prefix session append stores the assistant"
+        runner.session.messages [.assistant "Hello world" []]
+      let _nextSeq := DeepSeekCurlPrefixSession.appendProcessed_nextSeq
+        runner processed [] (by simp) (by simp)
+      let _nextCall := DeepSeekCurlPrefixSession.appendProcessed_nextCall
+        runner processed [] (by simp) (by simp)
+  let cancelledPolicy := DeepSeekStreamIncremental.LinePolicy.atLine 1 "cancelled:user"
+  match ← DeepSeekCurlPrefixSession.executeText cancelledPolicy 64
+      DeepSeekCurlPrefixSession.fixtureTextProcess
+      DeepSeekCurlTransport.fixtureRequest.request with
+  | .error (.cancelled 1 "cancelled:user") => pure ()
+  | .error error => fail s!"prefix session cancellation returned {reprStr error}"
+  | .ok _ => fail "prefix session cancellation fabricated a semantic response"
+  match ← DeepSeekCurlPrefixSession.executeText (DeepSeekStreamIncremental.LinePolicy.never) 1
+      DeepSeekCurlPrefixSession.fixtureTextProcess
+      DeepSeekCurlTransport.fixtureRequest.request with
+  | .error .fuelExhausted => pure ()
+  | .error error => fail s!"prefix session fuel stop returned {reprStr error}"
+  | .ok _ => fail "prefix session fuel stop fabricated a semantic response"
 
 private def testDeepSeekStream : IO Unit := do
   match DeepSeekStream.validateSse DeepSeekStream.exampleStreamBody with
@@ -2986,6 +3026,7 @@ def run : IO Unit := do
   testDeepSeekCurlSession
   testDeepSeekCurlIncremental
   testDeepSeekCurlPrefix
+  testDeepSeekCurlPrefixSession
   testDeepSeekStream
   testDeepSeekStreamIncremental
   testDeepSeekRichStream

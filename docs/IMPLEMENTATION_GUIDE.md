@@ -1860,6 +1860,10 @@ requesting the next complete line, retains the raw process body separately from 
 prefix certificate, and uses the same line policy for synchronous fuel/cancellation stops. Its
 cleanup kills and waits for the child, but it cannot interrupt a blocked read or establish
 backpressure, reconnect, process trust, or deployed assembler equivalence.
+`Cordis.DeepSeekCurlPrefixSession` consumes the completed branch of that result, applies the
+existing text/tool/mixed/multi terminal projections, and appends the retained assistant to the
+typed session runner with the existing next-sequence/next-call proofs. Fuel and cancellation are
+not converted into response errors; they remain explicit stop outcomes.
 `Cordis.DeepSeekStream` supplies the next wire boundary: strict in-memory
 `data:` / `[DONE]` SSE framing, typed delta choices, retained raw-frame
 parse/decode certificates, and explicit invalid-UTF-8/JSON/terminal errors.

@@ -148,6 +148,9 @@ Current machine-checked evidence includes:
   state: each accepted line is parsed before the next read, synchronous fuel/cancellation stops
   clean up the child, and terminal success retains raw output plus normalized frame certificates;
   blocked-read cancellation, backpressure, reconnect, and deployment semantics remain external;
+- `Cordis.DeepSeekCurlPrefixSession`, projecting only completed process prefixes through the accepted
+  text/tool/mixed/multi validators and append-only runner; fuel/cancellation remain typed stops,
+  while blocked-read interruption, external execution, and deployed equivalence remain external;
 - `Cordis.DeepSeekSessionRunner`, composing accepted text, one-tool, mixed, and multi-call
   terminal traces into the pure append-only local session surface with exact sequence and
   tool-count invariants;

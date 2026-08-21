@@ -9,6 +9,7 @@ import Cordis.DeepSeekCurlStream
 import Cordis.DeepSeekCurlSession
 import Cordis.DeepSeekCurlIncremental
 import Cordis.DeepSeekCurlPrefix
+import Cordis.DeepSeekCurlPrefixSession
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekStreamIncremental
 import Cordis.DeepSeekRichStream
@@ -400,6 +401,8 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekCurlIncremental.executeSseIncremental
 #print axioms Cordis.DeepSeekCurlPrefix.executeSsePrefix
 #print axioms Cordis.DeepSeekCurlPrefix.PrefixResponse.isCompleted
+#print axioms Cordis.DeepSeekCurlPrefixSession.executeWith
+#print axioms Cordis.DeepSeekCurlPrefixSession.appendProcessed_nextSeq
 #print axioms Cordis.DeepSeekStream.decodeStreamChunkJson
 #print axioms Cordis.DeepSeekStream.parseSse
 #print axioms Cordis.DeepSeekStream.parseSsePrefix
