@@ -257,6 +257,12 @@ to append to an invalid existing document. Memory and temporary filesystem fixtu
 backend shapes. Host write/flush acknowledgement remains separate from semantic validity: fsync,
 stable media, locking, torn-tail repair, and crash durability are not inferred.
 
+`DeepSeekHarnessPersistenceIO` composes this read certificate with the logical DeepSeek restore
+seam. A successful memory or temporary-file read retains the equality tying the decoded archive
+to the restored `ConversationRunner` and to its request certificate; invalid UTF-8 remains a
+structured text error. This still does not turn backend acknowledgement into fsync, stable-media,
+locking, authenticity, or crash-recovery evidence.
+
 `HarnessPersistenceBytes` is the pure immutable-`ByteArray` companion. Its dependent certificate
 retains the original bytes, decoded UTF-8 text, parsed JSONL rows, packed-row expansion, and the
 composed Session/Protocol projection. Runtime fixtures cover accepted, malformed, empty, and
@@ -304,6 +310,11 @@ every retained event is non-opaque. Only then can `RestoredRunner` expose a `Con
 whose session equals the validated endpoint; the supported tool-message fixture also rebuilds a
 typed request. Known opaque payloads and extensions fail closed, so no event is silently dropped
 to make restoration succeed.
+
+The byte-backed counterpart is intentionally separate: `DeepSeekHarnessPersistenceIO` starts from
+`HarnessPersistenceIO.ReadCertificate`, while `DeepSeekHarnessEventArchive` starts from the full
+current-event archive plus the stateful event validator. Neither path assigns semantics to an
+opaque payload or claims complete deployed Harness equivalence.
 
 ### Dependent calls and tool contracts
 

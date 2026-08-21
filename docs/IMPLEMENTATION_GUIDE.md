@@ -1987,6 +1987,14 @@ same request. This is deliberately not a filesystem implementation: compression,
 repair, concurrent writers, host acknowledgements, and archive authenticity remain separate
 engineering obligations.
 
+`Cordis.DeepSeekHarnessPersistenceIO` is the byte-backed composition of that seam. It consumes a
+`HarnessPersistenceIO.ReadCertificate` from a `DurableIO.Backend`, retains the equality tying the
+read archive to the logical restored archive, and exposes the same request certificate after a
+memory or temporary-file read. The adapter is intentionally small: it proves UTF-8 decoding,
+JSONL parsing, persistence validation, and runner/request attachment in sequence, while keeping
+backend acknowledgement distinct from fsync, compression, torn-tail repair, locking,
+authenticity, and crash recovery.
+
 The broader current-event attachment is intentionally separate. `DeepSeekHarnessEventArchive`
 requires a lossless `SessionEventArchive.ArchivedLog`, a stateful `SessionRefinement.ValidatedJsonLog`,
 and an all-events-supported proof before constructing its `RestoredRunner`. This keeps the

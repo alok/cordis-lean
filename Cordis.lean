@@ -78,6 +78,7 @@ import Cordis.HarnessPersistenceRefinement
 import Cordis.HarnessPersistenceBytes
 import Cordis.HarnessPersistenceArchive
 import Cordis.HarnessPersistenceIO
+import Cordis.DeepSeekHarnessPersistenceIO
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
 import Cordis.MediatedTheorem

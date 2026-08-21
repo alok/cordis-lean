@@ -76,6 +76,7 @@ import Cordis.HarnessPersistenceRefinement
 import Cordis.HarnessPersistenceBytes
 import Cordis.HarnessPersistenceArchive
 import Cordis.HarnessPersistenceIO
+import Cordis.DeepSeekHarnessPersistenceIO
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
 import Cordis.MediatedTheorem
@@ -2071,6 +2072,70 @@ private def testDeepSeekHarnessPersistence : IO Unit := do
               DeepSeekHarnessPersistence.persistedToolSource certificate.build_eq
           pure ()
 
+private def testDeepSeekHarnessPersistenceIO : IO Unit := do
+  match ← DeepSeekHarnessPersistenceIO.fixtureMemory with
+  | .error error => fail s!"byte-backed DeepSeek restore failed: {reprStr error}"
+  | .ok restored =>
+      assertEqual "byte-backed DeepSeek restore reaches the archive endpoint"
+        restored.restored.runner.session.nextSeq 8
+      assertEqual "byte-backed DeepSeek restore retains the exact typed surface"
+        restored.restored.runner.session.messages [
+          .user "look up lean",
+          .assistant "I will look it up." [{
+            id := { value := 0 }
+            name := "lookup"
+            arguments := "{\"q\":\"lean\"}"
+          }],
+          .toolResult { value := 0 } "result" false
+        ]
+      let _sessionCertificate :=
+        DeepSeekHarnessPersistenceIO.RestoredRunner.session_eq_read restored
+      let _rowsCertificate :=
+        DeepSeekHarnessPersistenceIO.RestoredRunner.raw_rows_eq_input restored
+      match DeepSeekHarnessPersistenceIO.buildRequestCertificate restored
+          { model := "deepseek-reasoner", errorToolResults := .reject } with
+      | .error error => fail s!"byte-backed DeepSeek request failed: {reprStr error}"
+      | .ok certificate =>
+          assertEqual "byte-backed DeepSeek request retains persisted messages"
+            certificate.request.messages.toList [
+              .user "look up lean",
+              .assistant (some "I will look it up.") none [{
+                id := "0"
+                name := "lookup"
+                arguments := "{\"q\":\"lean\"}"
+              }],
+              .tool "0" "result"
+            ]
+          let _requestCertificate := certificate.build_eq
+          let _archiveCertificate :=
+            DeepSeekHarnessPersistenceIO.buildRequest_session_eq_read restored
+              { model := "deepseek-reasoner", errorToolResults := .reject }
+              certificate.build_eq
+          pure ()
+  match ← DeepSeekHarnessPersistenceIO.fixtureFile with
+  | .error error => fail s!"file-backed DeepSeek restore failed: {reprStr error}"
+  | .ok restored =>
+      assertEqual "file-backed DeepSeek restore retains the archive row count"
+        restored.read.input.length 9
+  match ← DeepSeekHarnessPersistenceIO.fixtureRequest with
+  | .error error => fail s!"byte-backed DeepSeek request fixture read failed: {reprStr error}"
+  | .ok (.error error) => fail s!"byte-backed DeepSeek request fixture failed: {reprStr error}"
+  | .ok (.ok request) =>
+      assertEqual "byte-backed DeepSeek request fixture uses the persisted tool call"
+        request.messages.toList [
+          .user "look up lean",
+          .assistant (some "I will look it up.") none [{
+            id := "0"
+            name := "lookup"
+            arguments := "{\"q\":\"lean\"}"
+          }],
+          .tool "0" "result"
+        ]
+  match ← DeepSeekHarnessPersistenceIO.fixtureInvalidUtf8 with
+  | .error (.text .invalidUtf8) => pure ()
+  | .error error => fail s!"byte-backed DeepSeek invalid UTF-8 returned {reprStr error}"
+  | .ok _ => fail "byte-backed DeepSeek invalid UTF-8 was accepted"
+
 private def testDeepSeekHarnessEventArchive : IO Unit := do
   match DeepSeekHarnessEventArchive.toolRestored with
   | .error error => fail s!"current event archive restoration failed: {error}"
@@ -4000,6 +4065,7 @@ def run : IO Unit := do
   testDeepSeekApiSession
   testDeepSeekHarness
   testDeepSeekHarnessPersistence
+  testDeepSeekHarnessPersistenceIO
   testDeepSeekHarnessEventArchive
   testDeepSeekStreamHarness
   testDeepSeekStreamHarnessCancellation

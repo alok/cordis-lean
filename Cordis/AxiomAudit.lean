@@ -75,6 +75,7 @@ import Cordis.HarnessPersistenceRefinement
 import Cordis.HarnessPersistenceBytes
 import Cordis.HarnessPersistenceArchive
 import Cordis.HarnessPersistenceIO
+import Cordis.DeepSeekHarnessPersistenceIO
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
 import Cordis.MediatedTheorem
@@ -595,6 +596,15 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessPersistence.buildRequestCertificate
 #print axioms Cordis.DeepSeekHarnessPersistence.buildRequest_session_eq_archive
 #print axioms Cordis.DeepSeekHarnessPersistence.persistedToolRequest_messages
+#print axioms Cordis.DeepSeekHarnessPersistenceIO.restoreRead
+#print axioms Cordis.DeepSeekHarnessPersistenceIO.RestoredRunner.session_eq_read
+#print axioms Cordis.DeepSeekHarnessPersistenceIO.RestoredRunner.raw_rows_eq_input
+#print axioms Cordis.DeepSeekHarnessPersistenceIO.buildRequestCertificate
+#print axioms Cordis.DeepSeekHarnessPersistenceIO.buildRequest_session_eq_read
+#print axioms Cordis.DeepSeekHarnessPersistenceIO.readRunner
+#print axioms Cordis.DeepSeekHarnessPersistenceIO.fixtureMemory
+#print axioms Cordis.DeepSeekHarnessPersistenceIO.fixtureFile
+#print axioms Cordis.DeepSeekHarnessPersistenceIO.fixtureRequest
 #print axioms Cordis.DeepSeekHarnessEventArchive.restoreRunner
 #print axioms Cordis.DeepSeekHarnessEventArchive.RestoredRunner.session_eq_archive
 #print axioms Cordis.DeepSeekHarnessEventArchive.RestoredRunner.archive_raw_eq_input

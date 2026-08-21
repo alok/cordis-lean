@@ -176,6 +176,10 @@ Current machine-checked evidence includes:
   `ConversationRunner` with exact final-session equality and a request certificate that is
   preserved when the request is rebuilt from the archive session; filesystem/compression,
   torn-tail repair, concurrent writers, and archive authenticity remain external;
+- `Cordis.DeepSeekHarnessPersistenceIO`, composing the UTF-8/JSONL `ReadCertificate` from
+  `HarnessPersistenceIO` with that logical DeepSeek restore seam over memory and temporary-file
+  backends; backend acknowledgement, fsync, crash recovery, and stable-media semantics remain
+  external;
 - `Cordis.DeepSeekHarnessEventArchive`, requiring both a lossless full-event archive and a
   stateful semantic validation certificate before attaching current-Harness events to a
   `ConversationRunner`; opaque known/extension events reject restoration, while the supported
@@ -965,6 +969,12 @@ runner session and the validated final session, preserves the archive's raw-even
 supports a proof-carrying request rebuild. The fixture is executable; known opaque and extension
 events are rejection cases rather than silently ignored records.
 
+`Cordis.DeepSeekHarnessPersistenceIO` composes the same runner attachment with the executable
+`HarnessPersistenceIO.ReadCertificate`. A successful memory or temporary-file read retains the
+decoded bytes/text/rows certificate before restoring the runner, and the request certificate is
+linked back to that exact read endpoint. This closes the byte-backed attachment seam only; it does
+not claim stable media, fsync, locking, torn-tail repair, authenticity, or deployed crash recovery.
+
 `Cordis.SessionPayloadArchive` moves one layer inward without inventing provider semantics. It
 classifies the five current content-block tags plus unknown block extensions, retains exact message
 content arrays and source objects, preserves assistant-chunk objects and raw usage, and retains
@@ -1114,6 +1124,8 @@ This slice does not by itself prove:
   `Cordis.HarnessPersistenceBytes`;
 - filesystem/database persistence beyond the narrow tested adapters, stable-media/flush barriers,
   cryptographic authentication, arbitrary crash-file repair, or fork correctness.
+  `DeepSeekHarnessPersistenceIO` proves only the read-certificate-to-runner attachment over its
+  memory and temporary-file fixtures; it does not upgrade those backend calls into durability.
   `Cordis.DurableSettlement` and `Cordis.DurableCodec` prove a pure typed crash-prefix/resume
   model plus strict JSON-AST frame validation, `Cordis.DurableBytes` proves its explicitly
   defined binary format over immutable Lean byte lists with a supplied frame count, and

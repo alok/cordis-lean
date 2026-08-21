@@ -190,6 +190,13 @@ equality to the archive's final session, and a proof-carrying request rebuilt fr
 runner is proven to be the same request rebuilt from the archive session. Filesystem I/O,
 compression, torn-tail repair, concurrent writers, and archive authenticity remain outside.
 
+`Cordis.DeepSeekHarnessPersistenceIO` composes that logical attachment with the existing
+UTF-8/JSONL `HarnessPersistenceIO.ReadCertificate`. Memory- and temporary-file-backed reads now
+restore the runner only after decoded text, parsed rows, persistence validation, and the exact
+archive endpoint are all present; the request certificate is linked back to the same read
+certificate. Backend acknowledgement is still not fsync, and compression, torn-tail repair,
+concurrency, authenticity, and deployed crash recovery remain outside.
+
 `Cordis.DeepSeekHarnessEventArchive` attaches the broader current-Harness event vocabulary to
 the same runner only when both certificates are present: `SessionEventArchive` must preserve
 every envelope exactly and `SessionRefinement` must validate every event semantically. Known
@@ -927,6 +934,7 @@ placeholders.
 | `Cordis.HarnessPersistenceRefinement`               | Logical Harness JSONL header/storage decoding, lossless text/reasoning/tool packed-row expansion, safe sequence/time reconstruction, and composition with stateful session validation; physical compression and crash repair remain external.                                                                                            |
 | `Cordis.HarnessPersistenceBytes`                    | Pure `ByteArray` UTF-8/JSONL ingress retaining source bytes, decoded text, parsed rows, packed expansion, and the final Session/Protocol projection; positive and rejection fixtures run at the executable boundary.                                                                                                                     |
 | `Cordis.DeepSeekHarnessEventArchive`                | Certificate-gated attachment of a lossless current-Harness event archive plus stateful semantic validation to `ConversationRunner`; opaque/extension events reject restoration, and the tool-message fixture rebuilds a typed request.                                                                                                   |
+| `Cordis.DeepSeekHarnessPersistenceIO`               | Byte-backed UTF-8/JSONL read certificates attach memory- and temporary-file-backed persistence to a DeepSeek `ConversationRunner`, preserving exact session/request equalities and structured invalid-encoding failures without claiming fsync or crash durability.                                                                      |
 | `Cordis.HarnessPersistenceIO`                       | Executable UTF-8 byte/text adapter over memory and filesystem backends: exact read certificates, canonical replacement, validated append-only rows, and structured invalid-encoding/semantic failures; host acknowledgements are not durability proofs.                                                                                  |
 | `Cordis.DeepSeekApi`                                | Typed OpenAI-compatible DeepSeek chat request construction, fail-closed response decoding, dependent parse/decode certificates, and an explicit transport/status/API-error boundary.                                                                                                                                                     |
 | `Cordis.DeepSeekRequestMode`                        | Type-indexed complete/streaming request plans with a proof tying the serialized `stream` flag to the mode; terminal execution accepts only the complete certificate.                                                                                                                                                                     |
