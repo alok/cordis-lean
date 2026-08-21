@@ -547,6 +547,7 @@ the empty-to-final lease-threading certificate.
 | `Cordis.DeepSeekSessionRunner`   | Pure composition of accepted text/one-tool/mixed/multi-call responses into an append-only runner with exact sequence, message-order, and tool-call-count invariants.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | `Cordis.DeepSeekApiSession`      | Fail-closed projection of decoded non-streaming DeepSeek responses into the append-only runner with singleton-choice, finish, payload, and local ID/count certificates.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | `Cordis.DeepSeekHarness`         | Typed model-round bridge from the session surface to a request plan, process/API response acceptance, generic dependent tool admission/policy/provider execution, and retained typed replies; `appendRoundToolResults` encodes dependent outcomes back into the canonical session with exact local-ID, source-sequence, message-order, and protocol certificates; `ConversationRunner` and `executeConversationRound` carry that certified session into a subsequent request, while `runConversation` repeats the round under explicit fuel and returns either a no-tool-call completion certificate or explicit exhaustion; the test suite covers both outcomes. |
+| `Cordis.DeepSeekStreamHarness`    | Complete-body process-backed rich tool-stream continuation into the generic `ConversationRunner`: terminal streamed calls receive local numeric IDs, pass through the same dependent admission/policy/provider execution path, and append certified typed tool results; the returned runner can feed a subsequent request or fuel-bounded round. Incremental delivery and deployed semantics remain external. |
 
 The public library umbrella is `Cordis.lean`. `Main.lean` is the
 `cordis_demo` entry point, and `Tests.lean` is the `cordis_tests` entry point.
@@ -725,6 +726,12 @@ claim:
    rich projection and append-only runner, retaining both wire and runner
    certificates; source-event evidence, local ID allocation, and deployed
    session semantics remain explicit caller/runtime boundaries.
+   `Cordis.DeepSeekStreamHarness` extends that complete-body boundary to a
+   terminal rich tool stream: it assigns local IDs, executes admitted streamed
+   calls through the generic dependent provider path, and appends certified tool
+   results into the reusable conversation runner. It remains a complete-body
+   adapter and does not claim incremental delivery, cancellation, backpressure,
+   reconnects, provider-complete assembly, or deployed equivalence.
    `Cordis.DeepSeekCurlIncremental` then exposes each complete body line through
    an IO callback under an explicit read budget before consuming the private
    status trailer and validating the reconstructed body; it remains a

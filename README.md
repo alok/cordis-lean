@@ -132,6 +132,14 @@ an explicit `fuelExhausted` stop; the test suite exercises both completion and e
 deterministic two-response loop.
 Persistence, credentials, scheduling, and deployed-Harness equivalence remain outside.
 
+`Cordis.DeepSeekStreamHarness` is the corresponding complete-body process-backed
+tool-stream continuation: it finishes a validated rich tool stream, assigns local
+numeric call IDs, routes every streamed call through the same dependent admission,
+policy, and provider path, and appends certified tool results to the generic
+`ConversationRunner`. Its returned runner is suitable for a subsequent request or
+fuel-bounded round. Incremental delivery, cancellation, backpressure, reconnects,
+provider-complete assembly, and deployed equivalence remain outside this adapter.
+
 The next paper layer is explicit rather than assumed. `Cordis.OperationalEquivalence` models
 Definition 34's heterogeneous finite tests and proves the generator-level coarsest relation of
 Lemma 35, while a compiled counterexample shows that same-word tests do not imply the stronger

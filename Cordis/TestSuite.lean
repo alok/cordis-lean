@@ -17,6 +17,7 @@ import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
+import Cordis.DeepSeekStreamHarness
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -1605,6 +1606,68 @@ private def testDeepSeekHarness : IO Unit := do
       assertEqual "fuel exhaustion does not issue an unbudgeted second request"
         exhaustedBodiesSnapshot.length 1
 
+private def testDeepSeekStreamHarness : IO Unit := do
+  let process : Cordis.DeepSeekCurlTransport.ProcessConfig := {
+    command := "sh"
+    args := fun _ => #[
+      "-c",
+      "cat >/dev/null; printf '%s\\n__CORDIS_HTTP_STATUS__200\\n' \"$1\"",
+      "cordis-stream-counter-fixture",
+      DeepSeekStreamHarness.counterToolStreamBody
+    ]
+  }
+  let initialRunner : DeepSeekHarness.ConversationRunner := {
+    session := DeepSeekHarness.counterSession
+    turn := 1
+    step := 0
+    nextCall := 0
+    toolCallCount_eq_nextCall := by rfl
+  }
+  let streamResult :
+      Except DeepSeekStreamHarness.StreamConversationError
+        (Sigma fun body : String =>
+          DeepSeekStreamHarness.StreamConversationRoundResult
+            (Model := Nat) (Capability := Cordis.Examples.Counter.Capability)
+            Cordis.Harness.counterConfig 0 body) ←
+    DeepSeekStreamHarness.executeConversationStreamRound
+      DeepSeekSessionRunner.finishTool process "https://fixture.invalid"
+      { value := "fixture-key" } DeepSeekHarness.counterRequestSource
+      Cordis.Harness.counterConfig 0 initialRunner [] (by simp) (by simp)
+  match streamResult with
+  | .error error => fail s!"DeepSeek stream harness round failed: {reprStr error}"
+  | .ok ⟨body, result⟩ =>
+      assertEqual "DeepSeek stream harness preserves the complete SSE body"
+        body DeepSeekStreamHarness.counterToolStreamBody
+      assertEqual "DeepSeek stream harness appends the streamed assistant call"
+        result.assistantRunner.session.messages [
+          .user "Read the counter.",
+          .assistant "" [{
+            id := { value := 0 }, name := "counter_read", arguments := "null"
+          }]
+        ]
+      assertEqual "DeepSeek stream harness executes the streamed dependent call"
+        result.finalModel 0
+      assertEqual "DeepSeek stream harness appends the certified tool result"
+        result.runner.session.messages [
+          .user "Read the counter.",
+          .assistant "" [{
+            id := { value := 0 }, name := "counter_read", arguments := "null"
+          }],
+          .toolResult { value := 0 } "[true,0]" false
+        ]
+      assertEqual "DeepSeek stream harness advances through assistant and tool events"
+        result.runner.session.nextSeq 3
+      match result.executions with
+      | [executed] =>
+          assertEqual "DeepSeek stream harness retains the streamed tool name"
+            executed.raw.name "counter_read"
+          assertEqual "DeepSeek stream harness retains the streamed tool successor"
+            executed.reply.value.after 0
+          let _resultCertificate := DeepSeekHarness.executedToolResultJson_decodes executed
+          pure ()
+      | executions =>
+          fail s!"DeepSeek stream harness returned {executions.length} tool executions"
+
 private def testQuotientEffects : IO Unit := do
   let applied := Observational.Quotient.Example.program.run
     Observational.Quotient.Example.initial
@@ -2495,6 +2558,7 @@ def run : IO Unit := do
   testDeepSeekSessionRunner
   testDeepSeekApiSession
   testDeepSeekHarness
+  testDeepSeekStreamHarness
   testQuotientEffects
   testCoeffectQuotientLift
   testOperationalEquivalence

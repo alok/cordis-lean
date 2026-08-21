@@ -17,6 +17,7 @@ import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
+import Cordis.DeepSeekStreamHarness
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -447,6 +448,10 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarness.ConversationStop.isCompleted
 #print axioms Cordis.DeepSeekHarness.runConversationAux
 #print axioms Cordis.DeepSeekHarness.runConversation
+#print axioms Cordis.DeepSeekStreamHarness.projectedToolCallToFunctionCall
+#print axioms Cordis.DeepSeekStreamHarness.ConversationRunner.appendFinished
+#print axioms Cordis.DeepSeekStreamHarness.ConversationRunner.appendFinished_session_messages
+#print axioms Cordis.DeepSeekStreamHarness.executeConversationStreamRound
 #print axioms Cordis.Transformation.Closure.commute
 #print axioms Cordis.Transformation.commute_of_generators
 #print axioms Cordis.Transformation.seq_monoid_subset_joint
