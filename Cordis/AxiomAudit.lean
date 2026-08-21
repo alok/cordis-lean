@@ -9,6 +9,7 @@ import Cordis.DeepSeekRequestMode
 import Cordis.DeepSeekCurlTransport
 import Cordis.DeepSeekCurlStream
 import Cordis.DeepSeekCurlSession
+import Cordis.DeepSeekHarnessProcess
 import Cordis.DeepSeekCurlIncremental
 import Cordis.DeepSeekCurlPrefix
 import Cordis.DeepSeekCurlPrefixSession
@@ -589,6 +590,13 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekCurlSession.appendProcessed_nextSeq
 #print axioms Cordis.DeepSeekCurlSession.appendProcessed_nextCall
 #print axioms Cordis.DeepSeekCurlSession.executeAndAppendText
+#print axioms Cordis.DeepSeekHarnessProcess.prepareRequest
+#print axioms Cordis.DeepSeekHarnessProcess.PreparedRequest.build_exact
+#print axioms Cordis.DeepSeekHarnessProcess.PreparedRequest.body_eq_source
+#print axioms Cordis.DeepSeekHarnessProcess.executePrepared
+#print axioms Cordis.DeepSeekHarnessProcess.executeSourceText
+#print axioms Cordis.DeepSeekHarnessProcess.ProcessRound.nextSeq
+#print axioms Cordis.DeepSeekHarnessProcess.ProcessRound.nextCall
 #print axioms Cordis.DeepSeekCurlIncremental.readBodyLines
 #print axioms Cordis.DeepSeekCurlIncremental.executeSseIncremental
 #print axioms Cordis.DeepSeekCurlPrefix.executeSsePrefix

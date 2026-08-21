@@ -181,6 +181,8 @@ Current machine-checked evidence includes:
   policy remain caller/runtime obligations;
 - `Cordis.DeepSeekCurlSession`, composing a terminal process-backed text response through the
   rich/session bridge and append-only runner while retaining wire and runner certificates;
+- `Cordis.DeepSeekHarnessProcess`, retaining the typed Harness request source, exact request plan,
+  successful build equation, complete-body process response, and indexed runner append endpoint;
 - `Cordis.DeepSeekStreamHarness`, composing complete-body terminal rich tool streams with the
   generic conversation runner, dependent tool execution, and certified typed-result append;
   streamed rounds use a request source/body certificate proving `stream: true`, and an executable

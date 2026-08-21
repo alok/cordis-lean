@@ -8,6 +8,7 @@ import Cordis.DeepSeekApiErrorEnvelope
 import Cordis.DeepSeekCurlTransport
 import Cordis.DeepSeekCurlStream
 import Cordis.DeepSeekCurlSession
+import Cordis.DeepSeekHarnessProcess
 import Cordis.DeepSeekCurlIncremental
 import Cordis.DeepSeekCurlPrefix
 import Cordis.DeepSeekCurlPrefixSession
@@ -1687,6 +1688,33 @@ private def testDeepSeekCurlSession : IO Unit := do
         runner processed [] (by simp) (by simp)
       pure ()
 
+private def testDeepSeekHarnessProcess : IO Unit := do
+  match DeepSeekHarnessProcess.fixturePrepared with
+  | .error error => fail s!"request provenance preparation failed: {reprStr error}"
+  | .ok prepared =>
+      assertEqual "request provenance preserves the typed model"
+        prepared.plan.source.model "fixture-model"
+      let _buildCertificate :=
+        DeepSeekHarnessProcess.PreparedRequest.build_exact prepared
+      let _bodyCertificate :=
+        DeepSeekHarnessProcess.PreparedRequest.body_eq_source prepared
+      pure ()
+  match ← DeepSeekHarnessProcess.fixtureText with
+  | .error error => fail s!"request provenance process fixture failed: {reprStr error}"
+  | .ok ⟨prepared, ⟨body, round⟩⟩ =>
+      assertEqual "request provenance process preserves the source body"
+        body DeepSeekRichStream.exampleTextStreamBody
+      assertEqual "request provenance process appends one session event"
+        round.after.session.nextSeq 1
+      assertEqual "request provenance process retains the prepared model"
+        prepared.plan.source.model "fixture-model"
+      let _endpointCertificate :=
+        DeepSeekHarnessProcess.ProcessRound.append_endpoint round
+      let _nextSeqCertificate :=
+        DeepSeekHarnessProcess.ProcessRound.nextSeq round
+      let _nextCallCertificate :=
+        DeepSeekHarnessProcess.ProcessRound.nextCall round
+      pure ()
 private def testDeepSeekCurlIncremental : IO Unit := do
   let seen ← IO.mkRef ([] : List (Nat × String))
   let result ← DeepSeekCurlIncremental.executeSseIncremental
@@ -5193,6 +5221,7 @@ def run : IO Unit := do
   testDeepSeekOutcomeConversationLoop
   testDeepSeekOutcomeTransportLoop
   testDeepSeekCurlSession
+  testDeepSeekHarnessProcess
   testDeepSeekCurlIncremental
   testDeepSeekCurlPrefix
   testDeepSeekCurlPrefixSession

@@ -1965,6 +1965,13 @@ or backpressure/cancellation implementation.
 process-backed wire certificate, runs the accepted rich/session projection, and returns the
 proof-carrying append-only runner. Source-event evidence, numeric local-ID assignment, and all
 live/deployed session behavior remain explicit inputs or external obligations.
+`Cordis.DeepSeekHarnessProcess` closes the request-provenance seam above that adapter. Its
+`PreparedRequest` retains the typed Harness `RequestSource`, exact `RequestPlan`, and successful
+`buildRequestPlan` equation tied to the runner session. `ProcessRound` then retains the complete
+process/wire/semantic response and exact append endpoint, while `executeSourceText` keeps request
+construction failures separate from process/status/stream/terminal failures. This remains a
+complete-body local runner bridge; persistence, external tools, cancellation, credential and
+provider authenticity, and deployed Harness equivalence remain explicit obligations.
 `Cordis.DeepSeekStreamHarness` applies the same complete-body boundary to terminal rich tool
 streams: it assigns local numeric IDs, sends each streamed call through the generic dependent
 admission/policy/provider path, and appends the certified typed results to a reusable
