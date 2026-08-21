@@ -653,6 +653,13 @@ accepted prefix and typed budget/cancellation stop, then unlocks the same depend
 after strict `[DONE]` rich/session validation. Byte framing, blocked-read interruption, and
 deployed Harness equivalence remain unmapped.
 
+`Cordis.DeepSeekSchemaStreamErrors` maps the opt-in heterogeneous provider-error continuation. Its
+failed-entry certificate keeps the selected schema binding, parsed/admitted call, policy proof,
+exact provider message, and unchanged model; conversion to the existing `ProviderFailedTool`
+surface gives an `isError` result, and the executable fixture carries that result into a later
+streamed terminal. Retries, cancellation, persistence, external effects, and deployed error
+semantics remain unmapped.
+
 ## Paper claims not implemented by the mapped modules
 
 The following are intentionally not presented as completed formalization work.

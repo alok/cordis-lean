@@ -2111,6 +2111,14 @@ framing, blocked-read interruption, backpressure, reconnects, provider-complete 
 call-ID authenticity, persistence, external effects, and deployed Harness equivalence remain
 separate work.
 
+`Cordis.DeepSeekSchemaStreamErrors` is the next explicit continuation seam. It re-runs the
+registry's dependent admission/policy path, retains a failed entry as a typed provider-failure
+certificate, converts it through the existing generic `ProviderFailedTool` append theorem, and
+requires `errorToolResults := .include` before a later request can observe the `isError` result.
+The deterministic fixture demonstrates two heterogeneous failures followed by a text terminal;
+it does not silently turn this into retry, cancellation, persistence, external execution, or
+deployed-provider semantics.
+
 `Cordis.DeepSeekHarnessCancellation` adds the corresponding pre-round control boundary: the policy
 is checked before a complete request round, and a cancellation result carries the unchanged
 runner/model endpoint and completed prefix. Keep the boundary honest: interrupting an in-flight

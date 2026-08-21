@@ -332,6 +332,36 @@ def ConversationRunner.appendRecoverableToolResults
       simpa [session, Session.Session.messages_eq_surface] using hcount
   }
 
+theorem appendRecoverableToolResultsSession_nextSeq
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (session : Session.Session Session.noExtensions)
+    (turn step baseCall assistantSeq : Nat)
+    (attempts : List (RecoverableToolAttempt cfg))
+    (assistantSeqEarlier : assistantSeq < session.nextSeq) :
+    (appendRecoverableToolResultsSession session turn step baseCall assistantSeq attempts
+      assistantSeqEarlier).nextSeq = session.nextSeq + attempts.length := by
+  induction attempts generalizing session baseCall with
+  | nil => rfl
+  | cons attempt rest inductionHypothesis =>
+      simp only [appendRecoverableToolResultsSession]
+      rw [inductionHypothesis]
+      rw [appendRecoverableToolResult_nextSeq]
+      simp [Nat.add_assoc, Nat.add_comm]
+
+theorem ConversationRunner.appendRecoverableToolResults_nextSeq
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (runner : ConversationRunner)
+    (baseCall assistantSeq : Nat)
+    (attempts : List (RecoverableToolAttempt cfg))
+    (assistantSeqEarlier : assistantSeq < runner.session.nextSeq) :
+    (ConversationRunner.appendRecoverableToolResults runner baseCall assistantSeq attempts
+      assistantSeqEarlier).session.nextSeq =
+      runner.session.nextSeq + attempts.length := by
+  exact appendRecoverableToolResultsSession_nextSeq runner.session runner.turn runner.step
+    baseCall assistantSeq attempts assistantSeqEarlier
+
 theorem ConversationRunner.appendRecoverableToolResults_session_messages
     {Model Capability : Type}
     {cfg : GenericHarness.Config Model Capability}

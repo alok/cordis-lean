@@ -222,6 +222,8 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekSchemaStreamPrefixConversation`, preserving the accepted line prefix and typed
   line-budget/cancellation stop while deferring registry dispatch until the completed `[DONE]`
   rich/session certificate;
+- `Cordis.DeepSeekSchemaStreamErrors`, preserving entry-specific provider-failure certificates,
+  converting them to opt-in `isError` results, and proving a later streamed terminal continuation;
 - `Cordis.DeepSeekHarnessErrors`, adding an explicit fail-closed/default-versus-opt-in policy seam
   for provider failures: `.include` retains typed failure evidence and appends model-visible
   `isError` tool results without changing the model state;
@@ -1097,6 +1099,13 @@ budget is a separate stop, and only completion of the strict SSE/rich/session va
 the dependent weather/clock dispatch. This remains line-oriented: byte framing, blocked-read
 interruption, backpressure, reconnects, provider-complete assembly, call-ID authenticity,
 persistence, external effects, and deployed Harness equivalence remain outside.
+
+`Cordis.DeepSeekSchemaStreamErrors` then lifts the existing fail-closed provider-error policy into
+the heterogeneous streamed registry. Each failed entry retains its dependent schema and generic
+admission/policy evidence, exact provider message, and unchanged model; the runner appends an
+opt-in `isError` tool result, and the fixture proves a subsequent text terminal when the request
+source includes error tool results. This is still a complete-body, deterministic process fixture,
+not a retry, cancellation, persistence, external-effect, or deployed-error-equivalence theorem.
 
 `Cordis.DeepSeekHarnessPersistenceIO` composes the same runner attachment with the executable
 `HarnessPersistenceIO.ReadCertificate`. A successful memory or temporary-file read retains the

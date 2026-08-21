@@ -35,6 +35,7 @@ import Cordis.DeepSeekSchemaConversation
 import Cordis.DeepSeekSchemaConversationLoop
 import Cordis.DeepSeekSchemaStreamConversation
 import Cordis.DeepSeekSchemaStreamPrefixConversation
+import Cordis.DeepSeekSchemaStreamErrors
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessErrors
@@ -2581,6 +2582,38 @@ private def testDeepSeekSchemaStreamPrefixConversation : IO Unit := do
           | .fuelExhausted _ _ => fail "prefix text terminal exhausted"
           | .cancelled _ _ _ _ _ _ => fail "prefix text terminal was cancelled"
 
+private def testDeepSeekSchemaStreamErrors : IO Unit := do
+  assertEqual "heterogeneous recoverable batch fixture accepts two provider failures"
+    DeepSeekSchemaStreamErrors.Example.dualFailureBatchAccepted true
+  match DeepSeekToolSchema.weatherToolCertificate,
+      DeepSeekSchemaRegistry.Example.clockToolCertificate with
+  | .error error, _ => fail s!"recoverable schema weather certificate failed: {reprStr error}"
+  | _, .error error => fail s!"recoverable schema clock certificate failed: {reprStr error}"
+  | .ok weatherCertificate, .ok clockCertificate =>
+      match ← DeepSeekSchemaStreamErrors.Example.dualFailureContinuationRun
+          weatherCertificate clockCertificate with
+      | .error error => fail s!"recoverable heterogeneous streamed run failed: {reprStr error}"
+      | .ok result =>
+          assertEqual "recoverable heterogeneous stream retains the failed tool round"
+            result.rounds.length 2
+          assertEqual "recoverable heterogeneous stream preserves the failed model"
+            result.finalModel 0
+          assertEqual
+            "recoverable stream appends assistant, two errors, then terminal assistant"
+            result.runner.session.nextSeq
+            (DeepSeekSchemaHarness.Example.counterRunner.session.nextSeq + 4)
+          match result.rounds with
+          | first :: _ :: [] =>
+              match first.result.batch.attempts with
+              | .providerFailed _ :: .providerFailed _ :: [] => pure ()
+              | _ => fail "recoverable stream did not retain both dependent provider failures"
+          | _ => fail "recoverable stream returned an unexpected round history"
+          match result.stop with
+          | .completed last _ =>
+              assertEqual "recoverable stream terminal response has no tool calls"
+                last.result.processed.finished.finished.view.rawToolCalls.length 0
+          | .fuelExhausted => fail "recoverable stream exhausted before its terminal continuation"
+
 private def testDeepSeekHarnessEventArchive : IO Unit := do
   match DeepSeekHarnessEventArchive.toolRestored with
   | .error error => fail s!"current event archive restoration failed: {error}"
@@ -4516,6 +4549,7 @@ def run : IO Unit := do
   testDeepSeekToolSchema
   testDeepSeekSchemaStreamConversation
   testDeepSeekSchemaStreamPrefixConversation
+  testDeepSeekSchemaStreamErrors
   testDeepSeekHarnessEventArchive
   testDeepSeekStreamHarness
   testDeepSeekStreamHarnessCancellation
