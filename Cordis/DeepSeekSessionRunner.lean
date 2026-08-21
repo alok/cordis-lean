@@ -1,13 +1,14 @@
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
+import Cordis.DeepSeekRichMixedStream
 import Cordis.DeepSeekSessionBridge
 
 /-!
 # Proof-carrying DeepSeek assistant session runner
 
 This module composes the accepted DeepSeek stream boundaries instead of treating them as isolated
-parsers. A response is accepted only as a text or one-tool rich trace, terminal extraction is
-explicit, and each append advances a typed session runner while preserving a tool-call-count
+parsers. A response is accepted only as a text, one-tool, or mixed rich trace, terminal extraction
+is explicit, and each append advances a typed session runner while preserving a tool-call-count
 invariant. Numeric IDs are allocated locally from the runner's count; provider string IDs remain
 payload data and are not authenticated or treated as globally stable identities.
 
@@ -25,6 +26,7 @@ open Cordis.RichStream
 inductive AcceptedResponse (body : String) where
   | text (validated : DeepSeekRichStream.ValidatedTextStream body)
   | tool (validated : DeepSeekRichToolStream.ValidatedToolStream body)
+  | mixed (validated : DeepSeekRichMixedStream.ValidatedMixedStream body)
 
 structure FinishedResponse (body : String) where
   source : AcceptedResponse body
@@ -35,6 +37,7 @@ structure FinishedResponse (body : String) where
 inductive ResponseError where
   | text (error : DeepSeekRichStream.TextStreamError)
   | tool (error : DeepSeekRichToolStream.ToolStreamError)
+  | mixed (error : DeepSeekRichMixedStream.MixedStreamError)
   | terminal (error : DeepSeekSessionBridge.BridgeError)
 deriving DecidableEq, Repr
 
@@ -49,6 +52,12 @@ def acceptTool (body : String) :
   match DeepSeekRichToolStream.validateToolStream body with
   | .error error => .error error
   | .ok validated => .ok (.tool validated)
+
+def acceptMixed (body : String) :
+    Except DeepSeekRichMixedStream.MixedStreamError (AcceptedResponse body) :=
+  match DeepSeekRichMixedStream.validateMixedStream body with
+  | .error error => .error error
+  | .ok validated => .ok (.mixed validated)
 
 def finishResponse {body : String} (response : AcceptedResponse body) :
     Except DeepSeekSessionBridge.BridgeError (FinishedResponse body) :=
@@ -71,6 +80,15 @@ def finishResponse {body : String} (response : AcceptedResponse body) :
           validated := validated.rich
           finished
         }
+  | .mixed validated =>
+      match DeepSeekSessionBridge.finishAssistant validated.rich with
+      | .error error => .error error
+      | .ok finished => .ok {
+          source := .mixed validated
+          raw := validated.raw
+          validated := validated.rich
+          finished
+        }
 
 def finishText (body : String) :
     Except ResponseError (FinishedResponse body) :=
@@ -85,6 +103,15 @@ def finishTool (body : String) :
     Except ResponseError (FinishedResponse body) :=
   match acceptTool body with
   | .error error => .error (.tool error)
+  | .ok response =>
+      match finishResponse response with
+      | .error error => .error (.terminal error)
+      | .ok finished => .ok finished
+
+def finishMixed (body : String) :
+    Except ResponseError (FinishedResponse body) :=
+  match acceptMixed body with
+  | .error error => .error (.mixed error)
   | .ok response =>
       match finishResponse response with
       | .error error => .error (.terminal error)
@@ -229,6 +256,17 @@ def appendTool
     (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
     Except ResponseError Runner :=
   match finishTool body with
+  | .error error => .error error
+  | .ok finished => .ok (append runner finished sourceEventSeqs sourcesNodup sourcesEarlier)
+
+def appendMixed
+    (runner : Runner)
+    (body : String)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    Except ResponseError Runner :=
+  match finishMixed body with
   | .error error => .error error
   | .ok finished => .ok (append runner finished sourceEventSeqs sourcesNodup sourcesEarlier)
 

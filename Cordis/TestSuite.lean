@@ -7,6 +7,7 @@ import Cordis.DeepSeekApi
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
+import Cordis.DeepSeekRichMixedStream
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
@@ -1078,6 +1079,31 @@ private def testDeepSeekRichToolStream : IO Unit := do
   | .error (.projection .missingToolId) => pure ()
   | _ => fail "DeepSeek rich-tool projection accepted a tool delta without an id"
 
+private def testDeepSeekRichMixedStream : IO Unit := do
+  match DeepSeekRichMixedStream.validateMixedStream
+      DeepSeekRichMixedStream.mixedStreamBody with
+  | .error error => fail s!"DeepSeek mixed rich-stream projection failed: {reprStr error}"
+  | .ok validated =>
+      assertEqual "DeepSeek mixed projection emits the expected local raw trace length"
+        validated.raw.length 14
+      match validated.rich.finish with
+      | .terminal blocks usage .toolCalls none =>
+          assertEqual "DeepSeek mixed projection assembles text, reasoning, and one tool block"
+            blocks DeepSeekRichMixedStream.mixedBlocks
+          assertEqual "DeepSeek mixed projection retains input usage"
+            usage.inputTokens 4
+          assertEqual "DeepSeek mixed projection retains output usage"
+            usage.outputTokens 8
+      | _ => fail "DeepSeek mixed projection did not reach the expected terminal state"
+      let _wireCertificate := validated.wire.parsed
+      let _projectionCertificate := validated.projection
+      let _richCertificate := validated.rich.erase_eq
+      pure ()
+  match DeepSeekRichMixedStream.projectionErrorSummary
+      DeepSeekRichMixedStream.mixedKindsBody with
+  | some .mixedKinds => pure ()
+  | result => fail s!"DeepSeek mixed projection accepted same-frame mixed kinds: {reprStr result}"
+
 private def testDeepSeekSessionBridge : IO Unit := do
   match DeepSeekRichToolStream.validateToolStream
       DeepSeekRichToolStream.exampleToolStreamBody with
@@ -1146,7 +1172,29 @@ private def testDeepSeekSessionRunner : IO Unit := do
             }]
           ]
           let _countCertificate := final.toolCallCount_eq_nextCall
-          pure ()
+          match DeepSeekSessionRunner.Runner.appendMixed final
+              DeepSeekRichMixedStream.mixedStreamBody [] (by simp) (by simp) with
+          | .error error => fail s!"DeepSeek session runner mixed append failed: {reprStr error}"
+          | .ok mixedFinal =>
+              assertEqual "DeepSeek session runner advances a mixed terminal response"
+                mixedFinal.session.nextSeq 3
+              assertEqual "DeepSeek session runner counts the mixed response tool call"
+                mixedFinal.nextCall 2
+              assertEqual "DeepSeek session runner projects mixed visible text and tool order"
+                mixedFinal.session.messages [
+                .assistant "Hello world" [],
+                .assistant "" [{
+                  id := { value := 0 }
+                  name := "lookup"
+                  arguments := "{\\\"q\\\":lean\\\"}"
+                }],
+                .assistant "Hello world" [{
+                  id := { value := 1 }
+                  name := "lookup"
+                  arguments := "{\"q\":\"lean\"}"
+                }]
+              ]
+              pure ()
 
 private def testDeepSeekApiSession : IO Unit := do
   match DeepSeekApiSession.acceptResponse "" with
@@ -2049,6 +2097,7 @@ def run : IO Unit := do
   testDeepSeekStream
   testDeepSeekRichStream
   testDeepSeekRichToolStream
+  testDeepSeekRichMixedStream
   testDeepSeekSessionBridge
   testDeepSeekSessionRunner
   testDeepSeekApiSession

@@ -513,33 +513,34 @@ the empty-to-final lease-threading certificate.
 
 ## 4. Delivered module map
 
-| Module                          | Delivered responsibility                                                                                                                                                                          |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Cordis.Api`                    | Dependent API signatures, provider identity, registries, needs, committed bindings/views, authorized calls, and call-indexed replies.                                                             |
-| `Cordis.Effect`                 | Exact and observational effects, LIFO composition, identities, associativity, accumulators, and indexed undo stacks.                                                                              |
-| `Cordis.Codec`                  | `Lean.Json` AST codecs, schemas, nested decode errors, and round-trip proofs.                                                                                                                     |
-| `Cordis.Tool`                   | Request-indexed tool contracts, invocations, certified outcomes, verified implementations, catalogs, emission classes, and decisions.                                                             |
-| `Cordis.ToolWire`               | Raw-call resolution/admission, dynamic input validation, request-dependent result codecs, and certified-result encoding.                                                                          |
-| `Cordis.Registry`               | Dependent set/install/withdraw operations, witnessed recovery, distinct-key commutation, and satisfaction witnesses.                                                                              |
-| `Cordis.Protocol`               | Indexed session events/traces, runtime validation, raw-to-typed reconstruction, replay, and well-formedness theorems.                                                                             |
-| `Cordis.Policy`                 | Duplicate-free lease pools, ID-only compatibility policy, exact-subject policy transitions/traces, and dispatch-count theorems.                                                                   |
-| `Cordis.Batch`                  | Strong independence certificates and order equivalence for exactly two heterogeneous pure calls.                                                                                                  |
-| `Cordis.Stream`                 | Bounded typed assistant text chunks, raw validation, deterministic assembly, and terminal reconstruction.                                                                                         |
-| `Cordis.Lifecycle`              | Finite synchronous component phases, committed views, undo stacks, diversion, and withdrawal guards.                                                                                              |
-| `Cordis.Examples.Counter`       | Verified counter read/increment contracts, implementations, registry, view, and postcondition theorem.                                                                                            |
-| `Cordis.Examples.CounterWire`   | Counter JSON codecs, name resolution, admission proofs, capability decisions, and raw sample calls.                                                                                               |
-| `Cordis.Harness`                | Deterministic counter runner, exact-subject `CallEvidence`, encoded results, replay-certified finite turns/steps, private atomic settlement, and joint model/lease/ID/log-boundary `RecordChain`. |
-| `Cordis.TestSuite`              | Executable effect, batch, codec, stream, registry, lifecycle, protocol, policy, admission, encoded-result, replay, joint-history, and harness checks.                                             |
-| `Cordis.NegativeTests`          | Guarded expected compiler errors for dependent reply mismatch, forbidden transitions, and forged joint-history indices.                                                                           |
-| `Cordis.AxiomAudit`             | Explicit `#print axioms` checks for headline theorems.                                                                                                                                            |
-| `Cordis.Version`                | Delivered version string.                                                                                                                                                                         |
-| `Cordis.DeepSeekApi`            | Typed OpenAI-compatible DeepSeek request/response boundary with dependent JSON certificates and explicit transport/status/API errors.                                                             |
-| `Cordis.DeepSeekStream`         | Strict in-memory DeepSeek SSE framing and typed delta decoding with retained raw-frame certificates.                                                                                              |
-| `Cordis.DeepSeekRichStream`     | Source-honest text-only SSE projection into `RichStream.ValidatedTrace`, with wire/projection/rich certificates and fail-closed semantic errors.                                                  |
-| `Cordis.DeepSeekRichToolStream` | Restricted one-tool SSE projection into rich tool-call blocks, preserving raw arguments and retaining wire/projection/rich certificates.                                                          |
-| `Cordis.DeepSeekSessionBridge`  | Terminal rich-view extraction and proof-carrying session append with caller-supplied numeric call IDs and source-event evidence.                                                                  |
-| `Cordis.DeepSeekSessionRunner`  | Pure composition of accepted text/one-tool responses into an append-only runner with exact sequence, message-order, and tool-call-count invariants.                                               |
-| `Cordis.DeepSeekApiSession`     | Fail-closed projection of decoded non-streaming DeepSeek responses into the append-only runner with singleton-choice, finish, payload, and local ID/count certificates.                           |
+| Module                           | Delivered responsibility                                                                                                                                                                          |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Cordis.Api`                     | Dependent API signatures, provider identity, registries, needs, committed bindings/views, authorized calls, and call-indexed replies.                                                             |
+| `Cordis.Effect`                  | Exact and observational effects, LIFO composition, identities, associativity, accumulators, and indexed undo stacks.                                                                              |
+| `Cordis.Codec`                   | `Lean.Json` AST codecs, schemas, nested decode errors, and round-trip proofs.                                                                                                                     |
+| `Cordis.Tool`                    | Request-indexed tool contracts, invocations, certified outcomes, verified implementations, catalogs, emission classes, and decisions.                                                             |
+| `Cordis.ToolWire`                | Raw-call resolution/admission, dynamic input validation, request-dependent result codecs, and certified-result encoding.                                                                          |
+| `Cordis.Registry`                | Dependent set/install/withdraw operations, witnessed recovery, distinct-key commutation, and satisfaction witnesses.                                                                              |
+| `Cordis.Protocol`                | Indexed session events/traces, runtime validation, raw-to-typed reconstruction, replay, and well-formedness theorems.                                                                             |
+| `Cordis.Policy`                  | Duplicate-free lease pools, ID-only compatibility policy, exact-subject policy transitions/traces, and dispatch-count theorems.                                                                   |
+| `Cordis.Batch`                   | Strong independence certificates and order equivalence for exactly two heterogeneous pure calls.                                                                                                  |
+| `Cordis.Stream`                  | Bounded typed assistant text chunks, raw validation, deterministic assembly, and terminal reconstruction.                                                                                         |
+| `Cordis.Lifecycle`               | Finite synchronous component phases, committed views, undo stacks, diversion, and withdrawal guards.                                                                                              |
+| `Cordis.Examples.Counter`        | Verified counter read/increment contracts, implementations, registry, view, and postcondition theorem.                                                                                            |
+| `Cordis.Examples.CounterWire`    | Counter JSON codecs, name resolution, admission proofs, capability decisions, and raw sample calls.                                                                                               |
+| `Cordis.Harness`                 | Deterministic counter runner, exact-subject `CallEvidence`, encoded results, replay-certified finite turns/steps, private atomic settlement, and joint model/lease/ID/log-boundary `RecordChain`. |
+| `Cordis.TestSuite`               | Executable effect, batch, codec, stream, registry, lifecycle, protocol, policy, admission, encoded-result, replay, joint-history, and harness checks.                                             |
+| `Cordis.NegativeTests`           | Guarded expected compiler errors for dependent reply mismatch, forbidden transitions, and forged joint-history indices.                                                                           |
+| `Cordis.AxiomAudit`              | Explicit `#print axioms` checks for headline theorems.                                                                                                                                            |
+| `Cordis.Version`                 | Delivered version string.                                                                                                                                                                         |
+| `Cordis.DeepSeekApi`             | Typed OpenAI-compatible DeepSeek request/response boundary with dependent JSON certificates and explicit transport/status/API errors.                                                             |
+| `Cordis.DeepSeekStream`          | Strict in-memory DeepSeek SSE framing and typed delta decoding with retained raw-frame certificates.                                                                                              |
+| `Cordis.DeepSeekRichStream`      | Source-honest text-only SSE projection into `RichStream.ValidatedTrace`, with wire/projection/rich certificates and fail-closed semantic errors.                                                  |
+| `Cordis.DeepSeekRichToolStream`  | Restricted one-tool SSE projection into rich tool-call blocks, preserving raw arguments and retaining wire/projection/rich certificates.                                                          |
+| `Cordis.DeepSeekRichMixedStream` | Composed one-choice text/reasoning/one-tool SSE projection with first-seen block indices, stateful tool metadata, exact rich-trace certificates, and same-frame mixed-kind rejection.             |
+| `Cordis.DeepSeekSessionBridge`   | Terminal rich-view extraction and proof-carrying session append with caller-supplied numeric call IDs and source-event evidence.                                                                  |
+| `Cordis.DeepSeekSessionRunner`   | Pure composition of accepted text/one-tool/mixed responses into an append-only runner with exact sequence, message-order, and tool-call-count invariants.                                         |
+| `Cordis.DeepSeekApiSession`      | Fail-closed projection of decoded non-streaming DeepSeek responses into the append-only runner with singleton-choice, finish, payload, and local ID/count certificates.                           |
 
 The public library umbrella is `Cordis.lean`. `Main.lean` is the
 `cordis_demo` entry point, and `Tests.lean` is the `cordis_tests` entry point.
@@ -688,9 +689,11 @@ claim:
    non-streaming OpenAI-compatible DeepSeek subset. The remaining work is the
    HTTP implementation, credential injection, real tool processes, persistence,
    and explicit per-adapter trust declarations; `Cordis.DeepSeekStream` covers
-   strict in-memory SSE text/UTF-8 framing and `Cordis.DeepSeekRichStream`
-   projects only a one-choice assistant-text subset into `RichStream`, while
-   `Cordis.DeepSeekRichToolStream` separately covers one indexed function call.
+   strict in-memory SSE text/UTF-8 framing. `Cordis.DeepSeekRichStream` covers
+   one-choice assistant text, `Cordis.DeepSeekRichToolStream` separately covers
+   one indexed function call, and `Cordis.DeepSeekRichMixedStream` composes one
+   choice that interleaves text, reasoning, and one indexed function call across
+   frames while rejecting same-frame mixed kinds.
    `Cordis.DeepSeekSessionBridge` is the final local seam for a certified
    terminal rich view: it appends an assistant payload only with explicit
    numeric call-ID assignment and source-event proofs supplied by the caller.
@@ -703,9 +706,11 @@ claim:
 1. **Production streaming.** Extend the bounded text model with transport,
    backpressure, cancellation, tool-call payload assembly, provider-complete
    parser state, and a live HTTP reader; the current `DeepSeekStream` module is
-   only the strict in-memory `data:` / `[DONE]` boundary and the rich projection
-   deliberately rejects reasoning/tool/extra-choice cases rather than modeling
-   the deployed assembler.
+   only the strict in-memory `data:` / `[DONE]` boundary. The rich projections
+   cover text-only, one-tool, and one-choice mixed text/reasoning/one-tool
+   subsets, but still reject extra choices/calls, unsupported provider finishes,
+   replay metadata, and deployed assembler behavior rather than claiming the
+   production stream protocol.
 1. **Production policy guarantees.** Add durable lease storage, atomic
    consumption, multi-process exclusion, retries, and crash recovery before
    claiming global exactly-once behavior.

@@ -112,6 +112,11 @@ Current machine-checked evidence includes:
 - `Cordis.GlobalTraceRewrite`, locating exact adjacent windows inside intrinsic dependent traces,
   assigning fixed programs to actual activation occurrences, and splicing assignment-preserving
   activation/activation or corrected activation/orchestration swaps into retained trace context;
+- `Cordis.DeepSeekRichMixedStream`, projecting a single strict SSE choice that interleaves text,
+  reasoning, and one indexed tool call across frames into an exact rich trace, while rejecting
+  same-frame mixed fields and retaining explicit wire/projection/intrinsic certificates;
+- `Cordis.DeepSeekSessionRunner`, composing accepted text, one-tool, and mixed terminal traces
+  into the pure append-only local session surface with exact sequence and tool-count invariants;
 - `Cordis.GlobalDeletion`, constructing intrinsic relation-indexed keep/drop replays and exact
   assignment-carrying safe orchestration suffixes after finite families of already-vestigial
   entries, while kernel-separating parent, redraw, and allocator obstructions to full Lemma 72;
@@ -740,6 +745,14 @@ the intrinsic trace witness. Opaque replay state, image/tool-result blocks, upst
 `LlmFailure` error/abort shapes, unsafe integers, and malformed fields fail closed. This is a
 sound supported-subset refinement; it is not a completeness or behavioral-equivalence theorem
 for the TypeScript `BlockAssembler`.
+
+`Cordis.DeepSeekRichMixedStream` is a separate provider-wire projection, not an extension of
+`RuntimeRefinement`'s current-Harness JSON-AST decoder. It accepts one choice and at most one
+indexed tool call, interleaving text, reasoning, and tool fragments across distinct frames;
+same-frame mixed fields, multiple choices/calls, unsupported finishes, replay metadata, and live
+transport remain explicit rejection or nonclaim boundaries. `DeepSeekSessionRunner` now accepts
+this mixed certificate alongside the text-only and one-tool certificates, but remains a pure
+local append surface rather than a deployed Harness session equivalence.
 
 `Cordis.SessionRefinement` covers a separate stateful subset of current `SessionEvent` JSON:
 turn/step boundaries, selected request/header snapshots, route context, whole-list todo snapshots,
