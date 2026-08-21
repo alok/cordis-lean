@@ -1,4 +1,5 @@
 import Cordis.DeepSeekApi
+import Cordis.DeepSeekRequestMode
 import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekCurlTransport
 import Cordis.GenericHarness
@@ -134,6 +135,15 @@ def buildRequestPlan
   let request ← buildChatRequest source session
   .ok (buildRequest baseUrl apiKey request)
 
+def buildTypedCompleteRequestPlan
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (source : RequestSource)
+    (session : Session.Session Session.noExtensions) :
+    Except RequestError (TypedRequestPlan .complete) := do
+  let request ← buildChatRequest source session
+  .ok (buildTypedCompleteRequest baseUrl apiKey request)
+
 /-- Build a request plan for a streamed round, retaining the exact `stream: true` source flag. -/
 def buildStreamingRequestPlan
     (baseUrl : String)
@@ -143,6 +153,25 @@ def buildStreamingRequestPlan
     Except RequestError RequestPlan := do
   let request ← buildChatRequest source session
   .ok (buildStreamingRequest baseUrl apiKey request)
+
+def buildTypedStreamingRequestPlan
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (source : RequestSource)
+    (session : Session.Session Session.noExtensions) :
+    Except RequestError (TypedRequestPlan .streaming) := do
+  let request ← buildChatRequest source session
+  .ok (buildTypedStreamingRequest baseUrl apiKey request)
+
+theorem buildTypedStreamingRequestPlan_source_stream
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (source : RequestSource)
+    (session : Session.Session Session.noExtensions)
+    {plan : TypedRequestPlan .streaming}
+    (_plan_eq : buildTypedStreamingRequestPlan baseUrl apiKey source session = .ok plan) :
+    plan.source.stream = true := by
+  exact plan.streaming_source_stream
 
 theorem buildStreamingRequestPlan_source_stream
     (baseUrl : String)
@@ -784,10 +813,10 @@ def executeConversationRound
     (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
     IO (Except ConversationError
       (Sigma fun body : String => ConversationRoundResult cfg before body)) := do
-  match buildRequestPlan baseUrl apiKey source runner.session with
+  match buildTypedCompleteRequestPlan baseUrl apiKey source runner.session with
   | .error error => pure (.error (.request error))
   | .ok plan =>
-      match ← DeepSeekApi.execute transport plan with
+      match ← DeepSeekApi.executeComplete transport plan with
       | .error error => pure (.error (.client error))
       | .ok ⟨body, _validated⟩ =>
           match acceptResponse body with

@@ -260,10 +260,10 @@ def executeConversationStreamRound
     (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
     IO (Except StreamConversationError
       (Sigma fun body : String => StreamConversationRoundResult cfg before body)) := do
-  match buildStreamingRequestPlan baseUrl apiKey source runner.session with
+  match buildTypedStreamingRequestPlan baseUrl apiKey source runner.session with
   | .error error => pure (.error (.request error))
   | .ok plan =>
-      match ← DeepSeekCurlSession.executeWith finish config plan.request with
+      match ← DeepSeekCurlSession.executeTypedStreamingWith finish config plan with
       | .error error => pure (.error (.client error))
       | .ok ⟨body, processed⟩ =>
           let assistantSeq := runner.session.nextSeq

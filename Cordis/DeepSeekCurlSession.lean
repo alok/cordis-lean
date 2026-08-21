@@ -1,4 +1,5 @@
 import Cordis.DeepSeekCurlStream
+import Cordis.DeepSeekRequestMode
 import Cordis.DeepSeekSessionRunner
 
 /-!
@@ -45,6 +46,15 @@ def executeWith
       match finish body with
       | .error error => pure (.error (.response error))
       | .ok finished => pure (.ok ⟨body, { wire, finished }⟩)
+
+def executeTypedStreamingWith
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body))
+    (config : ProcessConfig)
+    (plan : TypedRequestPlan .streaming) :
+    IO (Except SessionClientError
+      (Sigma fun body : String => ProcessedResponse body)) :=
+  executeWith finish config plan.request
 
 def executeText (config : ProcessConfig) (request : HttpRequest) :=
   executeWith finishText config request

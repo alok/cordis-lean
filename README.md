@@ -63,6 +63,9 @@ non-streaming default while `buildStreamingRequest` and its body certificate
 construct the explicit `stream: true` variant. Its transport is an explicit
 `IO` seam; the repository tests deterministic pure and process-backed fixtures,
 not credentials or a live model call.
+`Cordis.DeepSeekRequestMode` adds the type-indexed `TypedRequestPlan`: complete
+and streaming plans carry a proof tying the request's serialized `stream` flag
+to their mode, and the terminal execution wrapper accepts only a complete plan.
 `Cordis.DeepSeekCurlTransport` supplies the first process-backed adapter:
 configured executables (normally `curl`) receive the request body on stdin,
 the URL and headers as direct arguments, and return a typed HTTP status/body
@@ -876,6 +879,7 @@ placeholders.
 | `Cordis.HarnessPersistenceBytes`                    | Pure `ByteArray` UTF-8/JSONL ingress retaining source bytes, decoded text, parsed rows, packed expansion, and the final Session/Protocol projection; positive and rejection fixtures run at the executable boundary.                                                                                                     |
 | `Cordis.HarnessPersistenceIO`                       | Executable UTF-8 byte/text adapter over memory and filesystem backends: exact read certificates, canonical replacement, validated append-only rows, and structured invalid-encoding/semantic failures; host acknowledgements are not durability proofs.                                                                  |
 | `Cordis.DeepSeekApi`                                | Typed OpenAI-compatible DeepSeek chat request construction, fail-closed response decoding, dependent parse/decode certificates, and an explicit transport/status/API-error boundary.                                                                                                                                     |
+| `Cordis.DeepSeekRequestMode`                        | Type-indexed complete/streaming request plans with a proof tying the serialized `stream` flag to the mode; terminal execution accepts only the complete certificate.                                                                                                                                                     |
 | `Cordis.DeepSeekStream`                             | Strict UTF-8/SSE framing, typed delta decoding, retained raw data-frame certificates, and explicit terminal/error boundaries.                                                                                                                                                                                            |
 | `Cordis.DeepSeekCurlStream`                         | Complete-body process-backed SSE validation with typed process/status/stream errors and a deterministic `sh` fixture; incremental reader semantics remain external.                                                                                                                                                      |
 | `Cordis.DeepSeekCurlSession`                        | Complete-body process-backed SSE composition into accepted rich/session terminal values, retaining the wire certificate and runner append invariants; live/deployed session semantics remain external.                                                                                                                   |

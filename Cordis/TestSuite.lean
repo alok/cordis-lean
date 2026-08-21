@@ -1736,6 +1736,24 @@ private def testDeepSeekHarness : IO Unit := do
         request.model "deterministic-counter"
       assertEqual "DeepSeek harness request prepends its explicit system message"
         request.messages.head (.system "Use the supplied proof-carrying counter tool.")
+  match DeepSeekHarness.buildTypedCompleteRequestPlan "https://fixture.invalid"
+      { value := "fixture-key" } DeepSeekHarness.counterRequestSource
+      DeepSeekHarness.counterSession with
+  | .error error => fail s!"DeepSeek typed complete request construction failed: {reprStr error}"
+  | .ok plan =>
+      assertEqual "DeepSeek typed complete request disables the provider stream flag"
+        plan.source.stream false
+      let _bodyCertificate := plan.body_eq
+      let _modeCertificate := plan.complete_source_stream
+  match DeepSeekHarness.buildTypedStreamingRequestPlan "https://fixture.invalid"
+      { value := "fixture-key" } DeepSeekHarness.counterRequestSource
+      DeepSeekHarness.counterSession with
+  | .error error => fail s!"DeepSeek typed streaming request construction failed: {reprStr error}"
+  | .ok plan =>
+      assertEqual "DeepSeek typed streaming request enables the provider stream flag"
+        plan.source.stream true
+      let _bodyCertificate := plan.body_eq
+      let _modeCertificate := plan.streaming_source_stream
   match DeepSeekHarness.buildStreamingRequestPlan "https://fixture.invalid"
       { value := "fixture-key" } DeepSeekHarness.counterRequestSource
       DeepSeekHarness.counterSession with

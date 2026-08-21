@@ -202,10 +202,10 @@ def executeConversationRoundRetry
     (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
     IO (Except (RetryConversationError policy)
       (Sigma fun body : String => RetriedConversationRoundResult policy cfg before body)) := do
-  match buildRequestPlan baseUrl apiKey source runner.session with
+  match buildTypedCompleteRequestPlan baseUrl apiKey source runner.session with
   | .error error => pure (.error (.request error))
   | .ok plan =>
-      match ← executeWithRetry policy transport plan with
+      match ← executeWithRetry policy transport plan.requestPlan with
       | .failed history error => pure (.error (.client history error))
       | .succeeded history ⟨body, _validated⟩ =>
           match acceptResponse body with

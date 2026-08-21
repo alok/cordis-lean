@@ -130,6 +130,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekRichMultiStream`, projecting one strict SSE choice with any finite list of
   indexed function calls, first-seen contiguous local block indices, per-call metadata and raw
   argument accumulation, exact block closure, and typed negative witnesses;
+- `Cordis.DeepSeekRequestMode`, indexing complete versus streaming request plans by a proof that
+  the serialized `stream` flag matches the mode and restricting terminal execution to complete
+  plans;
 - `Cordis.DeepSeekCurlTransport`, exercising a process-backed request/response adapter with
   stdin body delivery, direct executable arguments, explicit status-trailer parsing, typed
   process failures, and a deterministic `sh` fixture;

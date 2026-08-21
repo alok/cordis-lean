@@ -376,10 +376,10 @@ def executeConversationRoundRecoverable
     (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
     IO (Except ConversationError
       (Sigma fun body : String => RecoverableConversationRoundResult cfg before body)) := do
-  match buildRequestPlan baseUrl apiKey source runner.session with
+  match buildTypedCompleteRequestPlan baseUrl apiKey source runner.session with
   | .error error => pure (.error (.request error))
   | .ok plan =>
-      match ← DeepSeekApi.execute transport plan with
+      match ← DeepSeekApi.executeComplete transport plan with
       | .error error => pure (.error (.client error))
       | .ok ⟨body, _validated⟩ =>
           match acceptResponse body with

@@ -1874,6 +1874,12 @@ and parses a private status trailer; its deterministic `sh` fixture exercises
 the real process boundary. Keep it explicit in tests: do not present it as
 live HTTP, credential validation, executable trust, or complete provider/schema
 compatibility.
+`Cordis.DeepSeekRequestMode` is the type-indexed refinement at this seam:
+`TypedRequestPlan .complete` and `TypedRequestPlan .streaming` retain an equality
+for the serialized `stream` flag, so terminal execution cannot consume the
+streaming index. The raw `RequestPlan` remains available as a compatibility
+surface, while complete, recoverable, and retry Harness round paths use the
+typed complete builder internally.
 `Cordis.DeepSeekCurlStream` composes the same process boundary with complete-body strict SSE
 validation. It preserves process, HTTP-status, framing, and stream errors before exposing any
 frames, while leaving incremental reads, buffering/backpressure, cancellation, reconnects, and

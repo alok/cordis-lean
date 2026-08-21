@@ -4,6 +4,7 @@ import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.DeepSeekApi
+import Cordis.DeepSeekRequestMode
 import Cordis.DeepSeekCurlTransport
 import Cordis.DeepSeekCurlStream
 import Cordis.DeepSeekCurlSession
@@ -459,6 +460,11 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekApi.buildStreamingRequest
 #print axioms Cordis.DeepSeekApi.buildStreamingRequest_body_eq
 #print axioms Cordis.DeepSeekApi.buildStreamingRequest_source_stream
+#print axioms Cordis.DeepSeekApi.RequestMode.streamFlag
+#print axioms Cordis.DeepSeekApi.TypedRequestPlan.source_stream
+#print axioms Cordis.DeepSeekApi.buildTypedCompleteRequest
+#print axioms Cordis.DeepSeekApi.buildTypedStreamingRequest
+#print axioms Cordis.DeepSeekApi.executeComplete
 #print axioms Cordis.DeepSeekApi.decodeResponseJson
 #print axioms Cordis.DeepSeekApi.validateResponse
 #print axioms Cordis.DeepSeekApi.execute
@@ -513,6 +519,9 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekApiSession.Runner.appendApi
 #print axioms Cordis.DeepSeekApiSession.Runner.appendApi_session_messages
 #print axioms Cordis.DeepSeekHarness.buildChatRequest
+#print axioms Cordis.DeepSeekHarness.buildTypedCompleteRequestPlan
+#print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan
+#print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan_source_stream
 #print axioms Cordis.DeepSeekHarness.buildStreamingRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildStreamingRequestPlan_source_stream
 #print axioms Cordis.DeepSeekHarness.executeFunctionCall
