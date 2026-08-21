@@ -533,6 +533,9 @@ the empty-to-final lease-threading certificate.
 | `Cordis.NegativeTests`        | Guarded expected compiler errors for dependent reply mismatch, forbidden transitions, and forged joint-history indices.                                                                           |
 | `Cordis.AxiomAudit`           | Explicit `#print axioms` checks for headline theorems.                                                                                                                                            |
 | `Cordis.Version`              | Delivered version string.                                                                                                                                                                         |
+| `Cordis.DeepSeekApi`          | Typed OpenAI-compatible DeepSeek request/response boundary with dependent JSON certificates and explicit transport/status/API errors.                                                             |
+| `Cordis.DeepSeekStream`       | Strict in-memory DeepSeek SSE framing and typed delta decoding with retained raw-frame certificates.                                                                                              |
+| `Cordis.DeepSeekRichStream`   | Source-honest text-only SSE projection into `RichStream.ValidatedTrace`, with wire/projection/rich certificates and fail-closed semantic errors.                                                  |
 
 The public library umbrella is `Cordis.lean`. `Main.lean` is the
 `cordis_demo` entry point, and `Tests.lean` is the `cordis_tests` entry point.
@@ -681,11 +684,14 @@ claim:
    non-streaming OpenAI-compatible DeepSeek subset. The remaining work is the
    HTTP implementation, credential injection, real tool processes, persistence,
    and explicit per-adapter trust declarations; `Cordis.DeepSeekStream` covers
-   only strict in-memory SSE text/UTF-8 framing and a typed delta subset.
+   strict in-memory SSE text/UTF-8 framing and `Cordis.DeepSeekRichStream`
+   projects only a one-choice assistant-text subset into `RichStream`.
 1. **Production streaming.** Extend the bounded text model with transport,
    backpressure, cancellation, tool-call payload assembly, provider-complete
    parser state, and a live HTTP reader; the current `DeepSeekStream` module is
-   only the strict in-memory `data:` / `[DONE]` boundary.
+   only the strict in-memory `data:` / `[DONE]` boundary and the rich projection
+   deliberately rejects reasoning/tool/extra-choice cases rather than modeling
+   the deployed assembler.
 1. **Production policy guarantees.** Add durable lease storage, atomic
    consumption, multi-process exclusion, retries, and crash recovery before
    claiming global exactly-once behavior.

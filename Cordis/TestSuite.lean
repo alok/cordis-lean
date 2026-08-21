@@ -5,6 +5,7 @@ import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.DeepSeekApi
 import Cordis.DeepSeekStream
+import Cordis.DeepSeekRichStream
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -917,6 +918,52 @@ private def testDeepSeekStream : IO Unit := do
   | .error .invalidUtf8 => pure ()
   | _ => fail "invalid UTF-8 DeepSeek SSE input was accepted"
 
+private def testDeepSeekRichStream : IO Unit := do
+  match DeepSeekRichStream.validateTextStream DeepSeekRichStream.exampleTextStreamBody with
+  | .error error => fail s!"DeepSeek rich-stream projection failed: {reprStr error}"
+  | .ok validated =>
+      assertEqual "DeepSeek text projection emits the expected local raw trace length"
+        validated.raw.length 6
+      match validated.rich.finish with
+      | .terminal blocks usage .stop none =>
+          assertEqual "DeepSeek text projection assembles one exact text block"
+            blocks [.text "Hello world"]
+          assertEqual "DeepSeek text projection retains input usage"
+            usage.inputTokens 3
+          assertEqual "DeepSeek text projection retains output usage"
+            usage.outputTokens 2
+      | _ => fail "DeepSeek text projection did not reach the expected terminal state"
+      let _wireCertificate := validated.wire.parsed
+      let _projectionCertificate := validated.projection
+      let _richCertificate := validated.rich.erase_eq
+      pure ()
+  let unsupportedToolJson : Lean.Json := .mkObj [
+    ("id", .str "tool-stream-example"),
+    ("model", .str "deepseek-reasoner"),
+    ("choices", .arr #[.mkObj [
+      ("index", .num (Lean.JsonNumber.fromNat 0)),
+      ("delta", .mkObj [("tool_calls", .arr #[.mkObj [
+        ("index", .num (Lean.JsonNumber.fromNat 0)),
+        ("type", .str "function"),
+        ("function", .mkObj [
+          ("name", .str "lookup"),
+          ("arguments", .str "{\\\"q\\\":")
+        ])
+      ]])]),
+      ("finish_reason", .null)
+    ]])
+  ]
+  let unsupportedToolBody :=
+    "data: " ++ Lean.Json.compress unsupportedToolJson ++ "\n\ndata: [DONE]\n\n"
+  match DeepSeekRichStream.validateTextStream unsupportedToolBody with
+  | .error (.projection .toolCallsUnsupported) => pure ()
+  | _ => fail "DeepSeek rich-stream projection accepted unsupported tool-call deltas"
+  let incompleteBody :=
+    "data: " ++ Lean.Json.compress DeepSeekStream.exampleChunkJson ++ "\n\ndata: [DONE]\n\n"
+  match DeepSeekRichStream.validateTextStream incompleteBody with
+  | .error (.projection .missingFinish) => pure ()
+  | _ => fail "DeepSeek rich-stream projection accepted a stream without finish"
+
 private def testQuotientEffects : IO Unit := do
   let applied := Observational.Quotient.Example.program.run
     Observational.Quotient.Example.initial
@@ -1638,6 +1685,7 @@ def run : IO Unit := do
   testTextRefinement
   testDeepSeekApi
   testDeepSeekStream
+  testDeepSeekRichStream
   testQuotientEffects
   testCoeffectQuotientLift
   testOperationalEquivalence

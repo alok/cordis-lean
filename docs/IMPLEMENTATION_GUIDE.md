@@ -1810,6 +1810,12 @@ provider/schema compatibility.
 parse/decode certificates, and explicit invalid-UTF-8/JSON/terminal errors.
 It is not a live reader or a stream assembler; buffering, cancellation,
 backpressure, provider-complete chunk coverage, and HTTP remain external.
+`Cordis.DeepSeekRichStream` then composes the accepted wire certificate with
+`RichStream` for one source-honest semantic subset: one assistant choice at
+index zero, text-only deltas, terminal usage, and stop/max-token finish. The
+validated value retains wire, projection, and intrinsic rich-trace certificates;
+reasoning, tool calls, extra choices, unsupported finishes, and missing terminal
+fields fail closed rather than being silently normalized.
 Continue by defining translations for additional pinned Harness events and tool
 definitions and proving only the invariants actually shared by the two
 representations. Expect to model more payloads, surface semantics, session
