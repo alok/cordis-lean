@@ -563,7 +563,8 @@ theorem appendAcceptedApi_session_messages
     (sourceEventSeqs : List Nat)
     (sourcesNodup : sourceEventSeqs.Nodup)
     (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
-    (appendAcceptedApi runner accepted sourceEventSeqs sourcesNodup sourcesEarlier).session.messages =
+    (appendAcceptedApi runner accepted sourceEventSeqs sourcesNodup
+      sourcesEarlier).session.messages =
       runner.session.messages ++ [.assistant (view accepted).content
         (StreamSession.toSessionToolCalls (view accepted)
           (sequentialAssignment runner.nextCall (view accepted)))] := by
@@ -586,6 +587,18 @@ theorem appendAcceptedApi_nextCall
         accepted.validated.response.choices.head.message.toolCalls.length := by
   change runner.nextCall + (view accepted).rawToolCalls.length = _
   rw [view_rawToolCalls_length]
+
+theorem appendAcceptedApi_nextSeq
+    (runner : ConversationRunner)
+    {body : String}
+    (accepted : AcceptedApiResponse body)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    (appendAcceptedApi runner accepted sourceEventSeqs sourcesNodup
+      sourcesEarlier).session.nextSeq =
+      runner.session.nextSeq + 1 := by
+  rfl
 
 def afterRound
     {Model Capability : Type}
@@ -627,7 +640,129 @@ theorem afterRound_session_messages
       round.runner.session.messages ++ executedToolMessages round.callBase round.executions := by
   exact appendRoundToolResults_messages round
 
+def appendToolResults
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (runner : ConversationRunner)
+    (baseCall assistantSeq : Nat)
+    (executions : List (ExecutedTool cfg))
+    (assistantSeqEarlier : assistantSeq < runner.session.nextSeq) :
+    ConversationRunner :=
+  let session := appendExecutedToolResults runner.session runner.turn runner.step
+    baseCall assistantSeq executions assistantSeqEarlier
+  {
+    session := session
+    turn := runner.turn
+    step := runner.step
+    nextCall := runner.nextCall
+    toolCallCount_eq_nextCall := by
+      have hcount :
+          toolCallCount
+              (appendExecutedToolResults runner.session runner.turn runner.step baseCall
+                assistantSeq executions assistantSeqEarlier).messages = runner.nextCall := by
+        calc
+          toolCallCount
+              (appendExecutedToolResults runner.session runner.turn runner.step baseCall
+                assistantSeq executions assistantSeqEarlier).messages =
+              toolCallCount (runner.session.messages ++ executedToolMessages baseCall executions) :=
+            congrArg toolCallCount (appendExecutedToolResults_messages runner.session runner.turn
+              runner.step baseCall assistantSeq executions assistantSeqEarlier)
+          _ = runner.nextCall := by
+            rw [toolCallCount_append]
+            rw [executedToolMessages_toolCallCount]
+            change toolCallCount runner.session.messages = runner.nextCall
+            exact runner.toolCallCount_eq_nextCall
+      simpa [session, Session.Session.messages_eq_surface] using hcount
+  }
+
+theorem appendToolResults_session_messages
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (runner : ConversationRunner)
+    (baseCall assistantSeq : Nat)
+    (executions : List (ExecutedTool cfg))
+    (assistantSeqEarlier : assistantSeq < runner.session.nextSeq) :
+    (appendToolResults runner baseCall assistantSeq executions
+      assistantSeqEarlier).session.messages =
+      runner.session.messages ++ executedToolMessages baseCall executions := by
+  exact appendExecutedToolResults_messages runner.session runner.turn runner.step baseCall
+    assistantSeq executions assistantSeqEarlier
+
 end ConversationRunner
+
+/-! ## Transport-backed conversation continuation -/
+
+inductive ConversationError where
+  | request (error : RequestError)
+  | client (error : ClientError)
+  | response (error : ApiSessionError)
+  | tool (error : ToolRoundError)
+deriving DecidableEq, Repr
+
+structure ConversationRoundResult
+    {Model Capability : Type}
+    (cfg : GenericHarness.Config Model Capability)
+    (before : Model)
+    (body : String) where
+  accepted : AcceptedApiResponse body
+  assistantRunner : ConversationRunner
+  runner : ConversationRunner
+  finalModel : Model
+  executions : List (ExecutedTool cfg)
+  executions_eq :
+    executeFunctionCalls cfg before
+        accepted.validated.response.choices.head.message.toolCalls =
+      .ok (finalModel, executions)
+  assistantSeq : Nat
+  assistantSeq_eq : assistantSeq + 1 = assistantRunner.session.nextSeq
+
+def executeConversationRound
+    {Model Capability : Type}
+    (transport : Transport)
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (source : RequestSource)
+    (cfg : GenericHarness.Config Model Capability)
+    (before : Model)
+    (runner : ConversationRunner)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    IO (Except ConversationError
+      (Sigma fun body : String => ConversationRoundResult cfg before body)) := do
+  match buildRequestPlan baseUrl apiKey source runner.session with
+  | .error error => pure (.error (.request error))
+  | .ok plan =>
+      match ← DeepSeekApi.execute transport plan with
+      | .error error => pure (.error (.client error))
+      | .ok ⟨body, _validated⟩ =>
+          match acceptResponse body with
+          | .error error => pure (.error (.response error))
+          | .ok accepted =>
+              let assistantSeq := runner.session.nextSeq
+              let assistantRunner := ConversationRunner.appendAcceptedApi runner accepted
+                sourceEventSeqs sourcesNodup sourcesEarlier
+              have assistantSeqEarlier : assistantSeq < assistantRunner.session.nextSeq := by
+                rw [ConversationRunner.appendAcceptedApi_nextSeq]
+                exact Nat.lt_succ_self _
+              match executionEq : executeFunctionCalls cfg before
+                  accepted.validated.response.choices.head.message.toolCalls with
+              | .error error => pure (.error (.tool error))
+              | .ok (finalModel, executions) =>
+                  let finalRunner := ConversationRunner.appendToolResults assistantRunner
+                    runner.nextCall assistantSeq executions assistantSeqEarlier
+                  pure (.ok ⟨body, {
+                    accepted
+                    assistantRunner
+                    runner := finalRunner
+                    finalModel
+                    executions
+                    executions_eq := executionEq
+                    assistantSeq
+                    assistantSeq_eq := by
+                      change runner.session.nextSeq + 1 = assistantRunner.session.nextSeq
+                      rw [ConversationRunner.appendAcceptedApi_nextSeq]
+                  }⟩)
 
 /-! ## Deterministic executable fixture -/
 
@@ -661,6 +796,22 @@ def counterResponseJson : Lean.Json := .mkObj [
 ]
 
 def counterResponseBody : String := Lean.Json.compress counterResponseJson
+
+def counterFinalResponseJson : Lean.Json := .mkObj [
+  ("id", .str "chatcmpl-counter-final"),
+  ("model", .str "deterministic-counter"),
+  ("choices", .arr #[.mkObj [
+    ("index", .num (Lean.JsonNumber.fromNat 0)),
+    ("finish_reason", .str "stop"),
+    ("message", .mkObj [
+      ("role", .str "assistant"),
+      ("content", .str "The counter is 0."),
+      ("tool_calls", .arr #[])
+    ])
+  ]])
+]
+
+def counterFinalResponseBody : String := Lean.Json.compress counterFinalResponseJson
 
 def counterSession : Session.Session Session.noExtensions :=
   (Session.Session.empty Session.noExtensions).appendSurface .userMessage

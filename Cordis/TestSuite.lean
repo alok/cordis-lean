@@ -1469,6 +1469,73 @@ private def testDeepSeekHarness : IO Unit := do
           pure ()
       | executions => fail s!"DeepSeek harness returned {executions.length} tool executions"
 
+  let requestBodies ← IO.mkRef ([] : List String)
+  let transport : Cordis.DeepSeekApi.Transport := {
+    send := fun request => do
+      requestBodies.modify (fun bodies => request.body :: bodies)
+      let index ← requestBodies.get
+      pure (.ok {
+        status := 200
+        body := if index.length = 1 then DeepSeekHarness.counterResponseBody
+          else DeepSeekHarness.counterFinalResponseBody
+      })
+  }
+  let initialRunner : DeepSeekHarness.ConversationRunner := {
+    session := DeepSeekHarness.counterSession
+    turn := 1
+    step := 0
+    nextCall := 0
+    toolCallCount_eq_nextCall := by rfl
+  }
+  match ← DeepSeekHarness.executeConversationRound transport "https://fixture.invalid"
+      { value := "fixture-key" } DeepSeekHarness.counterRequestSource
+      Cordis.Harness.counterConfig 0 initialRunner [] (by simp) (by simp) with
+  | .error error => fail s!"first continuation round failed: {reprStr error}"
+  | .ok ⟨firstBody, first⟩ =>
+      assertEqual "conversation runner preserves the first response body"
+        firstBody DeepSeekHarness.counterResponseBody
+      assertEqual "conversation runner appends the assistant tool call before results"
+        first.assistantRunner.session.messages [
+          .user "Read the counter.",
+          .assistant "I will read the counter." [{
+            id := { value := 0 }, name := "counter_read", arguments := "null"
+          }]
+        ]
+      assertEqual "conversation runner appends the typed result before the next request"
+        first.runner.session.messages [
+          .user "Read the counter.",
+          .assistant "I will read the counter." [{
+            id := { value := 0 }, name := "counter_read", arguments := "null"
+          }],
+          .toolResult { value := 0 } "[true,0]" false
+        ]
+      assertEqual "conversation runner carries the tool successor into the next round"
+        first.finalModel 0
+      match ← DeepSeekHarness.executeConversationRound transport "https://fixture.invalid"
+          { value := "fixture-key" } DeepSeekHarness.counterRequestSource
+          Cordis.Harness.counterConfig first.finalModel first.runner [] (by simp) (by simp) with
+      | .error error => fail s!"second continuation round failed: {reprStr error}"
+      | .ok ⟨secondBody, second⟩ =>
+          assertEqual "conversation runner accepts the second assistant response"
+            secondBody DeepSeekHarness.counterFinalResponseBody
+          assertEqual "conversation runner executes the two-response tool loop"
+            second.runner.session.messages [
+              .user "Read the counter.",
+              .assistant "I will read the counter." [{
+                id := { value := 0 }, name := "counter_read", arguments := "null"
+              }],
+              .toolResult { value := 0 } "[true,0]" false,
+              .assistant "The counter is 0." []
+            ]
+          assertEqual "conversation runner advances through both assistant responses"
+            second.runner.session.nextSeq 4
+          let requestBodiesSnapshot ← requestBodies.get
+          assertEqual "conversation runner makes exactly two transport requests"
+            requestBodiesSnapshot.length 2
+          match second.executions with
+          | [] => pure ()
+          | executions => fail s!"second continuation round executed {executions.length} tools"
+
 private def testQuotientEffects : IO Unit := do
   let applied := Observational.Quotient.Example.program.run
     Observational.Quotient.Example.initial

@@ -124,6 +124,9 @@ assistant response, and routes each returned function call through generic depen
 policy, and provider execution. Typed replies and failure classes are retained, and
 `appendRoundToolResults` encodes successful or failed typed outcomes back into the canonical
 session with exact local IDs, source-sequence references, message order, and protocol projection.
+`ConversationRunner` carries the resulting session into a subsequent request, and
+`executeConversationRound` composes request construction, transport, response acceptance, typed
+tool execution, and result append; the test suite exercises a deterministic two-response loop.
 Persistence, credentials, scheduling, and deployed-Harness equivalence remain outside.
 
 The next paper layer is explicit rather than assumed. `Cordis.OperationalEquivalence` models
