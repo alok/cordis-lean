@@ -34,6 +34,11 @@ retains the first typed prefix/session result while requesting cancellation of t
 two-process fixture and pure terminal-phase facts are included. The underlying synchronous line
 read is not made interruptible, so blocked-read cancellation, fairness, arbitrary cleanup, and
 deployed asynchronous Harness equivalence remain external.
+`Cordis.DeepSeekAsyncStreamHarness` lifts the race over the complete-body streamed Harness
+continuation. Each child can execute a dependent tool-call round and a later text terminal under
+explicit fuel, and the winning typed result retains tool executions, round witnesses, final model,
+and runner endpoint. Synchronous reads, fairness, arbitrary cleanup, and deployed asynchronous
+equivalence remain external.
 
 The slice closes two concrete gaps in the original objective:
 
@@ -197,6 +202,10 @@ Current machine-checked evidence includes:
   `ContextAsync` children and retaining the first typed result plus terminal-phase bridge; the
   fixture is executable, while blocked-read interruption, fairness, cleanup, and deployed async
   semantics remain external;
+- `Cordis.DeepSeekAsyncStreamHarness`, racing two complete-body streamed Harness continuations in
+  cooperative `ContextAsync` children and retaining the winner's dependent tool executions, round
+  witnesses, final model, and runner; synchronous reads, fairness, cleanup, and deployed async
+  semantics remain external;
 - `Cordis.DeepSeekSessionRunner`, composing accepted text, one-tool, mixed, and multi-call
   terminal traces into the pure append-only local session surface with exact sequence and
   tool-count invariants;
@@ -280,6 +289,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekAsyncHarness`, exercising a real two-process cooperative race over the typed
   DeepSeek prefix/session adapter and retaining a legal winner/error plus pure phase facts; this is
   an observation bridge, not blocked-read cancellation or deployed Harness refinement;
+- `Cordis.DeepSeekAsyncStreamHarness`, exercising the same real two-process race over streamed tool
+  continuations, with a two-round tool-then-text winner and typed model/runner evidence; this is not
+  blocked-read cancellation or deployed Harness refinement;
 - `Cordis.StreamSession`, making the provider-string-ID to unique numeric-session-`CallId`
   assignment explicit before a validated rich assistant view enters the canonical surface;
 - `Harness.RunnerState.protocolProjection_eq_log` and `protocolProjection_replays`, tying the

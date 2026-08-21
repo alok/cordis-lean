@@ -1830,6 +1830,14 @@ fixture runs two real `sh` processes, and `RaceResult.phase` is connected to the
 certificate. The child still performs a synchronous line-oriented read, so the module does not
 prove blocked-read interruption, fairness, arbitrary cleanup, or deployed Harness equivalence.
 
+[`../Cordis/DeepSeekAsyncStreamHarness.lean`](../Cordis/DeepSeekAsyncStreamHarness.lean) lifts
+the same adapter over the streamed dependent continuation. A `StreamProcessJob` keeps the request,
+configuration, initial model/runner, and source-sequence proofs together; the cooperative race
+then preserves the winner's typed tool executions, round witnesses, final model, and runner. The
+fixture runs two real `sh` processes through a tool-call round and a later text terminal. This still
+does not make synchronous line reads interruptible or prove fairness, cleanup, or deployed async
+semantics.
+
 ### 19.5 Relate the model to DeepSeek Harness
 
 The active `Cordis.RuntimeRefinement` module begins this work for a supported
@@ -1979,6 +1987,11 @@ cooperative children. The winning `PrefixResult` remains typed and its phase is 
 theorems; the fixture checks the actual process-backed race. Treat the cancellation as a request to
 the cooperative context only: the synchronous line reader is not interruptible by this proof, and
 fairness, arbitrary cleanup, and deployed asynchronous semantics remain adapter obligations.
+`Cordis.DeepSeekAsyncStreamHarness` applies that same cooperative race to the streamed tool/session
+continuation. Under explicit fuel, each child can execute dependent tool calls and reach a later text
+terminal; the winning typed result preserves its model, runner, and round evidence. The cancellation
+is still only a cooperative request around synchronous process reads, not blocked-read interruption,
+fairness, cleanup, or deployed asynchronous equivalence.
 `Cordis.DeepSeekStream` supplies the next wire boundary: strict in-memory
 `data:` / `[DONE]` SSE framing, typed delta choices, retained raw-frame
 parse/decode certificates, and explicit invalid-UTF-8/JSON/terminal errors.

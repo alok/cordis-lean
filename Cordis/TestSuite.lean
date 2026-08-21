@@ -11,6 +11,7 @@ import Cordis.DeepSeekCurlIncremental
 import Cordis.DeepSeekCurlPrefix
 import Cordis.DeepSeekCurlPrefixSession
 import Cordis.DeepSeekAsyncHarness
+import Cordis.DeepSeekAsyncStreamHarness
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekStreamIncremental
 import Cordis.DeepSeekRichStream
@@ -1387,6 +1388,24 @@ private def testDeepSeekAsyncHarness : IO Unit := do
   | some (.error error) =>
       fail s!"async DeepSeek fixture race returned typed error {reprStr error}"
   | none => fail "async DeepSeek fixture race returned no winning result"
+
+private def testDeepSeekAsyncStreamHarness : IO Unit := do
+  let race ← DeepSeekAsyncStreamHarness.exampleRace
+  assertEqual "async streamed DeepSeek race reports success"
+    race.successful true
+  assertEqual "async streamed DeepSeek race reaches a terminal phase"
+    race.phase.isTerminal true
+  match race with
+  | .left (.ok result) | .right (.ok result) =>
+      assertEqual "async streamed DeepSeek race retains both tool/text rounds"
+        result.rounds.length 2
+      assertEqual "async streamed DeepSeek race retains the final model"
+        result.finalModel 0
+      assertEqual "async streamed DeepSeek race retains the full local sequence"
+        result.runner.session.nextSeq 5
+  | .left (.error error) | .right (.error error) =>
+      fail s!"async streamed DeepSeek race returned typed error {reprStr error}"
+  | .waiting => fail "async streamed DeepSeek race returned no winning result"
 
 private def testDeepSeekStream : IO Unit := do
   match DeepSeekStream.validateSse DeepSeekStream.exampleStreamBody with
@@ -3836,6 +3855,7 @@ def run : IO Unit := do
   testDeepSeekCurlPrefix
   testDeepSeekCurlPrefixSession
   testDeepSeekAsyncHarness
+  testDeepSeekAsyncStreamHarness
   testDeepSeekStream
   testDeepSeekStreamIncremental
   testDeepSeekRichStream
