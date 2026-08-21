@@ -1831,6 +1831,11 @@ admission/policy/provider path, and appends the certified typed results to a reu
 `ConversationRunner`. Its output can feed the existing subsequent-request or fuel-bounded round
 runner; incremental delivery, cancellation, backpressure, reconnects, provider-complete assembly,
 and deployed equivalence remain outside the adapter.
+`Cordis.DeepSeekHarnessErrors` makes the provider-failure policy explicit rather than silently
+choosing one behavior: `.reject` is the default fail-closed request policy, while `.include`
+retains a `ProviderFailedTool` proof and appends its exact provider message as an `isError` tool
+result. The recoverable round preserves the model on that branch and can feed a subsequent typed
+request; retries, persistence, async scheduling, and deployed error semantics remain external.
 `Cordis.DeepSeekCurlIncremental` changes only the process read shape: a line-oriented callback sees
 each body line under an explicit read budget before the private status trailer is consumed, while
 the reconstructed body still passes the strict SSE validator. It is not a byte-level reader or a

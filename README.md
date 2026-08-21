@@ -132,6 +132,13 @@ an explicit `fuelExhausted` stop; the test suite exercises both completion and e
 deterministic two-response loop.
 Persistence, credentials, scheduling, and deployed-Harness equivalence remain outside.
 
+`Cordis.DeepSeekHarnessErrors` is the explicit opt-in continuation policy for provider failures.
+`ErrorToolResultPolicy.reject` is the default fail-closed request behavior; selecting `.include`
+lets a proof-carrying `ProviderFailedTool` become an `isError` tool-result message while retaining
+the parsed call, admission, policy, exact provider error, and model-stability evidence. The
+recoverable round path is still a complete-body pure adapter: it does not claim retries,
+cancellation, persistence, asynchronous delivery, or deployed-Harness equivalence.
+
 `Cordis.DeepSeekStreamHarness` is the corresponding complete-body process-backed
 tool-stream continuation: it finishes a validated rich tool stream, assigns local
 numeric call IDs, routes every streamed call through the same dependent admission,

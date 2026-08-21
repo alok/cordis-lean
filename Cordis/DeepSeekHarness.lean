@@ -39,6 +39,13 @@ inductive RequestError where
   | errorToolResult (id : CallId)
 deriving DecidableEq, Repr
 
+/-! An explicit request policy controls whether typed provider-failure tool results may be
+encoded as ordinary model-visible tool messages. The default remains fail-closed. -/
+inductive ErrorToolResultPolicy where
+  | reject
+  | include
+deriving DecidableEq, Repr
+
 def callIdText (id : CallId) : String := toString id.value
 
 def sessionToolCallToFunctionCall (call : Session.ToolCall) : FunctionCall where
@@ -46,22 +53,35 @@ def sessionToolCallToFunctionCall (call : Session.ToolCall) : FunctionCall where
   name := call.name
   arguments := call.arguments
 
-def sessionMessageToChatMessage : Session.Message -> Except RequestError ChatMessage
+def sessionMessageToChatMessageWith
+    (errorPolicy : ErrorToolResultPolicy) :
+    Session.Message -> Except RequestError ChatMessage
   | .user content => .ok (.user content)
   | .assistant content calls =>
       .ok (.assistant (some content) none (calls.map sessionToolCallToFunctionCall))
   | .toolResult id content isError =>
       if isError then
-        .error (.errorToolResult id)
+        match errorPolicy with
+        | .reject => .error (.errorToolResult id)
+        | .include => .ok (.tool (callIdText id) content)
       else
         .ok (.tool (callIdText id) content)
 
-def sessionMessagesToChatMessages : List Session.Message -> Except RequestError (List ChatMessage)
+def sessionMessageToChatMessage : Session.Message -> Except RequestError ChatMessage :=
+  sessionMessageToChatMessageWith .reject
+
+def sessionMessagesToChatMessagesWith
+    (errorPolicy : ErrorToolResultPolicy) :
+    List Session.Message -> Except RequestError (List ChatMessage)
   | [] => .ok []
   | message :: rest => do
-      let converted ← sessionMessageToChatMessage message
-      let convertedRest ← sessionMessagesToChatMessages rest
+      let converted ← sessionMessageToChatMessageWith errorPolicy message
+      let convertedRest ← sessionMessagesToChatMessagesWith errorPolicy rest
       .ok (converted :: convertedRest)
+
+def sessionMessagesToChatMessages :
+    List Session.Message -> Except RequestError (List ChatMessage) :=
+  sessionMessagesToChatMessagesWith .reject
 
 def nonemptyMessages : List ChatMessage -> Except RequestError (MessageList ChatMessage)
   | [] => .error .emptyMessages
@@ -76,6 +96,7 @@ structure RequestSource where
   responseFormat : Option ResponseFormat := none
   tools : List ToolDefinition := []
   toolChoice : Option ToolChoice := none
+  errorToolResults : ErrorToolResultPolicy := .reject
 
 def requestSourceMessages
     (_source : RequestSource)
@@ -86,7 +107,8 @@ def buildChatRequest
     (source : RequestSource)
     (session : Session.Session Session.noExtensions) :
     Except RequestError ChatRequest := do
-  let converted ← sessionMessagesToChatMessages (requestSourceMessages source session)
+  let converted ←
+    sessionMessagesToChatMessagesWith source.errorToolResults (requestSourceMessages source session)
   let messages ←
     match source.system with
     | none => nonemptyMessages converted
@@ -116,7 +138,7 @@ theorem sessionMessageToChatMessage_error_toolResult
     (id : CallId) (content : String) :
     sessionMessageToChatMessage (.toolResult id content true) =
       .error (.errorToolResult id) := by
-  simp [sessionMessageToChatMessage]
+  simp [sessionMessageToChatMessage, sessionMessageToChatMessageWith]
 
 /-! ## Dependent tool admission and execution -/
 

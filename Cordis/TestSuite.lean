@@ -17,6 +17,7 @@ import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
+import Cordis.DeepSeekHarnessErrors
 import Cordis.DeepSeekStreamHarness
 import Cordis.DurableCodec
 import Cordis.DurableBytes
@@ -1668,6 +1669,118 @@ private def testDeepSeekStreamHarness : IO Unit := do
       | executions =>
           fail s!"DeepSeek stream harness returned {executions.length} tool executions"
 
+private def failingProvider (operation : Operation) :
+    Provider catalog.signature operation where
+  id := providerId operation
+  handle := fun _ => .error "deterministic provider failure"
+
+private def failingRegistry : Registry catalog.signature
+  | .read => some (failingProvider .read)
+  | .increment => some (failingProvider .increment)
+
+private def failingView : View catalog.signature failingRegistry needs where
+  resolve operation _ := by
+    cases operation <;> exact { provider := failingProvider _, present := rfl }
+
+private def failingCounterConfig : GenericHarness.Config Nat Capability where
+  catalog := catalog
+  wire := wire
+  needs := needs
+  needsDecidable := fun _ => isTrue trivial
+  registry := failingRegistry
+  view := failingView
+  granted := fun _ _ _ => True
+  grantedDecidable := fun _ _ _ => isTrue trivial
+  PolicyRejected := fun _ => String
+  renderPolicyRejected := fun _ reason => reason
+  decide := fun _ _ _ => .allow
+
+private def testDeepSeekHarnessErrors : IO Unit := do
+  let raw : DeepSeekApi.FunctionCall := {
+    id := "failing-counter-read"
+    name := "counter_read"
+    arguments := "null"
+  }
+  match DeepSeekHarnessErrors.executeFunctionCallRecoverable failingCounterConfig 0 raw with
+  | .error error => fail s!"recoverable provider call rejected: {reprStr error}"
+  | .ok (.providerFailed failed) =>
+      assertEqual "recoverable provider failure retains the model"
+        failed.before 0
+      assertEqual "recoverable provider failure retains the typed message"
+        failed.message "deterministic provider failure"
+      let session := DeepSeekHarnessErrors.appendProviderFailedToolResult
+        DeepSeekHarness.counterSession 1 0 { value := 0 } 0 failed (by decide)
+      assertEqual "recoverable provider failure appends an error tool result"
+        session.messages [
+          .user "Read the counter.",
+          .toolResult { value := 0 } "deterministic provider failure" true
+        ]
+      let _messageCertificate :=
+        DeepSeekHarnessErrors.appendProviderFailedToolResult_messages
+          DeepSeekHarness.counterSession 1 0 { value := 0 } 0 failed (by decide)
+      pure ()
+  | .ok (.succeeded _) => fail "recoverable provider fixture unexpectedly succeeded"
+
+  let source : DeepSeekHarness.RequestSource := {
+    DeepSeekHarness.counterRequestSource with
+    errorToolResults := .include
+  }
+  let transport : DeepSeekApi.Transport := {
+    send := fun request => do
+      let body := if request.body.contains "deterministic provider failure" then
+          DeepSeekHarness.counterFinalResponseBody
+        else
+          DeepSeekHarness.counterResponseBody
+      pure (.ok { status := 200, body })
+  }
+  let initialRunner : DeepSeekHarness.ConversationRunner := {
+    session := DeepSeekHarness.counterSession
+    turn := 1
+    step := 0
+    nextCall := 0
+    toolCallCount_eq_nextCall := by rfl
+  }
+  match ← DeepSeekHarnessErrors.executeConversationRoundRecoverable transport
+      "https://fixture.invalid" { value := "fixture-key" } source failingCounterConfig 0
+      initialRunner [] (by simp) (by simp) with
+  | .error error => fail s!"recoverable conversation round failed: {reprStr error}"
+  | .ok ⟨firstBody, first⟩ =>
+      assertEqual "recoverable round preserves the provider response body"
+        firstBody DeepSeekHarness.counterResponseBody
+      assertEqual "recoverable round keeps the provider-failed model stable"
+        first.finalModel 0
+      assertEqual "recoverable round exposes the error tool result"
+        first.runner.session.messages [
+          .user "Read the counter.",
+          .assistant "I will read the counter." [{
+            id := { value := 0 }, name := "counter_read", arguments := "null"
+          }],
+          .toolResult { value := 0 } "deterministic provider failure" true
+        ]
+      match first.attempts with
+      | [.providerFailed failed] =>
+          assertEqual "recoverable round retains the provider failure text"
+            failed.message "deterministic provider failure"
+      | attempts => fail s!"recoverable round returned {attempts.length} attempts"
+      match ← DeepSeekHarnessErrors.executeConversationRoundRecoverable transport
+          "https://fixture.invalid" { value := "fixture-key" } source failingCounterConfig
+          first.finalModel first.runner [] (by simp) (by simp) with
+      | .error error => fail s!"recoverable continuation request failed: {reprStr error}"
+      | .ok ⟨secondBody, second⟩ =>
+          assertEqual "recoverable continuation accepts the opted-in error result"
+            secondBody DeepSeekHarness.counterFinalResponseBody
+          assertEqual "recoverable continuation appends the final assistant message"
+            second.runner.session.messages [
+              .user "Read the counter.",
+              .assistant "I will read the counter." [{
+                id := { value := 0 }, name := "counter_read", arguments := "null"
+              }],
+              .toolResult { value := 0 } "deterministic provider failure" true,
+              .assistant "The counter is 0." []
+            ]
+
+      pure ()
+
 private def testQuotientEffects : IO Unit := do
   let applied := Observational.Quotient.Example.program.run
     Observational.Quotient.Example.initial
@@ -2559,6 +2672,7 @@ def run : IO Unit := do
   testDeepSeekApiSession
   testDeepSeekHarness
   testDeepSeekStreamHarness
+  testDeepSeekHarnessErrors
   testQuotientEffects
   testCoeffectQuotientLift
   testOperationalEquivalence

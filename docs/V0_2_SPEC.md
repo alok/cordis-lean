@@ -127,6 +127,9 @@ Current machine-checked evidence includes:
   rich/session bridge and append-only runner while retaining wire and runner certificates;
 - `Cordis.DeepSeekStreamHarness`, composing a complete-body terminal rich tool stream with the
   generic conversation runner, dependent tool execution, and certified typed-result append;
+- `Cordis.DeepSeekHarnessErrors`, adding an explicit fail-closed/default-versus-opt-in policy seam
+  for provider failures: `.include` retains typed failure evidence and appends model-visible
+  `isError` tool results without changing the model state;
 - `Cordis.DeepSeekCurlIncremental`, delivering complete response lines through a process callback
   under an explicit read budget before strict validation of the reconstructed SSE body; byte-level
   and cancellation semantics remain external;
