@@ -59,6 +59,7 @@ import Cordis.GlobalTraceRewrite
 import Cordis.GlobalVestigial
 import Cordis.Harness
 import Cordis.HarnessPersistenceRefinement
+import Cordis.HarnessPersistenceIO
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
 import Cordis.MediatedTheorem
@@ -374,6 +375,9 @@ set_option format.width 200
 #print axioms Cordis.HarnessPersistenceRefinement.malformedPackedRow_rejected
 #print axioms Cordis.HarnessPersistenceRefinement.foreignVersion_rejected
 #print axioms Cordis.HarnessPersistenceRefinement.foreignHeaderTag_rejected
+#print axioms Cordis.HarnessPersistenceIO.readValidated
+#print axioms Cordis.HarnessPersistenceIO.ReadCertificate.projection_exact
+#print axioms Cordis.HarnessPersistenceIO.appendValidatedRow
 #print axioms Cordis.TextRefinement.parseJsonLines
 #print axioms Cordis.TextRefinement.parseJsonLinesBytes
 #print axioms Cordis.TextRefinement.validateStreamText

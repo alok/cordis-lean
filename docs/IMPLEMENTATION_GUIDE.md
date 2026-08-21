@@ -1808,6 +1808,13 @@ text/reasoning/tool packed-row forms with checked safe sequence/time gaps, and
 feeds the expanded event AST to `SessionRefinement`. Keep this boundary logical
 and fail-closed; compression, file offsets, torn-tail repair, and filesystem
 durability belong to a later adapter rather than being smuggled into the proof.
+`Cordis.HarnessPersistenceIO` is that deliberately small next adapter. It reads
+UTF-8 bytes through the existing memory/filesystem backend, retains the exact
+decoded text, parsed rows, logical persistence certificate, and session projection,
+and only appends a row after the current document validates. Treat the backend's
+write/flush acknowledgement as operational evidence, not as a durability theorem:
+fsync, stable media, locking, torn-tail repair, and crash recovery still require
+separate contracts.
 `Cordis.DeepSeekApi` now supplies the adjacent provider boundary: typed
 OpenAI-compatible chat requests become exact POST plans, successful responses
 retain parse/decode certificates, and transport, HTTP-status, and API errors

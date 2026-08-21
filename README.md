@@ -45,6 +45,12 @@ and the three lossless packed chunk-row forms. It expands safe timestamp/sequenc
 gaps into exact event ASTs before invoking `SessionRefinement`, with structured
 malformed-row/version/tag rejection. Compression, filesystem repair, indexing,
 and crash durability remain outside this logical JSON-AST boundary.
+`Cordis.HarnessPersistenceIO` lifts that certificate to an executable UTF-8 byte
+boundary over the existing memory and filesystem backends: reads retain the exact
+bytes/text/rows and semantic certificate, replacement writes can be revalidated,
+and append-only rows are accepted only after the existing document validates.
+Host acknowledgements remain separate from semantic validity; fsync, torn-tail
+repair, locking, and stable-media durability remain outside.
 `Cordis.DeepSeekApi` adds a typed, non-streaming OpenAI-compatible
 `/chat/completions` request plan and a fail-closed response decoder with
 dependent parse/decode certificates. Its transport is an explicit `IO` seam;
@@ -806,6 +812,7 @@ placeholders.
 | `Cordis.SessionRefinement`                          | Stateful supported-subset Harness session decoding with restricted request headers, route context, todo snapshots, seed markers, text/reasoning assistant chunks, fresh call-ID assignment, text/tool-call surface retention, exact append/replacement witnesses, and joint Session/Protocol proof-producing validation. |
 | `Cordis.TextRefinement`                             | Newline-delimited UTF-8 JSON parsing into exact AST lines, plus proof-carrying composition with stream/session refinement and explicit text/encoding failures.                                                                                                                                                           |
 | `Cordis.HarnessPersistenceRefinement`               | Logical Harness JSONL header/storage decoding, lossless text/reasoning/tool packed-row expansion, safe sequence/time reconstruction, and composition with stateful session validation; physical compression and crash repair remain external.                                                                            |
+| `Cordis.HarnessPersistenceIO`                       | Executable UTF-8 byte/text adapter over memory and filesystem backends: exact read certificates, canonical replacement, validated append-only rows, and structured invalid-encoding/semantic failures; host acknowledgements are not durability proofs.                                                                  |
 | `Cordis.DeepSeekApi`                                | Typed OpenAI-compatible DeepSeek chat request construction, fail-closed response decoding, dependent parse/decode certificates, and an explicit transport/status/API-error boundary.                                                                                                                                     |
 | `Cordis.DeepSeekStream`                             | Strict UTF-8/SSE framing, typed delta decoding, retained raw data-frame certificates, and explicit terminal/error boundaries.                                                                                                                                                                                            |
 | `Cordis.DeepSeekCurlStream`                         | Complete-body process-backed SSE validation with typed process/status/stream errors and a deterministic `sh` fixture; incremental reader semantics remain external.                                                                                                                                                      |
@@ -873,6 +880,9 @@ The trusted executable boundary is deliberately small and visible:
 - `HarnessPersistenceRefinement` validates only the pinned logical JSONL AST vocabulary and
   expands packed rows before session refinement; it does not prove byte-level rendering,
   Zstandard framing, path/index metadata, torn-tail repair, or filesystem durability.
+- `HarnessPersistenceIO` exercises the UTF-8 byte/text and memory/filesystem boundary and refuses
+  validated appends to an invalid document, but it does not prove canonical deployed rendering,
+  fsync, stable media, torn-tail repair, locking, or crash durability.
 - `DurableIO` exercises actual `IO` memory/file adapters and preserves the typed byte-prefix
   recovery boundary, but successful `appendFlush`/`replaceFlush` calls are only host acknowledgements;
   they are not `fsync`, crash atomicity, authenticated storage, multi-process coordination, or

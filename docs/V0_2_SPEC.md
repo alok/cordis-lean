@@ -202,6 +202,10 @@ Current machine-checked evidence includes:
 - `Cordis.HarnessPersistenceRefinement`, validating the pinned logical JSONL session header and
   storage rows, expanding the three lossless packed chunk-row forms, and composing that result
   with the stateful session validator;
+- `Cordis.HarnessPersistenceIO`, lifting that logical certificate to executable UTF-8 byte/text
+  reads, canonical replacement, and validated append-only rows over memory/filesystem backends;
+  host acknowledgement, fsync, torn-tail repair, locking, and stable-media durability remain
+  external;
 - `Cordis.StreamSession`, making the provider-string-ID to unique numeric-session-`CallId`
   assignment explicit before a validated rich assistant view enters the canonical surface;
 - `Harness.RunnerState.protocolProjection_eq_log` and `protocolProjection_replays`, tying the
@@ -833,6 +837,14 @@ the event decoder. Packed-row malformations, foreign versions/tags, retired head
 unsafe reconstructions fail closed. This deliberately excludes Zstandard, path sanitization,
 byte offsets, torn-tail repair, coordinator/indexing behavior, and filesystem durability.
 
+`Cordis.HarnessPersistenceIO` is the executable byte/text adapter above that logical boundary. It
+reads UTF-8 bytes through the existing memory/filesystem backend interface, retains the exact
+bytes/text/rows and semantic certificate, revalidates canonical replacement writes, and permits
+an append-only row only after the existing document validates. Invalid UTF-8, malformed JSONL,
+header/packed-row failures, and session-refinement failures remain distinct structured errors.
+The adapter does not infer fsync, stable media, torn-tail repair, locking, or crash durability
+from a host write acknowledgement.
+
 ## Executable and static tests
 
 The slice requires all existing gates plus the following new coverage:
@@ -922,12 +934,12 @@ This slice does not by itself prove:
 - byte-level JSON parsing, rendering, or storage compatibility;
 - completeness for the Harness JSONL event/storage union: `HarnessPersistenceRefinement` is a
   logical AST refinement for the pinned header and three packed-row forms only;
-- filesystem/database persistence beyond the narrow tested adapter, stable-media/flush barriers,
+- filesystem/database persistence beyond the narrow tested adapters, stable-media/flush barriers,
   cryptographic authentication, arbitrary crash-file repair, or fork correctness.
   `Cordis.DurableSettlement` and `Cordis.DurableCodec` prove a pure typed crash-prefix/resume
   model plus strict JSON-AST frame validation, `Cordis.DurableBytes` proves its explicitly
   defined binary format over immutable Lean byte lists with a supplied frame count, and
-  `Cordis.DurableIO` exercises host memory/file calls without turning acknowledgement into
+  `Cordis.DurableIO` and `Cordis.HarnessPersistenceIO` exercise host memory/file calls without turning acknowledgement into
   fsync, crash atomicity, or external-effect exactly-once evidence;
 - task/fiber scheduling, fairness, cancellation delivery, or wall-clock concurrency;
 - the stronger paired-inverse law from same-word tests without its explicit coherence premise;

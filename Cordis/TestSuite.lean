@@ -61,6 +61,7 @@ import Cordis.GlobalTraceRewrite
 import Cordis.GlobalVestigial
 import Cordis.Harness
 import Cordis.HarnessPersistenceRefinement
+import Cordis.HarnessPersistenceIO
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
 import Cordis.MediatedTheorem
@@ -910,6 +911,40 @@ private def testHarnessPersistence : IO Unit := do
   | .ok ⟨_, validated⟩ =>
       assertEqual "text persistence composes JSONL parsing with packed expansion"
         validated.expandedEvents.length 3
+
+private def testHarnessPersistenceIO : IO Unit := do
+  match ← HarnessPersistenceIO.fixtureMemory with
+  | .error error => fail s!"memory Harness JSONL adapter failed: {reprStr error}"
+  | .ok certificate =>
+      assertEqual "memory Harness JSONL adapter retains the logical rows"
+        certificate.input.length 2
+      assertEqual "memory Harness JSONL adapter retains packed expansion"
+        certificate.validated.expandedEvents.length 3
+      assertEqual
+        "memory Harness JSONL adapter reaches the validated session endpoint"
+        certificate.validated.validated.final.session.nextSeq 3
+      let _projection := HarnessPersistenceIO.ReadCertificate.projection_exact certificate
+      let _split := HarnessPersistenceIO.ReadCertificate.split_exact certificate
+      pure ()
+  match ← HarnessPersistenceIO.fixtureAppend with
+  | .error error => fail s!"append-only Harness JSONL adapter failed: {reprStr error}"
+  | .ok certificate =>
+      assertEqual "append-only Harness JSONL adapter retains the appended row"
+        certificate.input.length 2
+      assertEqual "append-only Harness JSONL adapter expands the appended packed row"
+        certificate.validated.expandedEvents.length 3
+      pure ()
+  match ← HarnessPersistenceIO.fixtureFile with
+  | .error error => fail s!"filesystem Harness JSONL adapter failed: {reprStr error}"
+  | .ok certificate =>
+      assertEqual "filesystem Harness JSONL adapter retains the source header"
+        certificate.validated.header.id "session-example"
+      pure ()
+  match ← HarnessPersistenceIO.fixtureInvalidUtf8 with
+  | .error (.text .invalidUtf8) => pure ()
+  | .error error =>
+      fail s!"invalid UTF-8 returned the wrong persistence adapter error: {reprStr error}"
+  | .ok _ => fail "invalid UTF-8 was accepted by the persistence adapter"
 
 private def testDeepSeekApi : IO Unit := do
   let plan := DeepSeekApi.buildRequest "https://api.deepseek.com"
@@ -3020,6 +3055,7 @@ def run : IO Unit := do
   testRuntimeRefinement
   testTextRefinement
   testHarnessPersistence
+  testHarnessPersistenceIO
   testDeepSeekApi
   testDeepSeekCurlTransport
   testDeepSeekCurlStream
