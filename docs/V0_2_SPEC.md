@@ -740,14 +740,14 @@ for the TypeScript `BlockAssembler`.
 
 `Cordis.SessionRefinement` covers a separate stateful subset of current `SessionEvent` JSON:
 turn/step boundaries, text user/assistant blocks, complete assistant tool-call blocks, tool calls,
-and restricted append-only singleton-text tool results. It retains source sequence/time values in wire witnesses, derives
+restricted singleton-text tool results, and exact append/replacement surface operations. It retains source sequence/time values in wire witnesses, derives
 local zero-based steps and `turn/end.nextStep` only from the validated prefix, and assigns
 provider string call IDs to fresh numeric local IDs with uniqueness proofs, reusing those IDs in
 later call/result events. Text surface IDs, provider/model metadata, usage, and source references
 remain in `State.wireSurface`, while the local session stores projected text plus typed tool calls.
 Every admitted event passes the rich
 Session append validator; runtime events also pass the intrinsic Protocol validator. Unsupported
-chunks, headers, replacements, replay state, reasoning/tool/image blocks, error/meta payloads,
+chunks, headers, replay state, reasoning/tool/image blocks, error/meta payloads,
 extension events, and non-equivalent turn reasons fail closed.
 
 `Cordis.TextRefinement` composes these AST-level validators with the Lean JSON parser and UTF-8

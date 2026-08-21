@@ -1231,6 +1231,32 @@ private def testSessionRefinement : IO Unit := do
         summary.surfaceIds ["user-1", "assistant-1"]
       assertEqual "assistant tool-call surface metadata retains the model provider"
         summary.surfaceProviders ["", "deepseek"]
+  match SessionRefinement.surfaceValidationSummary
+      (SessionRefinement.validateJsonLog SessionRefinement.replacementMessageExampleJson) with
+  | none => fail "replacement surface example failed to validate"
+  | some summary =>
+      assertRuntimeStateEqual "replacement surface reaches the closed local turn"
+        (eraseState summary.protocol) (.ready 2)
+      assertEqual "replacement surface shadows the assistant/tool-result interval"
+        summary.messages [.user "look up lean", .assistant "I summarized the lookup." []]
+      assertEqual "replacement surface leaves intrinsic protocol events unchanged"
+        summary.runtimeEvents [
+          .turnStart 1,
+          .stepStart 1 0,
+          .toolCall 1 0 { value := 0 },
+          .toolResult 1 0 { value := 0 },
+          .stepEnd 1 0,
+          .turnEnd 1 1
+        ]
+      assertEqual "replacement surface retains the replacement source identity"
+        summary.surfaceIds ["user-1", "assistant-1", "assistant-summary"]
+      assertEqual "replacement surface retains its model provider"
+        summary.surfaceProviders ["", "deepseek", "deepseek"]
+  match SessionRefinement.surfaceValidationSummary
+      (SessionRefinement.validateJsonLog
+        SessionRefinement.malformedReplacementMessageExampleJson) with
+  | none => pure ()
+  | some _ => fail "replacement surface accepted incomplete source coverage"
 
 private def testTransformationIndependence : IO Unit := do
   let modelOrder := Effect.seq Transformation.Example.bumpLeft

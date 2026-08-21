@@ -8,7 +8,7 @@ This module refines a source-shaped subset of DeepSeek Harness `SessionEvent` JS
 commit `99f6f02` into both local `Session` append witnesses and local intrinsic `Protocol` events.
 The current upstream envelope is `{ type, seq, time, data, ignorable?, sourceEventSeqs?,
 surfaceOp? }`; this decoder retains `seq` and `time`, rejects `ignorable`, and admits surface
-metadata only for the supported append-only tool-result shape.
+ metadata for the supported append/replacement surface subset.
 
 The translation synthesizes only values fixed by the accepted prefix and named normalizations:
 
@@ -24,7 +24,7 @@ upstream `completed` and `max-tokens` turn-end reasons map without information l
 messages retain their upstream identity and source metadata in the refinement state while their
 text and typed tool calls are projected into the smaller local `Session.Message` vocabulary.
 
-Assistant chunks, request headers/context, replacement surface ops, assistant reasoning blocks,
+Assistant chunks, request headers/context, assistant reasoning blocks,
 assistant replay state, tool-result error identity/meta, multimodal tool results, and all extension
 events are rejected. Complete assistant tool calls are allocated into the same provider-to-local
 binding state used by later `tool/call` and `tool/result` events. Their upstream payloads still
@@ -69,6 +69,12 @@ def toLocal : WireTurnEndReason → Session.TurnEndReason
 
 end WireTurnEndReason
 
+/-- Surface operations use the upstream object's `{ op, start, end }` shape for replacement. -/
+inductive WireSurfaceOp where
+  | append
+  | replace (start endSeq : SafeNat)
+  deriving DecidableEq, Repr
+
 /-- Restricted, still source-shaped fields of one current upstream tool result. -/
 structure WireToolResult where
   turn : SafeNat
@@ -79,6 +85,7 @@ structure WireToolResult where
   content : String
   isError : Bool
   sourceEventSeqs : List SafeNat
+  surfaceOp : WireSurfaceOp
   deriving DecidableEq, Repr
 
 /-- One text block retained from an upstream surface message. -/
@@ -126,6 +133,7 @@ inductive WireSurfaceMessage where
 structure WireSurfaceAppend where
   message : WireSurfaceMessage
   sourceEventSeqs : Option (List SafeNat)
+  surfaceOp : WireSurfaceOp
   deriving DecidableEq, Repr
 
 /-- Supported payloads selected by the current upstream event `type`. -/
@@ -353,20 +361,38 @@ private def decodeAssistantMessage (path : List PathSegment) (json : Lean.Json) 
   let usage ← decodeOptionalWireUsage json path
   .ok { id, provider, model, content, usage }
 
+private structure DecodedSurfaceMetadata where
+  surfaceOp : WireSurfaceOp
+  sourceEventSeqs : Option (List SafeNat)
+
 private def decodeSurfaceMetadata (event : Lean.Json) (path : List PathSegment) :
-    Except DecodeError (Option (List SafeNat)) := do
-  let surfaceOp ← decodeRequiredString event path "surfaceOp"
-  expectTag (fieldPath path "surfaceOp") "append" surfaceOp
-  match field? event "sourceEventSeqs" with
-  | none => .ok none
-  | some value => some <$> decodeSafeNatList (fieldPath path "sourceEventSeqs") value
+    Except DecodeError DecodedSurfaceMetadata := do
+  let surfaceOpJson ← requireField event path "surfaceOp"
+  let surfaceOpPath := fieldPath path "surfaceOp"
+  let surfaceOp ← match surfaceOpJson with
+    | .str "append" => .ok .append
+    | .obj _ => do
+        let op ← decodeRequiredString surfaceOpJson surfaceOpPath "op"
+        expectTag (fieldPath surfaceOpPath "op") "replace" op
+        let start ← decodeRequiredNat surfaceOpJson surfaceOpPath "start"
+        let endSeq ← decodeRequiredNat surfaceOpJson surfaceOpPath "end"
+        .ok (.replace start endSeq)
+    | json => .error (.typeMismatch surfaceOpPath "string or object" (jsonKind json))
+  let sourceEventSeqs ← match field? event "sourceEventSeqs" with
+    | none => .ok none
+    | some value => some <$> decodeSafeNatList (fieldPath path "sourceEventSeqs") value
+  .ok { surfaceOp, sourceEventSeqs }
 
 private def decodeUserMessageData (event : Lean.Json) (eventPath : List PathSegment)
     (data : Lean.Json) (dataPath : List PathSegment) :
     Except DecodeError WireSurfaceAppend := do
   let message ← decodeUserMessage dataPath data
-  let sourceEventSeqs ← decodeSurfaceMetadata event eventPath
-  .ok { message := .user message, sourceEventSeqs }
+  let metadata ← decodeSurfaceMetadata event eventPath
+  .ok {
+    message := .user message
+    sourceEventSeqs := metadata.sourceEventSeqs
+    surfaceOp := metadata.surfaceOp
+  }
 
 private def decodeAssistantMessageData (event : Lean.Json) (eventPath : List PathSegment)
     (data : Lean.Json) (dataPath : List PathSegment) :
@@ -380,8 +406,12 @@ private def decodeAssistantMessageData (event : Lean.Json) (eventPath : List Pat
     | value => .error (.typeMismatch messagePath "object" (jsonKind value))
   let usage ← decodeOptionalWireUsage data dataPath
   let message := { message with usage }
-  let sourceEventSeqs ← decodeSurfaceMetadata event eventPath
-  .ok (turn, step, { message := .assistant message, sourceEventSeqs })
+  let metadata ← decodeSurfaceMetadata event eventPath
+  .ok (turn, step, {
+    message := .assistant message
+    sourceEventSeqs := metadata.sourceEventSeqs
+    surfaceOp := metadata.surfaceOp
+  })
 
 private structure DecodedToolResultBlock where
   callId : String
@@ -426,16 +456,17 @@ private def decodeToolResultData (event : Lean.Json) (eventPath : List PathSegme
         (← requireField message messagePath "content")
       let block ← decodeToolResultBlock
         (indexPath (fieldPath messagePath "content") 0) blockJson
-      let surfaceOp ← decodeRequiredString event eventPath "surfaceOp"
-      expectTag (fieldPath eventPath "surfaceOp") "append" surfaceOp
-      let sources ← decodeSafeNatList (fieldPath eventPath "sourceEventSeqs")
-        (← requireField event eventPath "sourceEventSeqs")
+      let metadata ← decodeSurfaceMetadata event eventPath
+      let sources ← match metadata.sourceEventSeqs with
+        | some sources => .ok sources
+        | none => .error (.missingField eventPath "sourceEventSeqs")
       .ok {
         turn, step, messageId, sourceCallId
         blockCallId := block.callId
         content := block.content
         isError := block.isError
         sourceEventSeqs := sources
+        surfaceOp := metadata.surfaceOp
       }
   | json => .error (.typeMismatch messagePath "object" (jsonKind json))
 
@@ -677,29 +708,29 @@ private def logOnlyEvent (seq : Nat) (kind : Session.Kind Session.noExtensions .
   intent := .token
 
 private def toolResultEvent (seq : Nat) (payload : Session.ToolResultPayload)
-    (sources : List Nat) : Session.LoggedEvent Session.noExtensions where
+    (intent : Session.SurfaceIntent) : Session.LoggedEvent Session.noExtensions where
   visibility := .surface
   seq
   kind := .toolResult
   payload
-  intent := .append sources
+  intent := intent
 
 private def userMessageEvent (seq : Nat) (content : String)
-    (sources : List Nat) : Session.LoggedEvent Session.noExtensions where
+    (intent : Session.SurfaceIntent) : Session.LoggedEvent Session.noExtensions where
   visibility := .surface
   seq
   kind := .userMessage
   payload := { content }
-  intent := .append sources
+  intent := intent
 
 private def assistantMessageEvent (seq turn step : Nat) (content : String)
-    (rawToolCalls : List Session.ToolCall) (sources : List Nat) :
+    (rawToolCalls : List Session.ToolCall) (intent : Session.SurfaceIntent) :
     Session.LoggedEvent Session.noExtensions where
   visibility := .surface
   seq
   kind := .assistantMessage
   payload := { turn, step, content, rawToolCalls }
-  intent := .append sources
+  intent := intent
 
 private def concatText : List WireTextBlock → String
   | [] => ""
@@ -708,6 +739,11 @@ private def concatText : List WireTextBlock → String
 private def sourceSeqsToNat : Option (List SafeNat) → List Nat
   | none => []
   | some values => values.map RuntimeRefinement.SafeNat.value
+
+private def surfaceIntent (op : WireSurfaceOp) (sources : List Nat) : Session.SurfaceIntent :=
+  match op with
+  | .append => .append sources
+  | .replace start endSeq => .replace start.value endSeq.value sources
 
 private def userLocalContent (message : WireUserMessage) : String :=
   concatText message.content
@@ -798,7 +834,7 @@ private def candidate (before : State) (wire : WireEvent) :
       let message ← expectUserMessage append.message
       let sources := sourceSeqsToNat append.sourceEventSeqs
       let localEvent := userMessageEvent wire.seq.value
-        (userLocalContent message) sources
+        (userLocalContent message) (surfaceIntent append.surfaceOp sources)
       .ok {
         localEvent
         runtime := none
@@ -815,7 +851,7 @@ private def candidate (before : State) (wire : WireEvent) :
       let localEvent := assistantMessageEvent wire.seq.value turn.value localStep
         (assistantLocalContent message)
         (toolAllocationsToSession allocations.1)
-        (sourceSeqsToNat append.sourceEventSeqs)
+        (surfaceIntent append.surfaceOp (sourceSeqsToNat append.sourceEventSeqs))
       .ok {
         localEvent
         runtime := none
@@ -838,7 +874,7 @@ private def candidate (before : State) (wire : WireEvent) :
           callId := binding.localId
           content := result.content
           isError := result.isError
-        } sources
+        } (surfaceIntent result.surfaceOp sources)
         .ok {
           localEvent
           runtime := some (.toolResult result.turn.value localStep binding.localId)
@@ -1252,6 +1288,56 @@ def toolMessageExampleJson : List Lean.Json := [
   ]
 ]
 
+/-! ## Compaction-style replacement surface example -/
+
+def replacementMessageExampleJson : List Lean.Json :=
+  toolMessageExampleJson ++ [
+    Lean.Json.mkObj [
+      ("type", .str "assistant/message"), ("seq", .num 8), ("time", .num 308),
+      ("data", Lean.Json.mkObj [
+        ("turn", .num 1), ("step", .num 1),
+        ("message", Lean.Json.mkObj [
+          ("id", .str "assistant-summary"), ("role", .str "assistant"),
+          ("source", Lean.Json.mkObj [
+            ("kind", .str "model"), ("provider", .str "deepseek"),
+            ("model", .str "deepseek-reasoner")
+          ]),
+          ("content", .arr #[Lean.Json.mkObj [
+            ("type", .str "text"), ("text", .str "I summarized the lookup.")
+          ]])
+        ])
+      ]),
+      ("surfaceOp", Lean.Json.mkObj [
+        ("op", .str "replace"), ("start", .num 3), ("end", .num 5)
+      ]),
+      ("sourceEventSeqs", .arr #[.num 3, .num 5])
+    ]
+  ]
+
+def malformedReplacementMessageExampleJson : List Lean.Json :=
+  toolMessageExampleJson ++ [
+    Lean.Json.mkObj [
+      ("type", .str "assistant/message"), ("seq", .num 8), ("time", .num 308),
+      ("data", Lean.Json.mkObj [
+        ("turn", .num 1), ("step", .num 1),
+        ("message", Lean.Json.mkObj [
+          ("id", .str "assistant-summary"), ("role", .str "assistant"),
+          ("source", Lean.Json.mkObj [
+            ("kind", .str "model"), ("provider", .str "deepseek"),
+            ("model", .str "deepseek-reasoner")
+          ]),
+          ("content", .arr #[Lean.Json.mkObj [
+            ("type", .str "text"), ("text", .str "I summarized the lookup.")
+          ]])
+        ])
+      ]),
+      ("surfaceOp", Lean.Json.mkObj [
+        ("op", .str "replace"), ("start", .num 3), ("end", .num 5)
+      ]),
+      ("sourceEventSeqs", .arr #[.num 3])
+    ]
+  ]
+
 private def wireSurfaceIds : List WireSurfaceAppend → List String
   | [] => []
   | append :: rest =>
@@ -1371,6 +1457,28 @@ theorem validate_tool_message_example :
       } := by
   decide
 
+/-- A source-shaped replacement shadows the assistant/tool-result surface interval exactly. -/
+theorem validate_replacement_message_example :
+    surfaceValidationSummary (validateJsonLog replacementMessageExampleJson) = some {
+        protocol := .ready 2
+        messages := [.user "look up lean", .assistant "I summarized the lookup." []]
+        runtimeEvents := [
+          .turnStart 1,
+          .stepStart 1 0,
+          .toolCall 1 0 { value := 0 },
+          .toolResult 1 0 { value := 0 },
+          .stepEnd 1 0,
+          .turnEnd 1 1
+        ]
+        surfaceIds := ["user-1", "assistant-1", "assistant-summary"]
+        surfaceProviders := ["", "deepseek", "deepseek"]
+      } := by
+  decide
+
+theorem reject_replacement_incompleteCoverage :
+    surfaceValidationSummary (validateJsonLog malformedReplacementMessageExampleJson) = none := by
+  decide
+
 /-- Assistant reasoning blocks remain outside the text-only session projection. -/
 theorem reject_assistantReasoningBlock :
     decodeEvent (Lean.Json.mkObj [
@@ -1448,6 +1556,7 @@ theorem reject_mismatchedToolResultIds :
       content := "result"
       isError := false
       sourceEventSeqs := []
+      surfaceOp := .append
     }
     let wire : WireEvent := {
       seq := { value := 0, safe := by decide }

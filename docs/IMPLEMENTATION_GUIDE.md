@@ -1987,11 +1987,11 @@ the current `{type, seq, time, data, ignorable?, sourceEventSeqs?, surfaceOp?}` 
 5. require both `Session.validateAppend` and `Protocol.validateEvent` to accept it; and
 6. compose the witnesses and prove the final Session projection equals intrinsic trace erasure.
 
-Keep the subset narrow. The current implementation supports boundary events, tool calls, and a
-restricted append-only singleton-text tool result. It rejects identities/payloads the local type
-cannot preserve, replacement operations, opaque metadata, extensions, and non-equivalent turn
-reasons. This is stateful supported-subset soundness, not a persisted JSONL or whole-session
-equivalence theorem.
+Keep the subset narrow. The current implementation supports boundary events, tool calls, a
+restricted singleton-text tool result, and append/replacement surface operations whose ranges and
+source coverage are discharged by `Session.validateAppend`. It rejects identities/payloads the
+local type cannot preserve, opaque metadata, extensions, and non-equivalent turn reasons. This is
+stateful supported-subset soundness, not a persisted JSONL or whole-session equivalence theorem.
 
 ### 19.9 Rebuild the first global registry slice by hand
 
