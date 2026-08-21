@@ -5,6 +5,7 @@ import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.DurableCodec
 import Cordis.DurableBytes
+import Cordis.DurableIO
 import Cordis.DurableSettlement
 import Cordis.Effect
 import Cordis.Examples.DependentChoice
@@ -216,6 +217,9 @@ set_option format.width 200
 #print axioms Cordis.DurableBytes.scanBytesPrefix_encode
 #print axioms Cordis.DurableBytes.Example.valid_bytes_scan
 #print axioms Cordis.DurableBytes.Example.torn_bytes_rejected
+#print axioms Cordis.DurableIO.AppendPlan.decode_bytes
+#print axioms Cordis.DurableIO.RecoveryCertificate.recovers_initial
+#print axioms Cordis.DurableIO.Example.firstPlan_next_is_first
 #print axioms Cordis.ParallelHarness.ParallelWindow.effect_eq
 #print axioms Cordis.ParallelHarness.ParallelWindow.scheduled_after_eq_canonical
 #print axioms Cordis.ParallelHarness.ParallelWindow.scheduled_undo_eq_canonical

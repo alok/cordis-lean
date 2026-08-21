@@ -5,6 +5,7 @@ import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.DurableCodec
 import Cordis.DurableBytes
+import Cordis.DurableIO
 import Cordis.DurableSettlement
 import Cordis.Effect
 import Cordis.Examples.Counter
@@ -669,6 +670,14 @@ private def testDurableBytes : IO Unit := do
         scanned.nextSequence 2
       assertEqual "binary durable scan discards no bytes on a complete prefix"
         discarded []
+
+private def testDurableIO : IO Unit := do
+  let memory ← DurableIO.Example.memoryResume
+  assertEqual "memory durable adapter resumes from a typed prefix" memory true
+  let torn ← DurableIO.Example.memoryTornPrefix
+  assertEqual "memory durable adapter exposes a torn suffix" torn true
+  let file ← DurableIO.Example.fileResume
+  assertEqual "filesystem durable adapter resumes from a typed prefix" file true
 
 private def testRichStream : IO Unit := do
   match RichStream.validateTrace RichStream.State.initial RichStream.interleavedRaw with
@@ -1512,6 +1521,7 @@ def run : IO Unit := do
   testDurableSettlement
   testDurableCodec
   testDurableBytes
+  testDurableIO
   testRichStream
   testStreamSessionBridge
   testContextualEquivalence

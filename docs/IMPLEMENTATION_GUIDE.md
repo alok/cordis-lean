@@ -1754,11 +1754,18 @@ prefix decoding, and a theorem that carries discarded suffix bytes into the type
 is a source-honest binary-prefix model, not a claim about the Harness JSON renderer or bytes
 reaching a filesystem.
 
-The remaining production step is an explicit `IO`/filesystem refinement: connect a selected real
-byte parser/renderer to this contract, define partial-write and flush semantics, checksum or
-authenticated digest policy, checkpoint selection, fork/conflict handling, and the relationship
-between external tool effects and committed entries. Only after those obligations are proved
-should the project claim durable atomic settlement or process-wide exactly-once behavior.
+[`../Cordis/DurableIO.lean`](../Cordis/DurableIO.lean) is now the next, intentionally narrow
+stateful boundary. `AppendPlan` carries the exact raw frame and encoded bytes; `MemoryStore` and
+`FileBackend` execute append/replace plus host flush calls; and `readAndRecover` returns either a
+typed scanned prefix or an operational/semantic error while retaining the discarded byte suffix.
+The executable tests cover memory resume, a torn suffix, and a temporary filesystem file.
+
+This does not make host acknowledgement into durable atomicity. The remaining production
+obligations are a selected parser/renderer refinement, actual partial-write and crash semantics,
+stable-media/fsync policy, checksum or authenticated digest policy, checkpoint selection,
+fork/conflict handling, multi-process coordination, and the relationship between external tool
+effects and committed entries. Only after those obligations are proved should the project claim
+durable atomic settlement or process-wide exactly-once behavior.
 
 ### 19.4 Add an `N`-call scheduler
 
