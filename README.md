@@ -183,7 +183,9 @@ numeric call IDs, routes every streamed call through the same dependent admissio
 policy, and provider path, and appends certified tool results to the generic
 `ConversationRunner`. Both the one-call entry point and the typed
 `executeConversationMultiStreamRound` path are exercised by deterministic process
-fixtures, including a two-call terminal stream. Its returned runner is suitable for a
+fixtures, including a two-call terminal stream. `runConversationMultiStream` then
+reuses those round certificates under explicit fuel, stopping on a text-only terminal
+response or returning typed exhaustion. Its returned runner is suitable for a
 subsequent request or fuel-bounded round. Incremental delivery, cancellation,
 backpressure, reconnects, provider-complete assembly, and deployed equivalence remain
 outside this adapter.

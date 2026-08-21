@@ -1893,7 +1893,9 @@ admission/policy/provider path, and appends the certified typed results to a reu
 `ConversationRunner`. The one-call entry point and typed
 `executeConversationMultiStreamRound` are exercised by deterministic process fixtures, including
 a two-call terminal stream. Their output can feed the existing subsequent-request or
-fuel-bounded round runner; incremental delivery, cancellation, backpressure, reconnects,
+fuel-bounded round runner; `runConversationMultiStream` composes those round certificates under
+explicit fuel and stops on a text-only terminal response or typed exhaustion. Incremental
+delivery, cancellation, backpressure, reconnects,
 provider-complete assembly, and deployed equivalence remain outside the adapter.
 `Cordis.DeepSeekHarnessErrors` makes the provider-failure policy explicit rather than silently
 choosing one behavior: `.reject` is the default fail-closed request policy, while `.include`

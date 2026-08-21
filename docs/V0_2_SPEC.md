@@ -140,7 +140,8 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekStreamHarness`, composing complete-body terminal rich tool streams with the
   generic conversation runner, dependent tool execution, and certified typed-result append;
   both the one-call path and the typed two-call `executeConversationMultiStreamRound` fixture
-  are exercised;
+  are exercised, and `runConversationMultiStream` composes those rounds under explicit fuel
+  until a text-only terminal response or typed exhaustion;
 - `Cordis.DeepSeekHarnessErrors`, adding an explicit fail-closed/default-versus-opt-in policy seam
   for provider failures: `.include` retains typed failure evidence and appends model-visible
   `isError` tool results without changing the model state;

@@ -15,7 +15,8 @@ The adapter intentionally consumes a complete response body through `ProcessConf
 claim incremental delivery, cancellation, backpressure, reconnects, provider-complete assembly,
 or equivalence to the deployed DeepSeek Harness. The executable fixtures cover both a single
 streamed call and two calls in one terminal response; each call still passes through the same
-dependent admission, policy, and provider path.
+dependent admission, policy, and provider path. A fuel-bounded loop over these certified rounds
+stops on a text-only terminal response or returns an explicit exhaustion result.
 -/
 
 set_option autoImplicit false
@@ -294,5 +295,110 @@ def executeConversationMultiStreamRound
       (Sigma fun body : String => StreamConversationRoundResult cfg before body)) :=
   executeConversationStreamRound finishMulti config baseUrl apiKey source cfg before runner
     sourceEventSeqs sourcesNodup sourcesEarlier
+
+abbrev StreamConversationWitness
+    {Model Capability : Type}
+    (cfg : GenericHarness.Config Model Capability) :=
+  Sigma fun before : Model => Sigma fun body : String =>
+    StreamConversationRoundResult cfg before body
+
+namespace StreamConversationWitness
+
+abbrev noToolCalls
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability} :
+    StreamConversationWitness cfg → Prop
+  | ⟨_, ⟨_, round⟩⟩ => round.finished.finished.view.rawToolCalls.length = 0
+
+end StreamConversationWitness
+
+inductive StreamConversationStop
+    {Model Capability : Type}
+    (cfg : GenericHarness.Config Model Capability) where
+  | completed (last : StreamConversationWitness cfg)
+      (noToolCalls : StreamConversationWitness.noToolCalls last)
+  | fuelExhausted
+
+namespace StreamConversationStop
+
+def isCompleted
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability} :
+    StreamConversationStop cfg → Bool
+  | .completed _ _ => true
+  | .fuelExhausted => false
+
+end StreamConversationStop
+
+structure StreamConversationRunResult
+    {Model Capability : Type}
+    (cfg : GenericHarness.Config Model Capability) where
+  rounds : List (StreamConversationWitness cfg)
+  runner : ConversationRunner
+  finalModel : Model
+  stop : StreamConversationStop cfg
+
+def runConversationStreamAux
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body))
+    (fuel : Nat)
+    (config : ProcessConfig)
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (source : RequestSource)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ current : ConversationRunner,
+      ∀ source ∈ sourceEventSeqs, source < current.session.nextSeq)
+    (before : Model)
+    (runner : ConversationRunner)
+    (history : List (StreamConversationWitness cfg)) :
+    IO (Except StreamConversationError (StreamConversationRunResult cfg)) := do
+  match fuel with
+  | 0 =>
+      pure (.ok {
+        rounds := history
+        runner
+        finalModel := before
+        stop := .fuelExhausted
+      })
+  | fuel + 1 =>
+      match ← executeConversationStreamRound finish config baseUrl apiKey source cfg before runner
+          sourceEventSeqs sourcesNodup (sourcesEarlier runner) with
+      | .error error => pure (.error error)
+      | .ok ⟨body, round⟩ =>
+          let witness : StreamConversationWitness cfg := ⟨before, ⟨body, round⟩⟩
+          let nextHistory := history ++ [witness]
+          if noTools : StreamConversationWitness.noToolCalls witness then
+            pure (.ok {
+              rounds := nextHistory
+              runner := round.runner
+              finalModel := round.finalModel
+              stop := .completed witness noTools
+            })
+          else
+            runConversationStreamAux finish fuel config baseUrl apiKey source sourceEventSeqs
+              sourcesNodup sourcesEarlier round.finalModel round.runner nextHistory
+termination_by fuel
+
+def runConversationMultiStream
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (fuel : Nat)
+    (config : ProcessConfig)
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (source : RequestSource)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ current : ConversationRunner,
+      ∀ source ∈ sourceEventSeqs, source < current.session.nextSeq)
+    (before : Model)
+    (runner : ConversationRunner) :
+    IO (Except StreamConversationError (StreamConversationRunResult cfg)) :=
+  runConversationStreamAux finishMulti fuel config baseUrl apiKey source sourceEventSeqs
+    sourcesNodup sourcesEarlier before runner []
 
 end Cordis.DeepSeekStreamHarness

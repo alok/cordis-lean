@@ -2049,6 +2049,66 @@ private def testDeepSeekStreamHarness : IO Unit := do
       | executions =>
           fail s!"DeepSeek multi-stream harness returned {executions.length} tool executions"
 
+  let streamLoopProcess : Cordis.DeepSeekCurlTransport.ProcessConfig := {
+    command := "sh"
+    args := fun _ => #[
+      "-c",
+      "body=$(cat); case \"$body\" in " ++
+        "*tool_calls*) printf '%s\\n__CORDIS_HTTP_STATUS__200\\n' \"$2\" ;; " ++
+        "*) printf '%s\\n__CORDIS_HTTP_STATUS__200\\n' \"$1\" ;; esac",
+      "cordis-stream-loop-fixture",
+      DeepSeekStreamHarness.counterMultiToolStreamBody,
+      DeepSeekRichStream.exampleTextStreamBody
+    ]
+  }
+  let streamLoopResult :
+      Except DeepSeekStreamHarness.StreamConversationError
+        (DeepSeekStreamHarness.StreamConversationRunResult
+          (Model := Nat) (Capability := Cordis.Examples.Counter.Capability)
+          Cordis.Harness.counterConfig) ←
+    DeepSeekStreamHarness.runConversationMultiStream 2 streamLoopProcess
+      "https://fixture.invalid" { value := "fixture-key" }
+      DeepSeekHarness.counterRequestSource [] (by simp) (by
+        intro current source sourceMem
+        cases sourceMem) 0 initialRunner
+  match streamLoopResult with
+  | .error error => fail s!"DeepSeek streamed conversation loop failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "DeepSeek streamed conversation loop retains both round witnesses"
+        result.rounds.length 2
+      assertEqual "DeepSeek streamed conversation loop preserves the final model"
+        result.finalModel 0
+      assertEqual "DeepSeek streamed conversation loop appends the text terminal round"
+        result.runner.session.messages [
+          .user "Read the counter.",
+          .assistant "" [
+            { id := { value := 0 }, name := "counter_read", arguments := "null" },
+            { id := { value := 1 }, name := "counter_read", arguments := "null" }
+          ],
+          .toolResult { value := 0 } "[true,0]" false,
+          .toolResult { value := 1 } "[true,0]" false,
+          .assistant "Hello world" []
+        ]
+      assertEqual "DeepSeek streamed conversation loop reports completion"
+        (DeepSeekStreamHarness.StreamConversationStop.isCompleted result.stop) true
+  let streamLoopExhausted :
+      Except DeepSeekStreamHarness.StreamConversationError
+        (DeepSeekStreamHarness.StreamConversationRunResult
+          (Model := Nat) (Capability := Cordis.Examples.Counter.Capability)
+          Cordis.Harness.counterConfig) ←
+    DeepSeekStreamHarness.runConversationMultiStream 1 streamLoopProcess
+      "https://fixture.invalid" { value := "fixture-key" }
+      DeepSeekHarness.counterRequestSource [] (by simp) (by
+        intro current source sourceMem
+        cases sourceMem) 0 initialRunner
+  match streamLoopExhausted with
+  | .error error => fail s!"DeepSeek streamed loop exhaustion failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "DeepSeek streamed loop exhaustion retains the completed tool prefix"
+        result.runner.session.nextSeq 4
+      assertEqual "DeepSeek streamed loop exhaustion is distinct from completion"
+        (DeepSeekStreamHarness.StreamConversationStop.isCompleted result.stop) false
+
 private def failingProvider (operation : Operation) :
     Provider catalog.signature operation where
   id := providerId operation
