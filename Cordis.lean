@@ -12,6 +12,7 @@ import Cordis.DeepSeekApi
 import Cordis.DeepSeekCurlTransport
 import Cordis.DeepSeekCurlStream
 import Cordis.DeepSeekCurlSession
+import Cordis.DeepSeekCurlIncremental
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream

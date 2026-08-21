@@ -7,6 +7,7 @@ import Cordis.DeepSeekApi
 import Cordis.DeepSeekCurlTransport
 import Cordis.DeepSeekCurlStream
 import Cordis.DeepSeekCurlSession
+import Cordis.DeepSeekCurlIncremental
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
@@ -387,6 +388,8 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekCurlSession.appendProcessed_nextSeq
 #print axioms Cordis.DeepSeekCurlSession.appendProcessed_nextCall
 #print axioms Cordis.DeepSeekCurlSession.executeAndAppendText
+#print axioms Cordis.DeepSeekCurlIncremental.readBodyLines
+#print axioms Cordis.DeepSeekCurlIncremental.executeSseIncremental
 #print axioms Cordis.DeepSeekStream.decodeStreamChunkJson
 #print axioms Cordis.DeepSeekStream.parseSse
 #print axioms Cordis.DeepSeekStream.validateSse

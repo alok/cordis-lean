@@ -125,6 +125,9 @@ Current machine-checked evidence includes:
   validation and typed process/status/stream errors; incremental reader semantics remain external;
 - `Cordis.DeepSeekCurlSession`, composing a terminal process-backed text response through the
   rich/session bridge and append-only runner while retaining wire and runner certificates;
+- `Cordis.DeepSeekCurlIncremental`, delivering complete response lines through a process callback
+  under an explicit read budget before strict validation of the reconstructed SSE body; byte-level
+  and cancellation semantics remain external;
 - `Cordis.DeepSeekSessionRunner`, composing accepted text, one-tool, mixed, and multi-call
   terminal traces into the pure append-only local session surface with exact sequence and
   tool-count invariants;

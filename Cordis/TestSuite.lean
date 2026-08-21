@@ -7,6 +7,7 @@ import Cordis.DeepSeekApi
 import Cordis.DeepSeekCurlTransport
 import Cordis.DeepSeekCurlStream
 import Cordis.DeepSeekCurlSession
+import Cordis.DeepSeekCurlIncremental
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
@@ -1021,6 +1022,48 @@ private def testDeepSeekCurlSession : IO Unit := do
       let _nextCallCertificate := DeepSeekCurlSession.appendProcessed_nextCall
         runner processed [] (by simp) (by simp)
       pure ()
+
+private def testDeepSeekCurlIncremental : IO Unit := do
+  let seen ← IO.mkRef ([] : List (Nat × String))
+  let result ← DeepSeekCurlIncremental.executeSseIncremental
+    64 (DeepSeekCurlIncremental.fixtureProcess DeepSeekStream.exampleStreamBody)
+    DeepSeekCurlTransport.fixtureRequest.request (fun index line => do
+      seen.modify (fun lines => (index, line) :: lines))
+  match result with
+  | .error error => fail s!"incremental DeepSeek SSE fixture failed: {reprStr error}"
+  | .ok ⟨body, response⟩ =>
+      let callbackLines ← seen.get
+      let callbackLines := callbackLines.reverse
+      assertEqual "incremental DeepSeek SSE preserves the complete source body"
+        body DeepSeekStream.exampleStreamBody
+      assertEqual "incremental DeepSeek SSE callback indices are contiguous"
+        (callbackLines.map (fun item => item.1))
+        (List.range callbackLines.length)
+      assertEqual "incremental DeepSeek SSE retains callback lines in the response"
+        (callbackLines.map (fun item => item.2)) response.lines
+      assertEqual "incremental DeepSeek SSE excludes the private status trailer"
+        (response.lines.any (fun line => line.contains DeepSeekCurlTransport.statusMarker)) false
+      let _wireCertificate := response.wire
+      assertEqual "incremental DeepSeek SSE validates the same frame count"
+        response.wire.frames.length 2
+  match ← DeepSeekCurlIncremental.executeSseIncremental
+      1 (DeepSeekCurlIncremental.fixtureProcess DeepSeekStream.exampleStreamBody)
+      DeepSeekCurlTransport.fixtureRequest.request (fun _ _ => pure ()) with
+  | .error (.lineLimit reads) =>
+      assertEqual "incremental DeepSeek SSE exposes the read budget failure" reads 1
+  | .error error => fail s!"unexpected incremental budget error: {reprStr error}"
+  | .ok _ => fail "incremental DeepSeek SSE accepted an exhausted read budget"
+  match ← DeepSeekCurlIncremental.executeSseIncremental
+      64 (DeepSeekCurlIncremental.fixtureProcess DeepSeekStream.exampleStreamBody)
+      DeepSeekCurlTransport.fixtureRequest.request (fun index _ => do
+        if index == 0 then
+          throw (IO.userError "stop callback")
+        else
+          pure ()) with
+  | .error (.callback line _) =>
+      assertEqual "incremental DeepSeek SSE preserves callback failure position" line 0
+  | .error error => fail s!"unexpected incremental callback error: {reprStr error}"
+  | .ok _ => fail "incremental DeepSeek SSE ignored a callback failure"
 
 private def testDeepSeekStream : IO Unit := do
   match DeepSeekStream.validateSse DeepSeekStream.exampleStreamBody with
@@ -2217,6 +2260,7 @@ def run : IO Unit := do
   testDeepSeekCurlTransport
   testDeepSeekCurlStream
   testDeepSeekCurlSession
+  testDeepSeekCurlIncremental
   testDeepSeekStream
   testDeepSeekRichStream
   testDeepSeekRichToolStream

@@ -1825,6 +1825,10 @@ provider-complete assembly as explicit deployment work.
 process-backed wire certificate, runs the accepted rich/session projection, and returns the
 proof-carrying append-only runner. Source-event evidence, numeric local-ID assignment, and all
 live/deployed session behavior remain explicit inputs or external obligations.
+`Cordis.DeepSeekCurlIncremental` changes only the process read shape: a line-oriented callback sees
+each body line under an explicit read budget before the private status trailer is consumed, while
+the reconstructed body still passes the strict SSE validator. It is not a byte-level reader or a
+proof of backpressure, cancellation, reconnect, process trust, or provider-complete assembly.
 `Cordis.DeepSeekStream` supplies the next wire boundary: strict in-memory
 `data:` / `[DONE]` SSE framing, typed delta choices, retained raw-frame
 parse/decode certificates, and explicit invalid-UTF-8/JSON/terminal errors.
