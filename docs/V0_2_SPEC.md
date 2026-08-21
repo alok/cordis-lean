@@ -28,6 +28,12 @@ typed start/complete/fail/cancel transitions, finite completion-order traces, dr
 certificates, and concrete race/cancellation witnesses are now executable and proved. Live task
 handles, wall-clock fairness, cancellation delivery, cleanup, and deployed scheduler refinement
 remain explicit non-claims.
+`Cordis.DeepSeekAsyncHarness` adds a deliberately narrow executable bridge: two complete-body
+text-prefix process jobs run in cooperative `ContextAsync` children, and `ContextAsync.race`
+retains the first typed prefix/session result while requesting cancellation of the loser. A real
+two-process fixture and pure terminal-phase facts are included. The underlying synchronous line
+read is not made interruptible, so blocked-read cancellation, fairness, arbitrary cleanup, and
+deployed asynchronous Harness equivalence remain external.
 
 The slice closes two concrete gaps in the original objective:
 
@@ -187,6 +193,10 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekCurlPrefixSession`, projecting only completed process prefixes through the accepted
   text/tool/mixed/multi validators and append-only runner; fuel/cancellation remain typed stops,
   while blocked-read interruption, external execution, and deployed equivalence remain external;
+- `Cordis.DeepSeekAsyncHarness`, racing two complete-body text-prefix process jobs in cooperative
+  `ContextAsync` children and retaining the first typed result plus terminal-phase bridge; the
+  fixture is executable, while blocked-read interruption, fairness, cleanup, and deployed async
+  semantics remain external;
 - `Cordis.DeepSeekSessionRunner`, composing accepted text, one-tool, mixed, and multi-call
   terminal traces into the pure append-only local session surface with exact sequence and
   tool-count invariants;
@@ -267,6 +277,9 @@ Current machine-checked evidence includes:
 - `Cordis.AsyncHarness`, proving indexed pending/running/terminal fiber transitions, explicit
   completion-order traces, drained finite-schedule canonical endpoints, and race/cancellation
   witnesses without claiming live asynchronous execution;
+- `Cordis.DeepSeekAsyncHarness`, exercising a real two-process cooperative race over the typed
+  DeepSeek prefix/session adapter and retaining a legal winner/error plus pure phase facts; this is
+  an observation bridge, not blocked-read cancellation or deployed Harness refinement;
 - `Cordis.StreamSession`, making the provider-string-ID to unique numeric-session-`CallId`
   assignment explicit before a validated rich assistant view enters the canonical surface;
 - `Harness.RunnerState.protocolProjection_eq_log` and `protocolProjection_replays`, tying the

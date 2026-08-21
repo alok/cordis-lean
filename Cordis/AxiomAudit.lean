@@ -29,6 +29,7 @@ import Cordis.DeepSeekStreamHarnessCancellation
 import Cordis.DeepSeekStreamHarnessPrefix
 import Cordis.DeepSeekStreamHarnessErrors
 import Cordis.DeepSeekStreamHarnessRetry
+import Cordis.DeepSeekAsyncHarness
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -286,6 +287,11 @@ set_option format.width 200
 #print axioms Cordis.AsyncHarness.Trace.no_completion_preserves_model
 #print axioms Cordis.AsyncHarness.exampleRaceTrace_successful
 #print axioms Cordis.AsyncHarness.exampleRaceTrace_final_model
+#print axioms Cordis.DeepSeekAsyncHarness.RaceResult.winner_mem
+#print axioms Cordis.DeepSeekAsyncHarness.RaceResult.phase_terminal_of_winner
+#print axioms Cordis.DeepSeekAsyncHarness.RaceResult.phase_pending_iff_waiting
+#print axioms Cordis.DeepSeekAsyncHarness.phase_of_example_success_is_terminal
+#print axioms Cordis.DeepSeekAsyncHarness.phase_of_example_failure_is_terminal
 #print axioms Cordis.ParallelHarness.drain.drainOutcome_after_eq
 #print axioms Cordis.ParallelHarness.drain.drainOutcome_reports_ids
 #print axioms Cordis.ParallelHarness.example_window_after

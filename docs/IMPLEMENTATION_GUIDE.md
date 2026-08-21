@@ -1822,6 +1822,14 @@ delivering promise cancellation, proving wall-clock fairness, or refining the Ty
 scheduler. Those claims require an adapter with explicit worker, cleanup, and persistence
 contracts.
 
+[`../Cordis/DeepSeekAsyncHarness.lean`](../Cordis/DeepSeekAsyncHarness.lean) is the first small
+adapter over that boundary. Each `ProcessJob` runs the existing complete-body text-prefix session
+adapter in its own cooperative `ContextAsync` child, and `executeRace` uses `ContextAsync.race` to
+retain the first typed result while requesting cancellation of the other child. The deterministic
+fixture runs two real `sh` processes, and `RaceResult.phase` is connected to the pure terminal-phase
+certificate. The child still performs a synchronous line-oriented read, so the module does not
+prove blocked-read interruption, fairness, arbitrary cleanup, or deployed Harness equivalence.
+
 ### 19.5 Relate the model to DeepSeek Harness
 
 The active `Cordis.RuntimeRefinement` module begins this work for a supported
@@ -1966,6 +1974,11 @@ backpressure, reconnect, process trust, or deployed assembler equivalence.
 existing text/tool/mixed/multi terminal projections, and appends the retained assistant to the
 typed session runner with the existing next-sequence/next-call proofs. Fuel and cancellation are
 not converted into response errors; they remain explicit stop outcomes.
+`Cordis.DeepSeekAsyncHarness` then races two complete-body text-prefix session jobs in separate
+cooperative children. The winning `PrefixResult` remains typed and its phase is classified by pure
+theorems; the fixture checks the actual process-backed race. Treat the cancellation as a request to
+the cooperative context only: the synchronous line reader is not interruptible by this proof, and
+fairness, arbitrary cleanup, and deployed asynchronous semantics remain adapter obligations.
 `Cordis.DeepSeekStream` supplies the next wire boundary: strict in-memory
 `data:` / `[DONE]` SSE framing, typed delta choices, retained raw-frame
 parse/decode certificates, and explicit invalid-UTF-8/JSON/terminal errors.

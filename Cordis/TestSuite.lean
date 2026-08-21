@@ -10,6 +10,7 @@ import Cordis.DeepSeekCurlSession
 import Cordis.DeepSeekCurlIncremental
 import Cordis.DeepSeekCurlPrefix
 import Cordis.DeepSeekCurlPrefixSession
+import Cordis.DeepSeekAsyncHarness
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekStreamIncremental
 import Cordis.DeepSeekRichStream
@@ -1369,6 +1370,23 @@ private def testDeepSeekCurlPrefixSession : IO Unit := do
   | .error .fuelExhausted => pure ()
   | .error error => fail s!"prefix session fuel stop returned {reprStr error}"
   | .ok _ => fail "prefix session fuel stop fabricated a semantic response"
+
+private def testDeepSeekAsyncHarness : IO Unit := do
+  let race ← DeepSeekAsyncHarness.exampleRace
+  assertEqual "async DeepSeek fixture race reports success"
+    race.successful true
+  assertEqual "async DeepSeek fixture race reaches a terminal phase"
+    race.phase.isTerminal true
+  match race.winner with
+  | some 0 | some 1 => pure ()
+  | winner => fail s!"async DeepSeek fixture race returned invalid winner {reprStr winner}"
+  match race.result with
+  | some (.ok processed) =>
+      assertEqual "async DeepSeek fixture race retains terminal status"
+        processed.observed.status (some 200)
+  | some (.error error) =>
+      fail s!"async DeepSeek fixture race returned typed error {reprStr error}"
+  | none => fail "async DeepSeek fixture race returned no winning result"
 
 private def testDeepSeekStream : IO Unit := do
   match DeepSeekStream.validateSse DeepSeekStream.exampleStreamBody with
@@ -3817,6 +3835,7 @@ def run : IO Unit := do
   testDeepSeekCurlIncremental
   testDeepSeekCurlPrefix
   testDeepSeekCurlPrefixSession
+  testDeepSeekAsyncHarness
   testDeepSeekStream
   testDeepSeekStreamIncremental
   testDeepSeekRichStream
