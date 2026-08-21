@@ -6,6 +6,7 @@ import Cordis.ContextualEquivalence
 import Cordis.DeepSeekApi
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekRichStream
+import Cordis.DeepSeekRichToolStream
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -964,6 +965,63 @@ private def testDeepSeekRichStream : IO Unit := do
   | .error (.projection .missingFinish) => pure ()
   | _ => fail "DeepSeek rich-stream projection accepted a stream without finish"
 
+private def testDeepSeekRichToolStream : IO Unit := do
+  match DeepSeekRichToolStream.validateToolStream
+      DeepSeekRichToolStream.exampleToolStreamBody with
+  | .error error => fail s!"DeepSeek rich-tool projection failed: {reprStr error}"
+  | .ok validated =>
+      assertEqual "DeepSeek rich-tool projection emits the expected local raw trace length"
+        validated.raw.length 6
+      match validated.rich.finish with
+      | .terminal blocks usage .toolCalls none =>
+          assertEqual "DeepSeek rich-tool projection assembles one exact tool block"
+            blocks [.toolCall "call-a" "lookup" "{\\\"q\\\":lean\\\"}"]
+          assertEqual "DeepSeek rich-tool projection retains input usage"
+            usage.inputTokens 4
+          assertEqual "DeepSeek rich-tool projection retains output usage"
+            usage.outputTokens 3
+      | _ => fail "DeepSeek rich-tool projection did not reach the expected terminal state"
+      let _wireCertificate := validated.wire.parsed
+      let _projectionCertificate := validated.projection
+      let _richCertificate := validated.rich.erase_eq
+      pure ()
+  let multipleToolJson : Lean.Json := .mkObj [
+    ("id", .str "tool-stream-example"),
+    ("model", .str "deepseek-reasoner"),
+    ("choices", .arr #[.mkObj [
+      ("index", .num (Lean.JsonNumber.fromNat 0)),
+      ("delta", .mkObj [("tool_calls", .arr #[
+        .mkObj [("index", .num (Lean.JsonNumber.fromNat 0)),
+          ("id", .str "a")],
+        .mkObj [("index", .num (Lean.JsonNumber.fromNat 1)),
+          ("id", .str "b")]
+      ])]),
+      ("finish_reason", .null)
+    ]])
+  ]
+  let multipleToolBody :=
+    "data: " ++ Lean.Json.compress multipleToolJson ++ "\n\ndata: [DONE]\n\n"
+  match DeepSeekRichToolStream.validateToolStream multipleToolBody with
+  | .error (.projection (.multipleToolCalls 2)) => pure ()
+  | _ => fail "DeepSeek rich-tool projection accepted multiple tool calls"
+  let missingIdJson : Lean.Json := .mkObj [
+    ("id", .str "tool-stream-example"),
+    ("model", .str "deepseek-reasoner"),
+    ("choices", .arr #[.mkObj [
+      ("index", .num (Lean.JsonNumber.fromNat 0)),
+      ("delta", .mkObj [("tool_calls", .arr #[.mkObj [
+        ("index", .num (Lean.JsonNumber.fromNat 0)),
+        ("function", .mkObj [("name", .str "lookup")])
+      ]])]),
+      ("finish_reason", .null)
+    ]])
+  ]
+  let missingIdBody :=
+    "data: " ++ Lean.Json.compress missingIdJson ++ "\n\ndata: [DONE]\n\n"
+  match DeepSeekRichToolStream.validateToolStream missingIdBody with
+  | .error (.projection .missingToolId) => pure ()
+  | _ => fail "DeepSeek rich-tool projection accepted a tool delta without an id"
+
 private def testQuotientEffects : IO Unit := do
   let applied := Observational.Quotient.Example.program.run
     Observational.Quotient.Example.initial
@@ -1686,6 +1744,7 @@ def run : IO Unit := do
   testDeepSeekApi
   testDeepSeekStream
   testDeepSeekRichStream
+  testDeepSeekRichToolStream
   testQuotientEffects
   testCoeffectQuotientLift
   testOperationalEquivalence

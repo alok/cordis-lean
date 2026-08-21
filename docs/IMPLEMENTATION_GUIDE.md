@@ -1816,6 +1816,12 @@ index zero, text-only deltas, terminal usage, and stop/max-token finish. The
 validated value retains wire, projection, and intrinsic rich-trace certificates;
 reasoning, tool calls, extra choices, unsupported finishes, and missing terminal
 fields fail closed rather than being silently normalized.
+`Cordis.DeepSeekRichToolStream` is kept separate so tool semantics do not widen
+the text-only language implicitly. It accepts one provider-index-zero function
+call, preserves raw argument fragments and stable IDs/names, closes the exact
+local tool block, and requires a terminal `tool_calls` finish. Multiple calls,
+missing identifiers, mixed text/tool deltas, and tool execution remain outside
+this proof-carrying projection.
 Continue by defining translations for additional pinned Harness events and tool
 definitions and proving only the invariants actually shared by the two
 representations. Expect to model more payloads, surface semantics, session

@@ -6,6 +6,7 @@ import Cordis.ContextualEquivalence
 import Cordis.DeepSeekApi
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekRichStream
+import Cordis.DeepSeekRichToolStream
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -353,6 +354,8 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekStream.validateSseBytes
 #print axioms Cordis.DeepSeekRichStream.projectFrames
 #print axioms Cordis.DeepSeekRichStream.validateTextStream
+#print axioms Cordis.DeepSeekRichToolStream.projectFrames
+#print axioms Cordis.DeepSeekRichToolStream.validateToolStream
 #print axioms Cordis.Transformation.Closure.commute
 #print axioms Cordis.Transformation.commute_of_generators
 #print axioms Cordis.Transformation.seq_monoid_subset_joint

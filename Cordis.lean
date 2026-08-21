@@ -11,6 +11,7 @@ import Cordis.DurableSettlement
 import Cordis.DeepSeekApi
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekRichStream
+import Cordis.DeepSeekRichToolStream
 import Cordis.Effect
 import Cordis.Examples.Counter
 import Cordis.Examples.CounterWire
