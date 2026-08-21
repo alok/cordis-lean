@@ -758,11 +758,115 @@ def executeConversationRound
                     finalModel
                     executions
                     executions_eq := executionEq
-                    assistantSeq
+                    assistantSeq := assistantSeq
                     assistantSeq_eq := by
                       change runner.session.nextSeq + 1 = assistantRunner.session.nextSeq
                       rw [ConversationRunner.appendAcceptedApi_nextSeq]
                   }⟩)
+
+/-! ## Fuel-bounded conversation execution -/
+
+abbrev ConversationWitness
+    {Model Capability : Type}
+    (cfg : GenericHarness.Config Model Capability) :=
+  Sigma fun before : Model => Sigma fun body : String => ConversationRoundResult cfg before body
+
+namespace ConversationWitness
+
+abbrev noToolCalls
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability} :
+  ConversationWitness cfg -> Prop
+  | ⟨_, ⟨_, round⟩⟩ =>
+      round.accepted.validated.response.choices.head.message.toolCalls.length = 0
+
+end ConversationWitness
+
+inductive ConversationStop
+    {Model Capability : Type}
+    (cfg : GenericHarness.Config Model Capability) where
+  | completed (last : ConversationWitness cfg)
+      (noToolCalls : ConversationWitness.noToolCalls last)
+  | fuelExhausted
+
+namespace ConversationStop
+
+def isCompleted
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability} :
+    ConversationStop cfg -> Bool
+  | .completed _ _ => true
+  | .fuelExhausted => false
+
+end ConversationStop
+
+structure ConversationRunResult
+    {Model Capability : Type}
+    (cfg : GenericHarness.Config Model Capability) where
+  rounds : List (ConversationWitness cfg)
+  runner : ConversationRunner
+  finalModel : Model
+  stop : ConversationStop cfg
+
+def runConversationAux
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (fuel : Nat)
+    (transport : Transport)
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (source : RequestSource)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ current : ConversationRunner,
+      ∀ source ∈ sourceEventSeqs, source < current.session.nextSeq)
+    (before : Model)
+    (runner : ConversationRunner)
+    (history : List (ConversationWitness cfg)) :
+    IO (Except ConversationError (ConversationRunResult cfg)) := do
+  match fuel with
+  | 0 =>
+      pure (.ok {
+        rounds := history
+        runner
+        finalModel := before
+        stop := .fuelExhausted
+      })
+  | fuel + 1 =>
+      match ← executeConversationRound transport baseUrl apiKey source cfg before runner
+          sourceEventSeqs sourcesNodup (sourcesEarlier runner) with
+      | .error error => pure (.error error)
+      | .ok ⟨body, round⟩ =>
+          let witness : ConversationWitness cfg := ⟨before, ⟨body, round⟩⟩
+          let nextHistory := history ++ [witness]
+          if noTools : ConversationWitness.noToolCalls witness then
+            pure (.ok {
+              rounds := nextHistory
+              runner := round.runner
+              finalModel := round.finalModel
+              stop := .completed witness noTools
+            })
+          else
+            runConversationAux fuel transport baseUrl apiKey source sourceEventSeqs sourcesNodup
+              sourcesEarlier round.finalModel round.runner nextHistory
+
+def runConversation
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (fuel : Nat)
+    (transport : Transport)
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (source : RequestSource)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ current : ConversationRunner,
+      ∀ source ∈ sourceEventSeqs, source < current.session.nextSeq)
+    (before : Model)
+    (runner : ConversationRunner) :
+    IO (Except ConversationError (ConversationRunResult cfg)) :=
+  runConversationAux fuel transport baseUrl apiKey source sourceEventSeqs sourcesNodup
+    sourcesEarlier before runner []
 
 /-! ## Deterministic executable fixture -/
 

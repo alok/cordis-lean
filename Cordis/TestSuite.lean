@@ -1536,6 +1536,75 @@ private def testDeepSeekHarness : IO Unit := do
           | [] => pure ()
           | executions => fail s!"second continuation round executed {executions.length} tools"
 
+  let loopBodies ← IO.mkRef ([] : List String)
+  let loopTransport : Cordis.DeepSeekApi.Transport := {
+    send := fun request => do
+      loopBodies.modify (fun bodies => request.body :: bodies)
+      let bodies ← loopBodies.get
+      pure (.ok {
+        status := 200
+        body := if bodies.length = 1 then DeepSeekHarness.counterResponseBody
+          else DeepSeekHarness.counterFinalResponseBody
+      })
+  }
+  let loopResult :
+      Except DeepSeekHarness.ConversationError
+        (DeepSeekHarness.ConversationRunResult
+          (Model := Nat) (Capability := Cordis.Examples.Counter.Capability)
+          Cordis.Harness.counterConfig) ←
+    DeepSeekHarness.runConversation (Model := Nat)
+      (Capability := Cordis.Examples.Counter.Capability) 2 loopTransport
+      "https://fixture.invalid" { value := "fixture-key" }
+      DeepSeekHarness.counterRequestSource [] (by simp)
+      (by
+        intro current source sourceMem
+        cases sourceMem) 0 initialRunner
+  match loopResult with
+  | .error error => fail s!"fuel-bounded conversation failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "fuel-bounded conversation retains both round witnesses"
+        result.rounds.length 2
+      assertEqual "fuel-bounded conversation retains the final model"
+        result.finalModel 0
+      assertEqual "fuel-bounded conversation reaches the final sequence"
+        result.runner.session.nextSeq 4
+      assertEqual "fuel-bounded conversation reports completion"
+        (DeepSeekHarness.ConversationStop.isCompleted result.stop) true
+      let loopBodiesSnapshot ← loopBodies.get
+      assertEqual "fuel-bounded conversation makes one request per round"
+        loopBodiesSnapshot.length 2
+
+  let exhaustedBodies ← IO.mkRef ([] : List String)
+  let exhaustedTransport : Cordis.DeepSeekApi.Transport := {
+    send := fun request => do
+      exhaustedBodies.modify (fun bodies => request.body :: bodies)
+      pure (.ok { status := 200, body := DeepSeekHarness.counterResponseBody })
+  }
+  let exhaustedResult :
+      Except DeepSeekHarness.ConversationError
+        (DeepSeekHarness.ConversationRunResult
+          (Model := Nat) (Capability := Cordis.Examples.Counter.Capability)
+          Cordis.Harness.counterConfig) ←
+    DeepSeekHarness.runConversation (Model := Nat)
+      (Capability := Cordis.Examples.Counter.Capability) 1 exhaustedTransport
+      "https://fixture.invalid" { value := "fixture-key" }
+      DeepSeekHarness.counterRequestSource [] (by simp)
+      (by
+        intro current source sourceMem
+        cases sourceMem) 0 initialRunner
+  match exhaustedResult with
+  | .error error => fail s!"fuel exhaustion fixture failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "fuel exhaustion retains the completed round prefix"
+        result.rounds.length 1
+      assertEqual "fuel exhaustion returns the post-tool runner"
+        result.runner.session.nextSeq 2
+      assertEqual "fuel exhaustion reports a non-completed stop"
+        (DeepSeekHarness.ConversationStop.isCompleted result.stop) false
+      let exhaustedBodiesSnapshot ← exhaustedBodies.get
+      assertEqual "fuel exhaustion does not issue an unbudgeted second request"
+        exhaustedBodiesSnapshot.length 1
+
 private def testQuotientEffects : IO Unit := do
   let applied := Observational.Quotient.Example.program.run
     Observational.Quotient.Example.initial

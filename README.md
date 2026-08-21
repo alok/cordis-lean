@@ -126,7 +126,10 @@ policy, and provider execution. Typed replies and failure classes are retained, 
 session with exact local IDs, source-sequence references, message order, and protocol projection.
 `ConversationRunner` carries the resulting session into a subsequent request, and
 `executeConversationRound` composes request construction, transport, response acceptance, typed
-tool execution, and result append; the test suite exercises a deterministic two-response loop.
+tool execution, and result append. `runConversation` repeats that certified round under explicit
+fuel and returns every round witness together with either a terminal no-tool-call certificate or
+an explicit `fuelExhausted` stop; the test suite exercises both completion and exhaustion on a
+deterministic two-response loop.
 Persistence, credentials, scheduling, and deployed-Harness equivalence remain outside.
 
 The next paper layer is explicit rather than assumed. `Cordis.OperationalEquivalence` models
