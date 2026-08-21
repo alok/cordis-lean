@@ -14,6 +14,7 @@ import Cordis.DeepSeekAsyncHarness
 import Cordis.DeepSeekAsyncStreamHarness
 import Cordis.DeepSeekAsyncStreamCancellation
 import Cordis.DeepSeekStream
+import Cordis.DeepSeekStreamFailure
 import Cordis.DeepSeekStreamIncremental
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
@@ -1484,6 +1485,36 @@ private def testDeepSeekStream : IO Unit := do
   match DeepSeekStream.validateSseBytes (ByteArray.mk #[255]) with
   | .error .invalidUtf8 => pure ()
   | _ => fail "invalid UTF-8 DeepSeek SSE input was accepted"
+
+private def testDeepSeekStreamFailure : IO Unit := do
+  match DeepSeekStreamFailure.exampleContentFilter with
+  | .error error => fail s!"DeepSeek content-filter fixture failed: {reprStr error}"
+  | .ok validated =>
+      assertEqual "DeepSeek content-filter failure preserves the prefix frame count"
+        validated.view.leading.length 1
+      assertEqual "DeepSeek content-filter failure preserves its reason"
+        validated.view.reason .contentFilter
+      assertEqual "DeepSeek content-filter failure preserves terminal choice index"
+        validated.view.info.choice.index 0
+      assertEqual "DeepSeek content-filter failure preserves terminal raw content"
+        validated.view.info.choice.delta.content (some "partial")
+      assertEqual "DeepSeek content-filter failure retains the done frame"
+        validated.wire.frames.length 3
+      let _projectionCertificate := validated.projection
+      let _reasonCertificate := DeepSeekStreamFailure.validateFailureStream_reason validated
+      let _choiceCertificate :=
+        DeepSeekStreamFailure.validateFailureStream_terminal_choice validated
+  match DeepSeekStreamFailure.exampleInsufficientResource with
+  | .error error => fail s!"DeepSeek resource-failure fixture failed: {reprStr error}"
+  | .ok validated =>
+      assertEqual "DeepSeek resource failure preserves its reason"
+        validated.view.reason .insufficientSystemResource
+      assertEqual "DeepSeek resource failure preserves optional terminal usage"
+        validated.view.usage none
+  match DeepSeekStreamFailure.validateFailureStream DeepSeekRichStream.exampleTextStreamBody with
+  | .error (.inr (.unsupportedFinish .stop)) => pure ()
+  | .error error => fail s!"ordinary DeepSeek finish returned {reprStr error}"
+  | .ok _ => fail "ordinary DeepSeek stop was accepted as a provider failure"
 
 private def testDeepSeekStreamIncremental : IO Unit := do
   match DeepSeekStreamIncremental.consumeBody
@@ -4533,6 +4564,7 @@ def run : IO Unit := do
   testDeepSeekAsyncStreamHarness
   testDeepSeekAsyncStreamCancellation
   testDeepSeekStream
+  testDeepSeekStreamFailure
   testDeepSeekStreamIncremental
   testDeepSeekRichStream
   testDeepSeekRichToolStream

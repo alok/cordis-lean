@@ -222,6 +222,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekSchemaStreamPrefixConversation`, preserving the accepted line prefix and typed
   line-budget/cancellation stop while deferring registry dispatch until the completed `[DONE]`
   rich/session certificate;
+- `Cordis.DeepSeekStreamFailure`, preserving strict provider terminal-failure frames for
+  `content_filter` and `insufficient_system_resource` without coercing them into a normal rich
+  trace or session message;
 - `Cordis.DeepSeekSchemaStreamErrors`, preserving entry-specific provider-failure certificates,
   converting them to opt-in `isError` results, and proving a later streamed terminal continuation;
 - `Cordis.DeepSeekHarnessErrors`, adding an explicit fail-closed/default-versus-opt-in policy seam
@@ -1106,6 +1109,12 @@ admission/policy evidence, exact provider message, and unchanged model; the runn
 opt-in `isError` tool result, and the fixture proves a subsequent text terminal when the request
 source includes error tool results. This is still a complete-body, deterministic process fixture,
 not a retry, cancellation, persistence, external-effect, or deployed-error-equivalence theorem.
+
+`Cordis.DeepSeekStreamFailure` covers the adjacent wire-only terminal-failure language. It accepts
+only complete strict bodies ending in `content_filter` or `insufficient_system_resource`, retaining
+the leading `DataFrame`s, terminal raw frame, singleton choice/reason, and optional usage. Ordinary
+rich finishes, wire `error`/`aborted` envelopes, and any normal rich/session projection remain
+outside this failure certificate.
 
 `Cordis.DeepSeekHarnessPersistenceIO` composes the same runner attachment with the executable
 `HarnessPersistenceIO.ReadCertificate`. A successful memory or temporary-file read retains the

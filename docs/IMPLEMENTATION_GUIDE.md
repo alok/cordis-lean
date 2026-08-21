@@ -2119,6 +2119,12 @@ The deterministic fixture demonstrates two heterogeneous failures followed by a 
 it does not silently turn this into retry, cancellation, persistence, external execution, or
 deployed-provider semantics.
 
+`Cordis.DeepSeekStreamFailure` is the lower wire-only companion: build the strict SSE certificate
+first, classify only the two finish tags the current decoder actually exposes as provider failures,
+and retain the raw terminal data instead of coercing it into rich/session events. Do not add a
+normal block-end or `isError` projection here; those are different semantic policies, and the
+current source shape does not provide a general `error`/`aborted` envelope.
+
 `Cordis.DeepSeekHarnessCancellation` adds the corresponding pre-round control boundary: the policy
 is checked before a complete request round, and a cancellation result carries the unchanged
 runner/model endpoint and completed prefix. Keep the boundary honest: interrupting an in-flight

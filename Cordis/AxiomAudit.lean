@@ -12,6 +12,7 @@ import Cordis.DeepSeekCurlIncremental
 import Cordis.DeepSeekCurlPrefix
 import Cordis.DeepSeekCurlPrefixSession
 import Cordis.DeepSeekStream
+import Cordis.DeepSeekStreamFailure
 import Cordis.DeepSeekStreamIncremental
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
@@ -539,6 +540,10 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekStream.parseSse
 #print axioms Cordis.DeepSeekStream.parseSsePrefix
 #print axioms Cordis.DeepSeekStream.validateSse
+#print axioms Cordis.DeepSeekStreamFailure.projectFrames
+#print axioms Cordis.DeepSeekStreamFailure.validateFailureStream
+#print axioms Cordis.DeepSeekStreamFailure.validateFailureStream_reason
+#print axioms Cordis.DeepSeekStreamFailure.validateFailureStream_terminal_choice
 #print axioms Cordis.DeepSeekStreamIncremental.consumeLines
 #print axioms Cordis.DeepSeekStreamIncremental.consumeBody
 #print axioms Cordis.DeepSeekStream.validateSseBytes
