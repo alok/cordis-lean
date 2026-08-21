@@ -1792,8 +1792,8 @@ cancellation, and persistence behavior refines these fields.
 
 The active `Cordis.RuntimeRefinement` module begins this work for a supported
 current-Harness `StreamChunk` subset. `Cordis.SessionRefinement` adds a stateful
-turn/step/tool subset plus text-only user/assistant surface messages. Accepted
-events carry rich Session witnesses; runtime events additionally carry intrinsic
+turn/step/tool subset plus text user/assistant surface blocks and complete assistant
+tool-call blocks. Accepted events carry rich Session witnesses; runtime events additionally carry intrinsic
 Protocol witnesses, while admitted surface IDs/provider metadata remain in the
 refinement state and only text enters the smaller local message types. Both start
 at `Lean.Json`, decode exact current field/tag shapes, and fail closed outside

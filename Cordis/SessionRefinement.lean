@@ -17,19 +17,20 @@ The translation synthesizes only values fixed by the accepted prefix and named n
 * provider string call ids receive the next fresh local numeric id and remain in a certified map;
 * absent tool-result `isError` becomes `false`, matching the TypeScript optional Boolean default.
 
-The supported event vocabulary is turn/step boundaries, text-only user and assistant messages,
-tool calls, and a restricted tool result whose three call-id occurrences agree and whose nested
-result content is exactly one text block. Only upstream `completed` and `max-tokens` turn-end
-reasons map without information loss. Surface messages retain their upstream identity and source
-metadata in the refinement state while their text-only content is projected into the smaller local
-`Session.Message` vocabulary.
+The supported event vocabulary is turn/step boundaries, text-only user messages, assistant
+messages with text and complete tool-call blocks, tool calls, and a restricted tool result whose
+three call-id occurrences agree and whose nested result content is exactly one text block. Only
+upstream `completed` and `max-tokens` turn-end reasons map without information loss. Surface
+messages retain their upstream identity and source metadata in the refinement state while their
+text and typed tool calls are projected into the smaller local `Session.Message` vocabulary.
 
-Assistant chunks, request headers/context, replacement surface ops, assistant tool-call/reasoning
-blocks, assistant replay state, tool-result error identity/meta, multimodal tool results, and all
-extension events are rejected. Their upstream payloads contain arbitrary JSON, provenance, replay
-data, or modalities absent from the local types. The wire witness retains upstream `time`; the
-local session has no timestamp field, so no local projection claim mentions it. This is a sound
-supported-subset refinement, not a
+Assistant chunks, request headers/context, replacement surface ops, assistant reasoning blocks,
+assistant replay state, tool-result error identity/meta, multimodal tool results, and all extension
+events are rejected. Complete assistant tool calls are allocated into the same provider-to-local
+binding state used by later `tool/call` and `tool/result` events. Their upstream payloads still
+contain arbitrary JSON, provenance, replay data, or modalities absent from the local types. The
+wire witness retains upstream `time`; the local session has no timestamp field, so no local
+projection claim mentions it. This is a sound supported-subset refinement, not a
 behavioral-equivalence claim or a general current/future session-log reader. JSON text parsing,
 UTF-8, timestamps as wall-clock facts, persistence framing, and storage recovery remain outside.
 -/
@@ -85,6 +86,12 @@ structure WireTextBlock where
   text : String
   deriving DecidableEq, Repr
 
+/-- The admitted assistant block subset retains text and complete tool-call blocks. -/
+inductive WireAssistantBlock where
+  | text (text : String)
+  | toolCall (providerId name arguments : String)
+  deriving DecidableEq, Repr
+
 /-- The source-shaped fields preserved for an admitted user message. -/
 structure WireUserMessage where
   id : String
@@ -105,7 +112,7 @@ structure WireAssistantMessage where
   id : String
   provider : String
   model : String
-  content : List WireTextBlock
+  content : List WireAssistantBlock
   usage : Option WireUsage
   deriving DecidableEq, Repr
 
@@ -267,6 +274,31 @@ private def decodeTextBlocks (path : List PathSegment) : Lean.Json →
       loop 0 values.toList
   | json => .error (.typeMismatch path "array" (jsonKind json))
 
+private def decodeAssistantBlock (path : List PathSegment) : Lean.Json →
+    Except DecodeError WireAssistantBlock
+  | json@(.obj _) => do
+      let kind ← decodeRequiredString json path "type"
+      match kind with
+      | "text" => .text <$> decodeRequiredString json path "text"
+      | "tool-call" =>
+          .toolCall <$> decodeRequiredString json path "id"
+            <*> decodeRequiredString json path "name"
+            <*> decodeRequiredString json path "arguments"
+      | tag => .error (.unsupportedTag (fieldPath path "type") tag)
+  | json => .error (.typeMismatch path "object" (jsonKind json))
+
+private def decodeAssistantBlocks (path : List PathSegment) : Lean.Json →
+    Except DecodeError (List WireAssistantBlock)
+  | .arr values =>
+      let rec loop : Nat → List Lean.Json → Except DecodeError (List WireAssistantBlock)
+        | _, [] => .ok []
+        | index, value :: rest => do
+            let decoded ← decodeAssistantBlock (indexPath path index) value
+            let suffix ← loop (index + 1) rest
+            .ok (decoded :: suffix)
+      loop 0 values.toList
+  | json => .error (.typeMismatch path "array" (jsonKind json))
+
 private def decodeWireUsage (path : List PathSegment) : Lean.Json →
     Except DecodeError WireUsage
   | json@(.obj _) => do
@@ -316,7 +348,7 @@ private def decodeAssistantMessage (path : List PathSegment) (json : Lean.Json) 
         decodeRequiredString source sourcePath "provider"
     | value => .error (.typeMismatch sourcePath "object" (jsonKind value))
   let model ← decodeRequiredString source sourcePath "model"
-  let content ← decodeTextBlocks (fieldPath path "content")
+  let content ← decodeAssistantBlocks (fieldPath path "content")
     (← requireField json path "content")
   let usage ← decodeOptionalWireUsage json path
   .ok { id, provider, model, content, usage }
@@ -551,6 +583,7 @@ private def normalizeStep (step : SafeNat) : Except RefinementError Nat :=
   | localStepValue + 1 => .ok localStepValue
 
 private structure Allocation (before : BindingState) (providerId : String) where
+  binding : CallBinding
   localId : CallId
   after : BindingState
 
@@ -566,6 +599,7 @@ private def allocate (before : BindingState) (providerId : String) :
       exact (Nat.ne_of_lt below) equalValue
     let binding : CallBinding := { providerId, localId }
     .ok {
+      binding
       localId
       after := {
         nextLocalId := before.nextLocalId + 1
@@ -582,6 +616,46 @@ private def allocate (before : BindingState) (providerId : String) :
     }
   else
     .error (.duplicateProviderCall providerId)
+
+private structure ToolAllocation where
+  providerId : String
+  localId : CallId
+  name : String
+  arguments : String
+
+private def allocateAssistantCalls (before : BindingState) :
+    List (String × String × String) →
+      Except RefinementError (List ToolAllocation × BindingState)
+  | [] => .ok ([], before)
+  | (providerId, name, arguments) :: rest => do
+      let allocated ← allocate before providerId
+      let ⟨suffix, after⟩ ← allocateAssistantCalls allocated.after rest
+      .ok ({ providerId, localId := allocated.localId, name, arguments } :: suffix, after)
+
+private def assistantBlockTriples : List WireAssistantBlock → List (String × String × String)
+  | [] => []
+  | .text _ :: rest => assistantBlockTriples rest
+  | .toolCall providerId name arguments :: rest =>
+      (providerId, name, arguments) :: assistantBlockTriples rest
+
+private def assistantBlockText : List WireAssistantBlock → String
+  | [] => ""
+  | .text text :: rest => text ++ assistantBlockText rest
+  | .toolCall _ _ _ :: rest => assistantBlockText rest
+
+private def toolAllocationsToSession : List ToolAllocation → List Session.ToolCall
+  | [] => []
+  | allocation :: rest =>
+      { id := allocation.localId, name := allocation.name, arguments := allocation.arguments } ::
+        toolAllocationsToSession rest
+
+private def resolveCall (before : BindingState) (providerId : String) :
+    Except RefinementError (CallBinding × BindingState) :=
+  match BindingState.findProvider providerId before.bindings with
+  | some binding => .ok (binding, before)
+  | none => do
+      let allocated ← allocate before providerId
+      .ok (allocated.binding, allocated.after)
 
 /-! ## Joint local candidates and proof-producing refinement -/
 
@@ -619,11 +693,12 @@ private def userMessageEvent (seq : Nat) (content : String)
   intent := .append sources
 
 private def assistantMessageEvent (seq turn step : Nat) (content : String)
-    (sources : List Nat) : Session.LoggedEvent Session.noExtensions where
+    (rawToolCalls : List Session.ToolCall) (sources : List Nat) :
+    Session.LoggedEvent Session.noExtensions where
   visibility := .surface
   seq
   kind := .assistantMessage
-  payload := { turn, step, content, rawToolCalls := [] }
+  payload := { turn, step, content, rawToolCalls }
   intent := .append sources
 
 private def concatText : List WireTextBlock → String
@@ -638,7 +713,7 @@ private def userLocalContent (message : WireUserMessage) : String :=
   concatText message.content
 
 private def assistantLocalContent (message : WireAssistantMessage) : String :=
-  concatText message.content
+  assistantBlockText message.content
 
 private def expectUserMessage : WireSurfaceMessage → Except RefinementError WireUserMessage
   | .user message => .ok message
@@ -705,16 +780,16 @@ private def candidate (before : State) (wire : WireEvent) :
       }
   | .toolCall turn step providerId name arguments => do
       let localStep ← normalizeStep step
-      let allocated ← allocate before.calls providerId
+      let ⟨binding, calls⟩ ← resolveCall before.calls providerId
       let localEvent := logOnlyEvent wire.seq.value .toolCall {
         turn := turn.value
         step := localStep
-        call := { id := allocated.localId, name, arguments }
+        call := { id := binding.localId, name, arguments }
       }
       .ok {
         localEvent
-        runtime := some (.toolCall turn.value localStep allocated.localId)
-        calls := allocated.after
+        runtime := some (.toolCall turn.value localStep binding.localId)
+        calls
         wireAppend := none
         seq_eq := rfl
         projection_eq := rfl
@@ -735,12 +810,16 @@ private def candidate (before : State) (wire : WireEvent) :
   | .assistantMessage turn step append => do
       let localStep ← normalizeStep step
       let message ← expectAssistantMessage append.message
+      let allocations ← allocateAssistantCalls before.calls
+        (assistantBlockTriples message.content)
       let localEvent := assistantMessageEvent wire.seq.value turn.value localStep
-        (assistantLocalContent message) (sourceSeqsToNat append.sourceEventSeqs)
+        (assistantLocalContent message)
+        (toolAllocationsToSession allocations.1)
+        (sourceSeqsToNat append.sourceEventSeqs)
       .ok {
         localEvent
         runtime := none
-        calls := before.calls
+        calls := allocations.2
         wireAppend := some append
         seq_eq := rfl
         projection_eq := rfl
@@ -1090,6 +1169,89 @@ def messageExampleJson : List Lean.Json := [
   ]
 ]
 
+/-! ## Assistant tool-call surface example -/
+
+def toolMessageExampleJson : List Lean.Json := [
+  Lean.Json.mkObj [
+    ("type", .str "turn/start"), ("seq", .num 0), ("time", .num 300),
+    ("data", Lean.Json.mkObj [("turn", .num 1)])
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "user/message"), ("seq", .num 1), ("time", .num 301),
+    ("data", Lean.Json.mkObj [
+      ("id", .str "user-1"), ("role", .str "user"),
+      ("source", Lean.Json.mkObj [("kind", .str "user")]),
+      ("content", .arr #[Lean.Json.mkObj [
+        ("type", .str "text"), ("text", .str "look up lean")
+      ]])
+    ]),
+    ("surfaceOp", .str "append"), ("sourceEventSeqs", .arr #[])
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "step/start"), ("seq", .num 2), ("time", .num 302),
+    ("data", Lean.Json.mkObj [("turn", .num 1), ("step", .num 1)])
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "assistant/message"), ("seq", .num 3), ("time", .num 303),
+    ("data", Lean.Json.mkObj [
+      ("turn", .num 1), ("step", .num 1),
+      ("message", Lean.Json.mkObj [
+        ("id", .str "assistant-1"), ("role", .str "assistant"),
+        ("source", Lean.Json.mkObj [
+          ("kind", .str "model"), ("provider", .str "deepseek"),
+          ("model", .str "deepseek-reasoner")
+        ]),
+        ("content", .arr #[
+          Lean.Json.mkObj [("type", .str "text"), ("text", .str "I will look it up." )],
+          Lean.Json.mkObj [
+            ("type", .str "tool-call"), ("id", .str "provider-call"),
+            ("name", .str "lookup"), ("arguments", .str "{\"q\":\"lean\"}")
+          ]
+        ])
+      ])
+    ]),
+    ("surfaceOp", .str "append"), ("sourceEventSeqs", .arr #[.num 1])
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "tool/call"), ("seq", .num 4), ("time", .num 304),
+    ("data", Lean.Json.mkObj [
+      ("turn", .num 1), ("step", .num 1), ("callId", .str "provider-call"),
+      ("name", .str "lookup"), ("arguments", .str "{\"q\":\"lean\"}")
+    ])
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "tool/result"), ("seq", .num 5), ("time", .num 305),
+    ("data", Lean.Json.mkObj [
+      ("turn", .num 1), ("step", .num 1),
+      ("message", Lean.Json.mkObj [
+        ("source", Lean.Json.mkObj [
+          ("kind", .str "tool"), ("callId", .str "provider-call")
+        ]),
+        ("content", .arr #[Lean.Json.mkObj [
+          ("type", .str "tool-result"), ("toolCallId", .str "provider-call"),
+          ("content", .arr #[Lean.Json.mkObj [
+            ("type", .str "text"), ("text", .str "result")
+          ]]),
+          ("isError", .bool false)
+        ]]),
+        ("role", .str "user"), ("id", .str "message-1")
+      ])
+    ]),
+    ("sourceEventSeqs", .arr #[.num 4]), ("surfaceOp", .str "append")
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "step/end"), ("seq", .num 6), ("time", .num 306),
+    ("data", Lean.Json.mkObj [("turn", .num 1), ("step", .num 1)])
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "turn/end"), ("seq", .num 7), ("time", .num 307),
+    ("data", Lean.Json.mkObj [
+      ("turn", .num 1),
+      ("reason", Lean.Json.mkObj [("kind", .str "completed")])
+    ])
+  ]
+]
+
 private def wireSurfaceIds : List WireSurfaceAppend → List String
   | [] => []
   | append :: rest =>
@@ -1184,6 +1346,30 @@ theorem validate_message_example :
         surfaceProviders := ["", "deepseek"]
       } := by
   rfl
+
+/-- Assistant tool-call blocks allocate a local ID reused by later call/result events. -/
+theorem validate_tool_message_example :
+    surfaceValidationSummary (validateJsonLog toolMessageExampleJson) = some {
+        protocol := .ready 2
+        messages := [
+          .user "look up lean",
+          .assistant "I will look it up." [{
+            id := { value := 0 }, name := "lookup", arguments := "{\"q\":\"lean\"}"
+          }],
+          .toolResult { value := 0 } "result" false
+        ]
+        runtimeEvents := [
+          .turnStart 1,
+          .stepStart 1 0,
+          .toolCall 1 0 { value := 0 },
+          .toolResult 1 0 { value := 0 },
+          .stepEnd 1 0,
+          .turnEnd 1 1
+      ]
+        surfaceIds := ["user-1", "assistant-1"]
+        surfaceProviders := ["", "deepseek"]
+      } := by
+  decide
 
 /-- Assistant reasoning blocks remain outside the text-only session projection. -/
 theorem reject_assistantReasoningBlock :

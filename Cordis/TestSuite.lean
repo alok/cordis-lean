@@ -1083,7 +1083,8 @@ private def testDeepSeekSessionRunner : IO Unit := do
             final.session.nextSeq 2
           assertEqual "DeepSeek session runner allocates the next local tool ID"
             final.nextCall 1
-          assertEqual "DeepSeek session runner preserves model message order" final.session.messages [
+          assertEqual "DeepSeek session runner preserves model message order"
+            final.session.messages [
             .assistant "Hello world" [],
             .assistant "" [{
               id := { value := 0 }
@@ -1203,6 +1204,33 @@ private def testSessionRefinement : IO Unit := do
           .stepEnd 1 0,
           .turnEnd 1 1
         ]
+  match SessionRefinement.surfaceValidationSummary
+      (SessionRefinement.validateJsonLog SessionRefinement.toolMessageExampleJson) with
+  | none => fail "assistant tool-call surface example failed to validate"
+  | some summary =>
+      assertRuntimeStateEqual "assistant tool-call surface reaches the closed local turn"
+        (eraseState summary.protocol) (.ready 2)
+      assertEqual "assistant tool-call blocks append a typed local call"
+        summary.messages [
+          .user "look up lean",
+          .assistant "I will look it up." [{
+            id := { value := 0 }, name := "lookup", arguments := "{\"q\":\"lean\"}"
+          }],
+          .toolResult { value := 0 } "result" false
+        ]
+      assertEqual "assistant tool-call IDs are reused by call and result runtime events"
+        summary.runtimeEvents [
+          .turnStart 1,
+          .stepStart 1 0,
+          .toolCall 1 0 { value := 0 },
+          .toolResult 1 0 { value := 0 },
+          .stepEnd 1 0,
+          .turnEnd 1 1
+        ]
+      assertEqual "assistant tool-call surface metadata retains source identities"
+        summary.surfaceIds ["user-1", "assistant-1"]
+      assertEqual "assistant tool-call surface metadata retains the model provider"
+        summary.surfaceProviders ["", "deepseek"]
 
 private def testTransformationIndependence : IO Unit := do
   let modelOrder := Effect.seq Transformation.Example.bumpLeft
