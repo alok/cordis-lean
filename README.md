@@ -121,8 +121,10 @@ and external execution remain outside.
 `Cordis.DeepSeekHarness` closes one bounded typed model-round seam over these pieces: it converts
 the canonical session surface into a request plan, runs an explicit transport, admits the decoded
 assistant response, and routes each returned function call through generic dependent admission,
-policy, and provider execution. Typed replies and failure classes are retained; persistence,
-tool-result surface appends, credentials, and deployed-Harness equivalence remain outside.
+policy, and provider execution. Typed replies and failure classes are retained, and
+`appendRoundToolResults` encodes successful or failed typed outcomes back into the canonical
+session with exact local IDs, source-sequence references, message order, and protocol projection.
+Persistence, credentials, scheduling, and deployed-Harness equivalence remain outside.
 
 The next paper layer is explicit rather than assumed. `Cordis.OperationalEquivalence` models
 Definition 34's heterogeneous finite tests and proves the generator-level coarsest relation of

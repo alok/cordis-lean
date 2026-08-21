@@ -428,6 +428,12 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarness.executeFunctionCalls
 #print axioms Cordis.DeepSeekHarness.executeRound
 #print axioms Cordis.DeepSeekHarness.executedTool_provider_reply
+#print axioms Cordis.DeepSeekHarness.appendExecutedToolResult
+#print axioms Cordis.DeepSeekHarness.executedToolResultJson_decodes
+#print axioms Cordis.DeepSeekHarness.appendExecutedToolResults
+#print axioms Cordis.DeepSeekHarness.appendRoundToolResults
+#print axioms Cordis.DeepSeekHarness.appendRoundToolResults_messages
+#print axioms Cordis.DeepSeekHarness.appendRoundToolResults_protocolProjection
 #print axioms Cordis.Transformation.Closure.commute
 #print axioms Cordis.Transformation.commute_of_generators
 #print axioms Cordis.Transformation.seq_monoid_subset_joint

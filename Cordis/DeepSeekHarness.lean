@@ -17,8 +17,9 @@ This module connects four already-certified boundaries in one small, executable 
 
 The result retains the source response, the proof-carrying assistant append, and every dependent
 tool reply. Provider IDs are wire data and local numeric `CallId`s are allocated by the existing
-session bridge. Persistence, remote credentials, asynchronous scheduling, and tool-result
-surface appends remain explicit follow-up boundaries.
+session bridge. `appendRoundToolResults` encodes each certified result and appends it with exact
+source-sequence, message-order, and protocol-projection certificates. Persistence, remote
+credentials, asynchronous scheduling, and deployed-Harness equivalence remain outside.
 -/
 
 set_option autoImplicit false
@@ -200,6 +201,194 @@ theorem executedTool_provider_reply
     cfg.view.execute executed.call = .ok executed.reply :=
   executed.execution
 
+/-! ## Typed tool-result surface append -/
+
+def executedToolResultJson
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (executed : ExecutedTool cfg) : Lean.Json :=
+  cfg.wire.encodeCertifiedResult executed.call.op executed.call.request executed.reply.value
+
+def executedToolResultContent
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (executed : ExecutedTool cfg) : String :=
+  (executedToolResultJson executed).compress
+
+theorem executedToolResultJson_decodes
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (executed : ExecutedTool cfg) :
+    (cfg.wire.resultCodec executed.call.op executed.call.request.input).decode
+        (executedToolResultJson executed) = .ok executed.reply.value.result :=
+  cfg.wire.decode_encoded_certified_result executed.call.op executed.call.request
+    executed.reply.value
+
+def executedToolResultIsError
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (executed : ExecutedTool cfg) : Bool :=
+  match executed.reply.value.result with
+  | .error _ => true
+  | .ok _ => false
+
+def appendExecutedToolResult
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (session : Session.Session Session.noExtensions)
+    (turn step : Nat)
+    (callId : CallId)
+    (assistantSeq : Nat)
+    (executed : ExecutedTool cfg)
+    (assistantSeqEarlier : assistantSeq < session.nextSeq) :
+    Session.Session Session.noExtensions :=
+  session.appendSurface .toolResult {
+    turn
+    step
+    callId
+    content := executedToolResultContent executed
+    isError := executedToolResultIsError executed
+  } [assistantSeq] (by simp) (by
+    intro source member
+    simp only [List.mem_singleton] at member
+    subst source
+    exact assistantSeqEarlier)
+
+theorem appendExecutedToolResult_messages
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (session : Session.Session Session.noExtensions)
+    (turn step : Nat)
+    (callId : CallId)
+    (assistantSeq : Nat)
+    (executed : ExecutedTool cfg)
+    (assistantSeqEarlier : assistantSeq < session.nextSeq) :
+    (appendExecutedToolResult session turn step callId assistantSeq executed
+      assistantSeqEarlier).messages =
+      session.messages ++ [.toolResult callId (executedToolResultContent executed)
+        (executedToolResultIsError executed)] := by
+  simp [appendExecutedToolResult, Session.Session.messages_eq_surface,
+    Session.Session.appendSurface, Session.Session.append]
+
+theorem appendExecutedToolResult_nextSeq
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (session : Session.Session Session.noExtensions)
+    (turn step : Nat)
+    (callId : CallId)
+    (assistantSeq : Nat)
+    (executed : ExecutedTool cfg)
+    (assistantSeqEarlier : assistantSeq < session.nextSeq) :
+    (appendExecutedToolResult session turn step callId assistantSeq executed
+      assistantSeqEarlier).nextSeq = session.nextSeq + 1 := by
+  rfl
+
+theorem appendExecutedToolResult_protocolProjection
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (session : Session.Session Session.noExtensions)
+    (turn step : Nat)
+    (callId : CallId)
+    (assistantSeq : Nat)
+    (executed : ExecutedTool cfg)
+    (assistantSeqEarlier : assistantSeq < session.nextSeq) :
+    Session.protocolProjection
+        (appendExecutedToolResult session turn step callId assistantSeq executed
+          assistantSeqEarlier).events =
+      Session.protocolProjection session.events ++ [.toolResult turn step callId] := by
+  simp [appendExecutedToolResult, Session.Session.appendSurface,
+    Session.Session.append, Session.protocolProjection,
+    Session.LoggedEvent.protocolEvent?]
+
+def executedToolMessages
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (baseCall : Nat) : List (ExecutedTool cfg) -> List Session.Message
+  | [] => []
+  | executed :: rest =>
+      .toolResult { value := baseCall } (executedToolResultContent executed)
+          (executedToolResultIsError executed) ::
+        executedToolMessages (baseCall + 1) rest
+
+def appendExecutedToolResults
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (session : Session.Session Session.noExtensions)
+    (turn step baseCall assistantSeq : Nat) :
+    List (ExecutedTool cfg) -> assistantSeq < session.nextSeq ->
+      Session.Session Session.noExtensions
+  | [], _ => session
+  | executed :: rest, assistantSeqEarlier =>
+      appendExecutedToolResults
+        (appendExecutedToolResult session turn step { value := baseCall } assistantSeq
+          executed assistantSeqEarlier)
+        turn step (baseCall + 1) assistantSeq rest
+        (Nat.lt_trans assistantSeqEarlier (Nat.lt_succ_self session.nextSeq))
+
+theorem appendExecutedToolResults_messages
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (session : Session.Session Session.noExtensions)
+    (turn step baseCall assistantSeq : Nat)
+    (executions : List (ExecutedTool cfg))
+    (assistantSeqEarlier : assistantSeq < session.nextSeq) :
+    (appendExecutedToolResults session turn step baseCall assistantSeq executions
+      assistantSeqEarlier).messages =
+      session.messages ++ executedToolMessages baseCall executions := by
+  induction executions generalizing session baseCall with
+  | nil => simp [appendExecutedToolResults, executedToolMessages]
+  | cons executed rest inductionHypothesis =>
+      simp only [appendExecutedToolResults]
+      rw [inductionHypothesis]
+      rw [appendExecutedToolResult_messages]
+      simp [executedToolMessages, List.append_assoc]
+
+def executedToolRuntimeEvents
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (turn step baseCall : Nat) : List (ExecutedTool cfg) -> List RuntimeEvent
+  | [] => []
+  | _ :: rest =>
+      .toolResult turn step { value := baseCall } ::
+        executedToolRuntimeEvents turn step (baseCall + 1) rest
+
+theorem appendExecutedToolResults_protocolProjection
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (session : Session.Session Session.noExtensions)
+    (turn step baseCall assistantSeq : Nat)
+    (executions : List (ExecutedTool cfg))
+    (assistantSeqEarlier : assistantSeq < session.nextSeq) :
+    Session.protocolProjection
+        (appendExecutedToolResults session turn step baseCall assistantSeq executions
+          assistantSeqEarlier).events =
+      Session.protocolProjection session.events ++
+        executedToolRuntimeEvents turn step baseCall executions := by
+  induction executions generalizing session baseCall with
+  | nil => simp [appendExecutedToolResults, executedToolRuntimeEvents]
+  | cons executed rest inductionHypothesis =>
+      simp only [appendExecutedToolResults]
+      rw [inductionHypothesis]
+      rw [appendExecutedToolResult_protocolProjection]
+      simp [executedToolRuntimeEvents, List.append_assoc]
+
+theorem appendExecutedToolResults_nextSeq
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (session : Session.Session Session.noExtensions)
+    (turn step baseCall assistantSeq : Nat)
+    (executions : List (ExecutedTool cfg))
+    (assistantSeqEarlier : assistantSeq < session.nextSeq) :
+    (appendExecutedToolResults session turn step baseCall assistantSeq executions
+      assistantSeqEarlier).nextSeq = session.nextSeq + executions.length := by
+  induction executions generalizing session baseCall with
+  | nil => simp [appendExecutedToolResults]
+  | cons executed rest inductionHypothesis =>
+      simp only [appendExecutedToolResults]
+      rw [inductionHypothesis]
+      rw [appendExecutedToolResult_nextSeq]
+      simp [List.length, Nat.add_assoc, Nat.add_comm]
+
 /-! ## One transport-backed round -/
 
 inductive RoundError where
@@ -221,6 +410,9 @@ structure RoundResult
     executeFunctionCalls cfg before
         accepted.validated.response.choices.head.message.toolCalls =
       .ok (finalModel, executions)
+  assistantTurn : Nat
+  assistantStep : Nat
+  callBase : Nat
   assistantSeq : Nat
   assistantSeq_eq : assistantSeq + 1 = runner.session.nextSeq
 
@@ -255,11 +447,53 @@ def executeRound
                 finalModel
                 executions
                 executions_eq := executionEq
+                assistantTurn := runner.turn
+                assistantStep := runner.step
+                callBase := runner.nextCall
                 assistantSeq
                 assistantSeq_eq := by
                   change runner.session.nextSeq + 1 = runner.session.nextSeq + 1
                   rfl
               }⟩)
+
+def appendRoundToolResults
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    {before : Model}
+    {body : String}
+    (round : RoundResult cfg before body) : Session.Session Session.noExtensions :=
+  appendExecutedToolResults round.runner.session round.assistantTurn round.assistantStep
+    round.callBase round.assistantSeq round.executions (by
+      rw [← round.assistantSeq_eq]
+      exact Nat.lt_succ_self _)
+
+theorem appendRoundToolResults_messages
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    {before : Model}
+    {body : String}
+    (round : RoundResult cfg before body) :
+    (appendRoundToolResults round).messages =
+      round.runner.session.messages ++ executedToolMessages round.callBase round.executions := by
+  exact appendExecutedToolResults_messages round.runner.session round.assistantTurn
+    round.assistantStep round.callBase round.assistantSeq round.executions (by
+      rw [← round.assistantSeq_eq]
+      exact Nat.lt_succ_self _)
+
+theorem appendRoundToolResults_protocolProjection
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    {before : Model}
+    {body : String}
+    (round : RoundResult cfg before body) :
+    Session.protocolProjection (appendRoundToolResults round).events =
+      Session.protocolProjection round.runner.session.events ++
+        executedToolRuntimeEvents round.assistantTurn round.assistantStep round.callBase
+          round.executions := by
+  exact appendExecutedToolResults_protocolProjection round.runner.session round.assistantTurn
+    round.assistantStep round.callBase round.assistantSeq round.executions (by
+      rw [← round.assistantSeq_eq]
+      exact Nat.lt_succ_self _)
 
 /-! ## Deterministic executable fixture -/
 

@@ -1444,6 +1444,26 @@ private def testDeepSeekHarness : IO Unit := do
             executed.raw.name "counter_read"
           assertEqual "DeepSeek harness retains the certified successor model"
             executed.reply.value.after 0
+          assertEqual "DeepSeek harness encodes the typed tool result"
+            (DeepSeekHarness.executedToolResultContent executed) "[true,0]"
+          assertEqual "DeepSeek harness marks a successful tool result as non-error"
+            (DeepSeekHarness.executedToolResultIsError executed) false
+          let _resultCertificate := DeepSeekHarness.executedToolResultJson_decodes executed
+          let completed := DeepSeekHarness.appendRoundToolResults result
+          assertEqual "DeepSeek harness appends the typed tool result to the session"
+            completed.messages [
+              .assistant "I will read the counter." [
+                { id := { value := 0 }, name := "counter_read", arguments := "null" }
+              ],
+              .toolResult { value := 0 } "[true,0]" false
+            ]
+          assertEqual "DeepSeek harness advances the session sequence for the tool result"
+            completed.nextSeq 2
+          assertEqual "DeepSeek harness projects the tool result to protocol"
+            (Session.protocolProjection completed.events) [.toolResult 1 0 { value := 0 }]
+          let _messagesCertificate := DeepSeekHarness.appendRoundToolResults_messages result
+          let _projectionCertificate :=
+            DeepSeekHarness.appendRoundToolResults_protocolProjection result
           let _policyCertificate := DeepSeekHarness.executedTool_policy_is_allow executed
           let _providerCertificate := DeepSeekHarness.executedTool_provider_reply executed
           pure ()
