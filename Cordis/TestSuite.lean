@@ -3,6 +3,7 @@ import Cordis.Codec
 import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
+import Cordis.DurableCodec
 import Cordis.DurableSettlement
 import Cordis.Effect
 import Cordis.Examples.Counter
@@ -611,6 +612,30 @@ private def testDurableSettlement : IO Unit := do
     (DurableSettlement.Log.frames DurableSettlement.Example.spec
       DurableSettlement.Example.initial DurableSettlement.Example.resumed).length
     2
+
+private def testDurableCodec : IO Unit := do
+  match DurableCodec.scanJsonPrefix DurableCodec.Example.wire
+      DurableSettlement.Example.initial DurableCodec.Example.validJson with
+  | .error error => fail s!"valid durable JSON prefix was rejected with {reprStr error}"
+  | .ok scanned =>
+      assertEqual "durable JSON scanner reaches the typed successor"
+        scanned.current 21
+      assertEqual "durable JSON scanner advances the sequence"
+        scanned.nextSequence 2
+      assertEqual "durable JSON scanner retains both decoded entries"
+        (scanned.log.entries DurableCodec.Example.wire.spec
+          DurableSettlement.Example.initial).length 2
+  match DurableCodec.scanJsonPrefix DurableCodec.Example.wire
+      DurableSettlement.Example.initial DurableCodec.Example.tornJson with
+  | .error (.inl _) => pure ()
+  | .error (.inr error) => fail s!"torn durable JSON reached semantic scanning: {reprStr error}"
+  | .ok _ => fail "torn durable JSON frame was accepted"
+  match DurableCodec.scanPrefix DurableCodec.Example.wire
+      DurableSettlement.Example.initial [DurableCodec.Example.noncontiguousRaw] with
+  | .error (.sequenceMismatch expected actual) =>
+      assertEqual "durable scanner reports a non-contiguous sequence" (expected, actual) (0, 4)
+  | .error error => fail s!"wrong durable scanner error: {reprStr error}"
+  | .ok _ => fail "non-contiguous durable frame was accepted"
 
 private def testRichStream : IO Unit := do
   match RichStream.validateTrace RichStream.State.initial RichStream.interleavedRaw with
@@ -1452,6 +1477,7 @@ def run : IO Unit := do
   testFiniteSchedules
   testParallelHarness
   testDurableSettlement
+  testDurableCodec
   testRichStream
   testStreamSessionBridge
   testContextualEquivalence

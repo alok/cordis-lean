@@ -3,6 +3,7 @@ import Cordis.Codec
 import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
+import Cordis.DurableCodec
 import Cordis.DurableSettlement
 import Cordis.Effect
 import Cordis.Examples.DependentChoice
@@ -203,6 +204,11 @@ set_option format.width 200
 #print axioms Cordis.DurableSettlement.Example.crash_recovers
 #print axioms Cordis.DurableSettlement.Example.resumed_after
 #print axioms Cordis.DurableSettlement.Example.resumed_recovers
+#print axioms Cordis.DurableCodec.frameCodec_roundtrip
+#print axioms Cordis.DurableCodec.scanPrefix_frames_exact
+#print axioms Cordis.DurableCodec.Example.scan_valid_exact
+#print axioms Cordis.DurableCodec.Example.frameCodec_rejects_torn
+#print axioms Cordis.DurableCodec.Example.scan_noncontiguous_rejected
 #print axioms Cordis.ParallelHarness.ParallelWindow.effect_eq
 #print axioms Cordis.ParallelHarness.ParallelWindow.scheduled_after_eq_canonical
 #print axioms Cordis.ParallelHarness.ParallelWindow.scheduled_undo_eq_canonical

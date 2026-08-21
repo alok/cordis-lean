@@ -117,6 +117,9 @@ Current machine-checked evidence includes:
 - `Cordis.DurableSettlement`, defining an intrinsically indexed append-only frame log with a
   collision-free list transcript, exact newest-first recovery, supplied crash-prefix certificates,
   and typed resume after a retained prefix;
+- `Cordis.DurableCodec`, defining a JSON-AST raw-frame codec and strict dependent prefix scanner
+  that rejects malformed, torn, unknown, and non-contiguous frames before constructing that typed
+  log;
 - `Cordis.GlobalPaperRelation`, erasing only the reference allocator clock/birth ranks from current
   rule observation, proving full-domain bidirectional well-formed orchestration replay, and
   constructing directed relation-aware vestigial suffix replay with lifecycle countermodels;
@@ -822,9 +825,9 @@ This slice does not by itself prove:
 
 - behavioral equivalence with the complete TypeScript DeepSeek Harness;
 - byte-level JSON parsing, rendering, or storage compatibility;
-- filesystem/database persistence, flush barriers, arbitrary crash-file repair, or fork
-  correctness. `Cordis.DurableSettlement` proves only a pure typed crash-prefix/resume model
-  with a supplied prefix certificate;
+- filesystem/database persistence, byte parsing, flush barriers, arbitrary crash-file repair, or
+  fork correctness. `Cordis.DurableSettlement` and `Cordis.DurableCodec` prove only a pure typed
+  crash-prefix/resume model plus strict JSON-AST frame validation over immutable Lean values;
 - task/fiber scheduling, fairness, cancellation delivery, or wall-clock concurrency;
 - the stronger paired-inverse law from same-word tests without its explicit coherence premise;
 - identification of the finite exact partial/Kleisli theorem with the paper's literal

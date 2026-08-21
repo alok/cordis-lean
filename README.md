@@ -54,6 +54,9 @@ concurrency or a refinement of the TypeScript scheduler.
 append-only frame log, collision-free list transcript, supplied crash-prefix certificate, exact
 prefix recovery, and typed resume. It is a pure torn-prefix model, not a filesystem, `fsync`,
 cryptographic, multiprocess, or external exactly-once theorem.
+`Cordis.DurableCodec` adds the JSON-AST edge before that typed log: raw frame encoding, entry-code
+decoding, and a strict dependent prefix scanner that rejects malformed, torn, unknown, or
+non-contiguous frames before constructing a `Log`.
 
 `Cordis.Transformation` supplies Definition 17 generated transformation monoids, Lemma 18
 closure results, and full Definition 19 effect independence, including inverse-yield stability
@@ -587,6 +590,7 @@ placeholders.
 | `Cordis.Schedule`                                   | Arbitrary finite `List.Perm` invariance for certified commuting pure effects, including exact successor, undo, and recovery equality.                                                                                                                                                   |
 | `Cordis.ParallelHarness`                            | Bounded proof-carrying parallel windows, model-order commits, exclusive barriers, and pure cancellation drains, all with endpoint/recovery witnesses.                                                                                                                                   |
 | `Cordis.DurableSettlement`                          | Indexed append-only commit frames, collision-free transcript digests, crash-prefix recovery, and typed resume after a retained prefix.                                                                                                                                                  |
+| `Cordis.DurableCodec`                               | JSON-AST raw-frame codec, entry-code decoding, and strict dependent prefix scanning into `DurableSettlement.Log`; malformed, torn, unknown, and non-contiguous frames fail closed.                                                                                                      |
 | `Cordis.Coeffect`                                   | Finite dependent contexts, typed get/set/remove and local-operation lift, concrete recovery, specifications, satisfaction, and notifications.                                                                                                                                           |
 | `Cordis.UnifiedContext`                             | In-place/derived realizations, typed realm isolation, metadata interception, and exact finite unfoldings of the unified-context equation.                                                                                                                                               |
 | `Cordis.ContextualEquivalence`                      | Key-wise observational equivalence for finite coeffect contexts, a context `Setoid`, and satisfaction/notification quotient invariance.                                                                                                                                                 |
