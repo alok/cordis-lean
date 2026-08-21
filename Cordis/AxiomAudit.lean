@@ -18,6 +18,7 @@ import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
 import Cordis.DeepSeekHarnessErrors
+import Cordis.DeepSeekHarnessRetry
 import Cordis.DeepSeekStreamHarness
 import Cordis.DurableCodec
 import Cordis.DurableBytes
@@ -450,6 +451,8 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessErrors.executeFunctionCallsRecoverable
 #print axioms Cordis.DeepSeekHarnessErrors.ConversationRunner.appendRecoverableToolResults
 #print axioms Cordis.DeepSeekHarnessErrors.executeConversationRoundRecoverable
+#print axioms Cordis.DeepSeekHarnessRetry.executeWithRetry
+#print axioms Cordis.DeepSeekHarnessRetry.executeConversationRoundRetry
 #print axioms Cordis.DeepSeekHarness.ConversationStop.isCompleted
 #print axioms Cordis.DeepSeekHarness.runConversationAux
 #print axioms Cordis.DeepSeekHarness.runConversation

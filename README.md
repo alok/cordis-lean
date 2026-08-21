@@ -137,7 +137,11 @@ Persistence, credentials, scheduling, and deployed-Harness equivalence remain ou
 lets a proof-carrying `ProviderFailedTool` become an `isError` tool-result message while retaining
 the parsed call, admission, policy, exact provider error, and model-stability evidence. The
 recoverable round path is still a complete-body pure adapter: it does not claim retries,
-cancellation, persistence, asynchronous delivery, or deployed-Harness equivalence.
+cancellation, persistence, asynchronous delivery, or deployed-Harness equivalence. The separate
+`Cordis.DeepSeekHarnessRetry` layer adds an explicit bounded immediate-retry policy for transport
+and transient HTTP failures, retaining the prior `ClientError` history and reusing the exact
+request plan; it does not claim provider backoff, idempotency, cancellation, or deployed retry
+semantics.
 
 `Cordis.DeepSeekStreamHarness` is the corresponding complete-body process-backed
 tool-stream continuation: it finishes a validated rich tool stream, assigns local

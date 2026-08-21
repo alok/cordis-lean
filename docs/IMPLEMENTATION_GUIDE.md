@@ -1835,7 +1835,12 @@ and deployed equivalence remain outside the adapter.
 choosing one behavior: `.reject` is the default fail-closed request policy, while `.include`
 retains a `ProviderFailedTool` proof and appends its exact provider message as an `isError` tool
 result. The recoverable round preserves the model on that branch and can feed a subsequent typed
-request; retries, persistence, async scheduling, and deployed error semantics remain external.
+request; persistence, async scheduling, and deployed error semantics remain external. The separate
+`Cordis.DeepSeekHarnessRetry` adapter wraps one fixed `RequestPlan` in an explicit bounded,
+immediate retry policy for transport/transient-HTTP failures. Its `RetryHistory` retains every
+prior `ClientError`, and the retrying conversation result carries that history into the same typed
+runner. This is not provider backoff, idempotency proof, cancellation, or deployed-Harness retry
+equivalence.
 `Cordis.DeepSeekCurlIncremental` changes only the process read shape: a line-oriented callback sees
 each body line under an explicit read budget before the private status trailer is consumed, while
 the reconstructed body still passes the strict SSE validator. It is not a byte-level reader or a

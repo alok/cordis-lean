@@ -18,6 +18,7 @@ import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
 import Cordis.DeepSeekHarnessErrors
+import Cordis.DeepSeekHarnessRetry
 import Cordis.DeepSeekStreamHarness
 import Cordis.DurableCodec
 import Cordis.DurableBytes
@@ -1781,6 +1782,135 @@ private def testDeepSeekHarnessErrors : IO Unit := do
 
       pure ()
 
+private def testDeepSeekHarnessRetry : IO Unit := do
+  let plan ←
+    match DeepSeekHarness.counterPlan with
+    | .error error => fail s!"retry fixture request plan failed: {reprStr error}"
+    | .ok plan => pure plan
+  let bodies ← IO.mkRef ([] : List String)
+  let retryTransport : DeepSeekApi.Transport := {
+    send := fun request => do
+      bodies.modify (fun previous => previous ++ [request.body])
+      let seen ← bodies.get
+      if seen.length = 1 then
+        pure (.error "transient transport")
+      else
+        pure (.ok { status := 200, body := DeepSeekHarness.counterResponseBody })
+  }
+  let policy : DeepSeekHarnessRetry.RetryPolicy := {
+    maxRetries := 1
+    retryTransport := true
+    retryTransientHttp := true
+  }
+  assertEqual "retry policy admits transport failures"
+    (policy.retryable (.transport "offline")) true
+  assertEqual "retry policy admits transient server failures"
+    (policy.retryable (.httpStatus 503 "busy")) true
+  assertEqual "retry policy rejects ordinary HTTP failures"
+    (policy.retryable (.httpStatus 401 "unauthorized")) false
+  assertEqual "retry policy rejects decoded provider response errors"
+    (policy.retryable (.response (.invalidJson "bad"))) false
+  match ← DeepSeekHarnessRetry.executeWithRetry policy retryTransport plan with
+  | .failed history error =>
+      fail (s!"retry fixture unexpectedly terminated: {reprStr error}; history " ++
+        reprStr history.failures)
+  | .succeeded history ⟨body, validated⟩ =>
+      assertEqual "retry fixture preserves the validated response body"
+        body DeepSeekHarness.counterResponseBody
+      assertEqual "retry fixture retains the transient failure history"
+        history.failures [.transport "transient transport"]
+      assertEqual "retry fixture makes the initial attempt plus one retry"
+        (DeepSeekHarnessRetry.RetryHistory.attemptCount history) 2
+      assertEqual "retry fixture accepts the tool-call response"
+        validated.response.choices.head.message.toolCalls.length 1
+      let bodySnapshot ← bodies.get
+      assertEqual "retry fixture sends the exact same request body on every attempt"
+        bodySnapshot [plan.request.body, plan.request.body]
+      let _bodyCertificate := DeepSeekHarnessRetry.retryPlan_body_eq plan
+
+  let statusBodies ← IO.mkRef ([] : List String)
+  let statusTransport : DeepSeekApi.Transport := {
+    send := fun request => do
+      statusBodies.modify (fun previous => previous ++ [request.body])
+      pure (.ok { status := 401, body := "unauthorized" })
+  }
+  match ← DeepSeekHarnessRetry.executeWithRetry {
+      maxRetries := 3
+      retryTransport := true
+      retryTransientHttp := true
+    } statusTransport plan with
+  | .succeeded _ _ => fail "non-retryable HTTP status unexpectedly succeeded"
+  | .failed history (.httpStatus 401 body) =>
+      assertEqual "non-retryable HTTP status preserves its body" body "unauthorized"
+      assertEqual "non-retryable HTTP status does not consume retries" history.failures []
+      let statusSnapshot ← statusBodies.get
+      assertEqual "non-retryable HTTP status makes one request" statusSnapshot.length 1
+  | .failed _ error => fail s!"wrong terminal retry error: {reprStr error}"
+
+  let exhaustedBodies ← IO.mkRef ([] : List String)
+  let exhaustedTransport : DeepSeekApi.Transport := {
+    send := fun request => do
+      exhaustedBodies.modify (fun previous => previous ++ [request.body])
+      pure (.error "still offline")
+  }
+  match ← DeepSeekHarnessRetry.executeWithRetry policy exhaustedTransport plan with
+  | .succeeded _ _ => fail "retry budget fixture unexpectedly succeeded"
+  | .failed history (.transport message) =>
+      assertEqual "retry budget fixture preserves its terminal transport message"
+        message "still offline"
+      assertEqual "retry budget fixture retains only the earlier retryable failure"
+        history.failures [.transport "still offline"]
+      assertEqual "retry budget fixture performs exactly the bounded attempts"
+        (DeepSeekHarnessRetry.RetryHistory.attemptCount history) 2
+      let _boundCertificate :=
+        DeepSeekHarnessRetry.RetryHistory.attemptCount_le_maxAttempts history
+      let exhaustedSnapshot ← exhaustedBodies.get
+      assertEqual "retry budget fixture stops at maxRetries plus one"
+        exhaustedSnapshot.length 2
+  | .failed _ error => fail s!"wrong retry budget error: {reprStr error}"
+
+  let conversationBodies ← IO.mkRef ([] : List String)
+  let conversationTransport : DeepSeekApi.Transport := {
+    send := fun request => do
+      conversationBodies.modify (fun previous => previous ++ [request.body])
+      let seen ← conversationBodies.get
+      if seen.length = 1 then
+        pure (.error "one transient conversation failure")
+      else
+        pure (.ok { status := 200, body := DeepSeekHarness.counterResponseBody })
+  }
+  let initialRunner : DeepSeekHarness.ConversationRunner := {
+    session := DeepSeekHarness.counterSession
+    turn := 1
+    step := 0
+    nextCall := 0
+    toolCallCount_eq_nextCall := by rfl
+  }
+  match ← DeepSeekHarnessRetry.executeConversationRoundRetry policy conversationTransport
+      "https://fixture.invalid" { value := "fixture-key" } DeepSeekHarness.counterRequestSource
+      Cordis.Harness.counterConfig 0 initialRunner [] (by simp) (by simp) with
+  | .error (.client history error) =>
+      fail s!"retrying conversation terminated: {reprStr error}; history {reprStr history.failures}"
+  | .error _ => fail "retrying conversation failed outside the client boundary"
+  | .ok ⟨body, round⟩ =>
+      assertEqual "retrying conversation preserves the accepted body"
+        body DeepSeekHarness.counterResponseBody
+      assertEqual "retrying conversation exposes its retry history"
+        round.retryHistory.failures [.transport "one transient conversation failure"]
+      assertEqual "retrying conversation preserves the tool successor"
+        round.finalModel 0
+      assertEqual "retrying conversation appends the assistant and tool result"
+        round.runner.session.messages [
+          .user "Read the counter.",
+          .assistant "I will read the counter." [{
+            id := { value := 0 }, name := "counter_read", arguments := "null"
+          }],
+          .toolResult { value := 0 } "[true,0]" false
+        ]
+      let conversationSnapshot ← conversationBodies.get
+      assertEqual "retrying conversation sends one repeated plan body"
+        conversationSnapshot [plan.request.body, plan.request.body]
+
 private def testQuotientEffects : IO Unit := do
   let applied := Observational.Quotient.Example.program.run
     Observational.Quotient.Example.initial
@@ -2673,6 +2803,7 @@ def run : IO Unit := do
   testDeepSeekHarness
   testDeepSeekStreamHarness
   testDeepSeekHarnessErrors
+  testDeepSeekHarnessRetry
   testQuotientEffects
   testCoeffectQuotientLift
   testOperationalEquivalence

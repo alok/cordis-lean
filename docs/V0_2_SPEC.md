@@ -130,6 +130,10 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekHarnessErrors`, adding an explicit fail-closed/default-versus-opt-in policy seam
   for provider failures: `.include` retains typed failure evidence and appends model-visible
   `isError` tool results without changing the model state;
+- `Cordis.DeepSeekHarnessRetry`, adding an explicit bounded complete-body retry policy whose
+  history retains prior transport/transient-HTTP `ClientError`s while every attempt reuses the
+  same request plan; provider backoff, idempotency, cancellation, and deployed retry semantics
+  remain outside;
 - `Cordis.DeepSeekCurlIncremental`, delivering complete response lines through a process callback
   under an explicit read budget before strict validation of the reconstructed SSE body; byte-level
   and cancellation semantics remain external;
