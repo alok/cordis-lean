@@ -1924,6 +1924,11 @@ typed complete builder internally.
 validation. It preserves process, HTTP-status, framing, and stream errors before exposing any
 frames, while leaving incremental reads, buffering/backpressure, cancellation, reconnects, and
 provider-complete assembly as explicit deployment work.
+`Cordis.DeepSeekCurlOutcome` runs the process and status checks once, then validates the returned
+body through `DeepSeekTerminalOutcome`. Keep process, HTTP-status, and semantic errors as separate
+constructors while retaining the selected dependent outcome; its deterministic fixtures should
+cover both provider failure and successful rich branches without implying a live provider or
+session append.
 `Cordis.DeepSeekStreamIncremental` supplies the pure prefix contract immediately below that wire
 parser: each complete line is parsed into a state retaining the exact accumulated body, frames,
 line number, and prefix equation; `finish` invokes the original complete-body validator and refuses

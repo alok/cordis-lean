@@ -10,6 +10,7 @@ import Cordis.DeepSeekCurlSession
 import Cordis.DeepSeekCurlIncremental
 import Cordis.DeepSeekCurlPrefix
 import Cordis.DeepSeekCurlPrefixSession
+import Cordis.DeepSeekCurlOutcome
 import Cordis.DeepSeekAsyncHarness
 import Cordis.DeepSeekAsyncStreamHarness
 import Cordis.DeepSeekAsyncStreamCancellation
@@ -1238,6 +1239,59 @@ private def testDeepSeekCurlStream : IO Unit := do
   | .error (.httpStatus 503 "unavailable") => pure ()
   | .error error => fail s!"HTTP status returned {reprStr error}"
   | .ok _ => fail "non-success SSE status was accepted"
+
+private def testDeepSeekCurlOutcome : IO Unit := do
+  match ← DeepSeekCurlOutcome.fixtureContentFilter with
+  | .error error => fail s!"process-backed terminal failure outcome failed: {reprStr error}"
+  | .ok ⟨body, processed⟩ =>
+      assertEqual "process-backed outcome preserves failure body"
+        body DeepSeekStreamFailure.exampleContentFilterBody
+      assertEqual "process-backed outcome classifies provider failure"
+        (DeepSeekTerminalOutcome.TerminalOutcome.kind processed.outcome)
+        .providerFailure
+      match processed.outcome with
+      | .failure validated =>
+          assertEqual "process-backed outcome retains failure reason"
+            validated.view.reason .contentFilter
+      | _ => fail "process-backed outcome lost the failure certificate"
+  match ← DeepSeekCurlOutcome.fixtureText with
+  | .error error => fail s!"process-backed terminal text outcome failed: {reprStr error}"
+  | .ok ⟨_, processed⟩ =>
+      assertEqual "process-backed outcome classifies text"
+        (DeepSeekTerminalOutcome.TerminalOutcome.kind processed.outcome) .text
+  match ← DeepSeekCurlOutcome.fixtureTool with
+  | .error error => fail s!"process-backed terminal tool outcome failed: {reprStr error}"
+  | .ok ⟨_, processed⟩ =>
+      assertEqual "process-backed outcome classifies tool"
+        (DeepSeekTerminalOutcome.TerminalOutcome.kind processed.outcome) .tool
+  match ← DeepSeekCurlOutcome.fixtureMixed with
+  | .error error => fail s!"process-backed terminal mixed outcome failed: {reprStr error}"
+  | .ok ⟨_, processed⟩ =>
+      assertEqual "process-backed outcome classifies mixed"
+        (DeepSeekTerminalOutcome.TerminalOutcome.kind processed.outcome) .mixed
+  match ← DeepSeekCurlOutcome.fixtureMulti with
+  | .error error => fail s!"process-backed terminal multi outcome failed: {reprStr error}"
+  | .ok ⟨_, processed⟩ =>
+      assertEqual "process-backed outcome classifies multi"
+        (DeepSeekTerminalOutcome.TerminalOutcome.kind processed.outcome) .multi
+  let malformedConfig : DeepSeekCurlTransport.ProcessConfig := {
+    command := "sh"
+    args := fun _ => #["-c", "printf broken"]
+  }
+  match ← DeepSeekCurlOutcome.executeOutcome malformedConfig
+      DeepSeekCurlTransport.fixtureRequest.request with
+  | .error (.process (.malformedOutput "broken")) => pure ()
+  | .error error => fail s!"process-backed outcome malformed output returned {reprStr error}"
+  | .ok _ => fail "process-backed outcome accepted malformed process output"
+  let statusConfig : DeepSeekCurlTransport.ProcessConfig := {
+    command := "sh"
+    args := fun _ => #["-c", "printf 'unavailable\\n__CORDIS_HTTP_STATUS__503\\n'"]
+  }
+  match ← DeepSeekCurlOutcome.executeOutcome statusConfig
+      DeepSeekCurlTransport.fixtureRequest.request with
+  | .error (.httpStatus 503 "unavailable") => pure ()
+  | .error error => fail s!"process-backed outcome status returned {reprStr error}"
+  | .ok _ => fail "process-backed outcome accepted a non-success status"
 
 private def testDeepSeekCurlSession : IO Unit := do
   match ← DeepSeekCurlSession.fixtureTextResponse with
@@ -4607,6 +4661,7 @@ def run : IO Unit := do
   testDeepSeekApi
   testDeepSeekCurlTransport
   testDeepSeekCurlStream
+  testDeepSeekCurlOutcome
   testDeepSeekCurlSession
   testDeepSeekCurlIncremental
   testDeepSeekCurlPrefix
