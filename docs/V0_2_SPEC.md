@@ -134,6 +134,9 @@ Current machine-checked evidence includes:
   history retains prior transport/transient-HTTP `ClientError`s while every attempt reuses the
   same request plan; provider backoff, idempotency, cancellation, and deployed retry semantics
   remain outside;
+- `Cordis.DeepSeekHarnessCancellation`, adding a pre-round cancellation decision that retains the
+  exact completed prefix, runner/model endpoint, and cancellation certificate; it does not claim
+  mid-request IO interruption, cleanup, or deployed Harness cancellation semantics;
 - `Cordis.DeepSeekCurlIncremental`, delivering complete response lines through a process callback
   under an explicit read budget before strict validation of the reconstructed SSE body; byte-level
   and cancellation semantics remain external;

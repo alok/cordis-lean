@@ -1841,6 +1841,11 @@ immediate retry policy for transport/transient-HTTP failures. Its `RetryHistory`
 prior `ClientError`, and the retrying conversation result carries that history into the same typed
 runner. This is not provider backoff, idempotency proof, cancellation, or deployed-Harness retry
 equivalence.
+`Cordis.DeepSeekHarnessCancellation` adds the corresponding pre-round control boundary: the policy
+is checked before a complete request round, and a cancellation result carries the unchanged
+runner/model endpoint and completed prefix. Keep the boundary honest: interrupting an in-flight
+process, HTTP request, stream reader, or external tool needs an adapter-specific token and cleanup
+proof that this pure complete-body layer does not provide.
 `Cordis.DeepSeekCurlIncremental` changes only the process read shape: a line-oriented callback sees
 each body line under an explicit read budget before the private status trailer is consumed, while
 the reconstructed body still passes the strict SSE validator. It is not a byte-level reader or a

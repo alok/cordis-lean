@@ -19,6 +19,7 @@ import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
 import Cordis.DeepSeekHarnessErrors
 import Cordis.DeepSeekHarnessRetry
+import Cordis.DeepSeekHarnessCancellation
 import Cordis.DeepSeekStreamHarness
 import Cordis.DurableCodec
 import Cordis.DurableBytes
@@ -1911,6 +1912,109 @@ private def testDeepSeekHarnessRetry : IO Unit := do
       assertEqual "retrying conversation sends one repeated plan body"
         conversationSnapshot [plan.request.body, plan.request.body]
 
+private def testDeepSeekHarnessCancellation : IO Unit := do
+  let initialRunner : DeepSeekHarness.ConversationRunner := {
+    session := DeepSeekHarness.counterSession
+    turn := 1
+    step := 0
+    nextCall := 0
+    toolCallCount_eq_nextCall := by rfl
+  }
+  let beforeBodies ← IO.mkRef ([] : List String)
+  let beforeTransport : DeepSeekApi.Transport := {
+    send := fun request => do
+      beforeBodies.modify (fun previous => previous ++ [request.body])
+      pure (.ok { status := 200, body := DeepSeekHarness.counterResponseBody })
+  }
+  let beforePolicy :=
+    DeepSeekHarnessCancellation.CancellationPolicy.atRound 0 .user
+  match ← DeepSeekHarnessCancellation.runConversationCancellable
+      (cfg := Cordis.Harness.counterConfig) beforePolicy 2
+      beforeTransport "https://fixture.invalid" { value := "fixture-key" }
+      DeepSeekHarness.counterRequestSource [] (by simp) (by
+        intro current source sourceMem
+        cases sourceMem) 0 initialRunner with
+  | .error _ => fail "cancellation before the first request returned an error"
+  | .ok result =>
+      assertEqual "pre-request cancellation retains an empty round history"
+        result.rounds.length 0
+      assertEqual "pre-request cancellation preserves the runner sequence"
+        result.runner.session.nextSeq initialRunner.session.nextSeq
+      assertEqual "pre-request cancellation preserves the model" result.finalModel 0
+      assertEqual "pre-request cancellation reports cancellation"
+        (DeepSeekHarnessCancellation.CancellableStop.isCancelled result.stop) true
+      assertEqual "pre-request cancellation records round zero"
+        (DeepSeekHarnessCancellation.CancellableStop.cancelledRound result.stop) (some 0)
+      assertEqual "pre-request cancellation records the user reason"
+        (DeepSeekHarnessCancellation.CancellableStop.cancelledReason result.stop) (some .user)
+      let beforeSnapshot ← beforeBodies.get
+      assertEqual "pre-request cancellation sends no request" beforeSnapshot.length 0
+
+  let afterBodies ← IO.mkRef ([] : List String)
+  let afterTransport : DeepSeekApi.Transport := {
+    send := fun request => do
+      afterBodies.modify (fun previous => previous ++ [request.body])
+      let seen ← afterBodies.get
+      pure (.ok {
+        status := 200
+        body := if seen.length = 1 then DeepSeekHarness.counterResponseBody
+          else DeepSeekHarness.counterFinalResponseBody
+      })
+  }
+  let afterPolicy :=
+    DeepSeekHarnessCancellation.CancellationPolicy.atRound 1 .timeout
+  match ← DeepSeekHarnessCancellation.runConversationCancellable
+      (cfg := Cordis.Harness.counterConfig) afterPolicy 2
+      afterTransport "https://fixture.invalid" { value := "fixture-key" }
+      DeepSeekHarness.counterRequestSource [] (by simp) (by
+        intro current source sourceMem
+        cases sourceMem) 0 initialRunner with
+  | .error _ => fail "between-round cancellation returned an error"
+  | .ok result =>
+      assertEqual "between-round cancellation retains the completed prefix"
+        result.rounds.length 1
+      assertEqual "between-round cancellation preserves the post-tool model"
+        result.finalModel 0
+      assertEqual "between-round cancellation preserves the post-tool sequence"
+        result.runner.session.nextSeq 3
+      assertEqual "between-round cancellation reports cancellation"
+        (DeepSeekHarnessCancellation.CancellableStop.isCancelled result.stop) true
+      assertEqual "between-round cancellation records round one"
+        (DeepSeekHarnessCancellation.CancellableStop.cancelledRound result.stop) (some 1)
+      assertEqual "between-round cancellation records the timeout reason"
+        (DeepSeekHarnessCancellation.CancellableStop.cancelledReason result.stop) (some .timeout)
+      let afterSnapshot ← afterBodies.get
+      assertEqual "between-round cancellation does not issue a second request"
+        afterSnapshot.length 1
+      assertEqual "between-round cancellation retains the first assistant/tool messages"
+        result.runner.session.messages [
+          .user "Read the counter.",
+          .assistant "I will read the counter." [{
+            id := { value := 0 }, name := "counter_read", arguments := "null"
+          }],
+          .toolResult { value := 0 } "[true,0]" false
+        ]
+
+  let fuelBodies ← IO.mkRef ([] : List String)
+  let fuelTransport : DeepSeekApi.Transport := {
+    send := fun request => do
+      fuelBodies.modify (fun previous => previous ++ [request.body])
+      pure (.ok { status := 200, body := DeepSeekHarness.counterResponseBody })
+  }
+  match ← DeepSeekHarnessCancellation.runConversationCancellable
+      (cfg := Cordis.Harness.counterConfig)
+      (DeepSeekHarnessCancellation.CancellationPolicy.never) 1 fuelTransport
+      "https://fixture.invalid" { value := "fixture-key" } DeepSeekHarness.counterRequestSource
+      [] (by simp) (by
+        intro current source sourceMem
+        cases sourceMem) 0 initialRunner with
+  | .error _ => fail "non-cancelled cancellable runner returned an error"
+  | .ok result =>
+      assertEqual "non-cancelled runner retains the fuel-bounded prefix"
+        result.rounds.length 1
+      assertEqual "non-cancelled runner reports fuel exhaustion"
+        (DeepSeekHarnessCancellation.CancellableStop.isFuelExhausted result.stop) true
+
 private def testQuotientEffects : IO Unit := do
   let applied := Observational.Quotient.Example.program.run
     Observational.Quotient.Example.initial
@@ -2804,6 +2908,7 @@ def run : IO Unit := do
   testDeepSeekStreamHarness
   testDeepSeekHarnessErrors
   testDeepSeekHarnessRetry
+  testDeepSeekHarnessCancellation
   testQuotientEffects
   testCoeffectQuotientLift
   testOperationalEquivalence

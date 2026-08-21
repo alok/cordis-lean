@@ -24,6 +24,7 @@ import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
 import Cordis.DeepSeekHarnessErrors
 import Cordis.DeepSeekHarnessRetry
+import Cordis.DeepSeekHarnessCancellation
 import Cordis.DeepSeekStreamHarness
 import Cordis.Effect
 import Cordis.Examples.Counter

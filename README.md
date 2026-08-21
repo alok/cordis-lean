@@ -143,6 +143,11 @@ and transient HTTP failures, retaining the prior `ClientError` history and reusi
 request plan; it does not claim provider backoff, idempotency, cancellation, or deployed retry
 semantics.
 
+`Cordis.DeepSeekHarnessCancellation` adds a typed pre-round cancellation boundary. A caller policy
+is checked before each complete request round, and cancellation retains the unchanged runner/model
+endpoint plus the completed-round prefix. It does not interrupt an already running process, HTTP
+request, stream reader, or external tool, and it does not claim deployed Harness equivalence.
+
 `Cordis.DeepSeekStreamHarness` is the corresponding complete-body process-backed
 tool-stream continuation: it finishes a validated rich tool stream, assigns local
 numeric call IDs, routes every streamed call through the same dependent admission,
