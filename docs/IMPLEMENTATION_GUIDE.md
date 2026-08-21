@@ -1992,6 +1992,12 @@ continuation. Under explicit fuel, each child can execute dependent tool calls a
 terminal; the winning typed result preserves its model, runner, and round evidence. The cancellation
 is still only a cooperative request around synchronous process reads, not blocked-read interruption,
 fairness, cleanup, or deployed asynchronous equivalence.
+`Cordis.DeepSeekAsyncStreamCancellation` carries `CancellationPolicy` and
+`CancellableRunResult` through the same process-backed race. The executable cancellation-first
+fixture proves that a child can stop before round zero while retaining its typed reason, unchanged
+runner/model endpoint, and empty completed prefix; the other child remains a real streamed
+tool/text continuation. This is still a pre-round boundary, not blocked-read interruption,
+fairness, cleanup, or deployed async cancellation equivalence.
 `Cordis.DeepSeekStream` supplies the next wire boundary: strict in-memory
 `data:` / `[DONE]` SSE framing, typed delta choices, retained raw-frame
 parse/decode certificates, and explicit invalid-UTF-8/JSON/terminal errors.

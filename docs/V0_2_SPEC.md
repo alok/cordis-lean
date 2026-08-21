@@ -39,6 +39,11 @@ continuation. Each child can execute a dependent tool-call round and a later tex
 explicit fuel, and the winning typed result retains tool executions, round witnesses, final model,
 and runner endpoint. Synchronous reads, fairness, arbitrary cleanup, and deployed asynchronous
 equivalence remain external.
+`Cordis.DeepSeekAsyncStreamCancellation` carries the typed pre-round cancellation policy through
+that race. Its fixture cancels one child before dispatch while the other remains a real streamed
+tool/text continuation; the accepted cancellation result preserves its reason, unchanged
+runner/model endpoint, and empty completed prefix. Blocked-read interruption and deployed async
+cancellation equivalence remain external.
 
 The slice closes two concrete gaps in the original objective:
 
@@ -206,6 +211,8 @@ Current machine-checked evidence includes:
   cooperative `ContextAsync` children and retaining the winner's dependent tool executions, round
   witnesses, final model, and runner; synchronous reads, fairness, cleanup, and deployed async
   semantics remain external;
+- `Cordis.DeepSeekAsyncStreamCancellation`, carrying typed pre-round cancellation through the same
+  race and retaining the unchanged endpoint and empty completed prefix on the cancelled branch;
 - `Cordis.DeepSeekSessionRunner`, composing accepted text, one-tool, mixed, and multi-call
   terminal traces into the pure append-only local session surface with exact sequence and
   tool-count invariants;
@@ -292,6 +299,8 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekAsyncStreamHarness`, exercising the same real two-process race over streamed tool
   continuations, with a two-round tool-then-text winner and typed model/runner evidence; this is not
   blocked-read cancellation or deployed Harness refinement;
+- `Cordis.DeepSeekAsyncStreamCancellation`, exercising a real cancellation-first streamed child
+  alongside a process-backed sibling and checking the typed stop/endpoint evidence;
 - `Cordis.StreamSession`, making the provider-string-ID to unique numeric-session-`CallId`
   assignment explicit before a validated rich assistant view enters the canonical surface;
 - `Harness.RunnerState.protocolProjection_eq_log` and `protocolProjection_replays`, tying the

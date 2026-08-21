@@ -12,6 +12,7 @@ import Cordis.DeepSeekCurlPrefix
 import Cordis.DeepSeekCurlPrefixSession
 import Cordis.DeepSeekAsyncHarness
 import Cordis.DeepSeekAsyncStreamHarness
+import Cordis.DeepSeekAsyncStreamCancellation
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekStreamIncremental
 import Cordis.DeepSeekRichStream
@@ -1406,6 +1407,28 @@ private def testDeepSeekAsyncStreamHarness : IO Unit := do
   | .left (.error error) | .right (.error error) =>
       fail s!"async streamed DeepSeek race returned typed error {reprStr error}"
   | .waiting => fail "async streamed DeepSeek race returned no winning result"
+
+private def testDeepSeekAsyncStreamCancellation : IO Unit := do
+  let race ← DeepSeekAsyncStreamCancellation.exampleCancellationRace
+  assertEqual "async streamed cancellation race returns an accepted result"
+    race.successful true
+  assertEqual "async streamed cancellation race reports cancellation"
+    race.cancelled true
+  assertEqual "async streamed cancellation race reaches a terminal phase"
+    race.phase.isTerminal true
+  match race with
+  | .left result | .right result =>
+      match result.result with
+      | .ok run =>
+          assertEqual "async streamed cancellation retains no dispatched rounds"
+            run.rounds.length 0
+          assertEqual "async streamed cancellation retains the unchanged model"
+            run.finalModel 0
+          assertEqual "async streamed cancellation retains the cancellation runner"
+            run.runner.turn 99
+      | .error error =>
+          fail s!"async streamed cancellation returned typed error {reprStr error}"
+  | .waiting => fail "async streamed cancellation returned no winning result"
 
 private def testDeepSeekStream : IO Unit := do
   match DeepSeekStream.validateSse DeepSeekStream.exampleStreamBody with
@@ -3856,6 +3879,7 @@ def run : IO Unit := do
   testDeepSeekCurlPrefixSession
   testDeepSeekAsyncHarness
   testDeepSeekAsyncStreamHarness
+  testDeepSeekAsyncStreamCancellation
   testDeepSeekStream
   testDeepSeekStreamIncremental
   testDeepSeekRichStream
