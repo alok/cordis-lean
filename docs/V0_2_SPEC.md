@@ -164,6 +164,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekOutcomeSession`, preserving a validated provider failure with an unchanged
   runner or finishing/appending a successful rich outcome through the typed local session
   runner; source-event evidence and failure-to-message policy remain caller obligations;
+- `Cordis.DeepSeekOutcomeConversation`, carrying those terminal outcomes into the larger
+  `ConversationRunner`, preserving its model/tool-count invariant and exposing completed
+  provider calls as `FunctionCall` values for the existing dependent executor;
 - `Cordis.DeepSeekCurlSession`, composing a terminal process-backed text response through the
   rich/session bridge and append-only runner while retaining wire and runner certificates;
 - `Cordis.DeepSeekStreamHarness`, composing complete-body terminal rich tool streams with the

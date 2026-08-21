@@ -1934,6 +1934,11 @@ provider failures retain their complete failure certificate and unchanged `Runne
 successful text/tool/mixed/multi outcomes pass through terminal extraction and `Runner.append`.
 The caller still supplies source-event sequence evidence, and this module deliberately does not
 choose a retry, cancellation, or `isError`-message policy for failures.
+`Cordis.DeepSeekOutcomeConversation` carries the same dependent outcome into the deployed
+Harness-facing `ConversationRunner`. Successful views append while preserving its model and
+tool-count invariant, and their completed provider calls are projected to `FunctionCall` values
+for the existing dependent executor. This is a handoff only: it does not execute tools or add
+provider-ID authentication, persistence, retry, cancellation, or whole-session equivalence.
 `Cordis.DeepSeekStreamIncremental` supplies the pure prefix contract immediately below that wire
 parser: each complete line is parsed into a state retaining the exact accumulated body, frames,
 line number, and prefix equation; `finish` invokes the original complete-body validator and refuses
@@ -2208,6 +2213,10 @@ transport, cancellation, persistence, or external-tool implementation.
 return a typed failure plus the unchanged runner, while successful rich outcomes are finished
 and appended through the same runner. It does not silently turn failures into session messages;
 source-event sequence evidence and any failure/retry policy remain explicit caller inputs.
+`Cordis.DeepSeekOutcomeConversation` is the next Harness-facing handoff: its process fixtures
+preserve failures in `ConversationRunner` and append successful rich views with exact
+model/tool-count proofs, while exposing completed provider calls to the existing dependent
+executor. Tool execution and all policy choices remain outside this bridge.
 `Cordis.DeepSeekApiSession` covers the non-streaming response path with the same
 fail-closed policy: singleton index-zero choice, supported finish, and nonempty
 content/tool payload are required before the append. Extra choices and unsupported

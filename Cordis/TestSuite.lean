@@ -12,6 +12,7 @@ import Cordis.DeepSeekCurlPrefix
 import Cordis.DeepSeekCurlPrefixSession
 import Cordis.DeepSeekCurlOutcome
 import Cordis.DeepSeekOutcomeSession
+import Cordis.DeepSeekOutcomeConversation
 import Cordis.DeepSeekAsyncHarness
 import Cordis.DeepSeekAsyncStreamHarness
 import Cordis.DeepSeekAsyncStreamCancellation
@@ -1338,6 +1339,51 @@ private def testDeepSeekOutcomeSession : IO Unit := do
       assertEqual "outcome session multi dispatch counts both local calls"
         runner.nextCall 2
   | .ok _ => fail "outcome session multi dispatch returned a non-appended result"
+
+private def testDeepSeekOutcomeConversation : IO Unit := do
+  match ← DeepSeekOutcomeConversation.fixtureFailureDispatch with
+  | .error error => fail s!"outcome conversation failure dispatch failed: {reprStr error}"
+  | .ok ⟨_, .providerFailure validated runner⟩ =>
+      assertEqual "outcome conversation preserves provider failure reason"
+        validated.view.reason .contentFilter
+      assertEqual "outcome conversation failure leaves sequence unchanged"
+        runner.session.nextSeq 0
+      assertEqual "outcome conversation failure leaves messages unchanged"
+        runner.session.messages []
+  | .ok _ => fail "outcome conversation turned a provider failure into an assistant"
+  match ← DeepSeekOutcomeConversation.fixtureTextDispatch with
+  | .error error => fail s!"outcome conversation text dispatch failed: {reprStr error}"
+  | .ok ⟨_, .assistant finished runner⟩ =>
+      assertEqual "outcome conversation text advances sequence" runner.session.nextSeq 1
+      assertEqual "outcome conversation text stores assistant"
+        runner.session.messages [.assistant "Hello world" []]
+      assertEqual "outcome conversation text exposes no calls"
+        (DeepSeekOutcomeConversation.projectedFunctionCalls finished.finished.view).length 0
+  | .ok _ => fail "outcome conversation text returned a non-assistant result"
+  match ← DeepSeekOutcomeConversation.fixtureToolDispatch with
+  | .error error => fail s!"outcome conversation tool dispatch failed: {reprStr error}"
+  | .ok ⟨_, .assistant finished runner⟩ =>
+      assertEqual "outcome conversation tool advances sequence" runner.session.nextSeq 1
+      assertEqual "outcome conversation tool allocates one call" runner.nextCall 1
+      assertEqual "outcome conversation tool exposes one call"
+        (DeepSeekOutcomeConversation.projectedFunctionCalls finished.finished.view).length 1
+  | .ok _ => fail "outcome conversation tool returned a non-assistant result"
+  match ← DeepSeekOutcomeConversation.fixtureMixedDispatch with
+  | .error error => fail s!"outcome conversation mixed dispatch failed: {reprStr error}"
+  | .ok ⟨_, .assistant finished runner⟩ =>
+      assertEqual "outcome conversation mixed advances sequence" runner.session.nextSeq 1
+      assertEqual "outcome conversation mixed allocates one call" runner.nextCall 1
+      assertEqual "outcome conversation mixed exposes one call"
+        (DeepSeekOutcomeConversation.projectedFunctionCalls finished.finished.view).length 1
+  | .ok _ => fail "outcome conversation mixed returned a non-assistant result"
+  match ← DeepSeekOutcomeConversation.fixtureMultiDispatch with
+  | .error error => fail s!"outcome conversation multi dispatch failed: {reprStr error}"
+  | .ok ⟨_, .assistant finished runner⟩ =>
+      assertEqual "outcome conversation multi advances sequence" runner.session.nextSeq 1
+      assertEqual "outcome conversation multi allocates two calls" runner.nextCall 2
+      assertEqual "outcome conversation multi exposes two calls"
+        (DeepSeekOutcomeConversation.projectedFunctionCalls finished.finished.view).length 2
+  | .ok _ => fail "outcome conversation multi returned a non-assistant result"
 
 private def testDeepSeekCurlSession : IO Unit := do
   match ← DeepSeekCurlSession.fixtureTextResponse with
@@ -4709,6 +4755,7 @@ def run : IO Unit := do
   testDeepSeekCurlStream
   testDeepSeekCurlOutcome
   testDeepSeekOutcomeSession
+  testDeepSeekOutcomeConversation
   testDeepSeekCurlSession
   testDeepSeekCurlIncremental
   testDeepSeekCurlPrefix
