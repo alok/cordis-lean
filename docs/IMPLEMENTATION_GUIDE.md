@@ -1822,6 +1822,13 @@ call, preserves raw argument fragments and stable IDs/names, closes the exact
 local tool block, and requires a terminal `tool_calls` finish. Multiple calls,
 missing identifiers, mixed text/tool deltas, and tool execution remain outside
 this proof-carrying projection.
+`Cordis.DeepSeekSessionBridge` is the explicit local surface seam after either
+rich-stream validator: `finishAssistant` requires the terminal witness, and
+`appendFinishedAssistant` requires a caller-supplied numeric `CallIdAssignment`
+plus earlier source-event sequence proofs before appending the assistant payload.
+The bridge proves the exact resulting message projection, but does not
+authenticate provider IDs, persist the append, or establish whole-session
+equivalence with the deployed Harness.
 Continue by defining translations for additional pinned Harness events and tool
 definitions and proving only the invariants actually shared by the two
 representations. Expect to model more payloads, surface semantics, session

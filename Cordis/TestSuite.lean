@@ -7,6 +7,7 @@ import Cordis.DeepSeekApi
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
+import Cordis.DeepSeekSessionBridge
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -1022,6 +1023,46 @@ private def testDeepSeekRichToolStream : IO Unit := do
   | .error (.projection .missingToolId) => pure ()
   | _ => fail "DeepSeek rich-tool projection accepted a tool delta without an id"
 
+private def testDeepSeekSessionBridge : IO Unit := do
+  match DeepSeekRichToolStream.validateToolStream
+      DeepSeekRichToolStream.exampleToolStreamBody with
+  | .error error => fail s!"DeepSeek session bridge source failed: {reprStr error}"
+  | .ok validated =>
+      match DeepSeekSessionBridge.finishAssistant validated.rich with
+      | .error error => fail s!"DeepSeek session bridge terminal extraction failed: {reprStr error}"
+      | .ok finished =>
+          let assignment : StreamSession.CallIdAssignment finished.view := {
+            ids := (List.range finished.view.rawToolCalls.length).map (fun value => {
+              value
+            })
+            length_eq := by simp
+            nodup := by
+              apply List.nodup_iff_pairwise_ne.mpr
+              exact List.Pairwise.map (R := fun left right : Nat => left ≠ right)
+                (S := fun left right : CallId => left ≠ right)
+                (fun value => { value := value })
+                (by
+                  intro left right different equal
+                  exact different (by cases equal; rfl))
+                (List.nodup_iff_pairwise_ne.mp (List.nodup_range))
+          }
+          let session := DeepSeekSessionBridge.appendFinishedAssistant
+            (Session.Session.empty Session.noExtensions) 2 1 finished assignment []
+            (by simp) (by simp)
+          assertEqual "DeepSeek session bridge assigns a local numeric tool call ID"
+            session.messages [
+              .assistant "" [{
+                id := { value := 0 }
+                name := "lookup"
+                arguments := "{\\\"q\\\":lean\\\"}"
+              }]
+            ]
+          let _terminalCertificate := finished.terminal_state
+          let _messageCertificate := DeepSeekSessionBridge.appendFinishedAssistant_messages
+            (Session.Session.empty Session.noExtensions) 2 1 finished assignment []
+            (by simp) (by simp)
+          pure ()
+
 private def testQuotientEffects : IO Unit := do
   let applied := Observational.Quotient.Example.program.run
     Observational.Quotient.Example.initial
@@ -1745,6 +1786,7 @@ def run : IO Unit := do
   testDeepSeekStream
   testDeepSeekRichStream
   testDeepSeekRichToolStream
+  testDeepSeekSessionBridge
   testQuotientEffects
   testCoeffectQuotientLift
   testOperationalEquivalence

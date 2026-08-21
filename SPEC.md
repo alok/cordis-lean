@@ -537,6 +537,7 @@ the empty-to-final lease-threading certificate.
 | `Cordis.DeepSeekStream`         | Strict in-memory DeepSeek SSE framing and typed delta decoding with retained raw-frame certificates.                                                                                              |
 | `Cordis.DeepSeekRichStream`     | Source-honest text-only SSE projection into `RichStream.ValidatedTrace`, with wire/projection/rich certificates and fail-closed semantic errors.                                                  |
 | `Cordis.DeepSeekRichToolStream` | Restricted one-tool SSE projection into rich tool-call blocks, preserving raw arguments and retaining wire/projection/rich certificates.                                                          |
+| `Cordis.DeepSeekSessionBridge`  | Terminal rich-view extraction and proof-carrying session append with caller-supplied numeric call IDs and source-event evidence.                                                                  |
 
 The public library umbrella is `Cordis.lean`. `Main.lean` is the
 `cordis_demo` entry point, and `Tests.lean` is the `cordis_tests` entry point.
@@ -688,6 +689,9 @@ claim:
    strict in-memory SSE text/UTF-8 framing and `Cordis.DeepSeekRichStream`
    projects only a one-choice assistant-text subset into `RichStream`, while
    `Cordis.DeepSeekRichToolStream` separately covers one indexed function call.
+   `Cordis.DeepSeekSessionBridge` is the final local seam for a certified
+   terminal rich view: it appends an assistant payload only with explicit
+   numeric call-ID assignment and source-event proofs supplied by the caller.
 1. **Production streaming.** Extend the bounded text model with transport,
    backpressure, cancellation, tool-call payload assembly, provider-complete
    parser state, and a live HTTP reader; the current `DeepSeekStream` module is
