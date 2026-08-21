@@ -1905,6 +1905,11 @@ obligation.
 process prefix: each complete line is retained before the next read, and completion appends the
 same certified multi-call tool results while fuel or line cancellation returns the exact prefix.
 Byte framing, blocked-read interruption, and deployed stream semantics remain external.
+`Cordis.DeepSeekStreamHarnessErrors` is the corresponding complete-body streamed failure seam:
+`executeFunctionCallsRecoverable` retains a typed provider failure and model-preservation proof,
+then `appendRecoverableToolResults` appends the model-visible `isError` result. The caller must
+opt into consuming that result on the next request with `RequestSource.errorToolResults := .include`;
+incremental recovery and deployed provider error behavior remain outside this adapter.
 `Cordis.DeepSeekHarnessErrors` makes the provider-failure policy explicit rather than silently
 choosing one behavior: `.reject` is the default fail-closed request policy, while `.include`
 retains a `ProviderFailedTool` proof and appends its exact provider message as an `isError` tool

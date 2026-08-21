@@ -432,6 +432,11 @@ process prefix: completion appends the certified multi-call tool results, while 
 read budget returns the exact parsed prefix and typed stop. Byte framing, blocked-read
 interruption, and deployed stream semantics remain outside the claim.
 
+`Cordis.DeepSeekStreamHarnessErrors` carries the opt-in provider-failure policy through the same
+complete-body stream boundary: typed failure evidence and model preservation are retained, and
+the streamed session receives an `isError` tool result for a later `.include` request. Incremental
+recovery, retries, persistence, and deployed error behavior remain external.
+
 ### Current-development transformation and operation independence
 
 Local sources: [`Cordis/Transformation.lean`](../Cordis/Transformation.lean),

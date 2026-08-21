@@ -26,6 +26,7 @@ import Cordis.DeepSeekHarnessCancellation
 import Cordis.DeepSeekStreamHarness
 import Cordis.DeepSeekStreamHarnessCancellation
 import Cordis.DeepSeekStreamHarnessPrefix
+import Cordis.DeepSeekStreamHarnessErrors
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -1298,3 +1299,4 @@ end Cordis.GlobalPaperTraceNormalization
 #print axioms Cordis.GlobalNameLifecycle.NonidentityRaiseExample.entryBreakingAction_not_invariant
 #print axioms Cordis.GlobalNameLifecycle.NonidentityRaiseExample.successOnlyMap_loses_error_action
 #print axioms Cordis.GlobalNameLifecycle.NonidentityRaiseExample.constantErrorBadRun_not_equivariant
+#print axioms Cordis.DeepSeekStreamHarnessErrors.executeConversationMultiStreamRoundRecoverable

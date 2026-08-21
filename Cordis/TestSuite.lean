@@ -26,6 +26,7 @@ import Cordis.DeepSeekHarnessCancellation
 import Cordis.DeepSeekStreamHarness
 import Cordis.DeepSeekStreamHarnessCancellation
 import Cordis.DeepSeekStreamHarnessPrefix
+import Cordis.DeepSeekStreamHarnessErrors
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -2372,6 +2373,45 @@ private def testDeepSeekHarnessErrors : IO Unit := do
 
       pure ()
 
+private def testDeepSeekStreamHarnessErrors : IO Unit := do
+  let initialRunner : DeepSeekHarness.ConversationRunner := {
+    session := DeepSeekHarness.counterSession
+    turn := 1
+    step := 0
+    nextCall := 0
+    toolCallCount_eq_nextCall := by rfl
+  }
+  match ← DeepSeekStreamHarnessErrors.executeConversationMultiStreamRoundRecoverable
+      DeepSeekStreamHarnessErrors.fixtureFailureProcess
+      "https://fixture.invalid" { value := "fixture-key" }
+      DeepSeekHarness.counterRequestSource failingCounterConfig 0 initialRunner []
+      (by simp) (by simp) with
+  | .error error => fail s!"stream recoverable round failed: {reprStr error}"
+  | .ok ⟨body, result⟩ =>
+      assertEqual "stream recoverable round preserves the complete body"
+        body DeepSeekStreamHarness.counterToolStreamBody
+      assertEqual "stream recoverable round preserves the failed model"
+        result.finalModel 0
+      assertEqual "stream recoverable round appends an error tool result"
+        result.runner.session.messages [
+          .user "Read the counter.",
+          .assistant "" [{
+            id := { value := 0 }, name := "counter_read", arguments := "null"
+          }],
+          .toolResult { value := 0 } "deterministic provider failure" true
+        ]
+      assertEqual "stream recoverable round advances assistant and tool events"
+        result.runner.session.nextSeq 3
+      match result.attempts with
+      | [.providerFailed failed] =>
+          assertEqual "stream recoverable round retains the typed failure"
+            failed.message "deterministic provider failure"
+          assertEqual "stream recoverable round retains the failed model witness"
+            failed.before 0
+      | attempts => fail s!"stream recoverable round returned {attempts.length} attempts"
+      let _attemptCertificate := result.attempts_eq
+      pure ()
+
 private def testDeepSeekHarnessRetry : IO Unit := do
   let plan ←
     match DeepSeekHarness.counterPlan with
@@ -3628,6 +3668,7 @@ def run : IO Unit := do
   testDeepSeekStreamHarnessCancellation
   testDeepSeekStreamHarnessPrefix
   testDeepSeekHarnessErrors
+  testDeepSeekStreamHarnessErrors
   testDeepSeekHarnessRetry
   testDeepSeekHarnessCancellation
   testQuotientEffects

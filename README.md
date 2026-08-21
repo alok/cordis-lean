@@ -200,6 +200,12 @@ process-prefix adapter. It returns either a completed multi-call tool round or t
 prefix with a typed line-cancellation/read-budget stop; byte framing, blocked-read interruption,
 and deployed stream semantics remain external.
 
+`Cordis.DeepSeekStreamHarnessErrors` lifts the explicit recoverable provider-failure policy over
+the complete-body streamed round. A failed streamed call retains its parsed/admission/policy/
+provider evidence, keeps the model unchanged, and appends an `isError` tool result that a later
+request may consume when `RequestSource.errorToolResults := .include`; incremental recovery,
+retries, persistence, and deployed error semantics remain external.
+
 The next paper layer is explicit rather than assumed. `Cordis.OperationalEquivalence` models
 Definition 34's heterogeneous finite tests and proves the generator-level coarsest relation of
 Lemma 35, while a compiled counterexample shows that same-word tests do not imply the stronger
