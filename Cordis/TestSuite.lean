@@ -83,6 +83,7 @@ import Cordis.RuntimeRefinement
 import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
+import Cordis.SessionArchive
 import Cordis.SessionValidation
 import Cordis.Stream
 import Cordis.StreamSession
@@ -2467,6 +2468,28 @@ private def testSessionRefinement : IO Unit := do
   | .error (.unsupportedField _ "temperature") => pure ()
   | result => fail s!"unsupported request-header field was not rejected: {reprStr result}"
 
+private def testSessionArchive : IO Unit := do
+  assertEqual "lossless archive classifies supported and extension envelopes"
+    (SessionArchive.archiveTags SessionArchive.archiveExampleJson)
+    ["supported", "opaque-required", "opaque-ignorable"]
+  match SessionArchive.archive SessionArchive.archiveExampleJson with
+  | .error error => fail s!"lossless archive example failed: {reprStr error}"
+  | .ok log =>
+      assertEqual "lossless archive retains every input envelope"
+        log.events.length 3
+      assertEqual "lossless archive preserves raw event order"
+        ((log.events.map SessionArchive.ArchivedEvent.raw) ==
+          SessionArchive.archiveExampleJson) true
+      assertEqual "required opaque records are never silently reclassified as ignorable"
+        (log.events.map SessionArchive.ArchivedEvent.isRequired)
+        [false, true, false]
+  match SessionArchive.archive
+      [SessionArchive.supportedTurnStartJson,
+        Lean.Json.mkObj [("type", .str "vendor/malformed"), ("seq", .num 3),
+          ("data", Lean.Json.mkObj [])]] with
+  | .error (.missingField [.index 1] "time") => pure ()
+  | _ => fail "archive did not retain the failing envelope index"
+
 private def testTransformationIndependence : IO Unit := do
   let modelOrder := Effect.seq Transformation.Example.bumpLeft
     Transformation.Example.bumpRight Transformation.Example.initial
@@ -3166,6 +3189,7 @@ def run : IO Unit := do
   testCoeffectQuotientLift
   testOperationalEquivalence
   testSessionRefinement
+  testSessionArchive
   testTransformationIndependence
   testOperationIndependence
   testArbitraryRemoval

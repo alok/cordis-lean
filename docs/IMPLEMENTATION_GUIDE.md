@@ -1820,6 +1820,11 @@ Protocol witnesses, while admitted surface IDs/provider metadata remain in the
 refinement state and only text enters the smaller local message types. Both start
 at `Lean.Json`, decode exact current field/tag shapes, and fail closed outside
 their stated language.
+`Cordis.SessionArchive` is the adjacent lossless envelope layer: it retains every
+envelope-valid record, classifies unsupported required versus explicitly ignorable
+extensions, and attaches a `SessionRefinement.WireEvent` certificate when the
+semantic decoder succeeds. It must not be used to silently resume through a
+required opaque record; extension payload semantics remain a separate task.
 `Cordis.TextRefinement` now supplies the preceding executable ingress for local
 fixtures and append-only adapters: it parses newline-delimited UTF-8 JSON into
 exact AST lines, retains source/line failures, and composes the two validators

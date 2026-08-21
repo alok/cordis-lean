@@ -80,6 +80,7 @@ import Cordis.RuntimeRefinement
 import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
+import Cordis.SessionArchive
 import Cordis.SessionValidation
 import Cordis.Stream
 import Cordis.StreamSession
@@ -394,6 +395,10 @@ set_option format.width 200
 #print axioms Cordis.SessionRefinement.accept_errorTurnEndReason
 #print axioms Cordis.SessionRefinement.reject_mismatchedToolResultIds
 #print axioms Cordis.SessionRefinement.reject_underdeterminedTurnEnd
+#print axioms Cordis.SessionArchive.decodeEnvelope_raw
+#print axioms Cordis.SessionArchive.ArchivedEvent.raw_eq_envelope_raw
+#print axioms Cordis.SessionArchive.archive_example_tags
+#print axioms Cordis.SessionArchive.archive_example_raw_preserved
 #print axioms Cordis.HarnessPersistenceRefinement.ValidatedPersistedJson.projection_exact
 #print axioms Cordis.HarnessPersistenceRefinement.ValidatedPersistedJson.split_exact
 #print axioms Cordis.HarnessPersistenceRefinement.ValidatedPersistedJson.expansion_exact

@@ -208,6 +208,9 @@ Current machine-checked evidence includes:
   shapes into `RichStream.ValidatedTrace` while explicitly rejecting non-equivalent fields;
 - `Cordis.SessionRefinement`, statefully translating a supported source-shaped Harness session
   prefix into joint `Session.ValidatedAppend` and intrinsic `Protocol.ValidatedEvent` witnesses;
+- `Cordis.SessionArchive`, retaining every syntactically valid current-Harness event envelope
+  losslessly, classifying supported records versus required/ignorable opaque extensions, and
+  attaching the existing typed decoder certificate where available;
 - `Cordis.HarnessPersistenceRefinement`, validating the pinned logical JSONL session header and
   storage rows, expanding the three lossless packed chunk-row forms, and composing that result
   with the stateful session validator;
@@ -840,6 +843,13 @@ reasoning surface/tool/image blocks, error/meta payloads, and extension events f
 structured cancellation/failure payload remains in wire/refinement state rather than being claimed
 as a local `TurnEndReason` variant.
 
+`Cordis.SessionArchive` is the complementary lossless envelope boundary. It validates the required
+`type`/`seq`/`time`/`data` envelope shape and conditional `ignorable`, `sourceEventSeqs`, and
+`surfaceOp` fields while retaining the original `Lean.Json` AST. Supported records carry a
+`SessionRefinement.WireEvent` certificate; unknown or semantically unsupported records are retained
+as `opaqueRequired` or `opaqueIgnorable` rather than discarded. This does not assign extension
+payload types, replay semantics, or a local session projection to opaque records.
+
 `Cordis.TextRefinement` composes these AST-level validators with the Lean JSON parser and UTF-8
 decoder. `parseJsonLines` rejects empty sources and interior blank lines, preserves zero-based
 line numbers for malformed JSON, and `parseJsonLinesBytes` rejects invalid UTF-8 before parsing.
@@ -890,6 +900,8 @@ The slice requires all existing gates plus the following new coverage:
 - UTF-8 JSONL stream/session fixtures, exact parsed-line retention, and invalid-encoding rejection;
 - logical Harness JSONL persistence fixtures covering header/tag/version rejection, packed
   text-row expansion, safe sequence/time reconstruction, and composition with session validation;
+- lossless archive fixtures covering one supported core event, one required opaque extension, and
+  one explicitly ignorable extension, with raw-AST order preserved exactly;
 - finite operational tests with heterogeneous outcomes, failed domains, and the formal
   paired-inverse counterexample;
 - quotient-effect composition and lifted coeffect context preservation;
@@ -954,8 +966,9 @@ This slice does not by itself prove:
 
 - behavioral equivalence with the complete TypeScript DeepSeek Harness;
 - byte-level JSON parsing, rendering, or storage compatibility;
-- completeness for the Harness JSONL event/storage union: `HarnessPersistenceRefinement` is a
-  logical AST refinement for the pinned header and three packed-row forms only;
+- semantic completeness for the Harness event/storage union: `HarnessPersistenceRefinement` is a
+  logical AST refinement for the pinned header and three packed-row forms, while
+  `SessionArchive` preserves envelope-valid opaque records without assigning them semantics;
 - filesystem/database persistence beyond the narrow tested adapters, stable-media/flush barriers,
   cryptographic authentication, arbitrary crash-file repair, or fork correctness.
   `Cordis.DurableSettlement` and `Cordis.DurableCodec` prove a pure typed crash-prefix/resume
