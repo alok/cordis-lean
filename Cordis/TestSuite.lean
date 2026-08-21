@@ -4,6 +4,7 @@ import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.DeepSeekApi
+import Cordis.DeepSeekStream
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -880,6 +881,42 @@ private def testDeepSeekApi : IO Unit := do
   | .error (.transport "offline") => pure ()
   | _ => fail "transport failure was not preserved"
 
+private def testDeepSeekStream : IO Unit := do
+  match DeepSeekStream.validateSse DeepSeekStream.exampleStreamBody with
+  | .error error => fail s!"DeepSeek SSE fixture failed: {reprStr error}"
+  | .ok validated =>
+      assertEqual "DeepSeek SSE fixture has one data frame and a terminal marker"
+        validated.frames.length 2
+      match validated.frames with
+      | [.data frame, .done] =>
+          assertEqual "DeepSeek SSE frame id" frame.chunk.id "chatcmpl-stream-example"
+          assertEqual "DeepSeek SSE frame model" frame.chunk.model "deepseek-reasoner"
+          match frame.chunk.choices with
+          | [choice] =>
+              assertEqual "DeepSeek SSE delta role" choice.delta.role (some "assistant")
+              assertEqual "DeepSeek SSE delta content" choice.delta.content (some "Hello")
+              assertEqual "DeepSeek SSE delta is not terminal" choice.finishReason none
+          | _ => fail "DeepSeek SSE fixture did not decode exactly one choice"
+          let _parseCertificate := validated.parsed
+          let _frameParseCertificate := frame.parsed
+          let _frameDecodeCertificate := frame.decoded
+          pure ()
+      | _ => fail "DeepSeek SSE fixture did not retain the expected frame sequence"
+  match DeepSeekStream.validateSse "data: [DONE]\n\ndata: {}\n\n" with
+  | .error (.dataAfterDone _) => pure ()
+  | _ => fail "data after DeepSeek SSE [DONE] was accepted"
+  let missingDoneBody :=
+    "data: " ++ Lean.Json.compress DeepSeekStream.exampleChunkJson ++ "\n\n"
+  match DeepSeekStream.validateSse missingDoneBody with
+  | .error .missingDone => pure ()
+  | _ => fail "DeepSeek SSE body without [DONE] was accepted"
+  match DeepSeekStream.validateSse "event: message\n\ndata: [DONE]\n\n" with
+  | .error (.unexpectedLine _ "event: message") => pure ()
+  | _ => fail "unsupported DeepSeek SSE field was accepted"
+  match DeepSeekStream.validateSseBytes (ByteArray.mk #[255]) with
+  | .error .invalidUtf8 => pure ()
+  | _ => fail "invalid UTF-8 DeepSeek SSE input was accepted"
+
 private def testQuotientEffects : IO Unit := do
   let applied := Observational.Quotient.Example.program.run
     Observational.Quotient.Example.initial
@@ -1600,6 +1637,7 @@ def run : IO Unit := do
   testRuntimeRefinement
   testTextRefinement
   testDeepSeekApi
+  testDeepSeekStream
   testQuotientEffects
   testCoeffectQuotientLift
   testOperationalEquivalence

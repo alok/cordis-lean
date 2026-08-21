@@ -1805,6 +1805,11 @@ retain parse/decode certificates, and transport, HTTP-status, and API errors
 remain separate. Keep the transport explicit and deterministic in Lean tests;
 do not present the fixture as live HTTP, credential validation, or complete
 provider/schema compatibility.
+`Cordis.DeepSeekStream` supplies the next wire boundary: strict in-memory
+`data:` / `[DONE]` SSE framing, typed delta choices, retained raw-frame
+parse/decode certificates, and explicit invalid-UTF-8/JSON/terminal errors.
+It is not a live reader or a stream assembler; buffering, cancellation,
+backpressure, provider-complete chunk coverage, and HTTP remain external.
 Continue by defining translations for additional pinned Harness events and tool
 definitions and proving only the invariants actually shared by the two
 representations. Expect to model more payloads, surface semantics, session

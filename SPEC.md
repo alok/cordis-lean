@@ -679,10 +679,13 @@ claim:
 1. **External adapters.** `Cordis.DeepSeekApi` now supplies the checked
    request/response codec and an explicit transport seam for a small,
    non-streaming OpenAI-compatible DeepSeek subset. The remaining work is the
-   byte-stream/HTTP implementation, credential injection, real tool processes,
-   persistence, and explicit per-adapter trust declarations.
+   HTTP implementation, credential injection, real tool processes, persistence,
+   and explicit per-adapter trust declarations; `Cordis.DeepSeekStream` covers
+   only strict in-memory SSE text/UTF-8 framing and a typed delta subset.
 1. **Production streaming.** Extend the bounded text model with transport,
-   backpressure, cancellation, tool-call payload assembly, and parser state.
+   backpressure, cancellation, tool-call payload assembly, provider-complete
+   parser state, and a live HTTP reader; the current `DeepSeekStream` module is
+   only the strict in-memory `data:` / `[DONE]` boundary.
 1. **Production policy guarantees.** Add durable lease storage, atomic
    consumption, multi-process exclusion, retries, and crash recovery before
    claiming global exactly-once behavior.

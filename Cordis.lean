@@ -9,6 +9,7 @@ import Cordis.DurableBytes
 import Cordis.DurableIO
 import Cordis.DurableSettlement
 import Cordis.DeepSeekApi
+import Cordis.DeepSeekStream
 import Cordis.Effect
 import Cordis.Examples.Counter
 import Cordis.Examples.CounterWire

@@ -4,6 +4,7 @@ import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.DeepSeekApi
+import Cordis.DeepSeekStream
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -345,6 +346,10 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekApi.decodeResponseJson
 #print axioms Cordis.DeepSeekApi.validateResponse
 #print axioms Cordis.DeepSeekApi.execute
+#print axioms Cordis.DeepSeekStream.decodeStreamChunkJson
+#print axioms Cordis.DeepSeekStream.parseSse
+#print axioms Cordis.DeepSeekStream.validateSse
+#print axioms Cordis.DeepSeekStream.validateSseBytes
 #print axioms Cordis.Transformation.Closure.commute
 #print axioms Cordis.Transformation.commute_of_generators
 #print axioms Cordis.Transformation.seq_monoid_subset_joint

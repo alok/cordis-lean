@@ -3,6 +3,7 @@ import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.DeepSeekApi
+import Cordis.DeepSeekStream
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
