@@ -190,6 +190,11 @@ subsequent request or fuel-bounded round. Incremental delivery, cancellation,
 backpressure, reconnects, provider-complete assembly, and deployed equivalence remain
 outside this adapter.
 
+`Cordis.DeepSeekStreamHarnessCancellation` adds the same typed pre-round cancellation
+decision to that streamed loop. It retains the completed streamed prefix and unchanged
+runner/model endpoint when cancellation is selected; it does not interrupt an in-flight
+process read or claim deployed cancellation semantics.
+
 The next paper layer is explicit rather than assumed. `Cordis.OperationalEquivalence` models
 Definition 34's heterogeneous finite tests and proves the generator-level coarsest relation of
 Lemma 35, while a compiled counterexample shows that same-word tests do not imply the stronger

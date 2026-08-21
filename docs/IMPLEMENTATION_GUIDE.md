@@ -1897,6 +1897,10 @@ fuel-bounded round runner; `runConversationMultiStream` composes those round cer
 explicit fuel and stops on a text-only terminal response or typed exhaustion. Incremental
 delivery, cancellation, backpressure, reconnects,
 provider-complete assembly, and deployed equivalence remain outside the adapter.
+`Cordis.DeepSeekStreamHarnessCancellation` adds a typed pre-round cancellation decision over
+that streamed loop, preserving the completed streamed prefix and runner/model endpoint while
+leaving interruption of an in-flight process read or external tool as an adapter-specific
+obligation.
 `Cordis.DeepSeekHarnessErrors` makes the provider-failure policy explicit rather than silently
 choosing one behavior: `.reject` is the default fail-closed request policy, while `.include`
 retains a `ProviderFailedTool` proof and appends its exact provider message as an `isError` tool

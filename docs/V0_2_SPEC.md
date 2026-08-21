@@ -142,6 +142,8 @@ Current machine-checked evidence includes:
   both the one-call path and the typed two-call `executeConversationMultiStreamRound` fixture
   are exercised, and `runConversationMultiStream` composes those rounds under explicit fuel
   until a text-only terminal response or typed exhaustion;
+- `Cordis.DeepSeekStreamHarnessCancellation`, adding the same typed pre-round cancellation
+  decision to the streamed loop while keeping in-flight process interruption external;
 - `Cordis.DeepSeekHarnessErrors`, adding an explicit fail-closed/default-versus-opt-in policy seam
   for provider failures: `.include` retains typed failure evidence and appends model-visible
   `isError` tool results without changing the model state;

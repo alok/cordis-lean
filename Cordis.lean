@@ -29,6 +29,7 @@ import Cordis.DeepSeekHarnessErrors
 import Cordis.DeepSeekHarnessRetry
 import Cordis.DeepSeekHarnessCancellation
 import Cordis.DeepSeekStreamHarness
+import Cordis.DeepSeekStreamHarnessCancellation
 import Cordis.Effect
 import Cordis.Examples.Counter
 import Cordis.Examples.CounterWire

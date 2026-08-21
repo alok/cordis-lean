@@ -24,6 +24,7 @@ import Cordis.DeepSeekHarnessErrors
 import Cordis.DeepSeekHarnessRetry
 import Cordis.DeepSeekHarnessCancellation
 import Cordis.DeepSeekStreamHarness
+import Cordis.DeepSeekStreamHarnessCancellation
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -2109,6 +2110,85 @@ private def testDeepSeekStreamHarness : IO Unit := do
       assertEqual "DeepSeek streamed loop exhaustion is distinct from completion"
         (DeepSeekStreamHarness.StreamConversationStop.isCompleted result.stop) false
 
+private def testDeepSeekStreamHarnessCancellation : IO Unit := do
+  let streamLoopProcess : Cordis.DeepSeekCurlTransport.ProcessConfig := {
+    command := "sh"
+    args := fun _ => #[
+      "-c",
+      "body=$(cat); case \"$body\" in " ++
+        "*tool_calls*) printf '%s\\n__CORDIS_HTTP_STATUS__200\\n' \"$2\" ;; " ++
+        "*) printf '%s\\n__CORDIS_HTTP_STATUS__200\\n' \"$1\" ;; esac",
+      "cordis-stream-cancellation-fixture",
+      DeepSeekStreamHarness.counterMultiToolStreamBody,
+      DeepSeekRichStream.exampleTextStreamBody
+    ]
+  }
+  let initialRunner : DeepSeekHarness.ConversationRunner := {
+    session := DeepSeekHarness.counterSession
+    turn := 1
+    step := 0
+    nextCall := 0
+    toolCallCount_eq_nextCall := by rfl
+  }
+  let beforePolicy := DeepSeekHarnessCancellation.CancellationPolicy.atRound 0 .user
+  match ← DeepSeekStreamHarnessCancellation.runConversationMultiStreamCancellable
+      (cfg := Cordis.Harness.counterConfig) beforePolicy 2 streamLoopProcess
+      "https://fixture.invalid" { value := "fixture-key" }
+      DeepSeekHarness.counterRequestSource [] (by simp) (by
+        intro current source sourceMem
+        cases sourceMem) 0 initialRunner with
+  | .error error => fail s!"stream pre-round cancellation failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "stream pre-round cancellation retains no round history"
+        result.rounds.length 0
+      assertEqual "stream pre-round cancellation preserves the runner"
+        result.runner.session.nextSeq initialRunner.session.nextSeq
+      assertEqual "stream pre-round cancellation preserves the model"
+        result.finalModel 0
+      assertEqual "stream pre-round cancellation reports cancellation"
+        (DeepSeekStreamHarnessCancellation.CancellableStop.isCancelled result.stop) true
+      assertEqual "stream pre-round cancellation records its round"
+        (DeepSeekStreamHarnessCancellation.CancellableStop.cancelledRound result.stop) (some 0)
+      assertEqual "stream pre-round cancellation records its reason"
+        (DeepSeekStreamHarnessCancellation.CancellableStop.cancelledReason result.stop) (some .user)
+
+  let betweenPolicy := DeepSeekHarnessCancellation.CancellationPolicy.atRound 1 .timeout
+  match ← DeepSeekStreamHarnessCancellation.runConversationMultiStreamCancellable
+      (cfg := Cordis.Harness.counterConfig) betweenPolicy 2 streamLoopProcess
+      "https://fixture.invalid" { value := "fixture-key" }
+      DeepSeekHarness.counterRequestSource [] (by simp) (by
+        intro current source sourceMem
+        cases sourceMem) 0 initialRunner with
+  | .error error => fail s!"stream between-round cancellation failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "stream between-round cancellation retains the completed tool round"
+        result.rounds.length 1
+      assertEqual "stream between-round cancellation preserves the tool prefix"
+        result.runner.session.nextSeq 4
+      assertEqual "stream between-round cancellation reports cancellation"
+        (DeepSeekStreamHarnessCancellation.CancellableStop.isCancelled result.stop) true
+      assertEqual "stream between-round cancellation records its round"
+        (DeepSeekStreamHarnessCancellation.CancellableStop.cancelledRound result.stop) (some 1)
+      assertEqual "stream between-round cancellation records its reason"
+        (DeepSeekStreamHarnessCancellation.CancellableStop.cancelledReason result.stop)
+        (some .timeout)
+
+  let neverPolicy := DeepSeekHarnessCancellation.CancellationPolicy.never .user
+  match ← DeepSeekStreamHarnessCancellation.runConversationMultiStreamCancellable
+      (cfg := Cordis.Harness.counterConfig) neverPolicy 2 streamLoopProcess
+      "https://fixture.invalid" { value := "fixture-key" }
+      DeepSeekHarness.counterRequestSource [] (by simp) (by
+        intro current source sourceMem
+        cases sourceMem) 0 initialRunner with
+  | .error error => fail s!"stream completion policy failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "stream cancellation wrapper retains both completed witnesses"
+        result.rounds.length 2
+      assertEqual "stream cancellation wrapper reports completion"
+        (DeepSeekStreamHarnessCancellation.CancellableStop.isCancelled result.stop) false
+      assertEqual "stream cancellation wrapper reports no fuel exhaustion"
+        (DeepSeekStreamHarnessCancellation.CancellableStop.isFuelExhausted result.stop) false
+
 private def failingProvider (operation : Operation) :
     Provider catalog.signature operation where
   id := providerId operation
@@ -3474,6 +3554,7 @@ def run : IO Unit := do
   testDeepSeekApiSession
   testDeepSeekHarness
   testDeepSeekStreamHarness
+  testDeepSeekStreamHarnessCancellation
   testDeepSeekHarnessErrors
   testDeepSeekHarnessRetry
   testDeepSeekHarnessCancellation

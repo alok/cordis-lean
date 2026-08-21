@@ -422,6 +422,11 @@ Local sources: [`Cordis/RichStream.lean`](../Cordis/RichStream.lean),
 | `DeepSeekHarnessRetry.RetryPolicy`, `RetryHistory`, `executeWithRetry`, `executeConversationRoundRetry` | **Checked/proved/exercised bounded retry:** an explicit policy retries only transport/transient-HTTP `ClientError`s, retains the prior failure list under a proof-carrying bound, reuses one request plan, and carries the history into a successful typed conversation continuation. | Complete-body immediate retry over the explicit transport seam. | No provider backoff, idempotency of arbitrary requests/tools, cancellation, persistence, asynchronous delivery, or deployed Harness retry equivalence is claimed. |
 | `DeepSeekHarnessCancellation.CancellationPolicy`, `CancellableStop`, `CancellableRunResult`, `runConversationCancellable` | **Checked/proved/exercised pre-round cancellation:** a caller decision is evaluated before each complete request round; cancellation retains the exact completed witness prefix, unchanged runner/model endpoint, and decision proof, while completion and fuel exhaustion remain distinct. | Boundary-safe control over the pure complete-body conversation runner. | No interruption of an in-flight process, HTTP request, stream reader, or external tool; no cleanup, backpressure, persistence, asynchronous delivery, or deployed Harness cancellation equivalence is claimed. |
 
+`Cordis.DeepSeekStreamHarnessCancellation` provides the analogous boundary for
+`runConversationMultiStream`: cancellation is checked before a complete streamed round and
+retains the exact completed streamed prefix plus runner/model endpoint. It does not claim to
+interrupt an in-flight process read or to provide deployed cancellation semantics.
+
 ### Current-development transformation and operation independence
 
 Local sources: [`Cordis/Transformation.lean`](../Cordis/Transformation.lean),
