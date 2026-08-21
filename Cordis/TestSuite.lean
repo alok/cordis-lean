@@ -23,6 +23,7 @@ import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
+import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessErrors
 import Cordis.DeepSeekHarnessRetry
 import Cordis.DeepSeekHarnessCancellation
@@ -2035,6 +2036,40 @@ private def testDeepSeekHarness : IO Unit := do
       assertEqual "fuel exhaustion does not issue an unbudgeted second request"
         exhaustedBodiesSnapshot.length 1
 
+private def testDeepSeekHarnessPersistence : IO Unit := do
+  match DeepSeekHarnessPersistence.persistedToolArchive with
+  | .error error => fail s!"persisted DeepSeek archive failed: {reprStr error}"
+  | .ok archive =>
+      assertEqual "persisted DeepSeek archive validates its event count"
+        (Cordis.HarnessPersistenceRefinement.persistenceSummary
+          DeepSeekHarnessPersistence.persistedToolArchive)
+        (some (0, 8, 8))
+      let restored := DeepSeekHarnessPersistence.restoreRunner archive 1 1
+        (Cordis.DeepSeekSessionRunner.toolCallCount archive.validated.final.session.messages) rfl
+      assertEqual "restored DeepSeek runner preserves the archive endpoint"
+        restored.runner.session.nextSeq archive.validated.final.session.nextSeq
+      assertEqual "restored DeepSeek runner preserves the archive surface"
+        restored.runner.session.messages archive.validated.final.session.messages
+      match DeepSeekHarnessPersistence.buildRequestCertificate restored
+          DeepSeekHarnessPersistence.persistedToolSource with
+      | .error error => fail s!"restored DeepSeek request failed: {reprStr error}"
+      | .ok certificate =>
+          assertEqual "restored DeepSeek request preserves persisted messages"
+            certificate.request.messages.toList [
+              .user "look up lean",
+              .assistant (some "I will look it up.") none [{
+                id := "0"
+                name := "lookup"
+                arguments := "{\"q\":\"lean\"}"
+              }],
+              .tool "0" "result"
+            ]
+          let _buildCertificate := certificate.build_eq
+          let _archiveCertificate :=
+            DeepSeekHarnessPersistence.buildRequest_session_eq_archive restored
+              DeepSeekHarnessPersistence.persistedToolSource certificate.build_eq
+          pure ()
+
 private def testDeepSeekStreamHarness : IO Unit := do
   let process := DeepSeekStreamHarness.streamFlagFixtureProcess
     DeepSeekStreamHarness.counterToolStreamBody
@@ -3921,6 +3956,7 @@ def run : IO Unit := do
   testDeepSeekSessionRunner
   testDeepSeekApiSession
   testDeepSeekHarness
+  testDeepSeekHarnessPersistence
   testDeepSeekStreamHarness
   testDeepSeekStreamHarnessCancellation
   testDeepSeekStreamHarnessPrefix

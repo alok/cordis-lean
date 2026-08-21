@@ -21,6 +21,7 @@ import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
+import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessErrors
 import Cordis.DeepSeekHarnessRetry
 import Cordis.DeepSeekHarnessCancellation
@@ -587,6 +588,12 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarness.ConversationStop.isCompleted
 #print axioms Cordis.DeepSeekHarness.runConversationAux
 #print axioms Cordis.DeepSeekHarness.runConversation
+#print axioms Cordis.DeepSeekHarnessPersistence.restoreRunner
+#print axioms Cordis.DeepSeekHarnessPersistence.RestoredRunner.session_messages_eq
+#print axioms Cordis.DeepSeekHarnessPersistence.RestoredRunner.nextSeq_eq
+#print axioms Cordis.DeepSeekHarnessPersistence.buildRequestCertificate
+#print axioms Cordis.DeepSeekHarnessPersistence.buildRequest_session_eq_archive
+#print axioms Cordis.DeepSeekHarnessPersistence.persistedToolRequest_messages
 #print axioms Cordis.DeepSeekStreamHarness.projectedToolCallToFunctionCall
 #print axioms Cordis.DeepSeekStreamHarness.ConversationRunner.appendFinished
 #print axioms Cordis.DeepSeekStreamHarness.ConversationRunner.appendFinished_session_messages

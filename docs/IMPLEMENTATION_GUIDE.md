@@ -1970,6 +1970,16 @@ immediate retry policy for transport/transient-HTTP failures. Its `RetryHistory`
 prior `ClientError`, and the retrying conversation result carries that history into the same typed
 runner. This is not provider backoff, idempotency proof, cancellation, or deployed-Harness retry
 equivalence.
+
+`Cordis.DeepSeekHarnessPersistence` is the logical restore seam above the existing JSONL
+persistence refinement. `RestoredRunner` stores a validated archive together with an exact
+equality between the runner session and the archive's final session. `RequestCertificate` then
+retains the successful request construction from that restored runner, and
+`buildRequest_session_eq_archive` proves that rebuilding from the archive session produces the
+same request. This is deliberately not a filesystem implementation: compression, torn-tail
+repair, concurrent writers, host acknowledgements, and archive authenticity remain separate
+engineering obligations.
+
 `Cordis.DeepSeekHarnessCancellation` adds the corresponding pre-round control boundary: the policy
 is checked before a complete request round, and a cancellation result carries the unchanged
 runner/model endpoint and completed prefix. Keep the boundary honest: interrupting an in-flight

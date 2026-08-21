@@ -184,6 +184,12 @@ an explicit `fuelExhausted` stop; the test suite exercises both completion and e
 deterministic two-response loop.
 Persistence, credentials, scheduling, and deployed-Harness equivalence remain outside.
 
+`Cordis.DeepSeekHarnessPersistence` now attaches that bounded runner to the logical JSONL
+persistence refinement. A successful archive restores a `ConversationRunner` with an exact
+equality to the archive's final session, and a proof-carrying request rebuilt from the restored
+runner is proven to be the same request rebuilt from the archive session. Filesystem I/O,
+compression, torn-tail repair, concurrent writers, and archive authenticity remain outside.
+
 `Cordis.DeepSeekHarnessErrors` is the explicit opt-in continuation policy for provider failures.
 `ErrorToolResultPolicy.reject` is the default fail-closed request behavior; selecting `.include`
 lets a proof-carrying `ProviderFailedTool` become an `isError` tool-result message while retaining

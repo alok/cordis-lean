@@ -172,6 +172,10 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekStreamHarnessPrefix`, connecting the line-oriented process-prefix state to
   the multi-call continuation and retaining exact completion, fuel, or line-cancellation
   evidence while byte framing and blocked-read interruption remain external;
+- `Cordis.DeepSeekHarnessPersistence`, attaching a validated logical JSONL archive to a
+  `ConversationRunner` with exact final-session equality and a request certificate that is
+  preserved when the request is rebuilt from the archive session; filesystem/compression,
+  torn-tail repair, concurrent writers, and archive authenticity remain external;
 - `Cordis.DeepSeekHarnessErrors`, adding an explicit fail-closed/default-versus-opt-in policy seam
   for provider failures: `.include` retains typed failure evidence and appends model-visible
   `isError` tool results without changing the model state;
