@@ -3,6 +3,7 @@ import Cordis.Codec
 import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
+import Cordis.DurableSettlement
 import Cordis.Effect
 import Cordis.Examples.Counter
 import Cordis.Examples.CounterWire
@@ -585,6 +586,31 @@ private def testParallelHarness : IO Unit := do
       | .cancelled reason =>
           assertEqual "cancellation drain emits a synthetic abort reason" reason "cancelled:timeout"
   | [] => fail "cancellation drain emitted no synthetic reports"
+
+private def testDurableSettlement : IO Unit := do
+  assertEqual "durable first commit reaches its indexed successor"
+    (DurableSettlement.Spec.after DurableSettlement.Example.spec 3
+      DurableSettlement.Example.initial)
+    13
+  assertEqual "durable second commit reaches its indexed successor"
+    (DurableSettlement.Spec.after DurableSettlement.Example.spec 8
+      (DurableSettlement.Spec.after DurableSettlement.Example.spec 3
+        DurableSettlement.Example.initial))
+    21
+  assertEqual "crash cut retains the committed prefix state"
+    (DurableSettlement.CrashPrefix.recoveredState DurableSettlement.Example.crash)
+    13
+  assertEqual "crash cut exposes exactly one discarded frame"
+    DurableSettlement.Example.crash.discarded.length
+    1
+  assertEqual "resume commits after the recovered prefix"
+    (DurableSettlement.Spec.after DurableSettlement.Example.spec 5
+      (DurableSettlement.CrashPrefix.recoveredState DurableSettlement.Example.crash))
+    18
+  assertEqual "resumed durable log contains the retained and new frames"
+    (DurableSettlement.Log.frames DurableSettlement.Example.spec
+      DurableSettlement.Example.initial DurableSettlement.Example.resumed).length
+    2
 
 private def testRichStream : IO Unit := do
   match RichStream.validateTrace RichStream.State.initial RichStream.interleavedRaw with
@@ -1425,6 +1451,7 @@ def run : IO Unit := do
   testReactiveCoeffects
   testFiniteSchedules
   testParallelHarness
+  testDurableSettlement
   testRichStream
   testStreamSessionBridge
   testContextualEquivalence

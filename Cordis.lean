@@ -4,6 +4,7 @@ import Cordis.Codec
 import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
+import Cordis.DurableSettlement
 import Cordis.Effect
 import Cordis.Examples.Counter
 import Cordis.Examples.CounterWire

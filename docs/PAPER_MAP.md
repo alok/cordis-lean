@@ -396,6 +396,16 @@ Local source: [`Cordis/ParallelHarness.lean`](../Cordis/ParallelHarness.lean).
 | `Plan`, `Plan.execute`                    | **Proved:** an optional `ExclusiveTask` is run after the certified window, with exact endpoint and recovery equality; its mode is intrinsically `.exclusive`.                                                                 | Exclusive barrier after a batch in the current Harness scheduler.                        | The barrier is one explicit pure task. Dynamic admission, nested barriers, retries, and external resource isolation remain outside.                                                    |
 | `drain`, `drainOutcome`                   | **Proved:** draining a finite pending list emits one synthetic cancellation report per task, preserves the model exactly, and preserves task IDs/order.                                                                       | Synthetic abort/cancellation reporting at a scheduler boundary.                          | This is a pure cancellation model; it does not prove cancellation of running promises, cleanup, persistence, or crash recovery.                                                        |
 
+### Current-development durable settlement boundary
+
+Local source: [`Cordis/DurableSettlement.lean`](../Cordis/DurableSettlement.lean).
+
+| Lean declaration                                                                             | Status and exact Lean guarantee                                                                                                                                                                                                          | Harness correspondence                                                | Boundary                                                                                                                                                                   |
+| -------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DurableSettlement.Log`, `Log.entries_length`, `Log.frames_length`, `Log.entries_map_frames` | **Proved:** an intrinsically indexed append-only log carries exact current state, sequence, digest, chronological entries, and raw frames; frame count and entry/frame projection agree definitionally through the indexed constructors. | A typed write-ahead/commit-frame analogue for a finite local history. | The transcript digest is a collision-free `List Nat`, not a cryptographic hash; the log is a pure Lean value, not bytes on disk.                                           |
+| `Log.recovers`, `CrashPrefix.recovers_initial`, `CrashPrefix.retained_frames_are_prefix`     | **Proved:** every indexed log has an exact newest-first inverse, and a supplied crash-prefix certificate recovers the retained prefix to the initial state while exposing the discarded frame suffix.                                    | Torn-log-prefix recovery and checkpoint selection.                    | `CrashPrefix` is a proof-carrying cut, not an arbitrary-file scanner; no fsync, partial-write detector, storage fault model, or external-side-effect rollback is inferred. |
+| `CrashPrefix.resume`, `CrashPrefix.resume_recovers`                                          | **Proved:** a new typed entry can be appended after the recovered prefix and the resumed log retains exact sequence/digest/index/recovery witnesses.                                                                                     | Resume after a retained durable checkpoint.                           | This is pure prefix resume only; process coordination, fork/conflict policy, authentication, retries, and global exactly-once execution remain external.                   |
+
 ### Current-development global registry and orchestration
 
 Local sources: [`Cordis/GlobalRegistry.lean`](../Cordis/GlobalRegistry.lean),
@@ -638,6 +648,8 @@ paths, the mapped Lean modules do not establish:
   races, cleanup, retries, and persistence. `Cordis.ParallelHarness` proves only the bounded
   pure certificate slice above: model-ordered commits, one explicit exclusive barrier, and a
   no-effect synthetic drain;
+- a filesystem or database persistence refinement. `Cordis.DurableSettlement` proves only the
+  typed crash-prefix/resume boundary above, with a supplied prefix certificate;
 - the complete merge-extensible session vocabulary, surface replacement rules, persistence,
   checkpoint durability, or crash recovery; or
 - correctness of real tool I/O, host callbacks, JavaScript promises, an OS sandbox, or a

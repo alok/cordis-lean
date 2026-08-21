@@ -114,6 +114,9 @@ Current machine-checked evidence includes:
 - `Cordis.GlobalDeletion`, constructing intrinsic relation-indexed keep/drop replays and exact
   assignment-carrying safe orchestration suffixes after finite families of already-vestigial
   entries, while kernel-separating parent, redraw, and allocator obstructions to full Lemma 72;
+- `Cordis.DurableSettlement`, defining an intrinsically indexed append-only frame log with a
+  collision-free list transcript, exact newest-first recovery, supplied crash-prefix certificates,
+  and typed resume after a retained prefix;
 - `Cordis.GlobalPaperRelation`, erasing only the reference allocator clock/birth ranks from current
   rule observation, proving full-domain bidirectional well-formed orchestration replay, and
   constructing directed relation-aware vestigial suffix replay with lifecycle countermodels;
@@ -819,7 +822,9 @@ This slice does not by itself prove:
 
 - behavioral equivalence with the complete TypeScript DeepSeek Harness;
 - byte-level JSON parsing, rendering, or storage compatibility;
-- durable persistence, flush barriers, crash repair, resume, or fork correctness;
+- filesystem/database persistence, flush barriers, arbitrary crash-file repair, or fork
+  correctness. `Cordis.DurableSettlement` proves only a pure typed crash-prefix/resume model
+  with a supplied prefix certificate;
 - task/fiber scheduling, fairness, cancellation delivery, or wall-clock concurrency;
 - the stronger paired-inverse law from same-word tests without its explicit coherence premise;
 - identification of the finite exact partial/Kleisli theorem with the paper's literal

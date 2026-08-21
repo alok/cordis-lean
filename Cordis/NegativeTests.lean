@@ -2,6 +2,7 @@ import Cordis.Harness
 import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
+import Cordis.DurableSettlement
 import Cordis.Examples.DependentChoice
 import Cordis.GlobalActivationOrchestrationTransposition
 import Cordis.GlobalActivationTransposition

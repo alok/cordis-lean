@@ -1739,10 +1739,19 @@ relate `Codec.schema` to decoder acceptance.
 
 ### 19.3 Add durable settlement
 
-Design a write-ahead record whose checksum or authenticated digest covers the
-call, result, model transition, lease transition, and protocol coordinates.
-State a crash model and prove recovery selects a prefix satisfying the joint
-invariant. Only then discuss durable atomic settlement.
+The first pure checkpoint is now in
+[`../Cordis/DurableSettlement.lean`](../Cordis/DurableSettlement.lean). `Spec` supplies a
+typed effect and injective entry/state encodings; `Log` is indexed by its exact current state,
+sequence, and collision-free list transcript; and `CrashPrefix` supplies a retained typed
+prefix plus discarded frame suffix. The module proves exact newest-first recovery and typed
+resume after the retained prefix. This is a source-honest torn-log-prefix model, not a claim
+about bytes reaching a filesystem.
+
+The remaining production step is an explicit `IO`/filesystem refinement: define the accepted
+frame encoding, partial-write and flush model, checksum or authenticated digest policy, crash
+scanner, checkpoint selection, fork/conflict handling, and the relationship between external
+tool effects and committed entries. Only after those obligations are proved should the project
+claim durable atomic settlement or process-wide exactly-once behavior.
 
 ### 19.4 Add an `N`-call scheduler
 
