@@ -13,7 +13,9 @@ request or fuel-bounded conversation APIs.
 
 The adapter intentionally consumes a complete response body through `ProcessConfig`; it does not
 claim incremental delivery, cancellation, backpressure, reconnects, provider-complete assembly,
-or equivalence to the deployed DeepSeek Harness.
+or equivalence to the deployed DeepSeek Harness. The executable fixtures cover both a single
+streamed call and two calls in one terminal response; each call still passes through the same
+dependent admission, policy, and provider path.
 -/
 
 set_option autoImplicit false
@@ -82,6 +84,68 @@ def counterToolFinishJson : Lean.Json := .mkObj [
 def counterToolStreamBody : String :=
   "data: " ++ Lean.Json.compress counterToolStartJson ++ "\n\n" ++
   "data: " ++ Lean.Json.compress counterToolFinishJson ++ "\n\n" ++
+  "data: [DONE]\n\n"
+
+def counterMultiToolStartJson : Lean.Json := .mkObj [
+  ("id", .str "chatcmpl-counter-stream-multi"),
+  ("model", .str "deterministic-counter"),
+  ("choices", .arr #[.mkObj [
+    ("index", .num (Lean.JsonNumber.fromNat 0)),
+    ("delta", .mkObj [
+      ("tool_calls", .arr #[
+        .mkObj [
+          ("index", .num (Lean.JsonNumber.fromNat 0)),
+          ("id", .str "counter-stream-call-0"),
+          ("type", .str "function"),
+          ("function", .mkObj [
+            ("name", .str "counter_read"),
+            ("arguments", .str "null")
+          ])
+        ],
+        .mkObj [
+          ("index", .num (Lean.JsonNumber.fromNat 1)),
+          ("id", .str "counter-stream-call-1"),
+          ("type", .str "function"),
+          ("function", .mkObj [
+            ("name", .str "counter_read"),
+            ("arguments", .str "null")
+          ])
+        ]
+      ])
+    ]),
+    ("finish_reason", .null)
+  ]])
+]
+
+def counterMultiToolFinishJson : Lean.Json := .mkObj [
+  ("id", .str "chatcmpl-counter-stream-multi"),
+  ("model", .str "deterministic-counter"),
+  ("choices", .arr #[.mkObj [
+    ("index", .num (Lean.JsonNumber.fromNat 0)),
+    ("delta", .mkObj [
+      ("tool_calls", .arr #[
+        .mkObj [
+          ("index", .num (Lean.JsonNumber.fromNat 0)),
+          ("function", .mkObj [("arguments", .str "")])
+        ],
+        .mkObj [
+          ("index", .num (Lean.JsonNumber.fromNat 1)),
+          ("function", .mkObj [("arguments", .str "")])
+        ]
+      ])
+    ]),
+    ("finish_reason", .str "tool_calls")
+  ]]),
+  ("usage", .mkObj [
+    ("prompt_tokens", .num (Lean.JsonNumber.fromNat 4)),
+    ("completion_tokens", .num (Lean.JsonNumber.fromNat 5)),
+    ("total_tokens", .num (Lean.JsonNumber.fromNat 9))
+  ])
+]
+
+def counterMultiToolStreamBody : String :=
+  "data: " ++ Lean.Json.compress counterMultiToolStartJson ++ "\n\n" ++
+  "data: " ++ Lean.Json.compress counterMultiToolFinishJson ++ "\n\n" ++
   "data: [DONE]\n\n"
 
 def ConversationRunner.appendFinished
@@ -213,5 +277,22 @@ def executeConversationStreamRound
                   change runner.session.nextSeq + 1 = assistantRunner.session.nextSeq
                   rw [ConversationRunner.appendFinished_nextSeq]
               }⟩)
+
+def executeConversationMultiStreamRound
+    {Model Capability : Type}
+    (config : ProcessConfig)
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (source : RequestSource)
+    (cfg : GenericHarness.Config Model Capability)
+    (before : Model)
+    (runner : ConversationRunner)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    IO (Except StreamConversationError
+      (Sigma fun body : String => StreamConversationRoundResult cfg before body)) :=
+  executeConversationStreamRound finishMulti config baseUrl apiKey source cfg before runner
+    sourceEventSeqs sourcesNodup sourcesEarlier
 
 end Cordis.DeepSeekStreamHarness

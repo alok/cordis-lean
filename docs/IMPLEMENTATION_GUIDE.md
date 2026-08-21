@@ -1887,12 +1887,14 @@ or backpressure/cancellation implementation.
 process-backed wire certificate, runs the accepted rich/session projection, and returns the
 proof-carrying append-only runner. Source-event evidence, numeric local-ID assignment, and all
 live/deployed session behavior remain explicit inputs or external obligations.
-`Cordis.DeepSeekStreamHarness` applies the same complete-body boundary to a terminal rich tool
-stream: it assigns local numeric IDs, sends each streamed call through the generic dependent
+`Cordis.DeepSeekStreamHarness` applies the same complete-body boundary to terminal rich tool
+streams: it assigns local numeric IDs, sends each streamed call through the generic dependent
 admission/policy/provider path, and appends the certified typed results to a reusable
-`ConversationRunner`. Its output can feed the existing subsequent-request or fuel-bounded round
-runner; incremental delivery, cancellation, backpressure, reconnects, provider-complete assembly,
-and deployed equivalence remain outside the adapter.
+`ConversationRunner`. The one-call entry point and typed
+`executeConversationMultiStreamRound` are exercised by deterministic process fixtures, including
+a two-call terminal stream. Their output can feed the existing subsequent-request or
+fuel-bounded round runner; incremental delivery, cancellation, backpressure, reconnects,
+provider-complete assembly, and deployed equivalence remain outside the adapter.
 `Cordis.DeepSeekHarnessErrors` makes the provider-failure policy explicit rather than silently
 choosing one behavior: `.reject` is the default fail-closed request policy, while `.include`
 retains a `ProviderFailedTool` proof and appends its exact provider message as an `isError` tool

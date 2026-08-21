@@ -1991,6 +1991,64 @@ private def testDeepSeekStreamHarness : IO Unit := do
       | executions =>
           fail s!"DeepSeek stream harness returned {executions.length} tool executions"
 
+  let multiProcess : Cordis.DeepSeekCurlTransport.ProcessConfig := {
+    command := "sh"
+    args := fun _ => #[
+      "-c",
+      "cat >/dev/null; printf '%s\\n__CORDIS_HTTP_STATUS__200\\n' \"$1\"",
+      "cordis-stream-counter-multi-fixture",
+      DeepSeekStreamHarness.counterMultiToolStreamBody
+    ]
+  }
+  let multiResult :
+      Except DeepSeekStreamHarness.StreamConversationError
+        (Sigma fun body : String =>
+          DeepSeekStreamHarness.StreamConversationRoundResult
+            (Model := Nat) (Capability := Cordis.Examples.Counter.Capability)
+            Cordis.Harness.counterConfig 0 body) ←
+    DeepSeekStreamHarness.executeConversationMultiStreamRound
+      multiProcess "https://fixture.invalid" { value := "fixture-key" }
+      DeepSeekHarness.counterRequestSource Cordis.Harness.counterConfig 0 initialRunner []
+      (by simp) (by simp)
+  match multiResult with
+  | .error error => fail s!"DeepSeek multi-stream harness round failed: {reprStr error}"
+  | .ok ⟨body, result⟩ =>
+      assertEqual "DeepSeek multi-stream harness preserves the complete SSE body"
+        body DeepSeekStreamHarness.counterMultiToolStreamBody
+      assertEqual "DeepSeek multi-stream harness allocates both local call IDs"
+        result.assistantRunner.session.messages [
+          .user "Read the counter.",
+          .assistant "" [
+            { id := { value := 0 }, name := "counter_read", arguments := "null" },
+            { id := { value := 1 }, name := "counter_read", arguments := "null" }
+          ]
+        ]
+      assertEqual "DeepSeek multi-stream harness executes both dependent calls"
+        result.finalModel 0
+      assertEqual "DeepSeek multi-stream harness appends both certified results"
+        result.runner.session.messages [
+          .user "Read the counter.",
+          .assistant "" [
+            { id := { value := 0 }, name := "counter_read", arguments := "null" },
+            { id := { value := 1 }, name := "counter_read", arguments := "null" }
+          ],
+          .toolResult { value := 0 } "[true,0]" false,
+          .toolResult { value := 1 } "[true,0]" false
+        ]
+      assertEqual "DeepSeek multi-stream harness advances through all tool events"
+        result.runner.session.nextSeq 4
+      match result.executions with
+      | [first, second] =>
+          assertEqual "DeepSeek multi-stream harness retains first tool name"
+            first.raw.name "counter_read"
+          assertEqual "DeepSeek multi-stream harness retains second tool name"
+            second.raw.name "counter_read"
+          let _firstCertificate := DeepSeekHarness.executedToolResultJson_decodes first
+          let _secondCertificate := DeepSeekHarness.executedToolResultJson_decodes second
+          pure ()
+      | executions =>
+          fail s!"DeepSeek multi-stream harness returned {executions.length} tool executions"
+
 private def failingProvider (operation : Operation) :
     Provider catalog.signature operation where
   id := providerId operation

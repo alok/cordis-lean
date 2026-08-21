@@ -569,7 +569,7 @@ the empty-to-final lease-threading certificate.
 | `Cordis.DeepSeekHarnessErrors`           | Explicit opt-in error-result continuation: `ErrorToolResultPolicy.reject` remains fail-closed by default, while `.include` admits a proof-carrying `ProviderFailedTool`, preserves its parsed/admission/policy/provider-error evidence and model stability, and appends it as a model-visible `isError` tool result before a subsequent typed request.                                                                                                                                                                                                                                                                                                            |
 | `Cordis.DeepSeekHarnessRetry`            | Explicit bounded complete-body retry: `RetryPolicy` retries only opted-in transport/transient-HTTP failures, `RetryHistory` retains prior `ClientError`s with a retry bound, `executeWithRetry` reuses one exact `RequestPlan`, and `executeConversationRoundRetry` carries that history into the typed continuation result.                                                                                                                                                                                                                                                                                                                                      |
 | `Cordis.DeepSeekHarnessCancellation`     | Boundary-safe pre-round cancellation: `CancellationPolicy` is checked before each complete request round, and `CancellableRunResult` retains the exact completed prefix, runner/model endpoint, and proof-carrying cancellation decision; fuel exhaustion and completion remain distinct stops. In-flight IO interruption is outside.                                                                                                                                                                                                                                                                                                                             |
-| `Cordis.DeepSeekStreamHarness`           | Complete-body process-backed rich tool-stream continuation into the generic `ConversationRunner`: terminal streamed calls receive local numeric IDs, pass through the same dependent admission/policy/provider execution path, and append certified typed tool results; the returned runner can feed a subsequent request or fuel-bounded round. Incremental delivery and deployed semantics remain external.                                                                                                                                                                                                                                                     |
+| `Cordis.DeepSeekStreamHarness`           | Complete-body process-backed rich tool-stream continuation into the generic `ConversationRunner`: terminal streamed calls receive local numeric IDs, pass through the same dependent admission/policy/provider execution path, and append certified typed tool results. Both the one-call entry point and `executeConversationMultiStreamRound` are exercised by deterministic process fixtures, including a two-call terminal stream; the returned runner can feed a subsequent request or fuel-bounded round. Incremental delivery and deployed semantics remain external.                                                                                      |
 
 The public library umbrella is `Cordis.lean`. `Main.lean` is the
 `cordis_demo` entry point, and `Tests.lean` is the `cordis_tests` entry point.
@@ -754,9 +754,11 @@ claim:
    `Cordis.DeepSeekStreamHarness` extends that complete-body boundary to a
    terminal rich tool stream: it assigns local IDs, executes admitted streamed
    calls through the generic dependent provider path, and appends certified tool
-   results into the reusable conversation runner. It remains a complete-body
-   adapter and does not claim incremental delivery, cancellation, backpressure,
-   reconnects, provider-complete assembly, or deployed equivalence.
+   results into the reusable conversation runner. The one-call and typed
+   `executeConversationMultiStreamRound` paths are exercised by deterministic
+   process fixtures, including a two-call terminal stream. It remains a
+   complete-body adapter and does not claim incremental delivery, cancellation,
+   backpressure, reconnects, provider-complete assembly, or deployed equivalence.
    `Cordis.DeepSeekCurlIncremental` then exposes each complete body line through
    an IO callback under an explicit read budget before consuming the private
    status trailer and validating the reconstructed body; it remains a

@@ -181,9 +181,12 @@ request, stream reader, or external tool, and it does not claim deployed Harness
 tool-stream continuation: it finishes a validated rich tool stream, assigns local
 numeric call IDs, routes every streamed call through the same dependent admission,
 policy, and provider path, and appends certified tool results to the generic
-`ConversationRunner`. Its returned runner is suitable for a subsequent request or
-fuel-bounded round. Incremental delivery, cancellation, backpressure, reconnects,
-provider-complete assembly, and deployed equivalence remain outside this adapter.
+`ConversationRunner`. Both the one-call entry point and the typed
+`executeConversationMultiStreamRound` path are exercised by deterministic process
+fixtures, including a two-call terminal stream. Its returned runner is suitable for a
+subsequent request or fuel-bounded round. Incremental delivery, cancellation,
+backpressure, reconnects, provider-complete assembly, and deployed equivalence remain
+outside this adapter.
 
 The next paper layer is explicit rather than assumed. `Cordis.OperationalEquivalence` models
 Definition 34's heterogeneous finite tests and proves the generator-level coarsest relation of
