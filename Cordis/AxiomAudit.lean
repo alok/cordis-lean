@@ -518,7 +518,10 @@ set_option format.width 200
 #print axioms Cordis.TextRefinement.parseJsonLinesBytes
 #print axioms Cordis.TextRefinement.validateStreamText
 #print axioms Cordis.TextRefinement.validateSessionText
+#print axioms Cordis.TextRefinement.validateFailureText
+#print axioms Cordis.TextRefinement.validateFailureBytes
 #print axioms Cordis.TextRefinement.ValidatedStreamText.replay_eq
+#print axioms Cordis.TextRefinement.ValidatedFailureText.decoded_exact
 #print axioms Cordis.TextRefinement.ValidatedSessionText.projection_exact
 #print axioms Cordis.TextRefinement.invalid_utf8_rejected
 #print axioms Cordis.DeepSeekApi.ChatRequest.toJson

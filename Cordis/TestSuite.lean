@@ -1028,6 +1028,28 @@ private def testTextRefinement : IO Unit := do
   | .error .invalidUtf8 => pure ()
   | .error error => fail s!"invalid UTF-8 returned the wrong error: {reprStr error}"
   | .ok _ => fail "invalid UTF-8 was accepted"
+  match TextRefinement.validateFailureText TextRefinement.failureTextExample with
+  | .error error => fail s!"failure JSONL refinement failed: {reprStr error}"
+  | .ok validated =>
+      assertEqual "failure JSONL preserves the typed in-band error"
+        validated.validated.terminal.kind RuntimeFailureRefinement.FailureKind.error
+      assertEqual "failure JSONL preserves the provider retry delay"
+        (validated.validated.terminal.failure.providerRetryAfterMs.map
+          RuntimeRefinement.SafeNat.value)
+        (some 250)
+      let _certificate := TextRefinement.ValidatedFailureText.decoded_exact validated
+      pure ()
+  match TextRefinement.validateFailureBytes TextRefinement.failureTextExample.toUTF8 with
+  | .error error => fail s!"failure UTF-8 refinement failed: {reprStr error}"
+  | .ok ⟨text, validated⟩ =>
+      assertEqual "failure UTF-8 refinement retains the exact source text"
+        text TextRefinement.failureTextExample
+      assertEqual "failure UTF-8 refinement retains the failure request id"
+        validated.validated.terminal.failure.requestId (some "req-42")
+  match TextRefinement.validateFailureBytes (ByteArray.mk #[255]) with
+  | .error (.inl .invalidUtf8) => pure ()
+  | .error error => fail s!"failure UTF-8 returned the wrong error: {reprStr error}"
+  | .ok _ => fail "invalid UTF-8 was accepted by failure refinement"
 
 private def testHarnessPersistence : IO Unit := do
   match HarnessPersistenceRefinement.validatePersistedJson

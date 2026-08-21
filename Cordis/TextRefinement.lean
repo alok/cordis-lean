@@ -1,4 +1,5 @@
 import Cordis.RuntimeRefinement
+import Cordis.RuntimeFailureRefinement
 import Cordis.SessionRefinement
 import Lean.Data.Json.Parser
 import Lean.Data.Json.Printer
@@ -80,6 +81,11 @@ structure ValidatedStreamText (source : String) where
   parsed : ParsedText source
   validated : RuntimeRefinement.ValidatedJsonTrace parsed.lines
 
+/-- In-band failure validation after parsing text, retaining the typed terminal certificate. -/
+structure ValidatedFailureText (source : String) where
+  parsed : ParsedText source
+  validated : RuntimeFailureRefinement.ValidatedFailureTrace parsed.lines
+
 /-- Session validation after parsing text, retaining both text parsing and intrinsic validation. -/
 structure ValidatedSessionText (source : String) where
   parsed : ParsedText source
@@ -92,6 +98,20 @@ def validateStreamText (source : String) :
   | .error error => .error (.inl error)
   | .ok lines =>
       match _validated : RuntimeRefinement.validateJsonTrace lines with
+      | .error error => .error (.inr error)
+      | .ok result => .ok {
+          parsed := { lines, parsed }
+          validated := result
+        }
+
+/-- Parse and validate a normalized current-Harness error/abort JSONL source. -/
+def validateFailureText (source : String) :
+    Except (TextError ⊕ RuntimeFailureRefinement.FailureDecodeError)
+      (ValidatedFailureText source) :=
+  match parsed : parseJsonLines source with
+  | .error error => .error (.inl error)
+  | .ok lines =>
+      match _validated : RuntimeFailureRefinement.validateFailureTrace lines with
       | .error error => .error (.inr error)
       | .ok result => .ok {
           parsed := { lines, parsed }
@@ -124,6 +144,17 @@ def validateStreamBytes (source : ByteArray) :
       | .error error => .error error
       | .ok result => .ok ⟨text, result⟩
 
+/-- UTF-8 failure validation returns the decoded source and its terminal certificate. -/
+def validateFailureBytes (source : ByteArray) :
+    Except (TextError ⊕ RuntimeFailureRefinement.FailureDecodeError)
+      (Σ text : String, ValidatedFailureText text) :=
+  match _decoded : String.fromUTF8? source with
+  | none => .error (.inl .invalidUtf8)
+  | some text =>
+      match _validated : validateFailureText text with
+      | .error error => .error error
+      | .ok result => .ok ⟨text, result⟩
+
 /-- UTF-8 session validation returns the decoded source together with its dependent certificate. -/
 def validateSessionBytes (source : ByteArray) :
     Except
@@ -147,6 +178,16 @@ theorem replay_eq {source : String} (validated : ValidatedStreamText source) :
 
 end ValidatedStreamText
 
+namespace ValidatedFailureText
+
+/-- The parsed text certificate exposes the exact text-to-failure decoding theorem. -/
+theorem decoded_exact {source : String} (validated : ValidatedFailureText source) :
+    RuntimeFailureRefinement.decodeFailureTrace validated.parsed.lines =
+      .ok (validated.validated.chunks, validated.validated.terminal) :=
+  validated.validated.decoded_exact
+
+end ValidatedFailureText
+
 namespace ValidatedSessionText
 
 /-- The parsed text certificate exposes the exact session-to-protocol projection theorem. -/
@@ -164,6 +205,9 @@ theorem invalid_utf8_rejected :
   rfl
 
 def streamTextExample : String := renderJsonLines RuntimeRefinement.exampleJson
+
+def failureTextExample : String :=
+  renderJsonLines RuntimeFailureRefinement.exampleJson
 
 def sessionTextExample : String := renderJsonLines SessionRefinement.exampleJson
 

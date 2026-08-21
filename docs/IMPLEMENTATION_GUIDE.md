@@ -1859,8 +1859,11 @@ semantic decoder succeeds. It must not be used to silently resume through a
 required opaque record; extension payload semantics remain a separate task.
 `Cordis.TextRefinement` now supplies the preceding executable ingress for local
 fixtures and append-only adapters: it parses newline-delimited UTF-8 JSON into
-exact AST lines, retains source/line failures, and composes the two validators
-without weakening their dependent certificates.
+exact AST lines, retains source/line failures, and composes the supported validators
+without weakening their dependent certificates. Its `validateFailureBytes` path
+also composes the normalized in-band `error`/`aborted` finish validator, retaining
+the typed failure terminal and the exact decoded source while deliberately leaving
+open-block recovery and normal rich-trace projection unclaimed.
 `Cordis.HarnessPersistenceRefinement` supplies the next logical storage ingress:
 it splits the pinned JSONL session header from storage rows, expands the exact
 text/reasoning/tool packed-row forms with checked safe sequence/time gaps, and

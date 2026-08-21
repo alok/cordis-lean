@@ -12,7 +12,9 @@ instantiations) are implemented. `SessionValidation`
 proof-produces append/replacement and finite-suffix certificates from parsed-but-untrusted typed
 events. A current-Harness `StreamChunk` subset is also decoded from `Lean.Json` ASTs into the
 intrinsic rich-stream validator. `TextRefinement` now adds a supported UTF-8 JSONL ingress that
-parses exact lines before invoking the stream/session validators. `SessionEventArchive` now
+parses exact lines before invoking the stream/session/failure validators. Its
+`validateFailureBytes` path retains a typed normalized `error`/`aborted` terminal without
+coercing an open-block failure into a successful rich trace. `SessionEventArchive` now
 recognizes every pinned core event tag and preserves unsupported known payloads as raw records;
 `SessionPayloadArchive` adds typed raw retention for message/chunk payloads, content-block tags,
 usage, tool-result error/meta, and malformed known shapes. Full payload semantics and the later
@@ -1174,7 +1176,9 @@ validation, replay, or complete local Session equivalence.
 decoder. `parseJsonLines` rejects empty sources and interior blank lines, preserves zero-based
 line numbers for malformed JSON, and `parseJsonLinesBytes` rejects invalid UTF-8 before parsing.
 Successful `validateStreamBytes` and `validateSessionBytes` values retain the decoded source
-text, exact AST lines, and the existing rich/protocol proof certificates. The parser and
+text, exact AST lines, and the existing rich/protocol proof certificates; `validateFailureBytes`
+retains the same text boundary together with the normalized failure terminal certificate. The
+parser and
 canonical compact printer are library boundaries; this does not prove an external logger's
 framing, schema compliance, timestamps, transport, or persistence behavior.
 
