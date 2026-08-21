@@ -661,6 +661,9 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekSchemaHarness.appendCertifiedToolResult_messages
 #print axioms Cordis.DeepSeekSchemaHarness.appendCertifiedToolResult_protocolProjection
 #print axioms Cordis.DeepSeekSchemaHarness.Example.weatherAppended
+#print axioms Cordis.DeepSeekSchemaHarness.appendCertifiedToolResultToRunner
+#print axioms Cordis.DeepSeekSchemaHarness.appendCertifiedToolResultToRunner_messages
+#print axioms Cordis.DeepSeekSchemaHarness.Example.weatherRunnerAppended
 #print axioms Cordis.DeepSeekHarnessEventArchive.restoreRunner
 #print axioms Cordis.DeepSeekHarnessEventArchive.RestoredRunner.session_eq_archive
 #print axioms Cordis.DeepSeekHarnessEventArchive.RestoredRunner.archive_raw_eq_input

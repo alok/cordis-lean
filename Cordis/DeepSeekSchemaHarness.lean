@@ -208,6 +208,58 @@ theorem appendCertifiedToolResult_nextSeq
   exact DeepSeekHarness.appendExecutedToolResult_nextSeq session turn step callId assistantSeq
     executed.toExecutedTool assistantSeqEarlier
 
+/-- Lift one schema-certified result into the existing conversation runner. -/
+def appendCertifiedToolResultToRunner
+    {Model Capability : Type}
+    {cfg : Config Model Capability}
+    {tool : ToolDefinition}
+    {binding : SchemaToolBinding cfg tool}
+    {raw : FunctionCall}
+    {before : Model}
+    {call : cfg.Call}
+    (runner : DeepSeekHarness.ConversationRunner)
+    (baseCall assistantSeq : Nat)
+    (executed : SchemaExecutedTool binding raw before call)
+    (assistantSeqEarlier : assistantSeq < runner.session.nextSeq) :
+    DeepSeekHarness.ConversationRunner :=
+  DeepSeekHarness.ConversationRunner.appendToolResults runner baseCall assistantSeq
+    [executed.toExecutedTool] assistantSeqEarlier
+
+theorem appendCertifiedToolResultToRunner_messages
+    {Model Capability : Type}
+    {cfg : Config Model Capability}
+    {tool : ToolDefinition}
+    {binding : SchemaToolBinding cfg tool}
+    {raw : FunctionCall}
+    {before : Model}
+    {call : cfg.Call}
+    (runner : DeepSeekHarness.ConversationRunner)
+    (baseCall assistantSeq : Nat)
+    (executed : SchemaExecutedTool binding raw before call)
+    (assistantSeqEarlier : assistantSeq < runner.session.nextSeq) :
+    (appendCertifiedToolResultToRunner runner baseCall assistantSeq executed
+      assistantSeqEarlier).session.messages =
+      runner.session.messages ++
+        DeepSeekHarness.executedToolMessages baseCall [executed.toExecutedTool] := by
+  exact DeepSeekHarness.ConversationRunner.appendToolResults_session_messages runner baseCall
+    assistantSeq [executed.toExecutedTool] assistantSeqEarlier
+
+theorem appendCertifiedToolResultToRunner_nextCall
+    {Model Capability : Type}
+    {cfg : Config Model Capability}
+    {tool : ToolDefinition}
+    {binding : SchemaToolBinding cfg tool}
+    {raw : FunctionCall}
+    {before : Model}
+    {call : cfg.Call}
+    (runner : DeepSeekHarness.ConversationRunner)
+    (baseCall assistantSeq : Nat)
+    (executed : SchemaExecutedTool binding raw before call)
+    (assistantSeqEarlier : assistantSeq < runner.session.nextSeq) :
+    (appendCertifiedToolResultToRunner runner baseCall assistantSeq executed
+      assistantSeqEarlier).nextCall = runner.nextCall :=
+  rfl
+
 /-! ## Concrete bridge evidence -/
 
 namespace Example
@@ -234,6 +286,24 @@ def weatherAppended : Bool :=
             DeepSeekHarness.counterSession 1 0 { value := 0 } 0 executed (by
               decide)
           session.nextSeq == DeepSeekHarness.counterSession.nextSeq + 1
+
+def counterRunner : DeepSeekHarness.ConversationRunner where
+  session := DeepSeekHarness.counterSession
+  turn := 1
+  step := 0
+  nextCall := 0
+  toolCallCount_eq_nextCall := by rfl
+
+def weatherRunnerAppended : Bool :=
+  match DeepSeekToolSchema.weatherToolCertificate with
+  | .error _ => false
+  | .ok certificate =>
+      match weatherSchemaExecuted certificate with
+      | .error _ => false
+      | .ok ⟨_, executed⟩ =>
+          let runner := appendCertifiedToolResultToRunner counterRunner 0 0 executed (by
+            decide)
+          runner.session.nextSeq == counterRunner.session.nextSeq + 1
 
 end Example
 

@@ -2054,9 +2054,10 @@ provider obedience, call-ID authenticity, or deployed equivalence is inferred.
 provider certificate and wraps the successful `DeepSeekSchemaExecution.ExecutedCall`, while
 `toExecutedTool` reconstructs the existing `DeepSeekHarness.ExecutedTool` from the exact parsed
 JSON and dependent equalities already proved. `appendCertifiedToolResult` delegates to the
-existing append operation, so its message, next-sequence, and protocol-projection theorems are
-reused rather than reproved through a second executor. Keep provider obedience, call-ID
-authenticity, persistence, live effects, and deployed Harness equivalence outside this seam.
+existing append operation, so its message, next-sequence, protocol-projection, and
+`ConversationRunner` theorems are reused rather than reproved through a second executor. Keep
+provider obedience, call-ID authenticity, persistence, live effects, and deployed Harness
+equivalence outside this seam.
 
 `Cordis.DeepSeekHarnessCancellation` adds the corresponding pre-round control boundary: the policy
 is checked before a complete request round, and a cancellation result carries the unchanged

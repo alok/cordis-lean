@@ -1028,9 +1028,9 @@ call-ID, or deployed Harness semantics.
 `Cordis.DeepSeekSchemaHarness` is a local post-execution transport seam. It retains the provider
 certificate, reconstructs the existing `DeepSeekHarness.ExecutedTool` from the exact parsed JSON
 and dependent equalities, and delegates result appending to the existing certified session
-surface. Its append theorems therefore prove only local message, sequence, and protocol
-projection facts; no second execution, provider obedience, call-ID authenticity, persistence, or
-deployed Harness equivalence is claimed.
+surface and `ConversationRunner.appendToolResults`. Its append theorems therefore prove only
+local message, sequence, protocol-projection, and runner-continuation facts; no second execution,
+provider obedience, call-ID authenticity, persistence, or deployed Harness equivalence is claimed.
 
 `Cordis.DeepSeekHarnessPersistenceIO` composes the same runner attachment with the executable
 `HarnessPersistenceIO.ReadCertificate`. A successful memory or temporary-file read retains the

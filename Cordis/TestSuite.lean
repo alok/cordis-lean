@@ -2400,6 +2400,25 @@ private def testDeepSeekToolSchema : IO Unit := do
           assertEqual "schema harness append advances the existing session"
             session.nextSeq (DeepSeekHarness.counterSession.nextSeq + 1)
           pure ()
+  assertEqual "schema-certified execution reaches the conversation runner"
+    DeepSeekSchemaHarness.Example.weatherRunnerAppended true
+  match DeepSeekToolSchema.weatherToolCertificate with
+  | .error error => fail s!"schema runner setup failed: {reprStr error}"
+  | .ok certificate =>
+      match DeepSeekSchemaHarness.Example.weatherSchemaExecuted certificate with
+      | .error error => fail s!"schema runner execution failed: {reprStr error}"
+      | .ok ⟨_, executed⟩ =>
+          let runner := DeepSeekSchemaHarness.appendCertifiedToolResultToRunner
+            DeepSeekSchemaHarness.Example.counterRunner 0 0 executed (by decide)
+          let _messages :=
+            DeepSeekSchemaHarness.appendCertifiedToolResultToRunner_messages
+              DeepSeekSchemaHarness.Example.counterRunner 0 0 executed (by decide)
+          let _nextCall :=
+            DeepSeekSchemaHarness.appendCertifiedToolResultToRunner_nextCall
+              DeepSeekSchemaHarness.Example.counterRunner 0 0 executed (by decide)
+          assertEqual "schema runner append preserves the local call allocator"
+            runner.nextCall DeepSeekSchemaHarness.Example.counterRunner.nextCall
+          pure ()
   match DeepSeekToolSchema.malformedToolResult with
   | .error (.unsupportedTag path "date") =>
       assertEqual "unsupported property type reports its exact path"
