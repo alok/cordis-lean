@@ -28,6 +28,7 @@ import Cordis.DeepSeekToolAdmission
 import Cordis.DeepSeekGenericBridge
 import Cordis.DeepSeekSchemaExecution
 import Cordis.DeepSeekSchemaHarness
+import Cordis.DeepSeekSchemaRound
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessErrors
@@ -2419,6 +2420,12 @@ private def testDeepSeekToolSchema : IO Unit := do
           assertEqual "schema runner append preserves the local call allocator"
             runner.nextCall DeepSeekSchemaHarness.Example.counterRunner.nextCall
           pure ()
+  assertEqual "accepted DeepSeek response reaches the schema-aware round"
+    DeepSeekSchemaRound.Example.weatherRoundAccepted true
+  assertEqual "schema-aware round reaches the exact two-append endpoint"
+    DeepSeekSchemaRound.Example.weatherRoundFinalNextSeq true
+  assertEqual "schema-aware round rejects an assistant response without a tool call"
+    DeepSeekSchemaRound.Example.emptyResponseRejected true
   match DeepSeekToolSchema.malformedToolResult with
   | .error (.unsupportedTag path "date") =>
       assertEqual "unsupported property type reports its exact path"

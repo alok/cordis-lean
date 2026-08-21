@@ -201,6 +201,9 @@ Current machine-checked evidence includes:
   existentially indexed local call without claiming schema semantic equivalence or execution;
 - `Cordis.DeepSeekSchemaHarness`, carrying a successful schema-aware execution into the existing
   `DeepSeekHarness.ExecutedTool` and exact session append surface without re-execution;
+- `Cordis.DeepSeekSchemaRound`, composing an accepted singleton function-call response with
+  schema-certified dispatch and the existing conversation runner while rejecting zero/multiple
+  calls structurally;
 - `Cordis.DeepSeekHarnessErrors`, adding an explicit fail-closed/default-versus-opt-in policy seam
   for provider failures: `.include` retains typed failure evidence and appends model-visible
   `isError` tool results without changing the model state;
@@ -1031,6 +1034,12 @@ and dependent equalities, and delegates result appending to the existing certifi
 surface and `ConversationRunner.appendToolResults`. Its append theorems therefore prove only
 local message, sequence, protocol-projection, and runner-continuation facts; no second execution,
 provider obedience, call-ID authenticity, persistence, or deployed Harness equivalence is claimed.
+
+`Cordis.DeepSeekSchemaRound` is the bounded complete-body response composition for exactly one
+assistant function call. It retains the accepted response and singleton tool-call equality,
+dispatches through `DeepSeekSchemaExecution`, and appends via the existing runner. It is an
+explicit one-tool slice; multi-tool response execution, live transport, provider obedience,
+call-ID authenticity, persistence, and deployed Harness equivalence remain outside.
 
 `Cordis.DeepSeekHarnessPersistenceIO` composes the same runner attachment with the executable
 `HarnessPersistenceIO.ReadCertificate`. A successful memory or temporary-file read retains the

@@ -26,6 +26,7 @@ import Cordis.DeepSeekToolAdmission
 import Cordis.DeepSeekGenericBridge
 import Cordis.DeepSeekSchemaExecution
 import Cordis.DeepSeekSchemaHarness
+import Cordis.DeepSeekSchemaRound
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessErrors
@@ -664,6 +665,11 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekSchemaHarness.appendCertifiedToolResultToRunner
 #print axioms Cordis.DeepSeekSchemaHarness.appendCertifiedToolResultToRunner_messages
 #print axioms Cordis.DeepSeekSchemaHarness.Example.weatherRunnerAppended
+#print axioms Cordis.DeepSeekSchemaRound.singleToolCall
+#print axioms Cordis.DeepSeekSchemaRound.executeSchemaRound
+#print axioms Cordis.DeepSeekSchemaRound.SchemaRoundResult.finalRunner_nextCall
+#print axioms Cordis.DeepSeekSchemaRound.Example.weatherRoundAccepted
+#print axioms Cordis.DeepSeekSchemaRound.Example.emptyResponseRejected
 #print axioms Cordis.DeepSeekHarnessEventArchive.restoreRunner
 #print axioms Cordis.DeepSeekHarnessEventArchive.RestoredRunner.session_eq_archive
 #print axioms Cordis.DeepSeekHarnessEventArchive.RestoredRunner.archive_raw_eq_input

@@ -2059,6 +2059,14 @@ existing append operation, so its message, next-sequence, protocol-projection, a
 provider obedience, call-ID authenticity, persistence, live effects, and deployed Harness
 equivalence outside this seam.
 
+`Cordis.DeepSeekSchemaRound` uses that transport in a bounded response round. First build an
+`AcceptedSingleToolCall` from `DeepSeekApiSession.acceptResponse`; the constructor retains the
+exact source response and proves the tool-call list is `[raw]`. Then `executeSchemaRound` appends
+the accepted assistant view, runs `executeCertifiedFunctionCall`, and appends the resulting
+`SchemaExecutedTool` to the existing `ConversationRunner`. Keep the zero/multiple-call shape
+errors explicit: this is a one-tool certificate, not a silent reduction of the general multi-tool
+response language.
+
 `Cordis.DeepSeekHarnessCancellation` adds the corresponding pre-round control boundary: the policy
 is checked before a complete request round, and a cancellation result carries the unchanged
 runner/model endpoint and completed prefix. Keep the boundary honest: interrupting an in-flight

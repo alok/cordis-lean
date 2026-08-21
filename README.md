@@ -245,6 +245,11 @@ without re-executing it.
 These are pure local seams: provider obedience, call-ID authenticity, persistence, live external
 effects, and deployed Harness equivalence remain outside.
 
+`Cordis.DeepSeekSchemaRound` closes the bounded complete-body response seam for one accepted
+assistant choice with exactly one function call. It retains the singleton response/tool-call
+witness, dispatches through the schema-aware executor, and appends the result into the existing
+conversation runner; zero- and multi-call payloads receive typed structural errors.
+
 `Cordis.DeepSeekHarnessErrors` is the explicit opt-in continuation policy for provider failures.
 `ErrorToolResultPolicy.reject` is the default fail-closed request behavior; selecting `.include`
 lets a proof-carrying `ProviderFailedTool` become an `isError` tool-result message while retaining
@@ -983,6 +988,7 @@ placeholders.
 | `Cordis.DeepSeekGenericBridge`                      | Composes provider-schema admission with an explicit named `SchemaToolBinding` and generic dependent `Config.validate`, returning both certificates and an existentially indexed local call; schema semantic equivalence and execution remain external.                                                                                   |
 | `Cordis.DeepSeekSchemaExecution`                    | Consumes the combined provider/generic certificate, applies the existing dependent policy, and dispatches only allowed calls through the committed generic `View`; policy/provider failures are typed and raw compatibility execution remains separate.                                                                                  |
 | `Cordis.DeepSeekSchemaHarness`                      | Reifies successful schema-aware executions as the existing `DeepSeekHarness.ExecutedTool`, retains the provider certificate, and reuses exact tool-result/session/`ConversationRunner` append theorems without re-execution or deployed-semantics claims.                                                                                |
+| `Cordis.DeepSeekSchemaRound`                        | Bounded complete-body round for one accepted singleton assistant tool call: exact response/tool-call extraction, schema-certified dispatch, typed rejection of zero/multiple calls, and certified runner endpoint.                                                                                                                       |
 | `Cordis.HarnessPersistenceIO`                       | Executable UTF-8 byte/text adapter over memory and filesystem backends: exact read certificates, canonical replacement, validated append-only rows, and structured invalid-encoding/semantic failures; host acknowledgements are not durability proofs.                                                                                  |
 | `Cordis.DeepSeekApi`                                | Typed OpenAI-compatible DeepSeek chat request construction, fail-closed response decoding, dependent parse/decode certificates, and an explicit transport/status/API-error boundary.                                                                                                                                                     |
 | `Cordis.DeepSeekRequestMode`                        | Type-indexed complete/streaming request plans with a proof tying the serialized `stream` flag to the mode; terminal execution accepts only the complete certificate.                                                                                                                                                                     |
