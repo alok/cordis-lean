@@ -2125,6 +2125,12 @@ and retain the raw terminal data instead of coercing it into rich/session events
 normal block-end or `isError` projection here; those are different semantic policies, and the
 current source shape does not provide a general `error`/`aborted` envelope.
 
+`Cordis.DeepSeekTerminalOutcome` is the adjacent composition layer. It remains a dispatcher over
+complete-body certificates: classify provider failures first, then invoke the existing text,
+one-tool, mixed, and multi-call rich validators, returning the selected dependent witness. It must
+not widen any accepted wire language or invent a session message for a provider failure; live IO,
+retry, cancellation, and deployed-equivalence claims belong to separate layers.
+
 `Cordis.DeepSeekHarnessCancellation` adds the corresponding pre-round control boundary: the policy
 is checked before a complete request round, and a cancellation result carries the unchanged
 runner/model endpoint and completed prefix. Keep the boundary honest: interrupting an in-flight

@@ -15,6 +15,7 @@ import Cordis.DeepSeekAsyncStreamHarness
 import Cordis.DeepSeekAsyncStreamCancellation
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekStreamFailure
+import Cordis.DeepSeekTerminalOutcome
 import Cordis.DeepSeekStreamIncremental
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
@@ -1515,6 +1516,56 @@ private def testDeepSeekStreamFailure : IO Unit := do
   | .error (.inr (.unsupportedFinish .stop)) => pure ()
   | .error error => fail s!"ordinary DeepSeek finish returned {reprStr error}"
   | .ok _ => fail "ordinary DeepSeek stop was accepted as a provider failure"
+
+private def testDeepSeekTerminalOutcome : IO Unit := do
+  match Cordis.DeepSeekTerminalOutcome.exampleFailure with
+  | .error error => fail s!"terminal failure outcome rejected: {reprStr error}"
+  | .ok (.failure validated) =>
+      assertEqual "terminal outcome classifies content-filter as provider failure"
+        validated.view.reason .contentFilter
+      assertEqual "terminal outcome preserves failure wire frames"
+        validated.wire.frames.length 3
+      assertEqual "terminal outcome failure kind"
+        (Cordis.DeepSeekTerminalOutcome.TerminalOutcome.kind (.failure validated))
+        .providerFailure
+  | .ok _ => fail "terminal failure outcome was classified as a success language"
+  match Cordis.DeepSeekTerminalOutcome.exampleText with
+  | .error error => fail s!"terminal text outcome rejected: {reprStr error}"
+  | .ok (.text validated) =>
+      assertEqual "terminal outcome classifies text as text"
+        (Cordis.DeepSeekTerminalOutcome.TerminalOutcome.kind (.text validated)) .text
+      assertEqual "terminal outcome retains text rich trace"
+        validated.raw.length 6
+  | .ok _ => fail "terminal text outcome was classified as another language"
+  match Cordis.DeepSeekTerminalOutcome.exampleTool with
+  | .error error => fail s!"terminal tool outcome rejected: {reprStr error}"
+  | .ok (.tool validated) =>
+      assertEqual "terminal outcome classifies tool calls as tool"
+        (Cordis.DeepSeekTerminalOutcome.TerminalOutcome.kind (.tool validated)) .tool
+      assertEqual "terminal outcome retains tool rich trace"
+        validated.raw.length 6
+  | .ok _ => fail "terminal tool outcome was classified as another language"
+  match Cordis.DeepSeekTerminalOutcome.exampleMixed with
+  | .error error => fail s!"terminal mixed outcome rejected: {reprStr error}"
+  | .ok (.mixed validated) =>
+      assertEqual "terminal outcome classifies mixed blocks as mixed"
+        (Cordis.DeepSeekTerminalOutcome.TerminalOutcome.kind (.mixed validated)) .mixed
+      assertEqual "terminal outcome retains mixed rich trace"
+        validated.raw.length 14
+  | .ok _ => fail "terminal mixed outcome was classified as another language"
+  match Cordis.DeepSeekTerminalOutcome.exampleMulti with
+  | .error error => fail s!"terminal multi outcome rejected: {reprStr error}"
+  | .ok (.multi validated) =>
+      assertEqual "terminal outcome classifies multiple calls as multi"
+        (Cordis.DeepSeekTerminalOutcome.TerminalOutcome.kind (.multi validated)) .multi
+      assertEqual "terminal outcome retains multi wire frame count"
+        validated.wire.frames.length 4
+  | .ok _ => fail "terminal multi outcome was classified as another language"
+  let malformedBody := "event: message\n\ndata: [DONE]\n\n"
+  match Cordis.DeepSeekTerminalOutcome.validateTerminalOutcome malformedBody with
+  | .error (.wire (.unexpectedLine 0 "event: message")) => pure ()
+  | .error error => fail s!"terminal malformed wire returned {reprStr error}"
+  | .ok _ => fail "terminal malformed wire was accepted"
 
 private def testDeepSeekStreamIncremental : IO Unit := do
   match DeepSeekStreamIncremental.consumeBody
@@ -4565,6 +4616,7 @@ def run : IO Unit := do
   testDeepSeekAsyncStreamCancellation
   testDeepSeekStream
   testDeepSeekStreamFailure
+  testDeepSeekTerminalOutcome
   testDeepSeekStreamIncremental
   testDeepSeekRichStream
   testDeepSeekRichToolStream

@@ -86,6 +86,12 @@ currently decoded by the wire layer (`content_filter` and
 `insufficient_system_resource`) as a raw, typed failure certificate. It does
 not fabricate a normal rich/session finish and does not claim unmodeled
 `error`/`aborted` envelopes.
+`Cordis.DeepSeekTerminalOutcome` composes that failure certificate with the
+successful text, one-tool, mixed, and finite multi-call rich validators. Its
+dependent result retains whichever exact wire/projection/rich certificate was
+accepted, while malformed or unsupported bodies retain a typed rejection. This
+is a complete-body language dispatcher, not a live transport, retry policy, or
+session-message construction theorem.
 `Cordis.DeepSeekCurlStream` composes that process boundary with the strict SSE
 validator for complete response bodies, preserving typed process, HTTP-status,
 and stream errors before any frame is exposed. It deliberately does not claim
@@ -306,6 +312,12 @@ prefix, terminal raw frame, singleton choice/reason, and optional terminal usage
 refusing ordinary stop/length/tool finishes. It intentionally does not turn a provider failure
 into a `RichStream` finish or session message, and does not claim support for unmodeled `error` or
 `aborted` envelopes, live delivery, retry, cancellation, or deployed provider semantics.
+
+`Cordis.DeepSeekTerminalOutcome` is the adjacent complete-body sum over that failure language and
+the four successful rich languages. It tries provider-failure classification first, then text,
+one-tool, mixed, and multi-call projections, preserving the selected dependent certificate and
+typed wire/projection rejection. It does not broaden any accepted language or imply that a failure
+is a normal session message.
 
 `Cordis.DeepSeekHarnessErrors` is the explicit opt-in continuation policy for provider failures.
 `ErrorToolResultPolicy.reject` is the default fail-closed request behavior; selecting `.include`
@@ -942,6 +954,7 @@ placeholders.
 | A typed DeepSeek chat request becomes an exact POST plan, and a successful response becomes a dependent parse/decode certificate or a structured transport/status/API error | `DeepSeekApi.buildRequest`, `buildRequest_body_eq`, `ValidatedResponse`, `validateResponse`, `execute` | OpenAI-compatible non-streaming chat subset with tool calls, reasoning, finish reasons, and usage; no live HTTP, credential validity, provider completeness, stream transport, or local `ToolSpec` validation is claimed. |
 | A strict DeepSeek SSE body becomes typed delta frames with raw-frame parse/decode certificates, or a structured framing/UTF-8/JSON error | `DeepSeekStream.parseSse`, `validateSse`, `validateSseBytes`, `DataFrame` | Strict `data:` / `[DONE]` subset only; no live reader, buffering/backpressure, cancellation, assembler, provider-complete stream schema, or HTTP delivery is claimed. |
 | A complete strict DeepSeek SSE body ending in `content_filter` or `insufficient_system_resource` retains its raw prefix, terminal choice/reason, and optional usage certificate | `DeepSeekStreamFailure.projectFrames`, `validateFailureStream`, `ValidatedFailureStream`, `FailureView` | Provider terminal-failure wire subset only; no normal rich/session projection, `error`/`aborted` envelope, retry, cancellation, live delivery, or deployed provider-equivalence claim. |
+| A complete strict DeepSeek SSE body is classified as a provider failure or one of the four successful rich languages, retaining the selected dependent certificate | `DeepSeekTerminalOutcome.validateTerminalOutcome`, `TerminalOutcome`, `TerminalOutcomeError`, `TerminalOutcome.kind` | Fixed-order complete-body dispatcher only; it does not add wire languages, session-message semantics, retry, cancellation, live delivery, or deployed provider equivalence. |
 | A complete process-backed DeepSeek SSE response validates HTTP status and then becomes typed delta frames, or a structured process/status/stream error | `DeepSeekCurlStream.executeSse`, `fixtureResponse`, `StreamClientError` | Complete-body process composition only; no incremental reader, buffering/backpressure, cancellation, reconnect, network, credential, or provider-complete assembler claim is made. |
 | A complete process-backed terminal SSE response retains its wire certificate and appends a typed rich assistant to the local session runner, or returns a typed process/response error | `DeepSeekCurlSession.executeText`, `executeAndAppendText`, `ProcessedResponse`, `appendProcessed_nextSeq`, `appendProcessed_nextCall` | Text fixture and pure runner composition only; source-event evidence, provider-ID authenticity, persistence, incremental transport, cancellation, external execution, and whole-session equivalence remain outside the claim. |
 | A process-backed SSE response delivers body lines incrementally to a callback under an explicit read budget, then retains the reconstructed body and strict wire certificate, or returns a typed process/status/stream/callback/limit error | `DeepSeekCurlIncremental.executeSseIncremental`, `readBodyLines`, `IncrementalResponse` | Line-oriented complete-response adapter only; byte framing, backpressure, cancellation, reconnect, network, credential, executable-trust, and provider-complete assembler semantics remain external. |
@@ -1059,6 +1072,7 @@ placeholders.
 | `Cordis.DeepSeekRequestMode`                        | Type-indexed complete/streaming request plans with a proof tying the serialized `stream` flag to the mode; terminal execution accepts only the complete certificate.                                                                                                                                                                     |
 | `Cordis.DeepSeekStream`                             | Strict UTF-8/SSE framing, typed delta decoding, retained raw data-frame certificates, and explicit terminal/error boundaries.                                                                                                                                                                                                            |
 | `Cordis.DeepSeekStreamFailure`                      | Raw typed certificate for complete SSE terminal failures (`content_filter` or `insufficient_system_resource`), retaining leading frames, terminal choice/reason, and optional usage without normal rich/session coercion.                                                                                                                |
+| `Cordis.DeepSeekTerminalOutcome`                    | Complete-body dispatcher over provider failures plus text, one-tool, mixed, and finite multi-call rich certificates; the selected dependent outcome and typed rejection remain explicit.                                                                                                                                                 |
 | `Cordis.DeepSeekCurlStream`                         | Complete-body process-backed SSE validation with typed process/status/stream errors and a deterministic `sh` fixture; incremental reader semantics remain external.                                                                                                                                                                      |
 | `Cordis.DeepSeekCurlSession`                        | Complete-body process-backed SSE composition into accepted rich/session terminal values, retaining the wire certificate and runner append invariants; live/deployed session semantics remain external.                                                                                                                                   |
 | `Cordis.DeepSeekCurlIncremental`                    | Line-oriented process-backed SSE delivery with callback observations under an explicit read budget, reconstructed-body strict validation, and typed process/status/stream/callback/limit failures; byte-level and live cancellation semantics remain external.                                                                           |
