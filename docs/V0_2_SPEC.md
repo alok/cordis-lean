@@ -161,6 +161,9 @@ Current machine-checked evidence includes:
   validation and typed process/status/stream errors; incremental reader semantics remain external;
 - `Cordis.DeepSeekCurlOutcome`, composing the process/status boundary with the unified provider-
   failure/text/tool/mixed/multi terminal-outcome certificate while keeping semantic errors typed;
+- `Cordis.DeepSeekOutcomeSession`, preserving a validated provider failure with an unchanged
+  runner or finishing/appending a successful rich outcome through the typed local session
+  runner; source-event evidence and failure-to-message policy remain caller obligations;
 - `Cordis.DeepSeekCurlSession`, composing a terminal process-backed text response through the
   rich/session bridge and append-only runner while retaining wire and runner certificates;
 - `Cordis.DeepSeekStreamHarness`, composing complete-body terminal rich tool streams with the

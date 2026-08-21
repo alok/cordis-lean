@@ -1929,6 +1929,11 @@ body through `DeepSeekTerminalOutcome`. Keep process, HTTP-status, and semantic 
 constructors while retaining the selected dependent outcome; its deterministic fixtures should
 cover both provider failure and successful rich branches without implying a live provider or
 session append.
+`Cordis.DeepSeekOutcomeSession` is the typed local dispatch immediately above that boundary:
+provider failures retain their complete failure certificate and unchanged `Runner`, while
+successful text/tool/mixed/multi outcomes pass through terminal extraction and `Runner.append`.
+The caller still supplies source-event sequence evidence, and this module deliberately does not
+choose a retry, cancellation, or `isError`-message policy for failures.
 `Cordis.DeepSeekStreamIncremental` supplies the pure prefix contract immediately below that wire
 parser: each complete line is parsed into a state retaining the exact accumulated body, frames,
 line number, and prefix equation; `finish` invokes the original complete-body validator and refuses
@@ -2199,6 +2204,10 @@ append-only runner. Its state carries exact physical sequence, turn/step coordin
 and a proved total tool-call count; each append allocates local IDs by count and
 preserves message order. The runner is a proof-carrying composition test, not a live
 transport, cancellation, persistence, or external-tool implementation.
+`Cordis.DeepSeekOutcomeSession` supplies the adjacent terminal dispatcher: provider failures
+return a typed failure plus the unchanged runner, while successful rich outcomes are finished
+and appended through the same runner. It does not silently turn failures into session messages;
+source-event sequence evidence and any failure/retry policy remain explicit caller inputs.
 `Cordis.DeepSeekApiSession` covers the non-streaming response path with the same
 fail-closed policy: singleton index-zero choice, supported finish, and nonempty
 content/tool payload are required before the append. Extra choices and unsupported

@@ -11,6 +11,7 @@ import Cordis.DeepSeekCurlIncremental
 import Cordis.DeepSeekCurlPrefix
 import Cordis.DeepSeekCurlPrefixSession
 import Cordis.DeepSeekCurlOutcome
+import Cordis.DeepSeekOutcomeSession
 import Cordis.DeepSeekAsyncHarness
 import Cordis.DeepSeekAsyncStreamHarness
 import Cordis.DeepSeekAsyncStreamCancellation
@@ -1292,6 +1293,51 @@ private def testDeepSeekCurlOutcome : IO Unit := do
   | .error (.httpStatus 503 "unavailable") => pure ()
   | .error error => fail s!"process-backed outcome status returned {reprStr error}"
   | .ok _ => fail "process-backed outcome accepted a non-success status"
+
+private def testDeepSeekOutcomeSession : IO Unit := do
+  match ← DeepSeekOutcomeSession.fixtureFailureDispatch with
+  | .error error => fail s!"outcome session failure dispatch failed: {reprStr error}"
+  | .ok ⟨_, .providerFailure validated runner⟩ =>
+      assertEqual "outcome session preserves provider failure reason"
+        validated.view.reason .contentFilter
+      assertEqual "outcome session does not append a provider failure"
+        runner.session.nextSeq 0
+      assertEqual "outcome session failure leaves messages unchanged"
+        runner.session.messages []
+  | .ok _ => fail "outcome session turned a provider failure into an assistant message"
+  match ← DeepSeekOutcomeSession.fixtureTextDispatch with
+  | .error error => fail s!"outcome session text dispatch failed: {reprStr error}"
+  | .ok ⟨_, .appended finished runner⟩ =>
+      assertEqual "outcome session text dispatch advances the sequence"
+        runner.session.nextSeq 1
+      assertEqual "outcome session text dispatch stores the assistant"
+        runner.session.messages [.assistant "Hello world" []]
+      let _terminalCertificate := finished.finished.terminal_state
+  | .ok _ => fail "outcome session text dispatch returned a non-appended result"
+  match ← DeepSeekOutcomeSession.fixtureToolDispatch with
+  | .error error => fail s!"outcome session tool dispatch failed: {reprStr error}"
+  | .ok ⟨_, .appended _ runner⟩ =>
+      assertEqual "outcome session tool dispatch advances the sequence"
+        runner.session.nextSeq 1
+      assertEqual "outcome session tool dispatch allocates one local call"
+        runner.nextCall 1
+  | .ok _ => fail "outcome session tool dispatch returned a non-appended result"
+  match ← DeepSeekOutcomeSession.fixtureMixedDispatch with
+  | .error error => fail s!"outcome session mixed dispatch failed: {reprStr error}"
+  | .ok ⟨_, .appended _ runner⟩ =>
+      assertEqual "outcome session mixed dispatch advances the sequence"
+        runner.session.nextSeq 1
+      assertEqual "outcome session mixed dispatch counts one local call"
+        runner.nextCall 1
+  | .ok _ => fail "outcome session mixed dispatch returned a non-appended result"
+  match ← DeepSeekOutcomeSession.fixtureMultiDispatch with
+  | .error error => fail s!"outcome session multi dispatch failed: {reprStr error}"
+  | .ok ⟨_, .appended _ runner⟩ =>
+      assertEqual "outcome session multi dispatch advances the sequence"
+        runner.session.nextSeq 1
+      assertEqual "outcome session multi dispatch counts both local calls"
+        runner.nextCall 2
+  | .ok _ => fail "outcome session multi dispatch returned a non-appended result"
 
 private def testDeepSeekCurlSession : IO Unit := do
   match ← DeepSeekCurlSession.fixtureTextResponse with
@@ -4662,6 +4708,7 @@ def run : IO Unit := do
   testDeepSeekCurlTransport
   testDeepSeekCurlStream
   testDeepSeekCurlOutcome
+  testDeepSeekOutcomeSession
   testDeepSeekCurlSession
   testDeepSeekCurlIncremental
   testDeepSeekCurlPrefix
