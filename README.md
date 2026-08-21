@@ -39,6 +39,12 @@ validated rich assistant view enters the canonical surface.
 `Cordis.TextRefinement` parses newline-delimited UTF-8 JSON into exact AST lines
 before composing the stream/session validators, so executable fixtures exercise
 the real text boundary without claiming deployed schema compliance.
+`Cordis.HarnessPersistenceRefinement` then models the pinned Harness JSONL
+storage vocabulary: a required `type: "session"` header, verbatim event rows,
+and the three lossless packed chunk-row forms. It expands safe timestamp/sequence
+gaps into exact event ASTs before invoking `SessionRefinement`, with structured
+malformed-row/version/tag rejection. Compression, filesystem repair, indexing,
+and crash durability remain outside this logical JSON-AST boundary.
 `Cordis.DeepSeekApi` adds a typed, non-streaming OpenAI-compatible
 `/chat/completions` request plan and a fail-closed response decoder with
 dependent parse/decode certificates. Its transport is an explicit `IO` seam:
@@ -702,6 +708,7 @@ placeholders.
 | `Cordis.RuntimeRefinement`                          | Path-aware current-Harness `StreamChunk` JSON-AST decoding into proof-producing rich-stream validation with explicit unsupported cases.                                                                                                                                                                             |
 | `Cordis.SessionRefinement`                          | Stateful supported-subset Harness session decoding with restricted request headers, route context, todo snapshots, seed markers, text-only assistant chunks, fresh call-ID assignment, text/tool-call surface retention, exact append/replacement witnesses, and joint Session/Protocol proof-producing validation. |
 | `Cordis.TextRefinement`                             | Newline-delimited UTF-8 JSON parsing into exact AST lines, plus proof-carrying composition with stream/session refinement and explicit text/encoding failures.                                                                                                                                                      |
+| `Cordis.HarnessPersistenceRefinement`               | Logical Harness JSONL header/storage decoding, lossless text/reasoning/tool packed-row expansion, safe sequence/time reconstruction, and composition with stateful session validation; physical compression and crash repair remain external.                                                                       |
 | `Cordis.DeepSeekApi`                                | Typed OpenAI-compatible DeepSeek chat request construction, fail-closed response decoding, dependent parse/decode certificates, and an explicit transport/status/API-error boundary.                                                                                                                                |
 | `Cordis.DeepSeekStream`                             | Strict UTF-8/SSE framing, typed delta decoding, retained raw data-frame certificates, and explicit terminal/error boundaries.                                                                                                                                                                                       |
 | `Cordis.DeepSeekRichStream`                         | Source-honest text-only DeepSeek SSE projection into `RichStream`, retaining wire/projection/intrinsic-trace certificates and typed rejection cases.                                                                                                                                                                |
@@ -759,6 +766,9 @@ The trusted executable boundary is deliberately small and visible:
   it does not prove JSON text rendering, file reads/writes, flush barriers, or external durability.
 - `TextRefinement` parses supported UTF-8 JSONL through Lean's library parser and retains exact
   source/line failures, but does not prove an external logger's schema or transport framing.
+- `HarnessPersistenceRefinement` validates only the pinned logical JSONL AST vocabulary and
+  expands packed rows before session refinement; it does not prove byte-level rendering,
+  Zstandard framing, path/index metadata, torn-tail repair, or filesystem durability.
 - `DurableIO` exercises actual `IO` memory/file adapters and preserves the typed byte-prefix
   recovery boundary, but successful `appendFlush`/`replaceFlush` calls are only host acknowledgements;
   they are not `fsync`, crash atomicity, authenticated storage, multi-process coordination, or
@@ -770,9 +780,9 @@ credential-loading path. Do not add API keys or secrets to this repository.
 ## Publication status
 
 The source is public at [alok/cordis-lean](https://github.com/alok/cordis-lean).
-The current reviewed snapshot is on [`main`](https://github.com/alok/cordis-lean/tree/main)
-at commit [`4f355f1`](https://github.com/alok/cordis-lean/commit/4f355f1), with its
-hosted verification in [Actions run 32448189371](https://github.com/alok/cordis-lean/actions/runs/32448189371).
+The current reviewed snapshot is pushed to [`main`](https://github.com/alok/cordis-lean/tree/main);
+each pushed revision is verified by the repository's hosted Actions workflow, whose exact run is
+recorded by GitHub alongside the commit.
 The historical review branch remains available at
 [`feat/alok-824-proof-carrying-harness`](https://github.com/alok/cordis-lean/tree/feat/alok-824-proof-carrying-harness).
 No version tag, package, or GitHub release has been published. The five commands

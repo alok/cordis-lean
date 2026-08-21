@@ -47,6 +47,7 @@ import Cordis.GlobalTraceFacts
 import Cordis.GlobalTraceRewrite
 import Cordis.GlobalVestigial
 import Cordis.Harness
+import Cordis.HarnessPersistenceRefinement
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
 import Cordis.MediatedTheorem

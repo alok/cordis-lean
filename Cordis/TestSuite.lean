@@ -45,6 +45,7 @@ import Cordis.GlobalTraceFacts
 import Cordis.GlobalTraceRewrite
 import Cordis.GlobalVestigial
 import Cordis.Harness
+import Cordis.HarnessPersistenceRefinement
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
 import Cordis.MediatedTheorem
@@ -842,6 +843,51 @@ private def testTextRefinement : IO Unit := do
   | .error .invalidUtf8 => pure ()
   | .error error => fail s!"invalid UTF-8 returned the wrong error: {reprStr error}"
   | .ok _ => fail "invalid UTF-8 was accepted"
+
+private def testHarnessPersistence : IO Unit := do
+  match HarnessPersistenceRefinement.validatePersistedJson
+      HarnessPersistenceRefinement.packedPersistenceExample with
+  | .error error => fail s!"packed Harness persistence example failed: {reprStr error}"
+  | .ok validated =>
+      assertEqual "packed persistence preserves the supported header version and expansion count"
+        (HarnessPersistenceRefinement.persistenceSummary (.ok validated)) (some (0, 3, 3))
+      assertEqual "packed persistence retains exactly one storage row"
+        validated.storageRows.length 1
+      assertEqual "packed persistence expands the packed row into three events"
+        validated.expandedEvents.length 3
+      assertEqual "packed persistence retains the source session id"
+        validated.header.id "session-example"
+      let _splitCertificate := validated.split_exact
+      let _expansionCertificate := validated.expansion_exact
+      let _projectionCertificate := validated.projection_exact
+      pure ()
+  match HarnessPersistenceRefinement.validatePersistedJson
+      [HarnessPersistenceRefinement.headerExample,
+        HarnessPersistenceRefinement.malformedPackedRow] with
+  | .error (.storage (.malformed "text-chunks"
+      "dt length must be payload length minus one")) => pure ()
+  | .error error => fail s!"malformed packed persistence row returned {reprStr error}"
+  | .ok _ => fail "malformed packed persistence row was accepted"
+  match HarnessPersistenceRefinement.validatePersistedJson
+      [HarnessPersistenceRefinement.foreignVersionHeader] with
+  | .error (.header (.foreignVersion 1)) => pure ()
+  | .error error => fail s!"foreign persistence version returned {reprStr error}"
+  | .ok _ => fail "foreign persistence version was accepted"
+  match HarnessPersistenceRefinement.validatePersistedJson
+      [HarnessPersistenceRefinement.foreignHeaderTag] with
+  | .error (.header (.unsupportedTag [.field "type"] "event")) => pure ()
+  | .error error => fail s!"foreign persistence header tag returned {reprStr error}"
+  | .ok _ => fail "foreign persistence header tag was accepted"
+  match HarnessPersistenceRefinement.validatePersistedJson [] with
+  | .error .missingHeader => pure ()
+  | .error error => fail s!"missing persistence header returned {reprStr error}"
+  | .ok _ => fail "missing persistence header was accepted"
+  match HarnessPersistenceRefinement.validatePersistedText
+      (TextRefinement.renderJsonLines HarnessPersistenceRefinement.packedPersistenceExample) with
+  | .error error => fail s!"text persistence example failed: {reprStr error}"
+  | .ok ⟨_, validated⟩ =>
+      assertEqual "text persistence composes JSONL parsing with packed expansion"
+        validated.expandedEvents.length 3
 
 private def testDeepSeekApi : IO Unit := do
   let plan := DeepSeekApi.buildRequest "https://api.deepseek.com"
@@ -1988,6 +2034,7 @@ def run : IO Unit := do
   testUnifiedContexts
   testRuntimeRefinement
   testTextRefinement
+  testHarnessPersistence
   testDeepSeekApi
   testDeepSeekStream
   testDeepSeekRichStream

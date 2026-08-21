@@ -157,6 +157,9 @@ Current machine-checked evidence includes:
   shapes into `RichStream.ValidatedTrace` while explicitly rejecting non-equivalent fields;
 - `Cordis.SessionRefinement`, statefully translating a supported source-shaped Harness session
   prefix into joint `Session.ValidatedAppend` and intrinsic `Protocol.ValidatedEvent` witnesses;
+- `Cordis.HarnessPersistenceRefinement`, validating the pinned logical JSONL session header and
+  storage rows, expanding the three lossless packed chunk-row forms, and composing that result
+  with the stateful session validator;
 - `Cordis.StreamSession`, making the provider-string-ID to unique numeric-session-`CallId`
   assignment explicit before a validated rich assistant view enters the canonical surface;
 - `Harness.RunnerState.protocolProjection_eq_log` and `protocolProjection_replays`, tying the
@@ -763,6 +766,15 @@ text, exact AST lines, and the existing rich/protocol proof certificates. The pa
 canonical compact printer are library boundaries; this does not prove an external logger's
 framing, schema compliance, timestamps, transport, or persistence behavior.
 
+`Cordis.HarnessPersistenceRefinement` starts one layer below that text parser at the logical
+JSON-AST storage format pinned in the Harness `session-persistence-jsonl` package. It recognizes
+the required `type: "session"` header, retains ordinary event rows, and validates/expands
+`text-chunks`, `reasoning-chunks`, and `tool-call-chunks` using exact safe sequence/time-gap
+reconstruction before calling `SessionRefinement`. Unknown non-packed rows remain delegated to
+the event decoder. Packed-row malformations, foreign versions/tags, retired header fields, and
+unsafe reconstructions fail closed. This deliberately excludes Zstandard, path sanitization,
+byte offsets, torn-tail repair, coordinator/indexing behavior, and filesystem durability.
+
 ## Executable and static tests
 
 The slice requires all existing gates plus the following new coverage:
@@ -786,6 +798,8 @@ The slice requires all existing gates plus the following new coverage:
 - context-equivalence preservation of satisfaction and notification;
 - current-Harness stream JSON success plus exact decode and semantic rejection paths;
 - UTF-8 JSONL stream/session fixtures, exact parsed-line retention, and invalid-encoding rejection;
+- logical Harness JSONL persistence fixtures covering header/tag/version rejection, packed
+  text-row expansion, safe sequence/time reconstruction, and composition with session validation;
 - finite operational tests with heterogeneous outcomes, failed domains, and the formal
   paired-inverse counterexample;
 - quotient-effect composition and lifted coeffect context preservation;
@@ -848,6 +862,8 @@ This slice does not by itself prove:
 
 - behavioral equivalence with the complete TypeScript DeepSeek Harness;
 - byte-level JSON parsing, rendering, or storage compatibility;
+- completeness for the Harness JSONL event/storage union: `HarnessPersistenceRefinement` is a
+  logical AST refinement for the pinned header and three packed-row forms only;
 - filesystem/database persistence beyond the narrow tested adapter, stable-media/flush barriers,
   cryptographic authentication, arbitrary crash-file repair, or fork correctness.
   `Cordis.DurableSettlement` and `Cordis.DurableCodec` prove a pure typed crash-prefix/resume

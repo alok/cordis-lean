@@ -1802,6 +1802,12 @@ their stated language.
 fixtures and append-only adapters: it parses newline-delimited UTF-8 JSON into
 exact AST lines, retains source/line failures, and composes the two validators
 without weakening their dependent certificates.
+`Cordis.HarnessPersistenceRefinement` supplies the next logical storage ingress:
+it splits the pinned JSONL session header from storage rows, expands the exact
+text/reasoning/tool packed-row forms with checked safe sequence/time gaps, and
+feeds the expanded event AST to `SessionRefinement`. Keep this boundary logical
+and fail-closed; compression, file offsets, torn-tail repair, and filesystem
+durability belong to a later adapter rather than being smuggled into the proof.
 `Cordis.DeepSeekApi` now supplies the adjacent provider boundary: typed
 OpenAI-compatible chat requests become exact POST plans, successful responses
 retain parse/decode certificates, and transport, HTTP-status, and API errors

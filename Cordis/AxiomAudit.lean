@@ -43,6 +43,7 @@ import Cordis.GlobalTraceFacts
 import Cordis.GlobalTraceRewrite
 import Cordis.GlobalVestigial
 import Cordis.Harness
+import Cordis.HarnessPersistenceRefinement
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
 import Cordis.MediatedTheorem
@@ -350,6 +351,13 @@ set_option format.width 200
 #print axioms Cordis.SessionRefinement.reject_unmodeledTurnEndReason
 #print axioms Cordis.SessionRefinement.reject_mismatchedToolResultIds
 #print axioms Cordis.SessionRefinement.reject_underdeterminedTurnEnd
+#print axioms Cordis.HarnessPersistenceRefinement.ValidatedPersistedJson.projection_exact
+#print axioms Cordis.HarnessPersistenceRefinement.ValidatedPersistedJson.split_exact
+#print axioms Cordis.HarnessPersistenceRefinement.ValidatedPersistedJson.expansion_exact
+#print axioms Cordis.HarnessPersistenceRefinement.packedPersistenceExample_valid
+#print axioms Cordis.HarnessPersistenceRefinement.malformedPackedRow_rejected
+#print axioms Cordis.HarnessPersistenceRefinement.foreignVersion_rejected
+#print axioms Cordis.HarnessPersistenceRefinement.foreignHeaderTag_rejected
 #print axioms Cordis.TextRefinement.parseJsonLines
 #print axioms Cordis.TextRefinement.parseJsonLinesBytes
 #print axioms Cordis.TextRefinement.validateStreamText
