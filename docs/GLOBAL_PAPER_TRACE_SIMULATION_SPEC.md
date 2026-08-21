@@ -38,9 +38,9 @@ The module has three responsibilities:
 
 1. combine the proved O-Insert/O-Retire/O-Remove simulation with a supplied
    lifecycle assigned-simulation law into a local unified-step simulator;
-2. use only that local law to construct an intrinsic, all-keep replay of an
+1. use only that local law to construct an intrinsic, all-keep replay of an
    arbitrary finite trace from a related well-formed source; and
-3. replace one assigned adjacent window whose two local endpoints are merely
+1. replace one assigned adjacent window whose two local endpoints are merely
    birth-erased related, then actually replay the old suffix from the new
    endpoint.
 
@@ -355,11 +355,11 @@ certificate := .nil related
 For `.cons head tail`:
 
 1. call `simulation.forward` on `head`;
-2. derive `headMatch.toRetainedStep`;
-3. recursively replay `tail` from `headMatch.shadowAfter`, using the two
+1. derive `headMatch.toRetainedStep`;
+1. recursively replay `tail` from `headMatch.shadowAfter`, using the two
    successor well-formedness proofs and `successors_related`;
-4. construct the shadow with `Trace.cons`; and
-5. construct the certificate with `DeletionReplay.keep`.
+1. construct the shadow with `Trace.cons`; and
+1. construct the certificate with `DeletionReplay.keep`.
 
 No `.drop` constructor may appear in the builder. No caller may supply the
 shadow trace, output endpoint, or replay certificate.
@@ -542,11 +542,11 @@ noncomputable def ForwardAssignedStepSimulation.rewriteAdjacent
 It must derive, in order:
 
 1. the window-start WF proof from `occurrence.beforeTrace`;
-2. the normal local endpoint WF proof from `occurrence.pair.trace`;
-3. the swapped local endpoint WF proof from `swap.swapped.trace`;
-4. a fresh suffix replay by calling `simulation.replayTrace` on the old
+1. the normal local endpoint WF proof from `occurrence.pair.trace`;
+1. the swapped local endpoint WF proof from `swap.swapped.trace`;
+1. a fresh suffix replay by calling `simulation.replayTrace` on the old
    `occurrence.afterTrace`; and
-5. the result from that constructed replay.
+1. the result from that constructed replay.
 
 The theorem must not accept a caller-provided suffix replay as its primary
 interface. The local simulator is the noncircular premise; the suffix replay
@@ -607,10 +607,10 @@ theorem ClockGap.no_forward_step_simulation :
 The second theorem must:
 
 1. assume a forward local simulator;
-2. apply it to the actual original `L-DivertAbort` step and the related
+1. apply it to the actual original `L-DivertAbort` step and the related
    `changed`/`shifted` sources;
-3. use `same_detailedRule` to force a peer exact L-DivertAbort; and
-4. contradict the existing no-peer-transition theorem.
+1. use `same_detailedRule` to force a peer exact L-DivertAbort; and
+1. contradict the existing no-peer-transition theorem.
 
 This countermodel explains both explicit premises in the positive theorem:
 
@@ -700,22 +700,22 @@ The module does not prove:
 Implement in this dependency order:
 
 1. module header, imports, namespace, state abbreviation;
-2. `DetailedRule`, `DetailedRule.global`, `detailedRule`, `detailedRules`;
-3. detailed/global and append projection theorems;
-4. forward and backward local match result structures;
-5. coherent `toRetainedStep` bridges;
-6. orchestration and lifecycle forward/backward matchers;
-7. forward and bidirectional local simulation bundles and constructors;
-8. keep-only rule/actor projection lemmas;
-9. structural `replayTrace`;
-10. `ForwardPaperTraceReplay` and `replayTrace`;
-11. final relation, WF, list, and assignment projections;
-12. `RelatedAssignedAdjacentSwap` and exact embedding;
-13. `RelatedAdjacentRewrite`, reconstructed trace/assignment, and permutation
-    theorems;
-14. the public local-to-complete rewrite constructor;
-15. positive orchestration replay evidence; and
-16. the clock-sensitive impossibility theorems.
+1. `DetailedRule`, `DetailedRule.global`, `detailedRule`, `detailedRules`;
+1. detailed/global and append projection theorems;
+1. forward and backward local match result structures;
+1. coherent `toRetainedStep` bridges;
+1. orchestration and lifecycle forward/backward matchers;
+1. forward and bidirectional local simulation bundles and constructors;
+1. keep-only rule/actor projection lemmas;
+1. structural `replayTrace`;
+1. `ForwardPaperTraceReplay` and `replayTrace`;
+1. final relation, WF, list, and assignment projections;
+1. `RelatedAssignedAdjacentSwap` and exact embedding;
+1. `RelatedAdjacentRewrite`, reconstructed trace/assignment, and permutation
+   theorems;
+1. the public local-to-complete rewrite constructor;
+1. positive orchestration replay evidence; and
+1. the clock-sensitive impossibility theorems.
 
 No declaration may rely on a later normalization module.
 
