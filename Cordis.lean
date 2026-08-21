@@ -81,6 +81,7 @@ import Cordis.ObservationalPartialTransformation
 import Cordis.OperationalEquivalence
 import Cordis.ParallelHarness
 import Cordis.ParallelSchedule
+import Cordis.AsyncHarness
 import Cordis.PartialTransformation
 import Cordis.Policy
 import Cordis.Protocol

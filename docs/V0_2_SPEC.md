@@ -23,6 +23,11 @@ The pure scheduler boundary is now multi-segment: `Cordis.ParallelSchedule` exec
 sequence of certified parallel windows and exclusive barriers, with exact composed endpoint and
 recovery proofs, model-order reports, and globally unique task IDs. Wall-clock overlap, worker IO,
 promise races, fairness, and deployed scheduler equivalence remain explicit non-claims.
+`Cordis.AsyncHarness` adds a bounded indexed-fiber state machine over the same pure boundary:
+typed start/complete/fail/cancel transitions, finite completion-order traces, drained schedule
+certificates, and concrete race/cancellation witnesses are now executable and proved. Live task
+handles, wall-clock fairness, cancellation delivery, cleanup, and deployed scheduler refinement
+remain explicit non-claims.
 
 The slice closes two concrete gaps in the original objective:
 
@@ -259,6 +264,9 @@ Current machine-checked evidence includes:
   executable fixtures;
 - `Cordis.ParallelSchedule`, composing arbitrary finite pure windows and exclusive barriers while
   preserving endpoint/recovery equality, model-order reports, and global task-ID uniqueness;
+- `Cordis.AsyncHarness`, proving indexed pending/running/terminal fiber transitions, explicit
+  completion-order traces, drained finite-schedule canonical endpoints, and race/cancellation
+  witnesses without claiming live asynchronous execution;
 - `Cordis.StreamSession`, making the provider-string-ID to unique numeric-session-`CallId`
   assignment explicit before a validated rich assistant view enters the canonical surface;
 - `Harness.RunnerState.protocolProjection_eq_log` and `protocolProjection_replays`, tying the
@@ -980,6 +988,8 @@ The slice requires all existing gates plus the following new coverage:
   cases;
 - an executable finite multi-segment scheduler fixture covering windows, exclusive barriers,
   model-order reports, globally unique IDs, endpoint equality, and exact recovery;
+- an executable bounded fiber fixture covering guarded start/complete/fail/cancel transitions,
+  completion-order races, a drained permutation certificate, and no-effect cancellation;
 - full generator-to-transformation-monoid promotion and inverse stability; and
 - exact total operation independence, finite partial distinct-key words, outcome-dependent
   mediated execution, and the forward-only inverse-stability counterexample;

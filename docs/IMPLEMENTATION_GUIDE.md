@@ -1811,6 +1811,17 @@ promise races, fairness, cancellation delivery, cleanup, persistence, or TypeScr
 The next production step is an explicit adapter from those certificate fields to the real
 Harness worker/result lifecycle.
 
+[`../Cordis/AsyncHarness.lean`](../Cordis/AsyncHarness.lean) now supplies the next bounded
+state-machine layer. `Runtime` stores an indexed phase for every fiber, `Step` makes the
+pending/running guards and terminal transitions explicit, and `Trace` retains the exact
+completion order. `SuccessfulSchedule` adds a finite drained certificate and proves that the
+completion permutation has the canonical pure model endpoint. The concrete example starts two
+fibers, completes them in the opposite order, and separately witnesses cancellation without a
+model effect. This is still a proof-carrying pure model: do not describe it as launching `IO`,
+delivering promise cancellation, proving wall-clock fairness, or refining the TypeScript
+scheduler. Those claims require an adapter with explicit worker, cleanup, and persistence
+contracts.
+
 ### 19.5 Relate the model to DeepSeek Harness
 
 The active `Cordis.RuntimeRefinement` module begins this work for a supported

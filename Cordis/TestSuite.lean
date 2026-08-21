@@ -79,6 +79,7 @@ import Cordis.ObservationalPartialTransformation
 import Cordis.OperationalEquivalence
 import Cordis.ParallelHarness
 import Cordis.ParallelSchedule
+import Cordis.AsyncHarness
 import Cordis.PartialTransformation
 import Cordis.Policy
 import Cordis.Protocol
@@ -686,6 +687,20 @@ private def testParallelSchedule : IO Unit := do
   assertEqual "finite parallel schedule recovers its exact predecessor"
     (outcome.applied.undo outcome.applied.after)
     ParallelSchedule.exampleBefore
+
+private def testAsyncHarness : IO Unit := do
+  assertEqual "async race records completion order separately from declaration order"
+    AsyncHarness.exampleRaceTrace.completionIds [1, 0]
+  assertEqual "async race applies the completion-order pure effects"
+    AsyncHarness.exampleAfterComplete0.model
+    { x := 11, y := 22, z := 30 }
+  assertEqual "async race terminalizes fiber zero"
+    (AsyncHarness.exampleAfterComplete0.phase AsyncHarness.exampleIndex0).isTerminal true
+  assertEqual "async race terminalizes fiber one"
+    (AsyncHarness.exampleAfterComplete0.phase AsyncHarness.exampleIndex1).isTerminal true
+  assertEqual "async cancellation leaves the model unchanged"
+    (AsyncHarness.exampleCancelInitial.cancel AsyncHarness.exampleIndex1 "user").model
+    AsyncHarness.exampleBefore
 
 private def testDurableSettlement : IO Unit := do
   assertEqual "durable first commit reaches its indexed successor"
@@ -3780,6 +3795,7 @@ def run : IO Unit := do
   testFiniteSchedules
   testParallelHarness
   testParallelSchedule
+  testAsyncHarness
   testDurableSettlement
   testDurableCodec
   testDurableBytes

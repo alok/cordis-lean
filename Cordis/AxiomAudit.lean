@@ -78,6 +78,7 @@ import Cordis.ObservationalPartialTransformation
 import Cordis.OperationalEquivalence
 import Cordis.ParallelHarness
 import Cordis.ParallelSchedule
+import Cordis.AsyncHarness
 import Cordis.PartialTransformation
 import Cordis.Policy
 import Cordis.QuotientEffect
@@ -280,6 +281,11 @@ set_option format.width 200
 #print axioms Cordis.ParallelHarness.Plan.barrier_is_exclusive
 #print axioms Cordis.ParallelHarness.drain.ids_eq
 #print axioms Cordis.ParallelHarness.drain.all_cancelled
+#print axioms Cordis.AsyncHarness.Step.terminal_guard
+#print axioms Cordis.AsyncHarness.Trace.model_eq_runEffects
+#print axioms Cordis.AsyncHarness.Trace.no_completion_preserves_model
+#print axioms Cordis.AsyncHarness.exampleRaceTrace_successful
+#print axioms Cordis.AsyncHarness.exampleRaceTrace_final_model
 #print axioms Cordis.ParallelHarness.drain.drainOutcome_after_eq
 #print axioms Cordis.ParallelHarness.drain.drainOutcome_reports_ids
 #print axioms Cordis.ParallelHarness.example_window_after

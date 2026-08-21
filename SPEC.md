@@ -70,6 +70,15 @@ task-ID uniqueness. This remains a reference-kernel schedule; wall-clock
 overlap, worker IO, promise races, fairness, and deployed scheduler equivalence
 remain outside the claim.
 
+`Cordis.AsyncHarness` now adds a bounded fiber-state slice on top of that pure
+schedule boundary. Indexed fibers carry pending/running/terminal phases, typed
+start/complete/fail/cancel transitions, and finite traces whose completion order
+is explicit. A drained successful-schedule certificate proves that any supplied
+completion permutation reaches the canonical pure endpoint. The slice is still
+an executable proof-carrying model, not live `IO`: task handles, wall-clock
+fairness, cancellation delivery, cleanup, and deployed Harness refinement remain
+outside the claim.
+
 Name equivariance now has an executable structural core: lawful bijections act through all stored
 payloads, dependent tables/views/undo stacks/phases, the finite registry, and global state; state
 inversion, strengthened well-formedness, and all orchestration rules are equivariant. A kernel
@@ -541,6 +550,7 @@ the empty-to-final lease-threading certificate.
 | `Cordis.Harness`                           | Deterministic counter runner, exact-subject `CallEvidence`, encoded results, replay-certified finite turns/steps, private atomic settlement, and joint model/lease/ID/log-boundary `RecordChain`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | `Cordis.ParallelHarness`                   | Bounded proof-carrying parallel windows, model-order commits, one exclusive barrier, and pure cancellation drains.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | `Cordis.ParallelSchedule`                  | Arbitrary finite sequences of certified windows and exclusive barriers, with exact composed endpoint/recovery equality, model-order reports, and global task-ID uniqueness; this is a pure schedule certificate, not wall-clock concurrency.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| `Cordis.AsyncHarness`                      | Indexed pending/running/terminal fibers, typed start/complete/fail/cancel transitions, completion-order traces, drained successful-schedule certificates, and concrete race/cancellation witnesses; pure bounded state-machine semantics only.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | `Cordis.GenericSessionHarness`             | Reusable rich-session/request wrapper over any `GenericHarness.Config`, with exact Session-to-structural-log projection and generic call/lifecycle append transitions.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | `Cordis.Examples.DependentChoiceSession`   | Non-counter dependent-choice fixture carrying one successful `Nat` branch and one policy-rejected `String` branch through the generic rich-session wrapper, with executable request/projection certificates.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | `Cordis.TestSuite`                         | Executable effect, batch, codec, stream, registry, lifecycle, protocol, policy, admission, encoded-result, replay, joint-history, and harness checks.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
@@ -716,13 +726,17 @@ trust, deployment, or incremental stream semantics.
 The following are intentionally not part of the delivered finite acceptance
 claim:
 
-1. **Full asynchronous execution.** Add task/fiber spawning, cancellation,
-   completion races, fairness assumptions, and adapter-level failure handling.
-1. **N-call concurrency.** `Cordis.ParallelSchedule` now covers arbitrary
-   finite _pure_ segment schedules and integrates model-order reports, barriers,
-   recovery, and IDs. The remaining work is the actual async/fiber adapter:
-   dependency graphs, task races, cancellation delivery, fairness, cleanup,
-   and integration with the deployed Harness.
+1. **Full asynchronous execution.** `Cordis.AsyncHarness` now supplies a bounded
+   pure fiber state machine with typed start/complete/fail/cancel transitions,
+   completion-order traces, and drained finite-schedule certificates. The
+   remaining work is live task/fiber spawning, cancellation delivery,
+   completion races, wall-clock fairness, cleanup, adapter-level failure
+   handling, and integration with the deployed Harness.
+1. **N-call concurrency.** `Cordis.ParallelSchedule` and `Cordis.AsyncHarness`
+   cover arbitrary finite _pure_ segment schedules and indexed fiber traces.
+   They do not provide the actual async/fiber adapter: dependency graphs,
+   worker races, cancellation delivery, fairness, cleanup, or deployed
+   scheduler equivalence remain open.
 1. **External adapters.** `Cordis.DeepSeekApi` supplies the checked
    request/response codec and an explicit transport seam for a small,
    non-streaming OpenAI-compatible DeepSeek subset. `Cordis.DeepSeekCurlTransport`
