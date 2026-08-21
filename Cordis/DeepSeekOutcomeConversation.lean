@@ -175,6 +175,176 @@ inductive ClientError where
   | dispatch (error : DispatchError)
 deriving DecidableEq, Repr
 
+/-! ## Dependent tool execution after a rich terminal outcome -/
+
+structure ExecutedRound
+    {Model Capability : Type}
+    (cfg : GenericHarness.Config Model Capability)
+    (before : Model)
+    (body : String) where
+  finished : FinishedResponse body
+  assistantRunner : ConversationRunner
+  runner : ConversationRunner
+  finalModel : Model
+  executions : List (ExecutedTool cfg)
+  executions_eq :
+    executeFunctionCalls cfg before
+        (projectedFunctionCalls finished.finished.view) =
+      .ok (finalModel, executions)
+  assistantSeq : Nat
+  assistantSeq_eq : assistantSeq + 1 = assistantRunner.session.nextSeq
+
+inductive ExecutionError where
+  | bridge (error : DeepSeekSessionBridge.BridgeError)
+  | tool (error : ToolRoundError)
+deriving DecidableEq, Repr
+
+inductive ExecutionResult
+    {Model Capability : Type}
+    (cfg : GenericHarness.Config Model Capability)
+    (before : Model)
+    (body : String) where
+  | providerFailure
+      (validated : ValidatedFailureStream body)
+      (runner : ConversationRunner)
+  | assistant (round : ExecutedRound cfg before body)
+
+private theorem appendFinished_assistantSeqEarlier
+    (runner : ConversationRunner)
+    {body : String}
+    (finished : FinishedResponse body)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    runner.session.nextSeq <
+      (appendFinished runner finished sourceEventSeqs sourcesNodup
+        sourcesEarlier).session.nextSeq := by
+  rw [appendFinished_nextSeq]
+  exact Nat.lt_succ_self _
+
+private theorem appendFinished_assistantSeq_eq
+    (runner : ConversationRunner)
+    {body : String}
+    (finished : FinishedResponse body)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    runner.session.nextSeq + 1 =
+      (appendFinished runner finished sourceEventSeqs sourcesNodup
+        sourcesEarlier).session.nextSeq := by
+  rw [appendFinished_nextSeq]
+
+private def executeFinished
+    {Model Capability : Type}
+    {body : String}
+    (cfg : GenericHarness.Config Model Capability)
+    (before : Model)
+    (finished : FinishedResponse body)
+    (assistantRunner : ConversationRunner)
+    (callBase assistantSeq : Nat)
+    (assistantSeqEarlier : assistantSeq < assistantRunner.session.nextSeq)
+    (assistantSeq_eq : assistantSeq + 1 = assistantRunner.session.nextSeq) :
+    Except ToolRoundError (ExecutedRound cfg before body) :=
+  match executionEq : executeFunctionCalls cfg before
+      (projectedFunctionCalls finished.finished.view) with
+  | .error error => .error error
+  | .ok (finalModel, executions) =>
+      .ok {
+        finished
+        assistantRunner
+        runner := ConversationRunner.appendToolResults assistantRunner callBase assistantSeq
+          executions assistantSeqEarlier
+        finalModel
+        executions
+        executions_eq := executionEq
+        assistantSeq
+        assistantSeq_eq := assistantSeq_eq
+      }
+
+private def executeFinishedForOutcome
+    {Model Capability : Type}
+    {body : String}
+    (cfg : GenericHarness.Config Model Capability)
+    (before : Model)
+    (runner : ConversationRunner)
+    (finished : FinishedResponse body)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    Except ExecutionError (ExecutionResult cfg before body) :=
+  let assistantSeq := runner.session.nextSeq
+  let assistantRunner := appendFinished runner finished sourceEventSeqs sourcesNodup sourcesEarlier
+  match executeFinished cfg before finished assistantRunner runner.nextCall assistantSeq
+      (appendFinished_assistantSeqEarlier runner finished sourceEventSeqs sourcesNodup
+        sourcesEarlier)
+      (appendFinished_assistantSeq_eq runner finished sourceEventSeqs sourcesNodup
+        sourcesEarlier) with
+  | .error error => .error (.tool error)
+  | .ok round => .ok (.assistant round)
+
+def executeOutcomeWithTools
+    {Model Capability : Type}
+    {body : String}
+    (cfg : GenericHarness.Config Model Capability)
+    (before : Model)
+    (runner : ConversationRunner)
+    (outcome : TerminalOutcome body)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    Except ExecutionError (ExecutionResult cfg before body) :=
+  match outcome with
+  | .failure validated => .ok (.providerFailure validated runner)
+  | .text validated =>
+      match finishResponse (.text validated) with
+      | .error error => .error (.bridge error)
+      | .ok finished =>
+          executeFinishedForOutcome cfg before runner finished sourceEventSeqs
+            sourcesNodup sourcesEarlier
+  | .tool validated =>
+      match finishResponse (.tool validated) with
+      | .error error => .error (.bridge error)
+      | .ok finished =>
+          executeFinishedForOutcome cfg before runner finished sourceEventSeqs
+            sourcesNodup sourcesEarlier
+  | .mixed validated =>
+      match finishResponse (.mixed validated) with
+      | .error error => .error (.bridge error)
+      | .ok finished =>
+          executeFinishedForOutcome cfg before runner finished sourceEventSeqs
+            sourcesNodup sourcesEarlier
+  | .multi validated =>
+      match finishResponse (.multi validated) with
+      | .error error => .error (.bridge error)
+      | .ok finished =>
+          executeFinishedForOutcome cfg before runner finished sourceEventSeqs
+            sourcesNodup sourcesEarlier
+
+inductive ExecutionClientError where
+  | transport (error : OutcomeClientError)
+  | execution (error : ExecutionError)
+deriving DecidableEq, Repr
+
+def executeAndRunOutcome
+    {Model Capability : Type}
+    (config : DeepSeekCurlTransport.ProcessConfig)
+    (request : HttpRequest)
+    (cfg : GenericHarness.Config Model Capability)
+    (before : Model)
+    (runner : ConversationRunner)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    IO (Except ExecutionClientError
+      (Sigma fun body : String => ExecutionResult cfg before body)) := do
+  match ← executeOutcome config request with
+  | .error error => pure (.error (.transport error))
+  | .ok ⟨body, processed⟩ =>
+      match executeOutcomeWithTools cfg before runner processed.outcome sourceEventSeqs
+          sourcesNodup sourcesEarlier with
+      | .error error => pure (.error (.execution error))
+      | .ok result => pure (.ok ⟨body, result⟩)
+
 def executeAndDispatchOutcome
     (config : DeepSeekCurlTransport.ProcessConfig)
     (request : HttpRequest)
@@ -197,6 +367,54 @@ private theorem emptySourcesEarlier
     (runner : ConversationRunner) :
     ∀ source ∈ ([] : List Nat), source < runner.session.nextSeq := by
   simp
+
+/-! The rich tool fixture uses `lookup`; this parallel body targets the certified counter tool. -/
+
+def counterToolStartJson : Lean.Json := .mkObj [
+  ("id", .str "chatcmpl-counter-tool"),
+  ("model", .str "deterministic-counter"),
+  ("choices", .arr #[.mkObj [
+    ("index", .num (Lean.JsonNumber.fromNat 0)),
+    ("delta", .mkObj [
+      ("tool_calls", .arr #[.mkObj [
+        ("index", .num (Lean.JsonNumber.fromNat 0)),
+        ("id", .str "counter-call-0"),
+        ("type", .str "function"),
+        ("function", .mkObj [
+          ("name", .str "counter_read"),
+          ("arguments", .str "null")
+        ])
+      ]])
+    ]),
+    ("finish_reason", .null)
+  ]])
+]
+
+def counterToolFinishJson : Lean.Json := .mkObj [
+  ("id", .str "chatcmpl-counter-tool"),
+  ("model", .str "deterministic-counter"),
+  ("choices", .arr #[.mkObj [
+    ("index", .num (Lean.JsonNumber.fromNat 0)),
+    ("delta", .mkObj [
+      ("tool_calls", .arr #[.mkObj [
+        ("index", .num (Lean.JsonNumber.fromNat 0)),
+        ("id", .str "counter-call-0"),
+        ("function", .mkObj [])
+      ]])
+    ]),
+    ("finish_reason", .str "tool_calls")
+  ]]),
+  ("usage", .mkObj [
+    ("prompt_tokens", .num (Lean.JsonNumber.fromNat 4)),
+    ("completion_tokens", .num (Lean.JsonNumber.fromNat 3)),
+    ("total_tokens", .num (Lean.JsonNumber.fromNat 7))
+  ])
+]
+
+def counterToolStreamBody : String :=
+  "data: " ++ Lean.Json.compress counterToolStartJson ++ "\n\n" ++
+  "data: " ++ Lean.Json.compress counterToolFinishJson ++ "\n\n" ++
+  "data: [DONE]\n\n"
 
 def fixtureFailureDispatch : IO (Except ClientError
     (Sigma fun body : String => DispatchResult body)) :=
@@ -232,5 +450,32 @@ def fixtureMultiDispatch : IO (Except ClientError
     (fixtureProcess DeepSeekRichMultiStream.multiBody)
     DeepSeekCurlTransport.fixtureRequest.request (ConversationRunner.empty 1) []
     emptySourcesNodup (emptySourcesEarlier (ConversationRunner.empty 1))
+
+def fixtureFailureExecution : IO (Except ExecutionClientError
+    (Sigma fun body : String =>
+      ExecutionResult Cordis.Harness.counterConfig 0 body)) :=
+  executeAndRunOutcome
+    (fixtureProcess DeepSeekStreamFailure.exampleContentFilterBody)
+    DeepSeekCurlTransport.fixtureRequest.request Cordis.Harness.counterConfig 0
+    (ConversationRunner.empty 1) [] emptySourcesNodup
+    (emptySourcesEarlier (ConversationRunner.empty 1))
+
+def fixtureTextExecution : IO (Except ExecutionClientError
+    (Sigma fun body : String =>
+      ExecutionResult Cordis.Harness.counterConfig 0 body)) :=
+  executeAndRunOutcome
+    (fixtureProcess DeepSeekRichStream.exampleTextStreamBody)
+    DeepSeekCurlTransport.fixtureRequest.request Cordis.Harness.counterConfig 0
+    (ConversationRunner.empty 1) [] emptySourcesNodup
+    (emptySourcesEarlier (ConversationRunner.empty 1))
+
+def fixtureCounterToolExecution : IO (Except ExecutionClientError
+    (Sigma fun body : String =>
+      ExecutionResult Cordis.Harness.counterConfig 0 body)) :=
+  executeAndRunOutcome
+    (fixtureProcess counterToolStreamBody)
+    DeepSeekCurlTransport.fixtureRequest.request Cordis.Harness.counterConfig 0
+    (ConversationRunner.empty 1) [] emptySourcesNodup
+    (emptySourcesEarlier (ConversationRunner.empty 1))
 
 end Cordis.DeepSeekOutcomeConversation

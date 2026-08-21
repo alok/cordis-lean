@@ -1385,6 +1385,35 @@ private def testDeepSeekOutcomeConversation : IO Unit := do
         (DeepSeekOutcomeConversation.projectedFunctionCalls finished.finished.view).length 2
   | .ok _ => fail "outcome conversation multi returned a non-assistant result"
 
+private def testDeepSeekOutcomeConversationExecution : IO Unit := do
+  match ← DeepSeekOutcomeConversation.fixtureFailureExecution with
+  | .error error => fail s!"outcome conversation failure execution failed: {reprStr error}"
+  | .ok ⟨_, .providerFailure validated runner⟩ =>
+      assertEqual "outcome conversation execution preserves failure reason"
+        validated.view.reason .contentFilter
+      assertEqual "outcome conversation execution failure leaves sequence unchanged"
+        runner.session.nextSeq 0
+  | .ok _ => fail "outcome conversation execution ran a provider failure as a tool round"
+  match ← DeepSeekOutcomeConversation.fixtureTextExecution with
+  | .error error => fail s!"outcome conversation text execution failed: {reprStr error}"
+  | .ok ⟨_, .assistant round⟩ =>
+      assertEqual "outcome conversation text execution preserves model" round.finalModel 0
+      assertEqual "outcome conversation text execution appends one assistant"
+        round.runner.session.nextSeq 1
+      assertEqual "outcome conversation text execution has no tools" round.executions.length 0
+  | .ok _ => fail "outcome conversation text execution returned a failure"
+  match ← DeepSeekOutcomeConversation.fixtureCounterToolExecution with
+  | .error error => fail s!"outcome conversation counter execution failed: {reprStr error}"
+  | .ok ⟨_, .assistant round⟩ =>
+      assertEqual "outcome conversation counter execution preserves model" round.finalModel 0
+      assertEqual "outcome conversation counter execution executes one tool"
+        round.executions.length 1
+      assertEqual "outcome conversation counter execution retains assistant sequence"
+        round.assistantRunner.session.nextSeq 1
+      assertEqual "outcome conversation counter execution appends tool result"
+        round.runner.session.nextSeq 2
+  | .ok _ => fail "outcome conversation counter execution returned a failure"
+
 private def testDeepSeekCurlSession : IO Unit := do
   match ← DeepSeekCurlSession.fixtureTextResponse with
   | .error error => fail s!"process-backed DeepSeek session response failed: {reprStr error}"
@@ -4756,6 +4785,7 @@ def run : IO Unit := do
   testDeepSeekCurlOutcome
   testDeepSeekOutcomeSession
   testDeepSeekOutcomeConversation
+  testDeepSeekOutcomeConversationExecution
   testDeepSeekCurlSession
   testDeepSeekCurlIncremental
   testDeepSeekCurlPrefix
