@@ -661,6 +661,12 @@ text completion distinct from exhaustion. This does not prove incremental readin
 backpressure, cancellation, reconnect, provider-complete assembly, call-ID authenticity,
 persistence, external effects, or deployed Harness equivalence.
 
+`DeepSeekHarnessProcessSchema` is the process-provenance refinement of that boundary. It retains
+the exact registry-certified streaming plan, processed response, schema-dispatched step, and
+dependent runner endpoint in one indexed result; request, process/status, and registry-execution
+failures remain distinct. It remains complete-body local evidence and does not prove provider
+obedience, credential authenticity, incremental delivery, persistence, or deployed equivalence.
+
 `DeepSeekSchemaStreamPrefixConversation` additionally retains a process prefix at a caller-selected
 line budget or cancellation boundary and refuses registry dispatch until the completed `[DONE]`
 rich/session certificate exists. This is line-oriented evidence only; byte framing, blocked-read

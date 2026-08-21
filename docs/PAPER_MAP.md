@@ -666,6 +666,10 @@ entry-specific calls, and keeps a caller-fueled history separate from a text ter
 exhaustion. Incremental transport, provider-complete assembly, and deployed Harness equivalence
 remain unmapped claims.
 
+`Cordis.DeepSeekHarnessProcessSchema` adds process provenance to that boundary. The exact
+registry-certified streaming plan, processed body, schema step, and dependent runner endpoint
+are retained together; request, process/status, and registry-execution errors remain distinct.
+
 `Cordis.DeepSeekSchemaStreamPrefixConversation` adds the line-oriented companion: it retains an
 accepted prefix and typed budget/cancellation stop, then unlocks the same dependent registry only
 after strict `[DONE]` rich/session validation. Byte framing, blocked-read interruption, and

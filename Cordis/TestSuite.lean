@@ -10,6 +10,7 @@ import Cordis.DeepSeekCurlStream
 import Cordis.DeepSeekCurlSession
 import Cordis.DeepSeekHarnessProcess
 import Cordis.DeepSeekHarnessProcessOutcome
+import Cordis.DeepSeekHarnessProcessSchema
 import Cordis.DeepSeekCurlIncremental
 import Cordis.DeepSeekCurlPrefix
 import Cordis.DeepSeekCurlPrefixSession
@@ -1764,6 +1765,46 @@ private def testDeepSeekHarnessProcessOutcome : IO Unit := do
           assertEqual "typed outcome failure preserves the runner"
             runner.session.nextSeq 0
       | .assistant _ => fail "provider failure became an assistant"
+
+private def testDeepSeekHarnessProcessSchema : IO Unit := do
+  match DeepSeekToolSchema.weatherToolCertificate,
+      DeepSeekSchemaRegistry.Example.clockToolCertificate with
+  | .error error, _ => fail s!"process schema weather certificate failed: {reprStr error}"
+  | _, .error error => fail s!"process schema clock certificate failed: {reprStr error}"
+  | .ok weatherCertificate, .ok clockCertificate =>
+      match ← DeepSeekHarnessProcessSchema.Example.dualToolStreamProvenanceRun
+          weatherCertificate clockCertificate with
+      | .error error => fail s!"process schema tool fixture failed: {reprStr error}"
+      | .ok ⟨prepared, ⟨body, round⟩⟩ =>
+          assertEqual "process schema preserves the dual-tool body"
+            body DeepSeekSchemaStreamConversation.Example.dualToolStreamBody
+          assertEqual "process schema retains stream mode"
+            prepared.plan.source.stream true
+          assertEqual "process schema retains both certified tools"
+            prepared.plan.source.tools.length 2
+          let _processedCertificate :=
+            DeepSeekHarnessProcessSchema.SchemaProcessRound.processed_exact round
+          match round.step with
+          | .terminal _ => fail "process schema tool fixture became terminal"
+          | .tools toolStep =>
+              assertEqual "process schema executes both registry calls"
+                toolStep.batch.executions.length 2
+              assertEqual "process schema appends assistant and two results"
+                toolStep.runner.session.nextSeq
+                (DeepSeekSchemaHarness.Example.counterRunner.session.nextSeq + 3)
+      match ← DeepSeekHarnessProcessSchema.Example.textProvenanceRun
+          weatherCertificate clockCertificate with
+      | .error error => fail s!"process schema text fixture failed: {reprStr error}"
+      | .ok ⟨prepared, ⟨body, round⟩⟩ =>
+          assertEqual "process schema preserves the terminal body"
+            body DeepSeekRichStream.exampleTextStreamBody
+          assertEqual "process schema text remains streamed"
+            prepared.plan.source.stream true
+          match round.step with
+          | .terminal terminal =>
+              assertEqual "process schema terminal has no tool calls"
+                terminal.processed.finished.finished.view.rawToolCalls.length 0
+          | .tools _ => fail "process schema text fixture unexpectedly dispatched tools"
 
 private def testDeepSeekCurlIncremental : IO Unit := do
   let seen ← IO.mkRef ([] : List (Nat × String))
@@ -5273,6 +5314,7 @@ def run : IO Unit := do
   testDeepSeekCurlSession
   testDeepSeekHarnessProcess
   testDeepSeekHarnessProcessOutcome
+  testDeepSeekHarnessProcessSchema
   testDeepSeekCurlIncremental
   testDeepSeekCurlPrefix
   testDeepSeekCurlPrefixSession

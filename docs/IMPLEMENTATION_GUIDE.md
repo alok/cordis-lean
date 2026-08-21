@@ -2169,6 +2169,12 @@ and from exhaustion. Do not silently upgrade this to incremental delivery, backp
 cancellation, reconnect, provider-complete assembly, call-ID authenticity, persistence, external
 effects, or deployed Harness equivalence.
 
+`Cordis.DeepSeekHarnessProcessSchema` is the provenance-preserving companion when the process
+boundary itself matters. It keeps the registry-certified streaming plan, processed body, schema
+step, and dependent runner endpoint in one dependent result. Use it for local executable evidence
+that a heterogeneous registry was the source of the request; keep provider obedience, live
+incremental semantics, persistence, and deployed equivalence as separate obligations.
+
 `Cordis.DeepSeekSchemaStreamPrefixConversation` is the line-oriented companion. Use its
 `LinePolicy` and read budget to expose the exact prefix and typed stop; do not feed a partial body
 to the rich/session validator or the registry executor. Only the completed `[DONE]` branch may

@@ -253,6 +253,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekSchemaStreamConversation`, carrying the same registry through the typed
   `stream: true` SSE/rich-stream/session boundary, validating a complete streamed body before
   heterogeneous dispatch, and distinguishing a text terminal from caller-fuel exhaustion;
+- `Cordis.DeepSeekHarnessProcessSchema`, retaining the registry-certified heterogeneous source
+  and exact streaming plan through a complete-body SSE response, schema-dispatched step, and
+  dependent runner endpoint, with request/process/registry-execution errors separated;
 - `Cordis.DeepSeekSchemaStreamPrefixConversation`, preserving the accepted line prefix and typed
   line-budget/cancellation stop while deferring registry dispatch until the completed `[DONE]`
   rich/session certificate;
