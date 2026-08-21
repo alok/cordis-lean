@@ -56,6 +56,7 @@ import Cordis.SessionRefinement
 import Cordis.SessionValidation
 import Cordis.Stream
 import Cordis.StreamSession
+import Cordis.TextRefinement
 import Cordis.Transformation
 import Cordis.UnifiedContext
 
@@ -330,6 +331,13 @@ set_option format.width 200
 #print axioms Cordis.SessionRefinement.reject_unmodeledTurnEndReason
 #print axioms Cordis.SessionRefinement.reject_mismatchedToolResultIds
 #print axioms Cordis.SessionRefinement.reject_underdeterminedTurnEnd
+#print axioms Cordis.TextRefinement.parseJsonLines
+#print axioms Cordis.TextRefinement.parseJsonLinesBytes
+#print axioms Cordis.TextRefinement.validateStreamText
+#print axioms Cordis.TextRefinement.validateSessionText
+#print axioms Cordis.TextRefinement.ValidatedStreamText.replay_eq
+#print axioms Cordis.TextRefinement.ValidatedSessionText.projection_exact
+#print axioms Cordis.TextRefinement.invalid_utf8_rejected
 #print axioms Cordis.Transformation.Closure.commute
 #print axioms Cordis.Transformation.commute_of_generators
 #print axioms Cordis.Transformation.seq_monoid_subset_joint

@@ -61,6 +61,7 @@ import Cordis.SessionRefinement
 import Cordis.SessionValidation
 import Cordis.Stream
 import Cordis.StreamSession
+import Cordis.TextRefinement
 import Cordis.Tool
 import Cordis.ToolWire
 import Cordis.Transformation

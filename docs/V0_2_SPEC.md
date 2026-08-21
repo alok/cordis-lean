@@ -10,9 +10,10 @@ non-counter example, intrinsic rich session/surface kernel, model-request recons
 the counter wrapper's rich-to-structural log equality are implemented. `SessionValidation`
 proof-produces append/replacement and finite-suffix certificates from parsed-but-untrusted typed
 events. A current-Harness `StreamChunk` subset is also decoded from `Lean.Json` ASTs into the
-intrinsic rich-stream validator. Byte parsing, full `SessionEvent` decoding, and the later
-production/refinement layers listed below remain open; this file is therefore an in-progress
-contract, not a completed `0.2.0` release claim.
+intrinsic rich-stream validator. `TextRefinement` now adds a supported UTF-8 JSONL ingress that
+parses exact lines before invoking the stream/session validators. Full `SessionEvent` decoding
+and the later production/refinement layers listed below remain open; this file is therefore an
+in-progress contract, not a completed `0.2.0` release claim.
 
 The slice closes two concrete gaps in the original objective:
 
@@ -746,6 +747,14 @@ Session append validator and intrinsic Protocol validator. Unsupported messages,
 headers, replacements, error/meta payloads, extension events, and non-equivalent turn reasons
 fail closed.
 
+`Cordis.TextRefinement` composes these AST-level validators with the Lean JSON parser and UTF-8
+decoder. `parseJsonLines` rejects empty sources and interior blank lines, preserves zero-based
+line numbers for malformed JSON, and `parseJsonLinesBytes` rejects invalid UTF-8 before parsing.
+Successful `validateStreamBytes` and `validateSessionBytes` values retain the decoded source
+text, exact AST lines, and the existing rich/protocol proof certificates. The parser and
+canonical compact printer are library boundaries; this does not prove an external logger's
+framing, schema compliance, timestamps, transport, or persistence behavior.
+
 ## Executable and static tests
 
 The slice requires all existing gates plus the following new coverage:
@@ -768,6 +777,7 @@ The slice requires all existing gates plus the following new coverage:
 - heterogeneous realm isolation and metadata interception, including exact recovery;
 - context-equivalence preservation of satisfaction and notification;
 - current-Harness stream JSON success plus exact decode and semantic rejection paths;
+- UTF-8 JSONL stream/session fixtures, exact parsed-line retention, and invalid-encoding rejection;
 - finite operational tests with heterogeneous outcomes, failed domains, and the formal
   paired-inverse counterexample;
 - quotient-effect composition and lifted coeffect context preservation;

@@ -59,6 +59,7 @@ import Cordis.SessionRefinement
 import Cordis.SessionValidation
 import Cordis.Stream
 import Cordis.StreamSession
+import Cordis.TextRefinement
 import Cordis.Transformation
 import Cordis.UnifiedContext
 
@@ -809,6 +810,32 @@ private def testRuntimeRefinement : IO Unit := do
         error (.unsupportedField [] "replayState")
   | .ok _ => fail "opaque upstream replay state was silently discarded"
 
+private def testTextRefinement : IO Unit := do
+  let streamSource := TextRefinement.renderJsonLines RuntimeRefinement.exampleJson
+  match TextRefinement.validateStreamText streamSource with
+  | .error error => fail s!"JSONL stream refinement failed: {reprStr error}"
+  | .ok validated =>
+      assertEqual "JSONL stream parsing retains every source line"
+        validated.parsed.lines.length RuntimeRefinement.exampleJson.length
+      let _replayCertificate := TextRefinement.ValidatedStreamText.replay_eq validated
+      pure ()
+  let sessionBytes := TextRefinement.renderJsonLinesBytes SessionRefinement.exampleJson
+  match TextRefinement.validateSessionBytes sessionBytes with
+  | .error error => fail s!"UTF-8 session refinement failed: {reprStr error}"
+  | .ok ⟨_, validated⟩ =>
+      assertRuntimeStateEqual "UTF-8 session parsing reaches the exact derived endpoint"
+        (eraseState validated.validated.final.protocol) (.ready 2)
+      let _projectionCertificate := TextRefinement.ValidatedSessionText.projection_exact validated
+      pure ()
+  match TextRefinement.parseJsonLines "" with
+  | .error .emptyInput => pure ()
+  | .error error => fail s!"empty JSONL source returned the wrong error: {reprStr error}"
+  | .ok _ => fail "empty JSONL source was accepted"
+  match TextRefinement.parseJsonLinesBytes (ByteArray.mk #[255]) with
+  | .error .invalidUtf8 => pure ()
+  | .error error => fail s!"invalid UTF-8 returned the wrong error: {reprStr error}"
+  | .ok _ => fail "invalid UTF-8 was accepted"
+
 private def testQuotientEffects : IO Unit := do
   let applied := Observational.Quotient.Example.program.run
     Observational.Quotient.Example.initial
@@ -1527,6 +1554,7 @@ def run : IO Unit := do
   testContextualEquivalence
   testUnifiedContexts
   testRuntimeRefinement
+  testTextRefinement
   testQuotientEffects
   testCoeffectQuotientLift
   testOperationalEquivalence

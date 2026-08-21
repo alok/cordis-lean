@@ -676,9 +676,9 @@ claim:
 1. **N-call concurrency.** Generalize the two-call certificate and evaluator to
    arbitrary finite dependency graphs or schedules, and integrate that
    scheduler into the harness.
-1. **External adapters.** Add byte-level JSON parsing/rendering, an
-   OpenAI-compatible DeepSeek client, real tool processes, persistence,
-   credential injection, and explicit per-adapter trust declarations.
+1. **External adapters.** Expand the new UTF-8 JSONL boundary to a byte-stream
+   transport, add an OpenAI-compatible DeepSeek client, real tool processes,
+   persistence, credential injection, and explicit per-adapter trust declarations.
 1. **Production streaming.** Extend the bounded text model with transport,
    backpressure, cancellation, tool-call payload assembly, and parser state.
 1. **Production policy guarantees.** Add durable lease storage, atomic

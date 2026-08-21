@@ -51,6 +51,7 @@ import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
 import Cordis.StreamSession
+import Cordis.TextRefinement
 import Cordis.Transformation
 import Cordis.UnifiedContext
 

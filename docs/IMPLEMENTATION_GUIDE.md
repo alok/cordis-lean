@@ -1795,11 +1795,16 @@ current-Harness `StreamChunk` subset. `Cordis.SessionRefinement` adds a stateful
 turn/step/tool subset whose accepted events carry both rich Session and
 intrinsic Protocol witnesses. Both start at `Lean.Json`, decode exact current
 field/tag shapes, and fail closed outside their stated language.
+`Cordis.TextRefinement` now supplies the preceding executable ingress for local
+fixtures and append-only adapters: it parses newline-delimited UTF-8 JSON into
+exact AST lines, retains source/line failures, and composes the two validators
+without weakening their dependent certificates.
 Continue by defining translations for additional pinned Harness events and tool
 definitions and proving only the invariants actually shared by the two
 representations. Expect to model more payloads, surface semantics, session
 extensions, policy phases, persistence, and cancellation. Similar names and a
-one-way supported-subset decoder are not a whole-runtime equivalence theorem.
+one-way supported-subset text/AST decoder are not a whole-runtime equivalence theorem;
+Lean's parser and the external logger remain explicit boundaries.
 
 ### 19.6 Mechanize more of the paper
 
