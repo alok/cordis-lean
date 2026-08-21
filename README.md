@@ -197,6 +197,11 @@ archive endpoint are all present; the request certificate is linked back to the 
 certificate. Backend acknowledgement is still not fsync, and compression, torn-tail repair,
 concurrency, authenticity, and deployed crash recovery remain outside.
 
+The same adapter exposes `replaceAndRestore` and `appendAndRestore`: after a canonical replacement
+or a validated append, it re-enters the read certificate and returns the updated typed runner.
+The append fixture grows a header into a validated packed-text session; it does not imply atomic
+commit, locking, or crash durability.
+
 `Cordis.DeepSeekHarnessEventArchive` attaches the broader current-Harness event vocabulary to
 the same runner only when both certificates are present: `SessionEventArchive` must preserve
 every envelope exactly and `SessionRefinement` must validate every event semantically. Known

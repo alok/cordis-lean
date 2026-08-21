@@ -990,6 +990,9 @@ the raw ledger while the runner and request are built from the sanitized endpoin
 decoded bytes/text/rows certificate before restoring the runner, and the request certificate is
 linked back to that exact read endpoint. This closes the byte-backed attachment seam only; it does
 not claim stable media, fsync, locking, torn-tail repair, authenticity, or deployed crash recovery.
+`replaceAndRestore` and `appendAndRestore` re-enter the same certificate after a canonical
+replacement or validated append, so the updated runner is never returned without a fresh logical
+read/validation boundary.
 
 `Cordis.SessionPayloadArchive` moves one layer inward without inventing provider semantics. It
 classifies the five current content-block tags plus unknown block extensions, retains exact message

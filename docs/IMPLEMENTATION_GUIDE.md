@@ -1994,6 +1994,9 @@ memory or temporary-file read. The adapter is intentionally small: it proves UTF
 JSONL parsing, persistence validation, and runner/request attachment in sequence, while keeping
 backend acknowledgement distinct from fsync, compression, torn-tail repair, locking,
 authenticity, and crash recovery.
+The `replaceAndRestore` and `appendAndRestore` helpers make the post-write continuation explicit:
+each operation returns to the same read certificate before exposing an updated runner, and the
+append fixture exercises a packed-text expansion from a header-only document.
 
 The broader current-event attachment is intentionally separate. `DeepSeekHarnessEventArchive`
 requires a lossless `SessionEventArchive.ArchivedLog`, a stateful `SessionRefinement.ValidatedJsonLog`,

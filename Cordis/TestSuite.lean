@@ -2119,6 +2119,13 @@ private def testDeepSeekHarnessPersistenceIO : IO Unit := do
   | .ok restored =>
       assertEqual "file-backed DeepSeek restore retains the archive row count"
         restored.read.input.length 9
+  match ← DeepSeekHarnessPersistenceIO.fixtureAppend with
+  | .error error => fail s!"byte-backed DeepSeek append restore failed: {reprStr error}"
+  | .ok restored =>
+      assertEqual "byte-backed DeepSeek append restore retains the appended archive"
+        restored.read.input.length 2
+      assertEqual "byte-backed DeepSeek append restore reaches the expanded endpoint"
+        restored.restored.runner.session.nextSeq 3
   match ← DeepSeekHarnessPersistenceIO.fixtureRequest with
   | .error error => fail s!"byte-backed DeepSeek request fixture read failed: {reprStr error}"
   | .ok (.error error) => fail s!"byte-backed DeepSeek request fixture failed: {reprStr error}"

@@ -85,18 +85,40 @@ def readRunner (backend : DurableIO.Backend) (turn step : Nat) :
   | .error error => pure (.error error)
   | .ok read => pure (.ok (restoreRead read turn step))
 
+def replaceAndRestore
+    (backend : DurableIO.Backend)
+    (rows : List Lean.Json)
+    (turn step : Nat) :
+    IO (Except StoreError RestoredRunner) := do
+  match ← HarnessPersistenceIO.replaceRows backend rows with
+  | .error error => pure (.error error)
+  | .ok _ => readRunner backend turn step
+
+def appendAndRestore
+    (backend : DurableIO.Backend)
+    (row : Lean.Json)
+    (turn step : Nat) :
+    IO (Except StoreError RestoredRunner) := do
+  match ← HarnessPersistenceIO.appendValidatedRow backend row with
+  | .error error => pure (.error error)
+  | .ok read => pure (.ok (restoreRead read turn step))
+
 def fixtureMemory : IO (Except StoreError RestoredRunner) := do
   let store ← DurableIO.MemoryStore.new
-  match ← HarnessPersistenceIO.replaceRows store.backend persistedToolInput with
-  | .error error => pure (.error error)
-  | .ok _ => readRunner store.backend 1 1
+  replaceAndRestore store.backend persistedToolInput 1 1
+
+def fixtureAppend : IO (Except StoreError RestoredRunner) := do
+  let store ← DurableIO.MemoryStore.new
+  replaceAndRestore store.backend [HarnessPersistenceRefinement.headerExample] 1 1
+    >>= fun result =>
+      match result with
+      | .error error => pure (.error error)
+      | .ok _ => appendAndRestore store.backend HarnessPersistenceRefinement.packedTextExample 1 1
 
 def fixtureFile : IO (Except StoreError RestoredRunner) :=
   IO.FS.withTempFile fun _ path => do
     let backend := DurableIO.FileBackend.mk path
-    match ← HarnessPersistenceIO.replaceRows backend.backend persistedToolInput with
-    | .error error => pure (.error error)
-    | .ok _ => readRunner backend.backend 1 1
+    replaceAndRestore backend.backend persistedToolInput 1 1
 
 def fixtureInvalidUtf8 : IO (Except StoreError RestoredRunner) := do
   let store ← DurableIO.MemoryStore.new

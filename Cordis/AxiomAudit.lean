@@ -604,7 +604,10 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessPersistenceIO.buildRequestCertificate
 #print axioms Cordis.DeepSeekHarnessPersistenceIO.buildRequest_session_eq_read
 #print axioms Cordis.DeepSeekHarnessPersistenceIO.readRunner
+#print axioms Cordis.DeepSeekHarnessPersistenceIO.replaceAndRestore
+#print axioms Cordis.DeepSeekHarnessPersistenceIO.appendAndRestore
 #print axioms Cordis.DeepSeekHarnessPersistenceIO.fixtureMemory
+#print axioms Cordis.DeepSeekHarnessPersistenceIO.fixtureAppend
 #print axioms Cordis.DeepSeekHarnessPersistenceIO.fixtureFile
 #print axioms Cordis.DeepSeekHarnessPersistenceIO.fixtureRequest
 #print axioms Cordis.DeepSeekHarnessOpaqueMetadata.restoreRunner
