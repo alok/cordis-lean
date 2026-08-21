@@ -47,9 +47,14 @@ malformed-row/version/tag rejection. Compression, filesystem repair, indexing,
 and crash durability remain outside this logical JSON-AST boundary.
 `Cordis.DeepSeekApi` adds a typed, non-streaming OpenAI-compatible
 `/chat/completions` request plan and a fail-closed response decoder with
-dependent parse/decode certificates. Its transport is an explicit `IO` seam:
-the repository tests a deterministic fixture, not credentials, HTTP delivery,
-or a live model call.
+dependent parse/decode certificates. Its transport is an explicit `IO` seam;
+the repository tests deterministic pure and process-backed fixtures, not
+credentials or a live model call.
+`Cordis.DeepSeekCurlTransport` supplies the first process-backed adapter:
+configured executables (normally `curl`) receive the request body on stdin,
+the URL and headers as direct arguments, and return a typed HTTP status/body
+through a private trailer protocol. The `sh` fixture exercises that path
+without claiming network reachability, credential validity, or process trust.
 `Cordis.DeepSeekStream` adds the adjacent strict `data: <JSON>` / `[DONE]` SSE
 boundary with typed delta frames, retained raw payloads, and UTF-8 rejection.
 It does not claim a live reader, buffering/backpressure, cancellation, or full

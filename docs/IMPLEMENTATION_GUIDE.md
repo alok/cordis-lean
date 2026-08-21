@@ -1811,9 +1811,12 @@ durability belong to a later adapter rather than being smuggled into the proof.
 `Cordis.DeepSeekApi` now supplies the adjacent provider boundary: typed
 OpenAI-compatible chat requests become exact POST plans, successful responses
 retain parse/decode certificates, and transport, HTTP-status, and API errors
-remain separate. Keep the transport explicit and deterministic in Lean tests;
-do not present the fixture as live HTTP, credential validation, or complete
-provider/schema compatibility.
+remain separate. `Cordis.DeepSeekCurlTransport` adds a process-backed adapter
+that passes request bodies on stdin, URL/headers as direct executable arguments,
+and parses a private status trailer; its deterministic `sh` fixture exercises
+the real process boundary. Keep it explicit in tests: do not present it as
+live HTTP, credential validation, executable trust, or complete provider/schema
+compatibility.
 `Cordis.DeepSeekStream` supplies the next wire boundary: strict in-memory
 `data:` / `[DONE]` SSE framing, typed delta choices, retained raw-frame
 parse/decode certificates, and explicit invalid-UTF-8/JSON/terminal errors.

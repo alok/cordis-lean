@@ -3,6 +3,7 @@ import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.DeepSeekApi
+import Cordis.DeepSeekCurlTransport
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream

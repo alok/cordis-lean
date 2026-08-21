@@ -9,6 +9,7 @@ import Cordis.DurableBytes
 import Cordis.DurableIO
 import Cordis.DurableSettlement
 import Cordis.DeepSeekApi
+import Cordis.DeepSeekCurlTransport
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream

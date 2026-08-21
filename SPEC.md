@@ -534,6 +534,7 @@ the empty-to-final lease-threading certificate.
 | `Cordis.AxiomAudit`              | Explicit `#print axioms` checks for headline theorems.                                                                                                                                            |
 | `Cordis.Version`                 | Delivered version string.                                                                                                                                                                         |
 | `Cordis.DeepSeekApi`             | Typed OpenAI-compatible DeepSeek request/response boundary with dependent JSON certificates and explicit transport/status/API errors.                                                             |
+| `Cordis.DeepSeekCurlTransport`   | Process-backed `Transport` adapter that passes request bodies on stdin, URL/headers as direct executable arguments, and parses a typed status trailer; includes a deterministic `sh` fixture.     |
 | `Cordis.DeepSeekStream`          | Strict in-memory DeepSeek SSE framing and typed delta decoding with retained raw-frame certificates.                                                                                              |
 | `Cordis.DeepSeekRichStream`      | Source-honest text-only SSE projection into `RichStream.ValidatedTrace`, with wire/projection/rich certificates and fail-closed semantic errors.                                                  |
 | `Cordis.DeepSeekRichToolStream`  | Restricted one-tool SSE projection into rich tool-call blocks, preserving raw arguments and retaining wire/projection/rich certificates.                                                          |
@@ -671,9 +672,10 @@ The following remain external facts or validation boundaries:
 - fairness, cancellation delivery, process termination, and remote availability
   are not theorems of this kernel.
 
-There is no credential-loading path, HTTP client, or live model API in
-`v0.1.0`. No API key is needed for any acceptance command, and no key may be
-stored in the repository.
+There is no credential-loading path or live model API in `v0.1.0`. No API key
+is needed for any acceptance command, and no key may be stored in the
+repository. `DeepSeekCurlTransport` is a process-backed adapter, not a proof
+of network reachability, credential validity, executable trust, or deployment.
 
 ## 8. Explicit future work
 
@@ -685,11 +687,13 @@ claim:
 1. **N-call concurrency.** Generalize the two-call certificate and evaluator to
    arbitrary finite dependency graphs or schedules, and integrate that
    scheduler into the harness.
-1. **External adapters.** `Cordis.DeepSeekApi` now supplies the checked
+1. **External adapters.** `Cordis.DeepSeekApi` supplies the checked
    request/response codec and an explicit transport seam for a small,
-   non-streaming OpenAI-compatible DeepSeek subset. The remaining work is the
-   HTTP implementation, credential injection, real tool processes, persistence,
-   and explicit per-adapter trust declarations; `Cordis.DeepSeekStream` covers
+   non-streaming OpenAI-compatible DeepSeek subset. `Cordis.DeepSeekCurlTransport`
+   supplies a process-backed executable adapter and deterministic `sh` fixture;
+   network policy, credential injection, process trust, real tool processes,
+   persistence, and explicit per-adapter deployment declarations remain
+   external. `Cordis.DeepSeekStream` covers
    strict in-memory SSE text/UTF-8 framing. `Cordis.DeepSeekRichStream` covers
    one-choice assistant text, `Cordis.DeepSeekRichToolStream` separately covers
    one indexed function call, and `Cordis.DeepSeekRichMixedStream` composes one

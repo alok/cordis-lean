@@ -118,6 +118,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekRichMultiStream`, projecting one strict SSE choice with any finite list of
   indexed function calls, first-seen contiguous local block indices, per-call metadata and raw
   argument accumulation, exact block closure, and typed negative witnesses;
+- `Cordis.DeepSeekCurlTransport`, exercising a process-backed request/response adapter with
+  stdin body delivery, direct executable arguments, explicit status-trailer parsing, typed
+  process failures, and a deterministic `sh` fixture;
 - `Cordis.DeepSeekSessionRunner`, composing accepted text, one-tool, mixed, and multi-call
   terminal traces into the pure append-only local session surface with exact sequence and
   tool-count invariants;
@@ -922,7 +925,8 @@ This slice does not by itself prove:
   target-turn finiteness, maximal-execution termination, or scheduler fairness;
 - pinned Lemma 68 from separate provider/parent acyclicity, support-equals-active without explicit
   combined order and active-parent closure, component-wide Definition 69, or printed Lemma 70;
-- native plugin isolation, process confinement, filesystem safety, or remote-service behavior;
+- native plugin isolation, process confinement, filesystem safety, executable/network/credential
+  trust, or remote-service behavior;
 - global exactly-once execution across workers; or
 - that a model follows supplied schemas or chooses an appropriate tool.
 

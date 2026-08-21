@@ -4,6 +4,7 @@ import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.DeepSeekApi
+import Cordis.DeepSeekCurlTransport
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
@@ -940,6 +941,27 @@ private def testDeepSeekApi : IO Unit := do
   match ← DeepSeekApi.execute failingTransport plan with
   | .error (.transport "offline") => pure ()
   | _ => fail "transport failure was not preserved"
+
+private def testDeepSeekCurlTransport : IO Unit := do
+  match ← DeepSeekCurlTransport.fixtureResponse with
+  | .error error => fail s!"process-backed DeepSeek fixture failed: {reprStr error}"
+  | .ok ⟨body, validated⟩ =>
+      assertEqual "process-backed DeepSeek fixture preserves stdin body"
+        body DeepSeekApi.exampleResponseBody
+      assertEqual "process-backed DeepSeek fixture decodes response id"
+        validated.response.id "chatcmpl-example"
+      let _bodyCertificate := validated.parsed
+      let _decodeCertificate := validated.decoded
+  let malformedConfig : DeepSeekCurlTransport.ProcessConfig := {
+    command := "sh"
+    args := fun _ => #["-c", "printf broken"]
+  }
+  match ← DeepSeekCurlTransport.runProcess malformedConfig
+      DeepSeekCurlTransport.fixtureRequest.request with
+  | .error (.malformedOutput output) =>
+      assertEqual "malformed process output is preserved" output "broken"
+  | .error error => fail s!"malformed process output returned {reprStr error}"
+  | .ok response => fail s!"malformed process output was accepted: {reprStr response}"
 
 private def testDeepSeekStream : IO Unit := do
   match DeepSeekStream.validateSse DeepSeekStream.exampleStreamBody with
@@ -2133,6 +2155,7 @@ def run : IO Unit := do
   testTextRefinement
   testHarnessPersistence
   testDeepSeekApi
+  testDeepSeekCurlTransport
   testDeepSeekStream
   testDeepSeekRichStream
   testDeepSeekRichToolStream
