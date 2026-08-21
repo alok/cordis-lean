@@ -31,6 +31,7 @@ import Cordis.DeepSeekSchemaHarness
 import Cordis.DeepSeekSchemaRound
 import Cordis.DeepSeekSchemaMultiRound
 import Cordis.DeepSeekSchemaRegistry
+import Cordis.DeepSeekSchemaConversation
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessErrors
@@ -2440,6 +2441,24 @@ private def testDeepSeekToolSchema : IO Unit := do
     DeepSeekSchemaRegistry.Example.dualRoundFinalNextSeq true
   assertEqual "schema registry rejects an unknown later tool name"
     DeepSeekSchemaRegistry.Example.unknownToolRejected true
+  match DeepSeekToolSchema.weatherToolCertificate,
+      DeepSeekSchemaRegistry.Example.clockToolCertificate with
+  | .error error, _ => fail s!"transport-backed registry weather schema failed: {reprStr error}"
+  | _, .error error => fail s!"transport-backed registry clock schema failed: {reprStr error}"
+  | .ok weatherCertificate, .ok clockCertificate =>
+      match ← DeepSeekSchemaConversation.Example.dualConversationRound
+          weatherCertificate clockCertificate with
+      | .error error => fail s!"transport-backed heterogeneous registry failed: {reprStr error}"
+      | .ok ⟨_, ⟨_, ⟨batch, result⟩⟩⟩ =>
+          assertEqual "transport-backed registry retains two certified executions"
+            batch.executions.length 2
+          assertEqual "transport-backed registry preserves the final model"
+            batch.finalModel 0
+          assertEqual "transport-backed registry accounts for assistant plus two results"
+            result.round.finalRunner.session.nextSeq
+            (DeepSeekSchemaHarness.Example.counterRunner.session.nextSeq + 3)
+          assertEqual "transport-backed registry sends both declared tools"
+            result.plan.source.tools.length 2
   match DeepSeekToolSchema.malformedToolResult with
   | .error (.unsupportedTag path "date") =>
       assertEqual "unsupported property type reports its exact path"
