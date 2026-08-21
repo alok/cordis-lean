@@ -1912,6 +1912,11 @@ opt into consuming that result on the next request with `RequestSource.errorTool
 `runConversationMultiStreamRecoverable` retains that failed round and a later streamed text
 terminal under explicit fuel. Incremental recovery and deployed provider error behavior remain
 outside this adapter.
+`Cordis.DeepSeekStreamHarnessRetry` is the adjacent retry seam for a complete-body streamed
+round. Its explicit policy retries process and transient-HTTP `SessionClientError`s, retains the
+ordered history and retry bound, and then reuses the existing streamed assistant/tool certificates
+on success. Stream framing, semantic response, and tool failures remain terminal; backoff,
+idempotency, cancellation, persistence, and deployed retry equivalence remain external.
 `Cordis.DeepSeekHarnessErrors` makes the provider-failure policy explicit rather than silently
 choosing one behavior: `.reject` is the default fail-closed request policy, while `.include`
 retains a `ProviderFailedTool` proof and appends its exact provider message as an `isError` tool

@@ -207,6 +207,12 @@ request may consume when `RequestSource.errorToolResults := .include`. Its fuel-
 loop retains the failed round and a later text terminal under that explicit policy; incremental
 recovery, retries, persistence, and deployed error semantics remain external.
 
+`Cordis.DeepSeekStreamHarnessRetry` adds the corresponding bounded complete-body retry seam for
+streamed rounds. An explicit policy may retry process and transient-HTTP failures, while stream
+framing, semantic response, and tool failures remain terminal; the exact retry history and the
+existing streamed assistant/tool certificates are retained. Backoff, idempotency, cancellation,
+persistence, and deployed retry semantics remain external.
+
 The next paper layer is explicit rather than assumed. `Cordis.OperationalEquivalence` models
 Definition 34's heterogeneous finite tests and proves the generator-level coarsest relation of
 Lemma 35, while a compiled counterexample shows that same-word tests do not imply the stronger

@@ -27,6 +27,7 @@ import Cordis.DeepSeekStreamHarness
 import Cordis.DeepSeekStreamHarnessCancellation
 import Cordis.DeepSeekStreamHarnessPrefix
 import Cordis.DeepSeekStreamHarnessErrors
+import Cordis.DeepSeekStreamHarnessRetry
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -2593,6 +2594,81 @@ private def testDeepSeekHarnessRetry : IO Unit := do
       assertEqual "retrying conversation sends one repeated plan body"
         conversationSnapshot [plan.request.body, plan.request.body]
 
+private def testDeepSeekStreamHarnessRetry : IO Unit := do
+  let policy : DeepSeekStreamHarnessRetry.RetryPolicy := {
+    maxRetries := 1
+    retryProcess := true
+    retryTransientHttp := true
+  }
+  assertEqual "stream retry policy admits process failures"
+    (policy.retryable (.transport (.process (.spawn "offline")))) true
+  assertEqual "stream retry policy admits transient HTTP failures"
+    (policy.retryable (.transport (.httpStatus 503 "busy"))) true
+  assertEqual "stream retry policy rejects stream framing failures"
+    (policy.retryable (.transport (.stream .missingDone))) false
+  assertEqual "stream retry policy rejects semantic response failures"
+    (policy.retryable (.response (.terminal .notTerminal))) false
+
+  let attempts ← IO.mkRef 0
+  let attempt : IO (Except Cordis.DeepSeekCurlSession.SessionClientError
+      DeepSeekStreamHarnessRetry.ProcessedStreamResponse) := do
+    let seen ← attempts.get
+    attempts.set (seen + 1)
+    if seen = 0 then
+      pure (.error (.transport (.httpStatus 503 "temporary")))
+    else
+      DeepSeekCurlSession.executeWith DeepSeekSessionRunner.finishMulti
+        (DeepSeekStreamHarnessRetry.fixtureStreamProcess
+          DeepSeekStreamHarness.counterToolStreamBody)
+        DeepSeekCurlTransport.fixtureRequest.request
+  let initialHistory : DeepSeekStreamHarnessRetry.RetryHistory policy := {
+    failures := []
+    failures_le := by simp
+  }
+  match ← DeepSeekStreamHarnessRetry.executeWithRetryAux policy attempt 1 initialHistory
+      (by simp [initialHistory, policy]) with
+  | .failed history error => fail s!"stream retry unexpectedly failed: {reprStr error}"
+  | .succeeded history ⟨body, processed⟩ =>
+      assertEqual "stream retry preserves the terminal streamed body"
+        body DeepSeekStreamHarness.counterToolStreamBody
+      assertEqual "stream retry retains the transient HTTP history"
+        history.failures [.transport (.httpStatus 503 "temporary")]
+      assertEqual "stream retry performs one initial attempt plus one retry"
+        (DeepSeekStreamHarnessRetry.RetryHistory.attemptCount history) 2
+      assertEqual "stream retry executes the supplied attempt twice"
+        (← attempts.get) 2
+      assertEqual "stream retry retains the parsed terminal tool count"
+        processed.finished.finished.view.rawToolCalls.length 1
+      let _bound := DeepSeekStreamHarnessRetry.RetryHistory.attemptCount_le_maxAttempts history
+
+  let initialRunner : DeepSeekHarness.ConversationRunner := {
+    session := DeepSeekHarness.counterSession
+    turn := 1
+    step := 0
+    nextCall := 0
+    toolCallCount_eq_nextCall := by rfl
+  }
+  match ← DeepSeekStreamHarnessRetry.executeConversationMultiStreamRound policy
+      (DeepSeekStreamHarnessRetry.fixtureStreamProcess
+        DeepSeekStreamHarness.counterToolStreamBody)
+      "https://fixture.invalid" { value := "fixture-key" }
+      DeepSeekHarness.counterRequestSource Cordis.Harness.counterConfig 0 initialRunner []
+      (by simp) (by simp) with
+  | .error _ => fail "stream retry conversation failed"
+  | .ok ⟨body, result⟩ =>
+      assertEqual "stream retry conversation preserves its body"
+        body DeepSeekStreamHarness.counterToolStreamBody
+      assertEqual "stream retry conversation has no failed attempts"
+        result.retryHistory.failures []
+      assertEqual "stream retry conversation executes the streamed tool"
+        result.round.finalModel 0
+      assertEqual "stream retry conversation appends the tool result"
+        result.round.runner.session.messages [
+          .user "Read the counter.",
+          .assistant "" [{ id := { value := 0 }, name := "counter_read", arguments := "null" }],
+          .toolResult { value := 0 } "[true,0]" false
+        ]
+
 private def testDeepSeekHarnessCancellation : IO Unit := do
   let initialRunner : DeepSeekHarness.ConversationRunner := {
     session := DeepSeekHarness.counterSession
@@ -3723,6 +3799,7 @@ def run : IO Unit := do
   testDeepSeekStreamHarnessErrors
   testDeepSeekStreamHarnessErrorsLoop
   testDeepSeekHarnessRetry
+  testDeepSeekStreamHarnessRetry
   testDeepSeekHarnessCancellation
   testQuotientEffects
   testCoeffectQuotientLift

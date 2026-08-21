@@ -27,6 +27,7 @@ import Cordis.DeepSeekStreamHarness
 import Cordis.DeepSeekStreamHarnessCancellation
 import Cordis.DeepSeekStreamHarnessPrefix
 import Cordis.DeepSeekStreamHarnessErrors
+import Cordis.DeepSeekStreamHarnessRetry
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -1301,3 +1302,5 @@ end Cordis.GlobalPaperTraceNormalization
 #print axioms Cordis.GlobalNameLifecycle.NonidentityRaiseExample.constantErrorBadRun_not_equivariant
 #print axioms Cordis.DeepSeekStreamHarnessErrors.executeConversationMultiStreamRoundRecoverable
 #print axioms Cordis.DeepSeekStreamHarnessErrors.runConversationMultiStreamRecoverable
+#print axioms Cordis.DeepSeekStreamHarnessRetry.executeWithRetry
+#print axioms Cordis.DeepSeekStreamHarnessRetry.executeConversationMultiStreamRound

@@ -438,6 +438,11 @@ the streamed session receives an `isError` tool result for a later `.include` re
 fuel-bounded loop retains that failed round and a later streamed text terminal. Incremental
 recovery, retries, persistence, and deployed error behavior remain external.
 
+`Cordis.DeepSeekStreamHarnessRetry` adds a checked bounded retry over that complete-body stream
+boundary. Process and transient-HTTP failures retain ordered `SessionClientError` history and
+may retry under policy; stream framing, semantic response, and tool failures remain terminal.
+Backoff, idempotency, cancellation, persistence, and deployed retry equivalence remain external.
+
 ### Current-development transformation and operation independence
 
 Local sources: [`Cordis/Transformation.lean`](../Cordis/Transformation.lean),

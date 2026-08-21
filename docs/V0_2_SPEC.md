@@ -157,6 +157,10 @@ Current machine-checked evidence includes:
   history retains prior transport/transient-HTTP `ClientError`s while every attempt reuses the
   same request plan; provider backoff, idempotency, cancellation, and deployed retry semantics
   remain outside;
+- `Cordis.DeepSeekStreamHarnessRetry`, adding the same bounded retry boundary to complete-body
+  streamed rounds. Process and transient-HTTP failures retain ordered history and may retry under
+  policy, while stream framing, semantic response, and tool failures remain terminal;
+  backoff, idempotency, cancellation, persistence, and deployed retry semantics remain outside;
 - `Cordis.DeepSeekHarnessCancellation`, adding a pre-round cancellation decision that retains the
   exact completed prefix, runner/model endpoint, and cancellation certificate; it does not claim
   mid-request IO interruption, cleanup, or deployed Harness cancellation semantics;
