@@ -2047,6 +2047,14 @@ JSONL lines, retaining raw content-block tags, assistant usage, tool-result `err
 unknown block extensions beside the runner. These values remain provider/tool-owned JSON; this
 layer adds shape retention, not provider-schema semantics.
 
+`Cordis.DeepSeekHarnessPayloadPersistence` is the next composition seam. Start from the validated
+logical persisted archive, enrich its expanded events with `SessionPayloadArchive.archivePayload`,
+and construct the runner and payload log together so their indices cannot drift. The byte adapter
+reuses `HarnessPersistenceBytes.validatePersistedBytes`; the backend adapter reuses
+`HarnessPersistenceIO.readValidated`, `replaceRows`, and `appendValidatedRow`. Keep payload errors
+distinct from storage/text errors, and expose exact raw-event/session/decode equalities. Do not
+turn backend acknowledgement into a durability claim or assign semantics to provider-owned JSON.
+
 `Cordis.DeepSeekHarnessOpaqueMetadata` takes the one supported opaque-field exception one step
 further. It consumes `SessionOpaqueMetadata.RetainedLog`, restores the sanitized final session to
 a `ConversationRunner`, and carries `metadataEvents` plus its exact source-order equality beside

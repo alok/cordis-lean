@@ -48,6 +48,7 @@ import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessEventText
 import Cordis.DeepSeekHarnessPayloadText
+import Cordis.DeepSeekHarnessPayloadPersistence
 import Cordis.DeepSeekHarnessErrors
 import Cordis.DeepSeekHarnessRetry
 import Cordis.DeepSeekHarnessCancellation
@@ -2660,6 +2661,73 @@ private def testDeepSeekHarnessPersistenceIO : IO Unit := do
   | .error error => fail s!"byte-backed DeepSeek invalid UTF-8 returned {reprStr error}"
   | .ok _ => fail "byte-backed DeepSeek invalid UTF-8 was accepted"
 
+private def testDeepSeekHarnessPayloadPersistence : IO Unit := do
+  match DeepSeekHarnessPayloadPersistence.persistedToolPayloadRestored with
+  | .error (.inl error) => fail s!"payload persistence archive failed: {reprStr error}"
+  | .error (.inr error) => fail s!"payload persistence restore failed: {reprStr error}"
+  | .ok restored =>
+      assertEqual "payload persistence restore reaches the archive endpoint"
+        restored.runner.session.nextSeq 8
+      assertEqual "payload persistence keeps one event per expanded event"
+        restored.payload.events.length restored.archive.expandedEvents.length
+      assertEqual "payload persistence keeps all supported payloads typed"
+        restored.payload.typedCount 8
+      let _sessionCertificate :=
+        DeepSeekHarnessPayloadPersistence.RestoredRunner.session_eq_archive restored
+      let _payloadCertificate :=
+        DeepSeekHarnessPayloadPersistence.RestoredRunner.payload_raw_eq_expanded restored
+      let _projectionCertificate :=
+        DeepSeekHarnessPayloadPersistence.RestoredRunner.projection_exact restored
+      match DeepSeekHarnessPayloadPersistence.buildRequestCertificate restored
+          DeepSeekHarnessPersistence.persistedToolSource with
+      | .error error => fail s!"payload persistence request failed: {reprStr error}"
+      | .ok certificate =>
+          assertEqual "payload persistence request preserves persisted messages"
+            certificate.request.messages.toList [
+              .user "look up lean",
+              .assistant (some "I will look it up.") none [{
+                id := "0"
+                name := "lookup"
+                arguments := "{\"q\":\"lean\"}"
+              }],
+              .tool "0" "result"
+            ]
+  match DeepSeekHarnessPayloadPersistence.persistedToolBytesRestored with
+  | .error error => fail s!"payload persistence byte restore failed: {reprStr error}"
+  | .ok restored =>
+      assertEqual "payload persistence bytes decode the exact source"
+        (String.fromUTF8? DeepSeekHarnessPayloadPersistence.persistedToolBytes)
+        (some restored.validated.text)
+      assertEqual "payload persistence bytes reach the same endpoint"
+        restored.restored.runner.session.nextSeq 8
+      let _decodedCertificate :=
+        DeepSeekHarnessPayloadPersistence.RestoredBytesRunner.decoded_eq restored
+      let _payloadCertificate :=
+        DeepSeekHarnessPayloadPersistence.RestoredBytesRunner.payload_raw_eq_expanded restored
+  match ← DeepSeekHarnessPayloadPersistence.fixtureMemory with
+  | .error error => fail s!"payload persistence memory fixture failed: {reprStr error}"
+  | .ok restored =>
+      assertEqual "payload persistence memory read retains the event count"
+        restored.restored.payload.events.length 8
+      let _sessionCertificate :=
+        DeepSeekHarnessPayloadPersistence.ReadRestoredRunner.session_eq_read restored
+      let _payloadCertificate :=
+        DeepSeekHarnessPayloadPersistence.ReadRestoredRunner.payload_raw_eq_expanded restored
+  match ← DeepSeekHarnessPayloadPersistence.fixtureAppend with
+  | .error error => fail s!"payload persistence append fixture failed: {reprStr error}"
+  | .ok restored =>
+      assertEqual "payload persistence append re-enters the payload archive"
+        restored.restored.payload.events.length 3
+  match ← DeepSeekHarnessPayloadPersistence.fixtureFile with
+  | .error error => fail s!"payload persistence file fixture failed: {reprStr error}"
+  | .ok restored =>
+      assertEqual "payload persistence file read retains the archive rows"
+        restored.read.input.length 9
+  match ← DeepSeekHarnessPayloadPersistence.fixtureInvalidUtf8 with
+  | .error (.store (.text .invalidUtf8)) => pure ()
+  | .error error => fail s!"payload persistence invalid UTF-8 returned {reprStr error}"
+  | .ok _ => fail "payload persistence invalid UTF-8 was accepted"
+
 private def testDeepSeekHarnessOpaqueMetadata : IO Unit := do
   match DeepSeekHarnessOpaqueMetadata.metadataRestored with
   | .error error => fail s!"opaque metadata DeepSeek restore failed: {reprStr error}"
@@ -5154,6 +5222,7 @@ def run : IO Unit := do
   testDeepSeekHarnessEventArchive
   testDeepSeekHarnessEventText
   testDeepSeekHarnessPayloadText
+  testDeepSeekHarnessPayloadPersistence
   testDeepSeekStreamHarness
   testDeepSeekStreamHarnessCancellation
   testDeepSeekStreamHarnessPrefix

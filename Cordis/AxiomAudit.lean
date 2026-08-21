@@ -46,6 +46,7 @@ import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessEventText
 import Cordis.DeepSeekHarnessPayloadText
+import Cordis.DeepSeekHarnessPayloadPersistence
 import Cordis.DeepSeekHarnessErrors
 import Cordis.DeepSeekHarnessRetry
 import Cordis.DeepSeekHarnessCancellation
@@ -799,6 +800,26 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessPayloadText.buildRequestCertificate
 #print axioms Cordis.DeepSeekHarnessPayloadText.toolPayloadRestored
 #print axioms Cordis.DeepSeekHarnessPayloadText.toolPayloadBytesRestored
+#print axioms Cordis.DeepSeekHarnessPayloadPersistence.restoreRunner
+#print axioms Cordis.DeepSeekHarnessPayloadPersistence.RestoredRunner.session_eq_archive
+#print axioms Cordis.DeepSeekHarnessPayloadPersistence.RestoredRunner.payload_raw_eq_expanded
+#print axioms Cordis.DeepSeekHarnessPayloadPersistence.RestoredRunner.projection_exact
+#print axioms Cordis.DeepSeekHarnessPayloadPersistence.buildRequestCertificate
+#print axioms Cordis.DeepSeekHarnessPayloadPersistence.restoreBytesRunner
+#print axioms Cordis.DeepSeekHarnessPayloadPersistence.RestoredBytesRunner.decoded_eq
+#print axioms Cordis.DeepSeekHarnessPayloadPersistence.RestoredBytesRunner.payload_raw_eq_expanded
+#print axioms Cordis.DeepSeekHarnessPayloadPersistence.restoreRead
+#print axioms Cordis.DeepSeekHarnessPayloadPersistence.ReadRestoredRunner.session_eq_read
+#print axioms Cordis.DeepSeekHarnessPayloadPersistence.ReadRestoredRunner.payload_raw_eq_expanded
+#print axioms Cordis.DeepSeekHarnessPayloadPersistence.readRunner
+#print axioms Cordis.DeepSeekHarnessPayloadPersistence.replaceAndRestore
+#print axioms Cordis.DeepSeekHarnessPayloadPersistence.appendAndRestore
+#print axioms Cordis.DeepSeekHarnessPayloadPersistence.fixtureMemory
+#print axioms Cordis.DeepSeekHarnessPayloadPersistence.fixtureAppend
+#print axioms Cordis.DeepSeekHarnessPayloadPersistence.fixtureFile
+#print axioms Cordis.DeepSeekHarnessPayloadPersistence.fixtureInvalidUtf8
+#print axioms Cordis.DeepSeekHarnessPayloadPersistence.persistedToolPayloadRestored
+#print axioms Cordis.DeepSeekHarnessPayloadPersistence.persistedToolBytesRestored
 #print axioms Cordis.DeepSeekStreamHarness.projectedToolCallToFunctionCall
 #print axioms Cordis.DeepSeekStreamHarness.ConversationRunner.appendFinished
 #print axioms Cordis.DeepSeekStreamHarness.ConversationRunner.appendFinished_session_messages
