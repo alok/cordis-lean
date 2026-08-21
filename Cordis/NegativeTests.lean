@@ -17,6 +17,7 @@ import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
 import Cordis.GlobalNameLifecycle
 import Cordis.GlobalPaperRelation
+import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalProgress
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
@@ -643,5 +644,32 @@ example : GlobalRelations.RuleRelated
     GlobalActivationOrchestrationTransposition.LiteralPaperGap.normal
     GlobalActivationOrchestrationTransposition.LiteralPaperGap.swapped := by
   rfl
+
+/-! The public `lDivert` tag cannot be used as exact abort/land branch equality. -/
+
+/-- error: Tactic `rfl` failed -/
+#guard_msgs (substring := true) in
+example : GlobalPaperTraceSimulation.detailedRule
+    (.lifecycle GlobalPaperRelation.ClockLifecycleGap.originalAbort) =
+    .lifecycle .divertLand := by
+  rfl
+
+/-! A birth-erased relation is not an equality proof for indexed endpoints. -/
+
+/-- error: Type mismatch -/
+#guard_msgs (substring := true) in
+example : GlobalProgress.RegistrationRejectionGap.changed =
+    GlobalPaperRelation.ClockLifecycleGap.shifted :=
+  GlobalPaperRelation.ClockLifecycleGap.sources_related
+
+/-! The clock-sensitive obstruction cannot inhabit the forward assigned simulator. -/
+
+/-- error: unsolved goals -/
+#guard_msgs (substring := true) in
+example : Nonempty (GlobalPaperTraceSimulation.ForwardAssignedStepSimulation
+    GlobalPaperRelation.ClockLifecycleGap.values
+    GlobalPaperRelation.ClockLifecycleGap.dynamics
+    GlobalPaperRelation.ClockLifecycleGap.clockInertia) := by
+  constructor
 
 end Cordis.NegativeTests

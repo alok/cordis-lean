@@ -2,7 +2,7 @@
 
 <!-- markdownlint-disable MD013 -->
 
-Status: planned
+Status: implemented (bounded conditional trace layer)
 
 Source basis: CORDIS paper revision
 `948a07b369c62adb3b12e102458be5c18dfb69b9`, especially Equation 53,
@@ -21,9 +21,16 @@ Dependencies:
 - `Cordis.GlobalCalculus` and `Cordis.GlobalTraceFacts` for intrinsic steps,
   traces, append, rule projections, actors, and well-formedness preservation.
 
+Implementation checkpoint: `Cordis/GlobalPaperTraceSimulation.lean` now provides
+the detailed-rule tags, coherent forward/backward assigned-step matches,
+all-keep replay, related-endpoint suffix replay, assignment transport, the
+positive orchestration witness, and the clock-sensitive lifecycle obstruction
+described below. The lifecycle bridge remains an explicit caller-supplied
+`BirthErasedLifecycleAssignedSimulation`; no stronger claim is made here.
+
 ## 1. Goal
 
-Implement `Cordis.GlobalPaperTraceSimulation`, the first layer that lifts the
+The implemented `Cordis.GlobalPaperTraceSimulation` is the first layer that lifts the
 paper-visible birth-erased state relation from one-step simulation to complete
 finite assigned traces.
 
@@ -333,10 +340,7 @@ noncomputable def ForwardAssignedStepSimulation.replayTrace
     (related :
       BirthErasedRuleRelated values sourceBefore shadowBefore)
     (source : Trace dynamics inertia sourceBefore sourceAfter) :
-  DeletionResult
-    (BirthErasedRuleRelated values)
-    (fun _ => False)
-    source shadowBefore
+  ForwardPaperTraceReplay values source shadowBefore
 ```
 
 The construction must recurse on the intrinsic source trace.
@@ -370,7 +374,7 @@ structure ForwardPaperTraceReplay
     {dynamics : Dynamics sig catalog Ambient}
     {inertia : GlobalLifecycle.InertiaPolicy dynamics}
     {sourceBefore sourceAfter : State catalog Ambient}
-    (source : Trace dynamics inertia sourceBefore sourceAfter)
+    (source : GlobalCalculus.Trace dynamics inertia sourceBefore sourceAfter)
     (shadowBefore : State catalog Ambient) where
   result :
     DeletionResult
@@ -382,15 +386,10 @@ structure ForwardPaperTraceReplay
   detailedRules_eq : detailedRules result.shadow = detailedRules source
 ```
 
-Define:
-
-```lean
-noncomputable def ForwardAssignedStepSimulation.replayTraceExact ... :
-  ForwardPaperTraceReplay values source shadowBefore
-```
-
-This theorem must be a structural proof from the local simulator, not a
-wrapper around a caller-provided `DeletionResult`.
+`replayTrace` packages the structural `DeletionResult` together with source
+and shadow well-formedness and the detailed-rule equality. It is a structural
+proof from the local simulator, not a wrapper around a caller-provided
+`DeletionResult`.
 
 Derive:
 
@@ -545,7 +544,7 @@ It must derive, in order:
 1. the window-start WF proof from `occurrence.beforeTrace`;
 2. the normal local endpoint WF proof from `occurrence.pair.trace`;
 3. the swapped local endpoint WF proof from `swap.swapped.trace`;
-4. a fresh suffix replay by calling `simulation.replayTraceExact` on the old
+4. a fresh suffix replay by calling `simulation.replayTrace` on the old
    `occurrence.afterTrace`; and
 5. the result from that constructed replay.
 
@@ -709,7 +708,7 @@ Implement in this dependency order:
 7. forward and bidirectional local simulation bundles and constructors;
 8. keep-only rule/actor projection lemmas;
 9. structural `replayTrace`;
-10. `ForwardPaperTraceReplay` and `replayTraceExact`;
+10. `ForwardPaperTraceReplay` and `replayTrace`;
 11. final relation, WF, list, and assignment projections;
 12. `RelatedAssignedAdjacentSwap` and exact embedding;
 13. `RelatedAdjacentRewrite`, reconstructed trace/assignment, and permutation
@@ -734,8 +733,9 @@ The runtime suite must project at least:
 - the positive orchestration replay's exact rule list;
 - its actor list;
 - a computable detailed-rule tag list or equivalent executable bridge; and
-- a transported assignment-backed tag when the assignment itself is
-  proof-carrying/noncomputable.
+- a proof-carrying assignment transport checked by elaboration and the axiom
+  audit when the assignment itself is noncomputable; the runtime projection
+  remains the computable detailed-tag bridge above.
 
 Negative tests must check that:
 

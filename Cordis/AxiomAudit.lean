@@ -19,6 +19,7 @@ import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
 import Cordis.GlobalNameLifecycle
 import Cordis.GlobalPaperRelation
+import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalProgress
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
@@ -826,6 +827,35 @@ namespace Cordis.GlobalPaperRelation
 #print axioms DirectedReplayExample.replay_shadow_rules
 #print axioms DirectedReplayExample.shadowAssignment
 end Cordis.GlobalPaperRelation
+namespace Cordis.GlobalPaperTraceSimulation
+#print axioms detailedRule_global
+#print axioms detailedRules_append
+#print axioms replay_rules_eq
+#print axioms replay_actors_eq
+#print axioms ForwardAssignedStepMatch.toRetainedStep
+#print axioms BackwardAssignedStepMatch.toRetainedStep
+#print axioms ForwardAssignedStepSimulation.ofLifecycle
+#print axioms AssignedStepSimulation.ofLifecycle
+#print axioms ForwardAssignedStepSimulation.replayTrace
+#print axioms ForwardPaperTraceReplay.final_related
+#print axioms ForwardPaperTraceReplay.transportAssignment
+#print axioms ForwardPaperTraceReplay.rules_eq
+#print axioms ForwardPaperTraceReplay.actors_eq
+#print axioms RelatedAssignedAdjacentSwap.ofExact
+#print axioms RelatedAdjacentRewrite.final_related
+#print axioms RelatedAdjacentRewrite.final_wellFormed
+#print axioms RelatedAdjacentRewrite.assignment
+#print axioms RelatedAdjacentRewrite.detailedRules_perm
+#print axioms RelatedAdjacentRewrite.rules_perm
+#print axioms RelatedAdjacentRewrite.actors_perm
+#print axioms ForwardAssignedStepSimulation.rewriteAdjacent
+#print axioms ClockGap.no_forward_step_simulation
+#print axioms PositiveOrchestration.final_related
+#print axioms PositiveOrchestration.rules_eq
+#print axioms PositiveOrchestration.actors_eq
+#print axioms PositiveOrchestration.executableDetailedRules_eq_source
+#print axioms PositiveOrchestration.executableActorNames_eq_source
+end Cordis.GlobalPaperTraceSimulation
 #print axioms Cordis.GlobalRelations.contextRelated_domain
 #print axioms Cordis.GlobalRelations.ruleSetoid
 #print axioms Cordis.GlobalRelations.ruleRelated_registry_domain

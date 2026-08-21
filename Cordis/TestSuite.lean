@@ -21,6 +21,7 @@ import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
 import Cordis.GlobalNameLifecycle
 import Cordis.GlobalPaperRelation
+import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalProgress
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
@@ -1065,6 +1066,18 @@ private def testGlobalPaperRelation : IO Unit := do
   assertEqual "directed paper-relation replay retains the safe suffix rule"
     GlobalPaperRelation.DirectedReplayExample.executableReplayRules [.oRetire]
 
+private def testGlobalPaperTraceSimulation : IO Unit := do
+  let _clockGap := GlobalPaperTraceSimulation.ClockGap.no_forward_step_simulation
+  assertEqual "birth-erased trace layer exposes the concrete detailed source tag"
+    GlobalPaperTraceSimulation.PositiveOrchestration.executableDetailedRules
+    [.orchestration .retire]
+  assertEqual "birth-erased trace layer exposes the concrete source actor list"
+    GlobalPaperTraceSimulation.PositiveOrchestration.executableActorNames [1]
+  assertEqual "birth-erased trace layer retains the projected global rule tag"
+    (GlobalPaperTraceSimulation.PositiveOrchestration.executableDetailedRules.map
+      GlobalPaperTraceSimulation.DetailedRule.global)
+    [.oRetire]
+
 private def testGlobalProgress : IO Unit := do
   assertEqual "conditional progress constructs the expected concrete Begin rule"
     GlobalProgress.BeginExample.executableRule .begin
@@ -1409,6 +1422,7 @@ def run : IO Unit := do
   testGlobalTraceRewrite
   testGlobalDeletion
   testGlobalPaperRelation
+  testGlobalPaperTraceSimulation
   testGlobalProgress
   testGlobalSupport
   testGlobalRelations

@@ -79,7 +79,7 @@ def detailedRules
     {dynamics : Dynamics sig catalog Ambient}
     {inertia : InertiaPolicy dynamics}
     {before after : State catalog Ambient} :
-    Trace dynamics inertia before after -> List DetailedRule
+    GlobalCalculus.Trace dynamics inertia before after -> List DetailedRule
   | .nil _ => []
   | .cons head tail => detailedRule head :: detailedRules tail
 
@@ -87,8 +87,8 @@ theorem detailedRules_append
     {dynamics : Dynamics sig catalog Ambient}
     {inertia : InertiaPolicy dynamics}
     {start middle finish : State catalog Ambient}
-    (left : Trace dynamics inertia start middle)
-    (right : Trace dynamics inertia middle finish) :
+    (left : GlobalCalculus.Trace dynamics inertia start middle)
+    (right : GlobalCalculus.Trace dynamics inertia middle finish) :
     detailedRules (Cordis.GlobalTraceFacts.Trace.append left right) =
       detailedRules left ++ detailedRules right := by
   induction left with
@@ -329,5 +329,474 @@ noncomputable def AssignedStepSimulation.ofLifecycle
     AssignedStepSimulation values dynamics inertia where
   forward := matchStepForward lifecycle
   backward := matchStepBackward lifecycle
+
+/-! ## Structural all-keep replay -/
+
+theorem replay_rules_eq
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {Related : State catalog Ambient -> State catalog Ambient -> Prop}
+    {sourceBefore sourceAfter shadowBefore shadowAfter : State catalog Ambient}
+    {source : GlobalCalculus.Trace dynamics inertia sourceBefore sourceAfter}
+    {shadow : GlobalCalculus.Trace dynamics inertia shadowBefore shadowAfter}
+    (replay : DeletionReplay Related (fun _ => False) source shadow) :
+    shadow.rules = source.rules := by
+  induction replay with
+  | nil => rfl
+  | keep related retained tail ih =>
+      simp only [GlobalCalculus.Trace.rules]
+      rw [retained.same_rule, ih]
+  | drop related impossible tail ih => exact False.elim impossible
+
+theorem replay_actors_eq
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {Related : State catalog Ambient -> State catalog Ambient -> Prop}
+    {sourceBefore sourceAfter shadowBefore shadowAfter : State catalog Ambient}
+    {source : GlobalCalculus.Trace dynamics inertia sourceBefore sourceAfter}
+    {shadow : GlobalCalculus.Trace dynamics inertia shadowBefore shadowAfter}
+    (replay : DeletionReplay Related (fun _ => False) source shadow) :
+    shadow.actors = source.actors := by
+  induction replay with
+  | nil => rfl
+  | keep related retained tail ih =>
+      simp only [GlobalCalculus.Trace.actors]
+      rw [retained.same_actor, ih]
+  | drop related impossible tail ih => exact False.elim impossible
+
+structure ForwardPaperTraceReplay
+    (values : ValueSetoids sig)
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {sourceBefore sourceAfter : State catalog Ambient}
+    (source : GlobalCalculus.Trace dynamics inertia sourceBefore sourceAfter)
+    (shadowBefore : State catalog Ambient) where
+  result :
+    DeletionResult (BirthErasedRuleRelated values) (fun _ => False)
+      source shadowBefore
+  sourceAfter_wellFormed : WellFormed sourceAfter
+  shadowAfter_wellFormed : WellFormed result.shadowAfter
+  detailedRules_eq : detailedRules result.shadow = detailedRules source
+
+noncomputable def ForwardAssignedStepSimulation.replayTrace
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (simulation : ForwardAssignedStepSimulation values dynamics inertia)
+    {sourceBefore sourceAfter shadowBefore : State catalog Ambient}
+    (sourceWf : WellFormed sourceBefore) (shadowWf : WellFormed shadowBefore)
+    (related : BirthErasedRuleRelated values sourceBefore shadowBefore)
+    (source : GlobalCalculus.Trace dynamics inertia sourceBefore sourceAfter) :
+    ForwardPaperTraceReplay values source shadowBefore := by
+  induction source generalizing shadowBefore with
+  | nil sourceBefore =>
+      exact {
+        result := {
+          shadowAfter := shadowBefore
+          shadow := .nil shadowBefore
+          certificate := .nil related
+        }
+        sourceAfter_wellFormed := sourceWf
+        shadowAfter_wellFormed := shadowWf
+        detailedRules_eq := rfl
+      }
+  | @cons sourceBefore sourceMiddle sourceAfter head tail ih =>
+      let headMatch := simulation.forward sourceWf shadowWf related head
+      let tailResult := ih headMatch.sourceAfter_wellFormed
+        headMatch.shadowAfter_wellFormed headMatch.successors_related
+      exact {
+        result := {
+          shadowAfter := tailResult.result.shadowAfter
+          shadow := .cons headMatch.matched tailResult.result.shadow
+          certificate := .keep related headMatch.toRetainedStep
+            tailResult.result.certificate
+        }
+        sourceAfter_wellFormed := tailResult.sourceAfter_wellFormed
+        shadowAfter_wellFormed := tailResult.shadowAfter_wellFormed
+        detailedRules_eq := by
+          simp only [detailedRules]
+          rw [headMatch.same_detailedRule, tailResult.detailedRules_eq]
+      }
+
+namespace ForwardPaperTraceReplay
+
+theorem final_related
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {sourceBefore sourceAfter shadowBefore : State catalog Ambient}
+    {source : GlobalCalculus.Trace dynamics inertia sourceBefore sourceAfter}
+    (replay : ForwardPaperTraceReplay values source shadowBefore) :
+    BirthErasedRuleRelated values sourceAfter replay.result.shadowAfter :=
+  replay.result.certificate.final_related
+
+noncomputable def transportAssignment
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {sourceBefore sourceAfter shadowBefore : State catalog Ambient}
+    {source : GlobalCalculus.Trace dynamics inertia sourceBefore sourceAfter}
+    (replay : ForwardPaperTraceReplay values source shadowBefore)
+    (assignment : TraceProgramAssignment dynamics inertia source) :
+    TraceProgramAssignment dynamics inertia replay.result.shadow :=
+  replay.result.certificate.transportAssignment assignment
+
+theorem rules_eq
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {sourceBefore sourceAfter shadowBefore : State catalog Ambient}
+    {source : GlobalCalculus.Trace dynamics inertia sourceBefore sourceAfter}
+    (replay : ForwardPaperTraceReplay values source shadowBefore) :
+    replay.result.shadow.rules = source.rules :=
+  replay_rules_eq replay.result.certificate
+
+theorem actors_eq
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {sourceBefore sourceAfter shadowBefore : State catalog Ambient}
+    {source : GlobalCalculus.Trace dynamics inertia sourceBefore sourceAfter}
+    (replay : ForwardPaperTraceReplay values source shadowBefore) :
+    replay.result.shadow.actors = source.actors :=
+  replay_actors_eq replay.result.certificate
+
+end ForwardPaperTraceReplay
+
+/-! ## Related assigned adjacent swaps -/
+
+structure RelatedAssignedAdjacentSwap
+    (values : ValueSetoids sig)
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {before after : State catalog Ambient}
+    (normal : StepPair dynamics inertia before after) where
+  swappedAfter : State catalog Ambient
+  swapped : StepPair dynamics inertia before swappedAfter
+  first_detailedRule : detailedRule swapped.first = detailedRule normal.second
+  second_detailedRule : detailedRule swapped.second = detailedRule normal.first
+  first_actor : swapped.first.actor = normal.second.actor
+  second_actor : swapped.second.actor = normal.first.actor
+  endpoints_related : BirthErasedRuleRelated values after swappedAfter
+  swappedFirstAssignment : StepProgramAssignment swapped.first
+  swappedSecondAssignment : StepProgramAssignment swapped.second
+
+namespace RelatedAssignedAdjacentSwap
+
+noncomputable def ofExact
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {before after : State catalog Ambient}
+    {normal : StepPair dynamics inertia before after}
+    (swap : AssignedAdjacentSwap normal)
+    (firstDetailed : detailedRule swap.swapped.first = detailedRule normal.second)
+    (secondDetailed : detailedRule swap.swapped.second = detailedRule normal.first) :
+    RelatedAssignedAdjacentSwap values normal where
+  swappedAfter := after
+  swapped := swap.swapped
+  first_detailedRule := firstDetailed
+  second_detailedRule := secondDetailed
+  first_actor := swap.first_actor
+  second_actor := swap.second_actor
+  endpoints_related := birthErasedRuleRelated_refl values after
+  swappedFirstAssignment := swap.swappedFirstAssignment
+  swappedSecondAssignment := swap.swappedSecondAssignment
+
+theorem first_rule
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {before after : State catalog Ambient}
+    {normal : StepPair dynamics inertia before after}
+    (swap : RelatedAssignedAdjacentSwap values normal) :
+    swap.swapped.first.rule = normal.second.rule := by
+  rw [← detailedRule_global swap.swapped.first, ← detailedRule_global normal.second,
+    swap.first_detailedRule]
+
+theorem second_rule
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {before after : State catalog Ambient}
+    {normal : StepPair dynamics inertia before after}
+    (swap : RelatedAssignedAdjacentSwap values normal) :
+    swap.swapped.second.rule = normal.first.rule := by
+  rw [← detailedRule_global swap.swapped.second, ← detailedRule_global normal.first,
+    swap.second_detailedRule]
+
+end RelatedAssignedAdjacentSwap
+
+structure RelatedAdjacentRewrite
+    (values : ValueSetoids sig)
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {initial final : State catalog Ambient}
+    {source : GlobalCalculus.Trace dynamics inertia initial final}
+    (occurrence : AdjacentOccurrence source)
+    (swap : RelatedAssignedAdjacentSwap values occurrence.pair) where
+  suffixReplay : ForwardPaperTraceReplay values occurrence.afterTrace swap.swappedAfter
+
+namespace RelatedAdjacentRewrite
+
+def trace
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {initial final : State catalog Ambient}
+    {source : GlobalCalculus.Trace dynamics inertia initial final}
+    {occurrence : AdjacentOccurrence source}
+    {swap : RelatedAssignedAdjacentSwap values occurrence.pair}
+    (result : RelatedAdjacentRewrite values occurrence swap) :
+    GlobalCalculus.Trace dynamics inertia initial result.suffixReplay.result.shadowAfter :=
+  GlobalTraceFacts.Trace.append occurrence.beforeTrace
+    (.cons swap.swapped.first
+      (.cons swap.swapped.second result.suffixReplay.result.shadow))
+
+theorem final_related
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {initial final : State catalog Ambient}
+    {source : GlobalCalculus.Trace dynamics inertia initial final}
+    {occurrence : AdjacentOccurrence source}
+    {swap : RelatedAssignedAdjacentSwap values occurrence.pair}
+    (result : RelatedAdjacentRewrite values occurrence swap) :
+    BirthErasedRuleRelated values final result.suffixReplay.result.shadowAfter :=
+  result.suffixReplay.result.certificate.final_related
+
+theorem final_wellFormed
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {initial final : State catalog Ambient}
+    {source : GlobalCalculus.Trace dynamics inertia initial final}
+    {occurrence : AdjacentOccurrence source}
+    {swap : RelatedAssignedAdjacentSwap values occurrence.pair}
+    (result : RelatedAdjacentRewrite values occurrence swap) :
+    WellFormed result.suffixReplay.result.shadowAfter :=
+  result.suffixReplay.shadowAfter_wellFormed
+
+noncomputable def assignment
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {initial final : State catalog Ambient}
+    {source : GlobalCalculus.Trace dynamics inertia initial final}
+    {occurrence : AdjacentOccurrence source}
+    {swap : RelatedAssignedAdjacentSwap values occurrence.pair}
+    (assigned : AssignedAdjacentOccurrence occurrence)
+    (result : RelatedAdjacentRewrite values occurrence swap) :
+    TraceProgramAssignment dynamics inertia (result.trace) := by
+  let suffixAssignment := result.suffixReplay.result.certificate.transportAssignment
+    assigned.afterAssignment
+  let windowAndSuffix : TraceProgramAssignment dynamics inertia
+      (.cons swap.swapped.first
+        (.cons swap.swapped.second result.suffixReplay.result.shadow)) :=
+    .cons swap.swappedFirstAssignment
+      (.cons swap.swappedSecondAssignment suffixAssignment)
+  exact TraceProgramAssignment.append assigned.beforeAssignment windowAndSuffix
+
+theorem detailedRules_perm
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {initial final : State catalog Ambient}
+    {source : GlobalCalculus.Trace dynamics inertia initial final}
+    {occurrence : AdjacentOccurrence source}
+    {swap : RelatedAssignedAdjacentSwap values occurrence.pair}
+    (result : RelatedAdjacentRewrite values occurrence swap) :
+    (detailedRules result.trace).Perm (detailedRules source) := by
+  rw [trace, detailedRules_append]
+  simp only [detailedRules]
+  rw [result.suffixReplay.detailedRules_eq, swap.first_detailedRule,
+    swap.second_detailedRule]
+  have sourceDetailed := congrArg detailedRules occurrence.decomposition
+  rw [sourceDetailed, detailedRules_append]
+  simp only [detailedRules]
+  exact List.Perm.append_left (detailedRules occurrence.beforeTrace)
+    (List.Perm.swap (detailedRule occurrence.pair.first)
+      (detailedRule occurrence.pair.second) (detailedRules occurrence.afterTrace))
+
+theorem rules_perm
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {initial final : State catalog Ambient}
+    {source : GlobalCalculus.Trace dynamics inertia initial final}
+    {occurrence : AdjacentOccurrence source}
+    {swap : RelatedAssignedAdjacentSwap values occurrence.pair}
+    (result : RelatedAdjacentRewrite values occurrence swap) :
+    result.trace.rules.Perm source.rules := by
+  rw [trace, GlobalTraceRewrite.Trace.rules_append]
+  simp only [GlobalCalculus.Trace.rules]
+  rw [replay_rules_eq result.suffixReplay.result.certificate,
+    RelatedAssignedAdjacentSwap.first_rule swap,
+    RelatedAssignedAdjacentSwap.second_rule swap,
+    occurrence.original_rules]
+  exact List.Perm.append_left occurrence.beforeTrace.rules
+    (List.Perm.swap occurrence.pair.first.rule occurrence.pair.second.rule
+      occurrence.afterTrace.rules)
+
+theorem actors_perm
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {initial final : State catalog Ambient}
+    {source : GlobalCalculus.Trace dynamics inertia initial final}
+    {occurrence : AdjacentOccurrence source}
+    {swap : RelatedAssignedAdjacentSwap values occurrence.pair}
+    (result : RelatedAdjacentRewrite values occurrence swap) :
+    result.trace.actors.Perm source.actors := by
+  rw [trace, GlobalTraceRewrite.Trace.actors_append]
+  simp only [GlobalCalculus.Trace.actors]
+  rw [replay_actors_eq result.suffixReplay.result.certificate,
+    swap.first_actor, swap.second_actor, occurrence.original_actors]
+  exact List.Perm.append_left occurrence.beforeTrace.actors
+    (List.Perm.swap occurrence.pair.first.actor occurrence.pair.second.actor
+      occurrence.afterTrace.actors)
+
+end RelatedAdjacentRewrite
+
+noncomputable def ForwardAssignedStepSimulation.rewriteAdjacent
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (simulation : ForwardAssignedStepSimulation values dynamics inertia)
+    {initial final : State catalog Ambient}
+    {source : GlobalCalculus.Trace dynamics inertia initial final}
+    (initialWf : WellFormed initial)
+    (occurrence : AdjacentOccurrence source)
+    (swap : RelatedAssignedAdjacentSwap values occurrence.pair) :
+    RelatedAdjacentRewrite values occurrence swap := by
+  have windowStartWf := occurrence.beforeTrace.preservesWellFormed initialWf
+  have normalEndWf := occurrence.pair.trace.preservesWellFormed windowStartWf
+  have swappedEndWf := swap.swapped.trace.preservesWellFormed windowStartWf
+  exact {
+    suffixReplay := simulation.replayTrace normalEndWf swappedEndWf
+      swap.endpoints_related occurrence.afterTrace
+  }
+
+/-! ## Lifecycle frontier is not automatic -/
+
+namespace ClockGap
+
+open Cordis.GlobalPaperRelation.ClockLifecycleGap
+open Cordis.GlobalProgress.RegistrationRejectionGap
+
+theorem no_shifted_detailedDivertAbort :
+    ¬∃ after, ∃ step : Step dynamics clockInertia shifted after,
+      detailedRule step = .lifecycle .divertAbort := by
+  rintro ⟨after, step, exactRule⟩
+  cases step with
+  | orchestration orchestration => cases exactRule
+  | lifecycle transition =>
+      have transitionRule : transition.rule = .divertAbort :=
+        DetailedRule.lifecycle.inj exactRule
+      exact no_shifted_divertAbort ⟨after, transition, transitionRule⟩
+
+theorem no_forward_step_simulation :
+    ¬Nonempty (ForwardAssignedStepSimulation values dynamics clockInertia) := by
+  rintro ⟨simulation⟩
+  let matched := simulation.forward changed_wellFormed shifted_wellFormed
+    sources_related (Step.lifecycle originalAbort)
+  apply no_shifted_detailedDivertAbort
+  refine ⟨matched.shadowAfter, matched.matched, ?_⟩
+  exact matched.same_detailedRule
+
+end ClockGap
+
+/-! ## Concrete orchestration replay -/
+
+namespace PositiveOrchestration
+
+open Cordis.GlobalActivationOrchestrationTransposition.LiteralPaperGap
+open Cordis.GlobalPaperRelation.BirthGap
+
+abbrev Signature := Cordis.GlobalRegistry.Example.signature
+
+def sourceTrace
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    GlobalCalculus.Trace dynamics inertia normal
+      (retireFiber normal 1 normalOneFiber) :=
+  .cons (.orchestration retireOne) (.nil _)
+
+/-! A closed, executable tag projection for the concrete positive source occurrence. -/
+
+def executableDetailedRules : List DetailedRule :=
+  [.orchestration .retire]
+
+def executableActorNames : List Signature.Name := [1]
+
+theorem executableDetailedRules_eq_source
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    executableDetailedRules = detailedRules (sourceTrace dynamics inertia) := by
+  rfl
+
+theorem executableActorNames_eq_source
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    executableActorNames = (sourceTrace dynamics inertia).actors.map
+      (fun actor => match actor with | .fiber name => name) := by
+  rfl
+
+noncomputable def replay
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    DeletionResult (BirthErasedRuleRelated exactValues) (fun _ => False)
+      (sourceTrace dynamics inertia) swapped := by
+  let retained := retainedRetire dynamics inertia
+  exact {
+    shadowAfter := retained.shadowAfter
+    shadow := .cons retained.replay (.nil _)
+    certificate := .keep birth_erased_related retained
+      (.nil (matchedRetire dynamics inertia).successors_related)
+  }
+
+def sourceAssignment
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    TraceProgramAssignment dynamics inertia (sourceTrace dynamics inertia) :=
+  .cons (StepProgramAssignment.ofOrchestration retireOne) (.nil _)
+
+noncomputable def shadowAssignment
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    TraceProgramAssignment dynamics inertia (replay dynamics inertia).shadow :=
+  (replay dynamics inertia).certificate.transportAssignment
+    (sourceAssignment dynamics inertia)
+
+theorem final_related
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    BirthErasedRuleRelated exactValues
+      (retireFiber normal 1 normalOneFiber)
+      (replay dynamics inertia).shadowAfter :=
+  (replay dynamics inertia).certificate.final_related
+
+theorem rules_eq
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    (replay dynamics inertia).shadow.rules =
+      (sourceTrace dynamics inertia).rules :=
+  replay_rules_eq (replay dynamics inertia).certificate
+
+theorem actors_eq
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    (replay dynamics inertia).shadow.actors =
+      (sourceTrace dynamics inertia).actors :=
+  replay_actors_eq (replay dynamics inertia).certificate
+
+theorem detailedRules_eq
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    detailedRules (replay dynamics inertia).shadow =
+      detailedRules (sourceTrace dynamics inertia) := by
+  rfl
+
+end PositiveOrchestration
 
 end Cordis.GlobalPaperTraceSimulation
