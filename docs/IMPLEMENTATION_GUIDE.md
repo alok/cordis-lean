@@ -2036,6 +2036,12 @@ and an all-events-supported proof before constructing its `RestoredRunner`. This
 full event ledger available while making opaque or extension records a typed restoration error;
 the supported tool-message fixture exercises the successful request-rebuild path.
 
+`Cordis.DeepSeekHarnessEventText` is the direct UTF-8/JSONL adapter above that seam. It retains the
+exact source text (or source bytes plus the UTF-8 decoding equality), parsed archive, stateful
+validation, and restored runner in one dependent result. The byte path delegates to the text path;
+invalid encoding and opaque/extension events remain structured failures rather than being dropped.
+This does not add logger framing, transport, persistence, or deployed-Harness equivalence.
+
 `Cordis.DeepSeekHarnessOpaqueMetadata` takes the one supported opaque-field exception one step
 further. It consumes `SessionOpaqueMetadata.RetainedLog`, restores the sanitized final session to
 a `ConversationRunner`, and carries `metadataEvents` plus its exact source-order equality beside

@@ -204,6 +204,9 @@ Current machine-checked evidence includes:
   stateful semantic validation certificate before attaching current-Harness events to a
   `ConversationRunner`; opaque known/extension events reject restoration, while the supported
   tool-message fixture rebuilds a typed request;
+- `Cordis.DeepSeekHarnessEventText`, lifting that certificate-gated event attachment to exact
+  UTF-8/JSONL text and `ByteArray` ingress while retaining source/decoded text and rejecting
+  invalid encoding or opaque/extension events;
 - `Cordis.DeepSeekHarnessOpaqueMetadata`, attaching the sanitized runner projection from
   `SessionOpaqueMetadata.RetainedLog` while retaining exact tool-result `error`/`meta` values in
   source order; the request path excludes those uninterpreted provider/tool fields;
@@ -1064,6 +1067,12 @@ that every archived event is non-opaque. `RestoredRunner` then exposes exact equ
 runner session and the validated final session, preserves the archive's raw-event ledger, and
 supports a proof-carrying request rebuild. The fixture is executable; known opaque and extension
 events are rejection cases rather than silently ignored records.
+
+`Cordis.DeepSeekHarnessEventText` is the direct text/byte ingress for this seam. Its text result
+retains the parsed source, archive lines, validated session, and restored runner; its byte result
+adds the exact UTF-8 decoding equality before reusing the text certificate. Invalid UTF-8 and
+opaque/extension events remain typed failures. This is still a pure parser/validator boundary,
+not a logger, transport, persistence, or deployed-Harness equivalence theorem.
 
 `Cordis.DeepSeekHarnessOpaqueMetadata` is the narrow quarantined exception to that fail-closed
 event path. It consumes the sanitized `RetainedLog`, restores its validated final session to a

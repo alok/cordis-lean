@@ -46,6 +46,7 @@ import Cordis.DeepSeekSchemaStreamPrefixConversation
 import Cordis.DeepSeekSchemaStreamErrors
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
+import Cordis.DeepSeekHarnessEventText
 import Cordis.DeepSeekHarnessErrors
 import Cordis.DeepSeekHarnessRetry
 import Cordis.DeepSeekHarnessCancellation
@@ -3156,6 +3157,48 @@ private def testDeepSeekHarnessEventArchive : IO Unit := do
           let _supportCertificate := restored.log.supported
           pure ()
 
+private def testDeepSeekHarnessEventText : IO Unit := do
+  match DeepSeekHarnessEventText.toolTextRestored with
+  | .error error => fail s!"current event text restoration failed: {reprStr error}"
+  | .ok restored =>
+      assertEqual "current event text restores the validated sequence endpoint"
+        restored.restored.runner.session.nextSeq 8
+      assertEqual "current event text retains canonical source text"
+        (TextRefinement.renderJsonLines restored.validated.parsed.lines)
+        DeepSeekHarnessEventText.toolTextSource
+      let _sourceCertificate := DeepSeekHarnessEventText.RestoredTextRunner.source_parse_eq restored
+      let _sessionCertificate := DeepSeekHarnessEventText.RestoredTextRunner.session_eq restored
+      let _archiveCertificate :=
+        DeepSeekHarnessEventText.RestoredTextRunner.archive_raw_eq_lines restored
+      match DeepSeekHarnessEventText.buildRequestCertificate restored
+          { model := "deepseek-reasoner", errorToolResults := .reject } with
+      | .error error => fail s!"current event text request construction failed: {reprStr error}"
+      | .ok certificate =>
+          assertEqual "current event text request preserves restored messages"
+            certificate.request.messages.toList [
+              .user "look up lean",
+              .assistant (some "I will look it up.") none [{
+                id := "0"
+                name := "lookup"
+                arguments := "{\"q\":\"lean\"}"
+              }],
+              .tool "0" "result"
+            ]
+          let _buildCertificate := certificate.build_eq
+          pure ()
+  match DeepSeekHarnessEventText.toolBytesRestored with
+  | .error error => fail s!"current event bytes restoration failed: {reprStr error}"
+  | .ok restored =>
+      assertEqual "current event bytes retain decoded source text"
+        restored.text DeepSeekHarnessEventText.toolTextSource
+      assertEqual "current event bytes restore the same session endpoint"
+        restored.restored.restored.runner.session.nextSeq 8
+      let _decodedCertificate := DeepSeekHarnessEventText.RestoredBytesRunner.decoded_eq restored
+  match DeepSeekHarnessEventText.restoreBytesRunner (ByteArray.mk #[255]) 1 1 with
+  | .error (.text .invalidUtf8) => pure ()
+  | .error error => fail s!"invalid event UTF-8 returned the wrong error: {reprStr error}"
+  | .ok _ => fail "invalid event UTF-8 was accepted"
+
 private def testDeepSeekStreamHarness : IO Unit := do
   let process := DeepSeekStreamHarness.streamFlagFixtureProcess
     DeepSeekStreamHarness.counterToolStreamBody
@@ -5062,6 +5105,7 @@ def run : IO Unit := do
   testDeepSeekSchemaStreamPrefixConversation
   testDeepSeekSchemaStreamErrors
   testDeepSeekHarnessEventArchive
+  testDeepSeekHarnessEventText
   testDeepSeekStreamHarness
   testDeepSeekStreamHarnessCancellation
   testDeepSeekStreamHarnessPrefix
