@@ -129,8 +129,8 @@ to a larger real-world interpretation without a refinement proof.
   scheduled task list carries explicit ID/mode/effect/result-permutation certificates, and
   `WindowOutcome.execute` proves the scheduled endpoint agrees with canonical model order.
 - `ParallelHarness.Plan` adds one intrinsically exclusive pure barrier after that window, while
-  `ParallelHarness.drainOutcome` emits ordered synthetic cancellation reports with an unchanged
-  model. These are scheduler certificates, not concurrent execution.
+  `ParallelHarness.drain.drainOutcome` emits ordered synthetic cancellation reports with an
+  unchanged model. These are scheduler certificates, not concurrent execution.
 
 These results do not prove that an inverse recovers an arbitrary state, that arbitrary effects
 are independent, or that external side effects are reversible. The evaluators perform no `IO`,
