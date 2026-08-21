@@ -2001,6 +2001,12 @@ and an all-events-supported proof before constructing its `RestoredRunner`. This
 full event ledger available while making opaque or extension records a typed restoration error;
 the supported tool-message fixture exercises the successful request-rebuild path.
 
+`Cordis.DeepSeekHarnessOpaqueMetadata` takes the one supported opaque-field exception one step
+further. It consumes `SessionOpaqueMetadata.RetainedLog`, restores the sanitized final session to
+a `ConversationRunner`, and carries `metadataEvents` plus its exact source-order equality beside
+the runner. The request certificate is intentionally built from the sanitized session, so the
+provider/tool fields remain quarantined rather than gaining invented local semantics.
+
 `Cordis.DeepSeekHarnessCancellation` adds the corresponding pre-round control boundary: the policy
 is checked before a complete request round, and a cancellation result carries the unchanged
 runner/model endpoint and completed prefix. Keep the boundary honest: interrupting an in-flight

@@ -77,6 +77,7 @@ import Cordis.HarnessPersistenceBytes
 import Cordis.HarnessPersistenceArchive
 import Cordis.HarnessPersistenceIO
 import Cordis.DeepSeekHarnessPersistenceIO
+import Cordis.DeepSeekHarnessOpaqueMetadata
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
 import Cordis.MediatedTheorem
@@ -2136,6 +2137,54 @@ private def testDeepSeekHarnessPersistenceIO : IO Unit := do
   | .error error => fail s!"byte-backed DeepSeek invalid UTF-8 returned {reprStr error}"
   | .ok _ => fail "byte-backed DeepSeek invalid UTF-8 was accepted"
 
+private def testDeepSeekHarnessOpaqueMetadata : IO Unit := do
+  match DeepSeekHarnessOpaqueMetadata.metadataRestored with
+  | .error error => fail s!"opaque metadata DeepSeek restore failed: {reprStr error}"
+  | .ok restored =>
+      assertEqual "opaque metadata restore reaches the sanitized session endpoint"
+        restored.runner.session.nextSeq 8
+      assertEqual "opaque metadata restore preserves the typed tool surface"
+        restored.runner.session.messages [
+          .user "look up lean",
+          .assistant "I will look it up." [{
+            id := { value := 0 }
+            name := "lookup"
+            arguments := "{\"q\":\"lean\"}"
+          }],
+          .toolResult { value := 0 } "result" false
+        ]
+      assertEqual "opaque metadata restore retains exact provider/tool fields"
+        ((restored.log.metadata.filterMap (fun metadata =>
+          metadata.map (fun value => (value.error, value.metaValue)))) == [
+            (some (Lean.Json.mkObj [
+                ("name", .str "ToolError"), ("code", .str "E_FIXTURE")]),
+              some (Lean.Json.mkObj [("opaque", .str "tool-owned")]))]) true
+      let _sessionCertificate :=
+        DeepSeekHarnessOpaqueMetadata.RestoredRunner.session_eq_log restored
+      let _metadataCertificate :=
+        DeepSeekHarnessOpaqueMetadata.RestoredRunner.metadata_eq_source restored
+      let _validCertificate := DeepSeekHarnessOpaqueMetadata.metadataRestored_valid
+      let _exactCertificate := DeepSeekHarnessOpaqueMetadata.metadataRestored_metadata_exact
+      match DeepSeekHarnessOpaqueMetadata.buildRequestCertificate restored
+          DeepSeekHarnessOpaqueMetadata.metadataToolSource with
+      | .error error => fail s!"opaque metadata request failed: {reprStr error}"
+      | .ok certificate =>
+          assertEqual "opaque metadata request excludes quarantined fields"
+            certificate.request.messages.toList [
+              .user "look up lean",
+              .assistant (some "I will look it up.") none [{
+                id := "0"
+                name := "lookup"
+                arguments := "{\"q\":\"lean\"}"
+              }],
+              .tool "0" "result"
+            ]
+          let _requestCertificate := certificate.build_eq
+          let _archiveCertificate :=
+            DeepSeekHarnessOpaqueMetadata.buildRequest_session_eq_log restored
+              DeepSeekHarnessOpaqueMetadata.metadataToolSource certificate.build_eq
+          pure ()
+
 private def testDeepSeekHarnessEventArchive : IO Unit := do
   match DeepSeekHarnessEventArchive.toolRestored with
   | .error error => fail s!"current event archive restoration failed: {error}"
@@ -4066,6 +4115,7 @@ def run : IO Unit := do
   testDeepSeekHarness
   testDeepSeekHarnessPersistence
   testDeepSeekHarnessPersistenceIO
+  testDeepSeekHarnessOpaqueMetadata
   testDeepSeekHarnessEventArchive
   testDeepSeekStreamHarness
   testDeepSeekStreamHarnessCancellation

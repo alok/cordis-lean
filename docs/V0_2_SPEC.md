@@ -184,6 +184,9 @@ Current machine-checked evidence includes:
   stateful semantic validation certificate before attaching current-Harness events to a
   `ConversationRunner`; opaque known/extension events reject restoration, while the supported
   tool-message fixture rebuilds a typed request;
+- `Cordis.DeepSeekHarnessOpaqueMetadata`, attaching the sanitized runner projection from
+  `SessionOpaqueMetadata.RetainedLog` while retaining exact tool-result `error`/`meta` values in
+  source order; the request path excludes those uninterpreted provider/tool fields;
 - `Cordis.DeepSeekHarnessErrors`, adding an explicit fail-closed/default-versus-opt-in policy seam
   for provider failures: `.include` retains typed failure evidence and appends model-visible
   `isError` tool results without changing the model state;
@@ -968,6 +971,11 @@ that every archived event is non-opaque. `RestoredRunner` then exposes exact equ
 runner session and the validated final session, preserves the archive's raw-event ledger, and
 supports a proof-carrying request rebuild. The fixture is executable; known opaque and extension
 events are rejection cases rather than silently ignored records.
+
+`Cordis.DeepSeekHarnessOpaqueMetadata` is the narrow quarantined exception to that fail-closed
+event path. It consumes the sanitized `RetainedLog`, restores its validated final session to a
+runner, and carries the exact `error`/`meta` JSON ledger beside the runner. The local request
+projection intentionally ignores those fields; no provider/tool schema meaning is assigned.
 
 `Cordis.DeepSeekHarnessPersistenceIO` composes the same runner attachment with the executable
 `HarnessPersistenceIO.ReadCertificate`. A successful memory or temporary-file read retains the
