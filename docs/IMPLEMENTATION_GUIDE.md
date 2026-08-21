@@ -1817,6 +1817,10 @@ and parses a private status trailer; its deterministic `sh` fixture exercises
 the real process boundary. Keep it explicit in tests: do not present it as
 live HTTP, credential validation, executable trust, or complete provider/schema
 compatibility.
+`Cordis.DeepSeekCurlStream` composes the same process boundary with complete-body strict SSE
+validation. It preserves process, HTTP-status, framing, and stream errors before exposing any
+frames, while leaving incremental reads, buffering/backpressure, cancellation, reconnects, and
+provider-complete assembly as explicit deployment work.
 `Cordis.DeepSeekStream` supplies the next wire boundary: strict in-memory
 `data:` / `[DONE]` SSE framing, typed delta choices, retained raw-frame
 parse/decode certificates, and explicit invalid-UTF-8/JSON/terminal errors.

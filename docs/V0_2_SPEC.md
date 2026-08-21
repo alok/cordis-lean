@@ -121,6 +121,8 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekCurlTransport`, exercising a process-backed request/response adapter with
   stdin body delivery, direct executable arguments, explicit status-trailer parsing, typed
   process failures, and a deterministic `sh` fixture;
+- `Cordis.DeepSeekCurlStream`, composing that process boundary with complete-body strict SSE
+  validation and typed process/status/stream errors; incremental reader semantics remain external;
 - `Cordis.DeepSeekSessionRunner`, composing accepted text, one-tool, mixed, and multi-call
   terminal traces into the pure append-only local session surface with exact sequence and
   tool-count invariants;

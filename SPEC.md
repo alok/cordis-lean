@@ -536,6 +536,7 @@ the empty-to-final lease-threading certificate.
 | `Cordis.DeepSeekApi`             | Typed OpenAI-compatible DeepSeek request/response boundary with dependent JSON certificates and explicit transport/status/API errors.                                                             |
 | `Cordis.DeepSeekCurlTransport`   | Process-backed `Transport` adapter that passes request bodies on stdin, URL/headers as direct executable arguments, and parses a typed status trailer; includes a deterministic `sh` fixture.     |
 | `Cordis.DeepSeekStream`          | Strict in-memory DeepSeek SSE framing and typed delta decoding with retained raw-frame certificates.                                                                                              |
+| `Cordis.DeepSeekCurlStream`      | Complete-body process-backed SSE validation with typed process/status/stream errors and a deterministic `sh` fixture; incremental reader semantics remain external.                               |
 | `Cordis.DeepSeekRichStream`      | Source-honest text-only SSE projection into `RichStream.ValidatedTrace`, with wire/projection/rich certificates and fail-closed semantic errors.                                                  |
 | `Cordis.DeepSeekRichToolStream`  | Restricted one-tool SSE projection into rich tool-call blocks, preserving raw arguments and retaining wire/projection/rich certificates.                                                          |
 | `Cordis.DeepSeekRichMixedStream` | Composed one-choice text/reasoning/one-tool SSE projection with first-seen block indices, stateful tool metadata, exact rich-trace certificates, and same-frame mixed-kind rejection.             |
@@ -674,8 +675,9 @@ The following remain external facts or validation boundaries:
 
 There is no credential-loading path or live model API in `v0.1.0`. No API key
 is needed for any acceptance command, and no key may be stored in the
-repository. `DeepSeekCurlTransport` is a process-backed adapter, not a proof
-of network reachability, credential validity, executable trust, or deployment.
+repository. `DeepSeekCurlTransport` and `DeepSeekCurlStream` are process-backed
+adapters, not proofs of network reachability, credential validity, executable
+trust, deployment, or incremental stream semantics.
 
 ## 8. Explicit future work
 
@@ -712,6 +714,10 @@ claim:
    `Cordis.DeepSeekApiSession` applies the same guards to the decoded non-streaming
    response path; it rejects extra choices and unsupported or empty terminal payloads
    before the local append.
+   `Cordis.DeepSeekCurlStream` composes a complete process response with the
+   strict SSE validator, preserving process/status/stream error distinctions;
+   it does not implement a live reader, backpressure, cancellation, reconnect,
+   or provider-complete assembler.
 1. **Production streaming.** Extend the bounded text model with transport,
    backpressure, cancellation, tool-call payload assembly, provider-complete
    parser state, and a live HTTP reader; the current `DeepSeekStream` module is

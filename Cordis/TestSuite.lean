@@ -5,6 +5,7 @@ import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.DeepSeekApi
 import Cordis.DeepSeekCurlTransport
+import Cordis.DeepSeekCurlStream
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
@@ -962,6 +963,36 @@ private def testDeepSeekCurlTransport : IO Unit := do
       assertEqual "malformed process output is preserved" output "broken"
   | .error error => fail s!"malformed process output returned {reprStr error}"
   | .ok response => fail s!"malformed process output was accepted: {reprStr response}"
+
+private def testDeepSeekCurlStream : IO Unit := do
+  match ← DeepSeekCurlStream.fixtureResponse with
+  | .error error => fail s!"process-backed DeepSeek SSE fixture failed: {reprStr error}"
+  | .ok ⟨body, validated⟩ =>
+      assertEqual "process-backed DeepSeek SSE fixture preserves body"
+        body DeepSeekStream.exampleStreamBody
+      assertEqual "process-backed DeepSeek SSE fixture retains data and done frames"
+        validated.frames.length 2
+  let malformedConfig : DeepSeekCurlTransport.ProcessConfig := {
+    command := "sh"
+    args := fun _ => #[
+      "-c",
+      "printf 'event: bad\\n\\ndata: [DONE]\\n\\n__CORDIS_HTTP_STATUS__200\\n'"
+    ]
+  }
+  match ← DeepSeekCurlStream.executeSse malformedConfig
+      DeepSeekCurlTransport.fixtureRequest.request with
+  | .error (.stream (.unexpectedLine _ _)) => pure ()
+  | .error error => fail s!"malformed SSE returned {reprStr error}"
+  | .ok _ => fail "malformed SSE was accepted"
+  let statusConfig : DeepSeekCurlTransport.ProcessConfig := {
+    command := "sh"
+    args := fun _ => #["-c", "printf 'unavailable\\n__CORDIS_HTTP_STATUS__503\\n'"]
+  }
+  match ← DeepSeekCurlStream.executeSse statusConfig
+      DeepSeekCurlTransport.fixtureRequest.request with
+  | .error (.httpStatus 503 "unavailable") => pure ()
+  | .error error => fail s!"HTTP status returned {reprStr error}"
+  | .ok _ => fail "non-success SSE status was accepted"
 
 private def testDeepSeekStream : IO Unit := do
   match DeepSeekStream.validateSse DeepSeekStream.exampleStreamBody with
@@ -2156,6 +2187,7 @@ def run : IO Unit := do
   testHarnessPersistence
   testDeepSeekApi
   testDeepSeekCurlTransport
+  testDeepSeekCurlStream
   testDeepSeekStream
   testDeepSeekRichStream
   testDeepSeekRichToolStream
