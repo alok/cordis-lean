@@ -1821,6 +1821,11 @@ compatibility.
 validation. It preserves process, HTTP-status, framing, and stream errors before exposing any
 frames, while leaving incremental reads, buffering/backpressure, cancellation, reconnects, and
 provider-complete assembly as explicit deployment work.
+`Cordis.DeepSeekStreamIncremental` supplies the pure prefix contract immediately below that wire
+parser: each complete line is parsed into a state retaining the exact accumulated body, frames,
+line number, and prefix equation; `finish` invokes the original complete-body validator and refuses
+an incomplete `[DONE]` prefix. Its line policy is a proof-carrying stop boundary, not a live-reader
+or backpressure/cancellation implementation.
 `Cordis.DeepSeekCurlSession` takes the terminal text subset one step further: it retains the
 process-backed wire certificate, runs the accepted rich/session projection, and returns the
 proof-carrying append-only runner. Source-event evidence, numeric local-ID assignment, and all

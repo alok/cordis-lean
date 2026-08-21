@@ -9,6 +9,7 @@ import Cordis.DeepSeekCurlStream
 import Cordis.DeepSeekCurlSession
 import Cordis.DeepSeekCurlIncremental
 import Cordis.DeepSeekStream
+import Cordis.DeepSeekStreamIncremental
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekRichMixedStream
@@ -1106,6 +1107,46 @@ private def testDeepSeekStream : IO Unit := do
   match DeepSeekStream.validateSseBytes (ByteArray.mk #[255]) with
   | .error .invalidUtf8 => pure ()
   | _ => fail "invalid UTF-8 DeepSeek SSE input was accepted"
+
+private def testDeepSeekStreamIncremental : IO Unit := do
+  match DeepSeekStreamIncremental.consumeBody
+      (DeepSeekStreamIncremental.LinePolicy.never) 32 DeepSeekStream.exampleStreamBody with
+  | .error error => fail s!"incremental prefix fixture failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "incremental prefix fixture reaches the terminal marker"
+        result.state.done true
+      assertEqual "incremental prefix fixture retains the complete frame sequence"
+        result.state.frames.length 2
+      assertEqual "incremental prefix fixture reports completion"
+        (DeepSeekStreamIncremental.StreamStop.isCompleted result.stop) true
+  let lines := DeepSeekStream.exampleStreamBody.splitOn "\n"
+  match DeepSeekStreamIncremental.consumeLines
+      (DeepSeekStreamIncremental.LinePolicy.atLine 1 "cancelled:user") 32 lines with
+  | .error error => fail s!"incremental cancellation fixture failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "incremental line cancellation reports cancellation"
+        (DeepSeekStreamIncremental.StreamStop.isCancelled result.stop) true
+      assertEqual "incremental line cancellation stops before the second line"
+        (DeepSeekStreamIncremental.StreamStop.cancelledLine result.stop) (some 1)
+      assertEqual "incremental line cancellation retains only the first data frame"
+        result.state.frames.length 1
+      match DeepSeekStreamIncremental.finish result.state with
+      | .error .missingDone => pure ()
+      | .error error => fail s!"incremental cancellation finished with wrong error: {reprStr error}"
+      | .ok _ => fail "incremental cancellation fabricated a complete stream"
+  match DeepSeekStreamIncremental.consumeLines
+      (DeepSeekStreamIncremental.LinePolicy.never) 4 ["event: message"] with
+  | .error (.unexpectedLine 0 "event: message") => pure ()
+  | .error error => fail s!"incremental malformed line had wrong error: {reprStr error}"
+  | .ok _ => fail "incremental malformed line was accepted"
+  match DeepSeekStreamIncremental.consumeBody
+      (DeepSeekStreamIncremental.LinePolicy.never) 1 DeepSeekStream.exampleStreamBody with
+  | .error error => fail s!"incremental fuel fixture failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "incremental fuel exhaustion reports the distinct stop"
+        (DeepSeekStreamIncremental.StreamStop.isFuelExhausted result.stop) true
+      assertEqual "incremental fuel exhaustion retains the parsed prefix"
+        result.state.frames.length 1
 
 private def testDeepSeekRichStream : IO Unit := do
   match DeepSeekRichStream.validateTextStream DeepSeekRichStream.exampleTextStreamBody with
@@ -2897,6 +2938,7 @@ def run : IO Unit := do
   testDeepSeekCurlSession
   testDeepSeekCurlIncremental
   testDeepSeekStream
+  testDeepSeekStreamIncremental
   testDeepSeekRichStream
   testDeepSeekRichToolStream
   testDeepSeekRichMixedStream

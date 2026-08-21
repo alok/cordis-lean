@@ -243,21 +243,21 @@ private def dataPayload (line : String) : Option String :=
   else
     none
 
-private def parseSseLines (line : Nat) (done : Bool) :
+private def parseSseLines (requireDone : Bool) (line : Nat) (done : Bool) :
     List String → Except StreamError (List Frame)
   | [] =>
-      if done then .ok [] else .error .missingDone
+      if done || !requireDone then .ok [] else .error .missingDone
   | rawLine :: rest =>
       let current := normalizeLine rawLine
       if current.isEmpty then
-        parseSseLines (line + 1) done rest
+        parseSseLines requireDone (line + 1) done rest
       else if done then
         .error (.dataAfterDone line)
       else
         match dataPayload current with
         | none => .error (.unexpectedLine line current)
         | some "[DONE]" =>
-            match parseSseLines (line + 1) true rest with
+            match parseSseLines requireDone (line + 1) true rest with
             | .ok frames => .ok (.done :: frames)
             | .error error => .error error
         | some payload =>
@@ -268,12 +268,21 @@ private def parseSseLines (line : Nat) (done : Bool) :
                 | .error error => .error (.decode line error)
                 | .ok chunk =>
                     let frame : DataFrame := { raw := payload, json, chunk, parsed, decoded }
-                    match parseSseLines (line + 1) false rest with
+                    match parseSseLines requireDone (line + 1) false rest with
                     | .ok frames => .ok (.data frame :: frames)
                     | .error error => .error error
 
 def parseSse (body : String) : Except StreamError (List Frame) :=
-  parseSseLines 0 false (body.splitOn "\n")
+  parseSseLines true 0 false (body.splitOn "\n")
+
+def parseSsePrefix (body : String) : Except StreamError (List Frame) :=
+  if body.isEmpty then
+    .ok []
+  else
+    parseSseLines false 0 false (body.splitOn "\n")
+
+theorem parseSsePrefix_empty : parseSsePrefix "" = .ok [] := by
+  rfl
 
 structure ValidatedSseStream (body : String) where
   frames : List Frame

@@ -59,6 +59,12 @@ without claiming network reachability, credential validity, or process trust.
 boundary with typed delta frames, retained raw payloads, and UTF-8 rejection.
 It does not claim a live reader, buffering/backpressure, cancellation, or full
 provider stream assembly.
+`Cordis.DeepSeekStreamIncremental` adds a pure, proof-carrying prefix state over
+complete SSE lines: each accepted line retains the exact accumulated body and
+frames, a terminal `[DONE]` is required at `finish`, and a finite line policy
+can stop before consuming the next line. This is prefix control rather than a
+live HTTP reader, backpressure, process cancellation, reconnect, or deployed
+assembler theorem.
 `Cordis.DeepSeekCurlStream` composes that process boundary with the strict SSE
 validator for complete response bodies, preserving typed process, HTTP-status,
 and stream errors before any frame is exposed. It deliberately does not claim

@@ -137,6 +137,10 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekHarnessCancellation`, adding a pre-round cancellation decision that retains the
   exact completed prefix, runner/model endpoint, and cancellation certificate; it does not claim
   mid-request IO interruption, cleanup, or deployed Harness cancellation semantics;
+- `Cordis.DeepSeekStreamIncremental`, adding pure proof-carrying SSE prefix state: complete lines
+  retain the accumulated body/frame equation, `finish` requires `[DONE]`, and a finite line policy
+  can stop before the next line; live IO, backpressure, process cancellation, and reconnect remain
+  external;
 - `Cordis.DeepSeekCurlIncremental`, delivering complete response lines through a process callback
   under an explicit read budget before strict validation of the reconstructed SSE body; byte-level
   and cancellation semantics remain external;
