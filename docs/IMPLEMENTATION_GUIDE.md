@@ -2050,6 +2050,14 @@ the existing generic `PolicyDecision`, and invokes the committed dependent `View
 execution equality; the raw compatibility executor remains available, and no live process,
 provider obedience, call-ID authenticity, or deployed equivalence is inferred.
 
+`Cordis.DeepSeekSchemaHarness` is the next local transport step. `SchemaExecutedTool` retains the
+provider certificate and wraps the successful `DeepSeekSchemaExecution.ExecutedCall`, while
+`toExecutedTool` reconstructs the existing `DeepSeekHarness.ExecutedTool` from the exact parsed
+JSON and dependent equalities already proved. `appendCertifiedToolResult` delegates to the
+existing append operation, so its message, next-sequence, and protocol-projection theorems are
+reused rather than reproved through a second executor. Keep provider obedience, call-ID
+authenticity, persistence, live effects, and deployed Harness equivalence outside this seam.
+
 `Cordis.DeepSeekHarnessCancellation` adds the corresponding pre-round control boundary: the policy
 is checked before a complete request round, and a cancellation result carries the unchanged
 runner/model endpoint and completed prefix. Keep the boundary honest: interrupting an in-flight

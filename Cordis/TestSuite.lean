@@ -27,6 +27,7 @@ import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
 import Cordis.DeepSeekGenericBridge
 import Cordis.DeepSeekSchemaExecution
+import Cordis.DeepSeekSchemaHarness
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessErrors
@@ -2373,6 +2374,31 @@ private def testDeepSeekToolSchema : IO Unit := do
           let _operation := executed.generic_tool_eq
           let _policy := executed.policy
           let _execution := executed.execution
+          pure ()
+  assertEqual "schema-certified execution reifies on the existing harness surface"
+    DeepSeekSchemaHarness.Example.weatherAppended true
+  match DeepSeekToolSchema.weatherToolCertificate with
+  | .error error => fail s!"schema harness setup failed: {reprStr error}"
+  | .ok certificate =>
+      match DeepSeekSchemaHarness.Example.weatherSchemaExecuted certificate with
+      | .error error => fail s!"schema harness execution failed: {reprStr error}"
+      | .ok ⟨_, executed⟩ =>
+          let session := DeepSeekSchemaHarness.appendCertifiedToolResult
+            DeepSeekHarness.counterSession 1 0 { value := 0 } 0 executed (by
+              decide)
+          let _messages :=
+            DeepSeekSchemaHarness.appendCertifiedToolResult_messages
+              DeepSeekHarness.counterSession 1 0 { value := 0 } 0 executed (by decide)
+          let _projection :=
+            DeepSeekSchemaHarness.appendCertifiedToolResult_protocolProjection
+              DeepSeekHarness.counterSession 1 0 { value := 0 } 0 executed (by decide)
+          let _nextSeq :=
+            DeepSeekSchemaHarness.appendCertifiedToolResult_nextSeq
+              DeepSeekHarness.counterSession 1 0 { value := 0 } 0 executed (by decide)
+          let _tool := executed.toExecutedTool
+          let _operation := executed.toExecutedTool_generic_tool_eq
+          assertEqual "schema harness append advances the existing session"
+            session.nextSeq (DeepSeekHarness.counterSession.nextSeq + 1)
           pure ()
   match DeepSeekToolSchema.malformedToolResult with
   | .error (.unsupportedTag path "date") =>

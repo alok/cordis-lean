@@ -236,6 +236,14 @@ call whose request/response types come from the generic catalog. It does not ide
 schema semantics with `ToolSpec`, execute the call, authenticate the call ID, or claim deployed
 Harness equivalence.
 
+`Cordis.DeepSeekSchemaExecution` consumes that combined certificate, applies the existing generic
+policy, and dispatches only allowed calls through the committed dependent `View`. The follow-on
+`Cordis.DeepSeekSchemaHarness` transport reifies a successful execution as the existing
+`DeepSeekHarness.ExecutedTool`, retains the provider certificate, and reuses the exact local
+tool-result message, sequence, and protocol-projection append theorems without re-executing it.
+These are pure local seams: provider obedience, call-ID authenticity, persistence, live external
+effects, and deployed Harness equivalence remain outside.
+
 `Cordis.DeepSeekHarnessErrors` is the explicit opt-in continuation policy for provider failures.
 `ErrorToolResultPolicy.reject` is the default fail-closed request behavior; selecting `.include`
 lets a proof-carrying `ProviderFailedTool` become an `isError` tool-result message while retaining
@@ -973,6 +981,7 @@ placeholders.
 | `Cordis.DeepSeekToolAdmission`                      | Ties a raw provider `FunctionCall` to one certified tool name and carries its `ValidatedArguments` proof before generic capability execution; provider obedience, call-ID authenticity, and capability correspondence remain external.                                                                                                   |
 | `Cordis.DeepSeekGenericBridge`                      | Composes provider-schema admission with an explicit named `SchemaToolBinding` and generic dependent `Config.validate`, returning both certificates and an existentially indexed local call; schema semantic equivalence and execution remain external.                                                                                   |
 | `Cordis.DeepSeekSchemaExecution`                    | Consumes the combined provider/generic certificate, applies the existing dependent policy, and dispatches only allowed calls through the committed generic `View`; policy/provider failures are typed and raw compatibility execution remains separate.                                                                                  |
+| `Cordis.DeepSeekSchemaHarness`                      | Reifies successful schema-aware executions as the existing `DeepSeekHarness.ExecutedTool`, retains the provider certificate, and reuses exact tool-result message/sequence/protocol append theorems without re-execution or deployed-semantics claims.                                                                                   |
 | `Cordis.HarnessPersistenceIO`                       | Executable UTF-8 byte/text adapter over memory and filesystem backends: exact read certificates, canonical replacement, validated append-only rows, and structured invalid-encoding/semantic failures; host acknowledgements are not durability proofs.                                                                                  |
 | `Cordis.DeepSeekApi`                                | Typed OpenAI-compatible DeepSeek chat request construction, fail-closed response decoding, dependent parse/decode certificates, and an explicit transport/status/API-error boundary.                                                                                                                                                     |
 | `Cordis.DeepSeekRequestMode`                        | Type-indexed complete/streaming request plans with a proof tying the serialized `stream` flag to the mode; terminal execution accepts only the complete certificate.                                                                                                                                                                     |

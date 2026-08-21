@@ -199,6 +199,8 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekGenericBridge`, composing that provider certificate with an explicit named
   `SchemaToolBinding` and generic dependent `Config.validate`, returning both certificates and an
   existentially indexed local call without claiming schema semantic equivalence or execution;
+- `Cordis.DeepSeekSchemaHarness`, carrying a successful schema-aware execution into the existing
+  `DeepSeekHarness.ExecutedTool` and exact session append surface without re-execution;
 - `Cordis.DeepSeekHarnessErrors`, adding an explicit fail-closed/default-versus-opt-in policy seam
   for provider failures: `.include` retains typed failure evidence and appends model-visible
   `isError` tool results without changing the model state;
@@ -1022,6 +1024,13 @@ consumes only the existential call returned by `validateAndAdmit`, applies the g
 invokes the committed dependent `View` on `.allow`, retaining policy and reply equalities. It
 does not alter raw-call compatibility execution or prove live external-tool, provider-obedience,
 call-ID, or deployed Harness semantics.
+
+`Cordis.DeepSeekSchemaHarness` is a local post-execution transport seam. It retains the provider
+certificate, reconstructs the existing `DeepSeekHarness.ExecutedTool` from the exact parsed JSON
+and dependent equalities, and delegates result appending to the existing certified session
+surface. Its append theorems therefore prove only local message, sequence, and protocol
+projection facts; no second execution, provider obedience, call-ID authenticity, persistence, or
+deployed Harness equivalence is claimed.
 
 `Cordis.DeepSeekHarnessPersistenceIO` composes the same runner attachment with the executable
 `HarnessPersistenceIO.ReadCertificate`. A successful memory or temporary-file read retains the
