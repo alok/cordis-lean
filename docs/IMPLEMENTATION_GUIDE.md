@@ -1909,7 +1909,9 @@ Byte framing, blocked-read interruption, and deployed stream semantics remain ex
 `executeFunctionCallsRecoverable` retains a typed provider failure and model-preservation proof,
 then `appendRecoverableToolResults` appends the model-visible `isError` result. The caller must
 opt into consuming that result on the next request with `RequestSource.errorToolResults := .include`;
-incremental recovery and deployed provider error behavior remain outside this adapter.
+`runConversationMultiStreamRecoverable` retains that failed round and a later streamed text
+terminal under explicit fuel. Incremental recovery and deployed provider error behavior remain
+outside this adapter.
 `Cordis.DeepSeekHarnessErrors` makes the provider-failure policy explicit rather than silently
 choosing one behavior: `.reject` is the default fail-closed request policy, while `.include`
 retains a `ProviderFailedTool` proof and appends its exact provider message as an `isError` tool

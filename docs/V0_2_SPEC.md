@@ -151,8 +151,8 @@ Current machine-checked evidence includes:
   for provider failures: `.include` retains typed failure evidence and appends model-visible
   `isError` tool results without changing the model state;
 - `Cordis.DeepSeekStreamHarnessErrors`, carrying that same typed provider-failure policy through
-  a complete-body streamed tool round while preserving the model and appending an opt-in
-  `isError` tool result;
+  a complete-body streamed tool round and fuel-bounded continuation while preserving the model
+  and appending an opt-in `isError` tool result;
 - `Cordis.DeepSeekHarnessRetry`, adding an explicit bounded complete-body retry policy whose
   history retains prior transport/transient-HTTP `ClientError`s while every attempt reuses the
   same request plan; provider backoff, idempotency, cancellation, and deployed retry semantics

@@ -434,7 +434,8 @@ interruption, and deployed stream semantics remain outside the claim.
 
 `Cordis.DeepSeekStreamHarnessErrors` carries the opt-in provider-failure policy through the same
 complete-body stream boundary: typed failure evidence and model preservation are retained, and
-the streamed session receives an `isError` tool result for a later `.include` request. Incremental
+the streamed session receives an `isError` tool result for a later `.include` request. Its
+fuel-bounded loop retains that failed round and a later streamed text terminal. Incremental
 recovery, retries, persistence, and deployed error behavior remain external.
 
 ### Current-development transformation and operation independence

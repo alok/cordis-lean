@@ -203,8 +203,9 @@ and deployed stream semantics remain external.
 `Cordis.DeepSeekStreamHarnessErrors` lifts the explicit recoverable provider-failure policy over
 the complete-body streamed round. A failed streamed call retains its parsed/admission/policy/
 provider evidence, keeps the model unchanged, and appends an `isError` tool result that a later
-request may consume when `RequestSource.errorToolResults := .include`; incremental recovery,
-retries, persistence, and deployed error semantics remain external.
+request may consume when `RequestSource.errorToolResults := .include`. Its fuel-bounded streamed
+loop retains the failed round and a later text terminal under that explicit policy; incremental
+recovery, retries, persistence, and deployed error semantics remain external.
 
 The next paper layer is explicit rather than assumed. `Cordis.OperationalEquivalence` models
 Definition 34's heterogeneous finite tests and proves the generator-level coarsest relation of

@@ -2412,6 +2412,58 @@ private def testDeepSeekStreamHarnessErrors : IO Unit := do
       let _attemptCertificate := result.attempts_eq
       pure ()
 
+private def testDeepSeekStreamHarnessErrorsLoop : IO Unit := do
+  let source : DeepSeekHarness.RequestSource := {
+    DeepSeekHarness.counterRequestSource with
+    errorToolResults := .include
+  }
+  let initialRunner : DeepSeekHarness.ConversationRunner := {
+    session := DeepSeekHarness.counterSession
+    turn := 1
+    step := 0
+    nextCall := 0
+    toolCallCount_eq_nextCall := by rfl
+  }
+  match ← DeepSeekStreamHarnessErrors.runConversationMultiStreamRecoverable
+      (cfg := failingCounterConfig) 2
+      DeepSeekStreamHarnessErrors.fixtureRecoverableProcess
+      "https://fixture.invalid" { value := "fixture-key" } source [] (by simp) (by
+        intro current source sourceMem
+        cases sourceMem) 0 initialRunner with
+  | .error error => fail s!"stream recoverable loop failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "stream recoverable loop retains both round witnesses"
+        result.rounds.length 2
+      assertEqual "stream recoverable loop preserves the model after failure"
+        result.finalModel 0
+      assertEqual "stream recoverable loop appends the error then terminal assistant"
+        result.runner.session.messages [
+          .user "Read the counter.",
+          .assistant "" [{
+            id := { value := 0 }, name := "counter_read", arguments := "null"
+          }],
+          .toolResult { value := 0 } "deterministic provider failure" true,
+          .assistant "Hello world" []
+        ]
+      assertEqual "stream recoverable loop reports terminal completion"
+        (DeepSeekStreamHarnessErrors.StreamRecoverableConversationStop.isCompleted result.stop)
+        true
+      match result.rounds with
+      | [⟨_, ⟨firstBody, first⟩⟩, ⟨_, ⟨secondBody, second⟩⟩] =>
+          assertEqual "stream recoverable loop retains the failed tool body"
+            firstBody DeepSeekStreamHarness.counterToolStreamBody
+          assertEqual "stream recoverable loop retains the terminal text body"
+            secondBody DeepSeekRichStream.exampleTextStreamBody
+          match first.attempts, second.attempts with
+          | [.providerFailed failed], [] =>
+              assertEqual "stream recoverable loop keeps the provider error text"
+                failed.message "deterministic provider failure"
+          | firstAttempts, secondAttempts =>
+              fail s!"unexpected streamed recoverable attempts: {firstAttempts.length},
+                {secondAttempts.length}"
+      | rounds => fail s!"stream recoverable loop returned {rounds.length} rounds"
+      pure ()
+
 private def testDeepSeekHarnessRetry : IO Unit := do
   let plan ←
     match DeepSeekHarness.counterPlan with
@@ -3669,6 +3721,7 @@ def run : IO Unit := do
   testDeepSeekStreamHarnessPrefix
   testDeepSeekHarnessErrors
   testDeepSeekStreamHarnessErrors
+  testDeepSeekStreamHarnessErrorsLoop
   testDeepSeekHarnessRetry
   testDeepSeekHarnessCancellation
   testQuotientEffects
