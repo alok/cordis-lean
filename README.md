@@ -51,6 +51,11 @@ bytes/text/rows and semantic certificate, replacement writes can be revalidated,
 and append-only rows are accepted only after the existing document validates.
 Host acknowledgements remain separate from semantic validity; fsync, torn-tail
 repair, locking, and stable-media durability remain outside.
+`Cordis.HarnessPersistenceBytes` is the pure `ByteArray` companion: it retains
+the source bytes, decoded UTF-8 text, parsed JSONL rows, packed-row expansion,
+and final Session/Protocol projection in one dependent certificate. Valid and
+malformed byte fixtures are executable evidence; JSON parsing/printer behavior,
+compression, filesystems, and crash durability remain explicit boundaries.
 `Cordis.DeepSeekApi` adds a typed, non-streaming OpenAI-compatible
 `/chat/completions` request plan and a fail-closed response decoder with
 dependent parse/decode certificates. Its transport is an explicit `IO` seam;
@@ -836,6 +841,7 @@ placeholders.
 | `Cordis.SessionRefinement`                          | Stateful supported-subset Harness session decoding with restricted request headers, route context, todo snapshots, seed markers, text/reasoning assistant chunks, fresh call-ID assignment, text/tool-call surface retention, exact append/replacement witnesses, and joint Session/Protocol proof-producing validation. |
 | `Cordis.TextRefinement`                             | Newline-delimited UTF-8 JSON parsing into exact AST lines, plus proof-carrying composition with stream/session refinement and explicit text/encoding failures.                                                                                                                                                           |
 | `Cordis.HarnessPersistenceRefinement`               | Logical Harness JSONL header/storage decoding, lossless text/reasoning/tool packed-row expansion, safe sequence/time reconstruction, and composition with stateful session validation; physical compression and crash repair remain external.                                                                            |
+| `Cordis.HarnessPersistenceBytes`                    | Pure `ByteArray` UTF-8/JSONL ingress retaining source bytes, decoded text, parsed rows, packed expansion, and the final Session/Protocol projection; positive and rejection fixtures run at the executable boundary.                                                                                                     |
 | `Cordis.HarnessPersistenceIO`                       | Executable UTF-8 byte/text adapter over memory and filesystem backends: exact read certificates, canonical replacement, validated append-only rows, and structured invalid-encoding/semantic failures; host acknowledgements are not durability proofs.                                                                  |
 | `Cordis.DeepSeekApi`                                | Typed OpenAI-compatible DeepSeek chat request construction, fail-closed response decoding, dependent parse/decode certificates, and an explicit transport/status/API-error boundary.                                                                                                                                     |
 | `Cordis.DeepSeekStream`                             | Strict UTF-8/SSE framing, typed delta decoding, retained raw data-frame certificates, and explicit terminal/error boundaries.                                                                                                                                                                                            |
@@ -905,6 +911,9 @@ The trusted executable boundary is deliberately small and visible:
 - `HarnessPersistenceRefinement` validates only the pinned logical JSONL AST vocabulary and
   expands packed rows before session refinement; it does not prove byte-level rendering,
   Zstandard framing, path/index metadata, torn-tail repair, or filesystem durability.
+- `HarnessPersistenceBytes` composes a `ByteArray` UTF-8/JSONL witness with that logical
+  validator and preserves the source/decoded/AST/projection fields; it does not prove a
+  deployed renderer, compression, file framing, or crash durability.
 - `HarnessPersistenceIO` exercises the UTF-8 byte/text and memory/filesystem boundary and refuses
   validated appends to an invalid document, but it does not prove canonical deployed rendering,
   fsync, stable media, torn-tail repair, locking, or crash durability.

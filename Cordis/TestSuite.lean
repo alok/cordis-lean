@@ -64,6 +64,7 @@ import Cordis.GlobalVestigial
 import Cordis.Harness
 import Cordis.GenericSessionHarness
 import Cordis.HarnessPersistenceRefinement
+import Cordis.HarnessPersistenceBytes
 import Cordis.HarnessPersistenceArchive
 import Cordis.HarnessPersistenceIO
 import Cordis.Lifecycle
@@ -978,6 +979,45 @@ private def testHarnessPersistence : IO Unit := do
   | .ok ⟨_, validated⟩ =>
       assertEqual "text persistence composes JSONL parsing with packed expansion"
         validated.expandedEvents.length 3
+
+private def testHarnessPersistenceBytes : IO Unit := do
+  if ← HarnessPersistenceBytes.packedPersistenceBytesRuntime then
+    pure ()
+  else
+    fail "byte persistence fixture did not reach the validated summary"
+  if ← HarnessPersistenceBytes.packedReasoningPersistenceBytesRuntime then
+    pure ()
+  else
+    fail "byte reasoning persistence fixture did not reach the validated summary"
+  if ← HarnessPersistenceBytes.malformedPackedRowBytesRuntime then
+    pure ()
+  else
+    fail "malformed byte persistence row was accepted"
+  if ← HarnessPersistenceBytes.emptyBytesRuntime then
+    pure ()
+  else
+    fail "empty byte persistence input was accepted"
+  match HarnessPersistenceBytes.validatePersistedBytes
+      HarnessPersistenceBytes.packedPersistenceBytesExample with
+  | .error error => fail s!"byte persistence certificate failed: {reprStr error}"
+  | .ok validated =>
+      assertEqual "byte persistence retains the decoded source text"
+        validated.text
+        (TextRefinement.renderJsonLines HarnessPersistenceRefinement.packedPersistenceExample)
+      assertEqual "byte persistence retains the parsed header and storage rows"
+        validated.input.length 2
+      assertEqual "byte persistence expands the packed row exactly"
+        validated.persisted.expandedEvents.length 3
+      assertEqual "byte persistence reaches the expected next sequence"
+        validated.persisted.validated.final.session.nextSeq 3
+      let _decoded := validated.decoded_exact
+      let _parsed := validated.parsed_exact
+      let _projection := validated.projection_exact
+      pure ()
+  match HarnessPersistenceBytes.validatePersistedBytes (ByteArray.mk #[255]) with
+  | .error (.inl .invalidUtf8) => pure ()
+  | .error error => fail s!"invalid UTF-8 returned {reprStr error}"
+  | .ok _ => fail "invalid UTF-8 byte persistence input was accepted"
 
 private def testHarnessPersistenceArchive : IO Unit := do
   match HarnessPersistenceArchive.archivePersistedJson
@@ -3295,6 +3335,7 @@ def run : IO Unit := do
   testRuntimeRefinement
   testTextRefinement
   testHarnessPersistence
+  testHarnessPersistenceBytes
   testHarnessPersistenceArchive
   testHarnessPersistenceIO
   testDeepSeekApi

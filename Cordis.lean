@@ -65,6 +65,7 @@ import Cordis.GlobalTraceRewrite
 import Cordis.GlobalVestigial
 import Cordis.Harness
 import Cordis.HarnessPersistenceRefinement
+import Cordis.HarnessPersistenceBytes
 import Cordis.HarnessPersistenceArchive
 import Cordis.HarnessPersistenceIO
 import Cordis.Lifecycle

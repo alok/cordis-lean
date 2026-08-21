@@ -1848,6 +1848,11 @@ and only appends a row after the current document validates. Treat the backend's
 write/flush acknowledgement as operational evidence, not as a durability theorem:
 fsync, stable media, locking, torn-tail repair, and crash recovery still require
 separate contracts.
+`Cordis.HarnessPersistenceBytes` is the pure immutable-byte companion: it validates
+`ByteArray` UTF-8/JSONL input while retaining the source bytes, decoded text, parsed
+rows, packed expansion, and final Session/Protocol projection. Its accepted and
+fail-closed fixtures are executable boundary evidence; parser/printer behavior,
+compression, filesystem durability, and crash recovery remain separate contracts.
 `Cordis.SessionEventArchive` now closes the adjacent wire-vocabulary gap. It recognizes all
 thirteen pinned core `SessionEvent` tags, checks object-shaped payloads and forbids surface
 metadata on log-only tags, delegates accepted records to `SessionRefinement`, and preserves

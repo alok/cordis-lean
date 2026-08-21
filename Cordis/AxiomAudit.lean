@@ -62,6 +62,7 @@ import Cordis.GlobalTraceRewrite
 import Cordis.GlobalVestigial
 import Cordis.Harness
 import Cordis.HarnessPersistenceRefinement
+import Cordis.HarnessPersistenceBytes
 import Cordis.HarnessPersistenceArchive
 import Cordis.HarnessPersistenceIO
 import Cordis.Lifecycle
@@ -431,6 +432,12 @@ set_option format.width 200
 #print axioms Cordis.HarnessPersistenceRefinement.malformedPackedRow_rejected
 #print axioms Cordis.HarnessPersistenceRefinement.foreignVersion_rejected
 #print axioms Cordis.HarnessPersistenceRefinement.foreignHeaderTag_rejected
+#print axioms Cordis.HarnessPersistenceBytes.validatePersistedBytes
+#print axioms Cordis.HarnessPersistenceBytes.fromUTF8_toUTF8
+#print axioms Cordis.HarnessPersistenceBytes.ValidatedPersistedBytes.decoded_exact
+#print axioms Cordis.HarnessPersistenceBytes.ValidatedPersistedBytes.parsed_exact
+#print axioms Cordis.HarnessPersistenceBytes.ValidatedPersistedBytes.projection_exact
+#print axioms Cordis.HarnessPersistenceBytes.invalidUtf8Bytes_rejected
 #print axioms Cordis.HarnessPersistenceIO.readValidated
 #print axioms Cordis.HarnessPersistenceIO.ReadCertificate.projection_exact
 #print axioms Cordis.HarnessPersistenceIO.appendValidatedRow

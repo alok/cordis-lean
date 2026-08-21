@@ -232,6 +232,9 @@ Current machine-checked evidence includes:
   reads, canonical replacement, and validated append-only rows over memory/filesystem backends;
   host acknowledgement, fsync, torn-tail repair, locking, and stable-media durability remain
   external;
+- `Cordis.HarnessPersistenceBytes`, composing a pure `ByteArray` UTF-8/JSONL witness with the
+  logical persistence/session certificate while retaining source bytes, decoded text, parsed rows,
+  packed expansion, and the final Session/Protocol projection;
 - `Cordis.GenericSessionHarness`, factoring the rich Session/request/projection wrapper over an
   arbitrary `GenericHarness.Config`; the counter and dependent-choice configurations are both
   executable fixtures;
@@ -917,6 +920,13 @@ header/packed-row failures, and session-refinement failures remain distinct stru
 The adapter does not infer fsync, stable media, torn-tail repair, locking, or crash durability
 from a host write acknowledgement.
 
+`Cordis.HarnessPersistenceBytes` is the pure immutable-byte companion to that executable adapter.
+`validatePersistedBytes` retains the original `ByteArray`, its decoded `String`, parsed JSONL rows,
+the validated packed-row expansion, and the composed Session/Protocol projection in one dependent
+certificate. It has executable accepted, malformed, empty, and invalid-UTF-8 fixtures. The Lean JSON
+parser/printer remains a library boundary, so this does not claim deployed rendering, compression,
+filesystem behavior, torn-tail repair, or crash durability.
+
 ## Executable and static tests
 
 The slice requires all existing gates plus the following new coverage:
@@ -1012,6 +1022,8 @@ This slice does not by itself prove:
   logical semantic AST refinement for the pinned header and three packed-row forms, while
   `HarnessPersistenceArchive` preserves the header, packed row tags, and envelope-valid opaque
   records without expanding or assigning them semantics;
+- byte-level persistence refinement beyond the supported `ByteArray` UTF-8/JSONL witness in
+  `Cordis.HarnessPersistenceBytes`;
 - filesystem/database persistence beyond the narrow tested adapters, stable-media/flush barriers,
   cryptographic authentication, arbitrary crash-file repair, or fork correctness.
   `Cordis.DurableSettlement` and `Cordis.DurableCodec` prove a pure typed crash-prefix/resume
