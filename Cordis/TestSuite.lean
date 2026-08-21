@@ -4,6 +4,7 @@ import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.DurableCodec
+import Cordis.DurableBytes
 import Cordis.DurableSettlement
 import Cordis.Effect
 import Cordis.Examples.Counter
@@ -636,6 +637,38 @@ private def testDurableCodec : IO Unit := do
       assertEqual "durable scanner reports a non-contiguous sequence" (expected, actual) (0, 4)
   | .error error => fail s!"wrong durable scanner error: {reprStr error}"
   | .ok _ => fail "non-contiguous durable frame was accepted"
+
+private def testDurableBytes : IO Unit := do
+  match DurableBytes.decodeFrame DurableBytes.rawFramePayloadCodec
+      (DurableBytes.Example.firstBytes ++ DurableBytes.Example.secondBytes) with
+  | .error error => fail s!"binary raw frame prefix was rejected with {reprStr error}"
+  | .ok (frame, suffix) =>
+      assertEqual "binary frame decoder preserves the first sequence"
+        frame.sequence 0
+      assertEqual "binary frame decoder leaves the second frame untouched"
+        suffix DurableBytes.Example.secondBytes
+  match DurableBytes.decodeFrames DurableBytes.rawFramePayloadCodec 2
+      DurableBytes.Example.validBytes with
+  | .error error => fail s!"binary frame list was rejected with {reprStr error}"
+  | .ok (frames, suffix) =>
+      assertEqual "binary frame list decodes both raw frames"
+        frames [DurableCodec.Example.firstRaw, DurableCodec.Example.secondRaw]
+      assertEqual "binary frame list has no unconsumed bytes" suffix []
+  match DurableBytes.decodeFrames DurableBytes.rawFramePayloadCodec 3
+      DurableBytes.Example.tornBytes with
+  | .error _ => pure ()
+  | .ok _ => fail "torn binary durable suffix was accepted"
+  match DurableBytes.scanBytesPrefix DurableCodec.Example.wire
+      DurableSettlement.Example.initial DurableBytes.rawFramePayloadCodec 2
+      DurableBytes.Example.validBytes with
+  | .error error => fail s!"binary durable scan was rejected with {reprStr error}"
+  | .ok (scanned, discarded) =>
+      assertEqual "binary durable scan reaches the typed successor"
+        scanned.current 21
+      assertEqual "binary durable scan advances the sequence"
+        scanned.nextSequence 2
+      assertEqual "binary durable scan discards no bytes on a complete prefix"
+        discarded []
 
 private def testRichStream : IO Unit := do
   match RichStream.validateTrace RichStream.State.initial RichStream.interleavedRaw with
@@ -1478,6 +1511,7 @@ def run : IO Unit := do
   testParallelHarness
   testDurableSettlement
   testDurableCodec
+  testDurableBytes
   testRichStream
   testStreamSessionBridge
   testContextualEquivalence

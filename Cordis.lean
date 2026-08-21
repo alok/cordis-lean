@@ -5,6 +5,7 @@ import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.DurableCodec
+import Cordis.DurableBytes
 import Cordis.DurableSettlement
 import Cordis.Effect
 import Cordis.Examples.Counter

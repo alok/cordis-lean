@@ -120,6 +120,9 @@ Current machine-checked evidence includes:
 - `Cordis.DurableCodec`, defining a JSON-AST raw-frame codec and strict dependent prefix scanner
   that rejects malformed, torn, unknown, and non-contiguous frames before constructing that typed
   log;
+- `Cordis.DurableBytes`, defining an explicit unary-length binary format over `List UInt8`, a
+  numeric `RawFrame` payload codec, and a counted byte-prefix bridge that exposes discarded bytes
+  before delegating to the typed scanner;
 - `Cordis.GlobalPaperRelation`, erasing only the reference allocator clock/birth ranks from current
   rule observation, proving full-domain bidirectional well-formed orchestration replay, and
   constructing directed relation-aware vestigial suffix replay with lifecycle countermodels;
@@ -825,9 +828,11 @@ This slice does not by itself prove:
 
 - behavioral equivalence with the complete TypeScript DeepSeek Harness;
 - byte-level JSON parsing, rendering, or storage compatibility;
-- filesystem/database persistence, byte parsing, flush barriers, arbitrary crash-file repair, or
-  fork correctness. `Cordis.DurableSettlement` and `Cordis.DurableCodec` prove only a pure typed
-  crash-prefix/resume model plus strict JSON-AST frame validation over immutable Lean values;
+- filesystem/database persistence, flush barriers, cryptographic authentication, arbitrary
+  crash-file repair, or fork correctness. `Cordis.DurableSettlement` and `Cordis.DurableCodec`
+  prove a pure typed crash-prefix/resume model plus strict JSON-AST frame validation, while
+  `Cordis.DurableBytes` proves only its explicitly defined binary format over immutable Lean byte
+  lists and requires the frame count as a prefix certificate;
 - task/fiber scheduling, fairness, cancellation delivery, or wall-clock concurrency;
 - the stronger paired-inverse law from same-word tests without its explicit coherence premise;
 - identification of the finite exact partial/Kleisli theorem with the paper's literal

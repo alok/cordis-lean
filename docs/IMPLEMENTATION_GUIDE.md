@@ -1748,13 +1748,17 @@ prefix plus discarded frame suffix. The module proves exact newest-first recover
 resume after the retained prefix. `DurableCodec` proves JSON-AST frame round trips and scans
 entry codes, sequence numbers, previous digests, successor codes, and transcript digests before
 constructing that typed log; malformed, torn, unknown, and non-contiguous frames fail closed.
-This is a source-honest AST/torn-log-prefix model, not a claim about bytes reaching a filesystem.
+[`../Cordis/DurableBytes.lean`](../Cordis/DurableBytes.lean) now adds an explicit pure binary
+format over `List UInt8`: unary-length framing, a numeric `RawFrame` payload codec, counted
+prefix decoding, and a theorem that carries discarded suffix bytes into the typed scanner. This
+is a source-honest binary-prefix model, not a claim about the Harness JSON renderer or bytes
+reaching a filesystem.
 
-The remaining production step is an explicit `IO`/filesystem refinement: define byte parsing and
-rendering, partial-write and flush semantics, checksum or authenticated digest policy, checkpoint
-selection, fork/conflict handling, and the relationship between external tool effects and committed
-entries. Only after those obligations are proved should the project claim durable atomic settlement
-or process-wide exactly-once behavior.
+The remaining production step is an explicit `IO`/filesystem refinement: connect a selected real
+byte parser/renderer to this contract, define partial-write and flush semantics, checksum or
+authenticated digest policy, checkpoint selection, fork/conflict handling, and the relationship
+between external tool effects and committed entries. Only after those obligations are proved
+should the project claim durable atomic settlement or process-wide exactly-once behavior.
 
 ### 19.4 Add an `N`-call scheduler
 

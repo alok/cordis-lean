@@ -4,6 +4,7 @@ import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.DurableCodec
+import Cordis.DurableBytes
 import Cordis.DurableSettlement
 import Cordis.Effect
 import Cordis.Examples.DependentChoice
@@ -209,6 +210,12 @@ set_option format.width 200
 #print axioms Cordis.DurableCodec.Example.scan_valid_exact
 #print axioms Cordis.DurableCodec.Example.frameCodec_rejects_torn
 #print axioms Cordis.DurableCodec.Example.scan_noncontiguous_rejected
+#print axioms Cordis.DurableBytes.decodeFrame_encode
+#print axioms Cordis.DurableBytes.decodeFrames_encodeMany
+#print axioms Cordis.DurableBytes.decodeRawFrame_encode
+#print axioms Cordis.DurableBytes.scanBytesPrefix_encode
+#print axioms Cordis.DurableBytes.Example.valid_bytes_scan
+#print axioms Cordis.DurableBytes.Example.torn_bytes_rejected
 #print axioms Cordis.ParallelHarness.ParallelWindow.effect_eq
 #print axioms Cordis.ParallelHarness.ParallelWindow.scheduled_after_eq_canonical
 #print axioms Cordis.ParallelHarness.ParallelWindow.scheduled_undo_eq_canonical
