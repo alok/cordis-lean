@@ -704,8 +704,8 @@ credential-loading path. Do not add API keys or secrets to this repository.
 
 The source is public at [alok/cordis-lean](https://github.com/alok/cordis-lean).
 The current reviewed snapshot is on [`main`](https://github.com/alok/cordis-lean/tree/main)
-at commit [`a3e1ce4`](https://github.com/alok/cordis-lean/commit/a3e1ce4), with its
-hosted verification in [Actions run 32447025200](https://github.com/alok/cordis-lean/actions/runs/32447025200).
+at commit [`258458c`](https://github.com/alok/cordis-lean/commit/258458c), with its
+hosted verification in [Actions run 32447310496](https://github.com/alok/cordis-lean/actions/runs/32447310496).
 The historical review branch remains available at
 [`feat/alok-824-proof-carrying-harness`](https://github.com/alok/cordis-lean/tree/feat/alok-824-proof-carrying-harness).
 No version tag, package, or GitHub release has been published. The five commands
