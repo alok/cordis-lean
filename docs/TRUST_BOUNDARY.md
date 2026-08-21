@@ -238,6 +238,13 @@ foreign versions, retired header fields, and foreign header tags fail closed. Th
 JSON-AST/logical-format theorem only: UTF-8 bytes, Zstandard, filesystem paths, byte offsets,
 torn-tail repair, indexing, and crash durability are not modeled.
 
+`HarnessPersistenceArchive` is the lossless storage companion for rows that the semantic subset
+does not expand. It validates the same typed session header, retains each packed row's exact AST
+and one of the three packed tags, and delegates ordinary envelope rows to `SessionArchive`.
+Supported certificates and required/ignorable opaque records therefore survive JSONL inspection
+without being silently dropped. Malformed ordinary envelopes carry their full storage index;
+packed rows remain raw and have no replay semantics here.
+
 `HarnessPersistenceIO` is the executable byte/text adapter above that logical boundary. Its
 `ReadCertificate` retains the exact bytes, decoded text, parsed rows, logical persistence result,
 and session projection; replacement writes can be revalidated, and `appendValidatedRow` refuses

@@ -184,6 +184,10 @@ private def decodeHeader (json : Lean.Json) : Except HeaderError SessionHeader :
     version, id, createdAt, cwd, parentSession, seedLength, origin, delegationDepth, agentPreset
   }
 
+/-- Public logical header decoder reused by lossless persistence archives. -/
+def decodeSessionHeader (json : Lean.Json) : Except HeaderError SessionHeader :=
+  decodeHeader json
+
 private def hasExactKeys (json : Lean.Json) (keys : List String) : Bool :=
   match json with
   | .obj fields =>

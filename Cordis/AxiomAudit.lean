@@ -61,6 +61,7 @@ import Cordis.GlobalTraceRewrite
 import Cordis.GlobalVestigial
 import Cordis.Harness
 import Cordis.HarnessPersistenceRefinement
+import Cordis.HarnessPersistenceArchive
 import Cordis.HarnessPersistenceIO
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
@@ -396,9 +397,17 @@ set_option format.width 200
 #print axioms Cordis.SessionRefinement.reject_mismatchedToolResultIds
 #print axioms Cordis.SessionRefinement.reject_underdeterminedTurnEnd
 #print axioms Cordis.SessionArchive.decodeEnvelope_raw
+#print axioms Cordis.SessionArchive.decodeEnvelopeAtPath_raw
+#print axioms Cordis.SessionArchive.classify_raw
 #print axioms Cordis.SessionArchive.ArchivedEvent.raw_eq_envelope_raw
 #print axioms Cordis.SessionArchive.archive_example_tags
 #print axioms Cordis.SessionArchive.archive_example_raw_preserved
+#print axioms Cordis.HarnessPersistenceRefinement.decodeSessionHeader
+#print axioms Cordis.HarnessPersistenceArchive.archivePersistedJson
+#print axioms Cordis.HarnessPersistenceArchive.ArchivedPersistedJson.rows_raw_exact
+#print axioms Cordis.HarnessPersistenceArchive.archive_persistence_example_tags
+#print axioms Cordis.HarnessPersistenceArchive.archive_persistence_example_rows_preserved
+#print axioms Cordis.HarnessPersistenceArchive.malformed_persisted_envelope_indexed
 #print axioms Cordis.HarnessPersistenceRefinement.ValidatedPersistedJson.projection_exact
 #print axioms Cordis.HarnessPersistenceRefinement.ValidatedPersistedJson.split_exact
 #print axioms Cordis.HarnessPersistenceRefinement.ValidatedPersistedJson.expansion_exact

@@ -210,6 +210,16 @@ private theorem decodeEnvelopeAt_raw (path : List PathSegment) (json : Lean.Json
 def decodeEnvelope (json : Lean.Json) : Except ArchiveError Envelope :=
   decodeEnvelopeAt [] json
 
+/-- Parse one envelope under a caller-supplied JSON path, preserving indexed diagnostics. -/
+def decodeEnvelopeAtPath (path : List PathSegment) (json : Lean.Json) :
+    Except ArchiveError Envelope :=
+  decodeEnvelopeAt path json
+
+theorem decodeEnvelopeAtPath_raw (path : List PathSegment) (json : Lean.Json)
+    (envelope : Envelope) (h : decodeEnvelopeAtPath path json = .ok envelope) :
+    envelope.raw = json := by
+  exact decodeEnvelopeAt_raw path json envelope h
+
 private def decodeEnvelopesAt : Nat → List Lean.Json → Except ArchiveError (List Envelope)
   | _, [] => .ok []
   | index, json :: rest => do
@@ -280,7 +290,7 @@ private def classifyEnvelopes : List Envelope → List ArchivedEvent
   | [] => []
   | envelope :: rest => classify envelope :: classifyEnvelopes rest
 
-private theorem classify_raw (envelope : Envelope) :
+theorem classify_raw (envelope : Envelope) :
     (classify envelope).raw = envelope.raw := by
   unfold classify
   split

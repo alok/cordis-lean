@@ -1835,6 +1835,11 @@ text/reasoning/tool packed-row forms with checked safe sequence/time gaps, and
 feeds the expanded event AST to `SessionRefinement`. Keep this boundary logical
 and fail-closed; compression, file offsets, torn-tail repair, and filesystem
 durability belong to a later adapter rather than being smuggled into the proof.
+`Cordis.HarnessPersistenceArchive` is the parallel lossless ingress for the same
+document when semantic expansion is unavailable: it retains the typed header,
+packed row tags/raw ASTs, and ordinary `SessionArchive` envelopes in exact order,
+and carries the full document index on malformed envelope errors. It does not
+expand packed rows or authorize replay through opaque payloads.
 `Cordis.HarnessPersistenceIO` is that deliberately small next adapter. It reads
 UTF-8 bytes through the existing memory/filesystem backend, retains the exact
 decoded text, parsed rows, logical persistence certificate, and session projection,

@@ -214,6 +214,8 @@ Current machine-checked evidence includes:
 - `Cordis.HarnessPersistenceRefinement`, validating the pinned logical JSONL session header and
   storage rows, expanding the three lossless packed chunk-row forms, and composing that result
   with the stateful session validator;
+- `Cordis.HarnessPersistenceArchive`, retaining the typed session header, packed row tags, and
+  ordinary envelope rows losslessly across JSONL text/UTF-8 boundaries without semantic expansion;
 - `Cordis.HarnessPersistenceIO`, lifting that logical certificate to executable UTF-8 byte/text
   reads, canonical replacement, and validated append-only rows over memory/filesystem backends;
   host acknowledgement, fsync, torn-tail repair, locking, and stable-media durability remain
@@ -867,6 +869,13 @@ the event decoder. Packed-row malformations, foreign versions/tags, retired head
 unsafe reconstructions fail closed. This deliberately excludes Zstandard, path sanitization,
 byte offsets, torn-tail repair, coordinator/indexing behavior, and filesystem durability.
 
+`Cordis.HarnessPersistenceArchive` is the lossless companion when semantic expansion is not yet
+available. It validates the same logical session header, retains each packed row with its exact
+raw AST and typed tag, and delegates ordinary rows to `SessionArchive`, preserving supported
+certificates and required/ignorable opaque envelopes. Storage indices remain attached to malformed
+envelope errors. It deliberately does not expand packed rows, assign opaque payload semantics, or
+claim replay, persistence, or crash recovery.
+
 `Cordis.HarnessPersistenceIO` is the executable byte/text adapter above that logical boundary. It
 reads UTF-8 bytes through the existing memory/filesystem backend interface, retains the exact
 bytes/text/rows and semantic certificate, revalidates canonical replacement writes, and permits
@@ -967,8 +976,9 @@ This slice does not by itself prove:
 - behavioral equivalence with the complete TypeScript DeepSeek Harness;
 - byte-level JSON parsing, rendering, or storage compatibility;
 - semantic completeness for the Harness event/storage union: `HarnessPersistenceRefinement` is a
-  logical AST refinement for the pinned header and three packed-row forms, while
-  `SessionArchive` preserves envelope-valid opaque records without assigning them semantics;
+  logical semantic AST refinement for the pinned header and three packed-row forms, while
+  `HarnessPersistenceArchive` preserves the header, packed row tags, and envelope-valid opaque
+  records without expanding or assigning them semantics;
 - filesystem/database persistence beyond the narrow tested adapters, stable-media/flush barriers,
   cryptographic authentication, arbitrary crash-file repair, or fork correctness.
   `Cordis.DurableSettlement` and `Cordis.DurableCodec` prove a pure typed crash-prefix/resume

@@ -63,6 +63,7 @@ import Cordis.GlobalVestigial
 import Cordis.Harness
 import Cordis.GenericSessionHarness
 import Cordis.HarnessPersistenceRefinement
+import Cordis.HarnessPersistenceArchive
 import Cordis.HarnessPersistenceIO
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
@@ -974,6 +975,55 @@ private def testHarnessPersistence : IO Unit := do
   | .ok ⟨_, validated⟩ =>
       assertEqual "text persistence composes JSONL parsing with packed expansion"
         validated.expandedEvents.length 3
+
+private def testHarnessPersistenceArchive : IO Unit := do
+  match HarnessPersistenceArchive.archivePersistedJson
+      HarnessPersistenceArchive.archivePersistenceExample with
+  | .error error => fail s!"lossless persisted archive failed: {reprStr error}"
+  | .ok archived =>
+      assertEqual "lossless persisted archive retains every storage row"
+        archived.rows.length 3
+      assertEqual "lossless persisted archive tags packed and opaque rows"
+        (archived.rows.map HarnessPersistenceArchive.ArchivedStorageRow.tag)
+        ["packed:text-chunks", "opaque-required", "opaque-ignorable"]
+      assertEqual "lossless persisted archive preserves row ASTs"
+        ((archived.rows.map HarnessPersistenceArchive.ArchivedStorageRow.raw) ==
+          [HarnessPersistenceRefinement.packedTextExample,
+            SessionArchive.requiredExtensionJson, SessionArchive.ignorableExtensionJson]) true
+      assertEqual "lossless persisted archive preserves the typed session header"
+        archived.header.id "session-example"
+      let _split := archived.split_exact
+      let _rows := archived.rows_raw_exact
+      pure ()
+  match HarnessPersistenceArchive.archivePersistedText
+      HarnessPersistenceArchive.archivePersistenceTextExample with
+  | .error error => fail s!"lossless persisted text archive failed: {reprStr error}"
+  | .ok ⟨input, archived⟩ =>
+      assertEqual "lossless persisted text archive retains parsed input"
+        input.length 4
+      assertEqual "lossless persisted text archive retains row count"
+        archived.rows.length 3
+  match HarnessPersistenceArchive.archivePersistedBytes
+      HarnessPersistenceArchive.archivePersistenceTextExample.toUTF8 with
+  | .error error => fail s!"lossless persisted byte archive failed: {reprStr error}"
+  | .ok ⟨text, input, archived⟩ =>
+      assertEqual "lossless persisted byte archive retains decoded text"
+        text HarnessPersistenceArchive.archivePersistenceTextExample
+      assertEqual "lossless persisted byte archive retains parsed rows"
+        input.length 4
+      assertEqual "lossless persisted byte archive retains packed and opaque rows"
+        archived.rows.length 3
+  match HarnessPersistenceArchive.archivePersistedJson
+      [HarnessPersistenceRefinement.headerExample,
+        HarnessPersistenceRefinement.packedTextExample,
+        HarnessPersistenceArchive.malformedPersistedEnvelope] with
+  | .error (.row 2 (.missingField [.index 2] "time")) => pure ()
+  | .error error => fail s!"indexed persisted archive failure returned {reprStr error}"
+  | .ok _ => fail "malformed persisted envelope was accepted"
+  match HarnessPersistenceArchive.archivePersistedJson [] with
+  | .error .missingHeader => pure ()
+  | .error error => fail s!"empty persisted archive returned {reprStr error}"
+  | .ok _ => fail "empty persisted archive was accepted"
 
 private def testHarnessPersistenceIO : IO Unit := do
   match ← HarnessPersistenceIO.fixtureMemory with
@@ -3163,6 +3213,7 @@ def run : IO Unit := do
   testRuntimeRefinement
   testTextRefinement
   testHarnessPersistence
+  testHarnessPersistenceArchive
   testHarnessPersistenceIO
   testDeepSeekApi
   testDeepSeekCurlTransport
