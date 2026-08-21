@@ -16,6 +16,7 @@ import Cordis.DeepSeekRichMultiStream
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
+import Cordis.DeepSeekHarness
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -1392,6 +1393,62 @@ private def testDeepSeekApiSession : IO Unit := do
         (DeepSeekSessionRunner.Runner.empty 2) accepted [] (by simp) (by simp)
       pure ()
 
+private def testDeepSeekHarness : IO Unit := do
+  match DeepSeekHarness.buildChatRequest { model := "empty-test" }
+      (Session.Session.empty Session.noExtensions) with
+  | .error .emptyMessages => pure ()
+  | .error error =>
+      fail s!"DeepSeek harness returned the wrong empty-request error: {reprStr error}"
+  | .ok _ => fail "DeepSeek harness built a request without messages or a system prompt"
+  match DeepSeekHarness.buildChatRequest DeepSeekHarness.counterRequestSource
+      DeepSeekHarness.counterSession with
+  | .error error => fail s!"DeepSeek harness request construction failed: {reprStr error}"
+  | .ok request =>
+      assertEqual "DeepSeek harness request keeps the configured model"
+        request.model "deterministic-counter"
+      assertEqual "DeepSeek harness request prepends its explicit system message"
+        request.messages.head (.system "Use the supplied proof-carrying counter tool.")
+  match DeepSeekHarness.sessionMessageToChatMessage
+      (.toolResult { value := 7 } "failed" true) with
+  | .error (.errorToolResult { value := 7 }) => pure ()
+  | .error error => fail s!"DeepSeek harness accepted the wrong tool-result error: {reprStr error}"
+  | .ok _ => fail "DeepSeek harness silently erased an error tool result"
+  match DeepSeekHarness.executeFunctionCall Cordis.Harness.counterConfig 0 {
+    id := "bad-call", name := "counter_read", arguments := "{" } with
+  | .error (.parseArguments "bad-call" "counter_read" _) => pure ()
+  | .error error =>
+      fail s!"DeepSeek harness returned the wrong malformed-call error: {reprStr error}"
+  | .ok _ => fail "DeepSeek harness admitted malformed tool arguments"
+  match DeepSeekHarness.executeFunctionCall Cordis.Harness.counterConfig 0 {
+    id := "unknown-call", name := "counter_destroy", arguments := "null" } with
+  | .error (.admission "unknown-call" "counter_destroy" (.unknownTool "counter_destroy")) =>
+      pure ()
+  | .error error => fail s!"DeepSeek harness returned the wrong unknown-call error: {reprStr error}"
+  | .ok _ => fail "DeepSeek harness admitted an unknown tool"
+  match ← DeepSeekHarness.counterFixture with
+  | .error error => fail s!"DeepSeek harness process-backed round failed: {reprStr error}"
+  | .ok ⟨body, result⟩ =>
+      assertEqual "DeepSeek harness preserves the response body"
+        body DeepSeekHarness.counterResponseBody
+      assertEqual "DeepSeek harness appends the accepted assistant response"
+        result.runner.session.messages [.assistant "I will read the counter." [
+          { id := { value := 0 }, name := "counter_read", arguments := "null" }
+        ]]
+      assertEqual "DeepSeek harness allocates one local tool call ID"
+        result.runner.nextCall 1
+      assertEqual "DeepSeek harness executes the dependent provider reply"
+        result.finalModel 0
+      match result.executions with
+      | [executed] =>
+          assertEqual "DeepSeek harness retains the provider tool name"
+            executed.raw.name "counter_read"
+          assertEqual "DeepSeek harness retains the certified successor model"
+            executed.reply.value.after 0
+          let _policyCertificate := DeepSeekHarness.executedTool_policy_is_allow executed
+          let _providerCertificate := DeepSeekHarness.executedTool_provider_reply executed
+          pure ()
+      | executions => fail s!"DeepSeek harness returned {executions.length} tool executions"
+
 private def testQuotientEffects : IO Unit := do
   let applied := Observational.Quotient.Example.program.run
     Observational.Quotient.Example.initial
@@ -2281,6 +2338,7 @@ def run : IO Unit := do
   testDeepSeekSessionBridge
   testDeepSeekSessionRunner
   testDeepSeekApiSession
+  testDeepSeekHarness
   testQuotientEffects
   testCoeffectQuotientLift
   testOperationalEquivalence

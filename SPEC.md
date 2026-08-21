@@ -546,6 +546,7 @@ the empty-to-final lease-threading certificate.
 | `Cordis.DeepSeekSessionBridge`   | Terminal rich-view extraction and proof-carrying session append with caller-supplied numeric call IDs and source-event evidence.                                                                                                     |
 | `Cordis.DeepSeekSessionRunner`   | Pure composition of accepted text/one-tool/mixed/multi-call responses into an append-only runner with exact sequence, message-order, and tool-call-count invariants.                                                                 |
 | `Cordis.DeepSeekApiSession`      | Fail-closed projection of decoded non-streaming DeepSeek responses into the append-only runner with singleton-choice, finish, payload, and local ID/count certificates.                                                              |
+| `Cordis.DeepSeekHarness`         | Typed model-round bridge from the session surface to a request plan, process/API response acceptance, generic dependent tool admission/policy/provider execution, and retained typed replies; deterministic fixtures exercise both success and rejection paths. |
 
 The public library umbrella is `Cordis.lean`. `Main.lean` is the
 `cordis_demo` entry point, and `Tests.lean` is the `cordis_tests` entry point.

@@ -16,6 +16,7 @@ import Cordis.DeepSeekRichMultiStream
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
+import Cordis.DeepSeekHarness
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -422,6 +423,11 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekApiSession.acceptResponse
 #print axioms Cordis.DeepSeekApiSession.Runner.appendApi
 #print axioms Cordis.DeepSeekApiSession.Runner.appendApi_session_messages
+#print axioms Cordis.DeepSeekHarness.buildChatRequest
+#print axioms Cordis.DeepSeekHarness.executeFunctionCall
+#print axioms Cordis.DeepSeekHarness.executeFunctionCalls
+#print axioms Cordis.DeepSeekHarness.executeRound
+#print axioms Cordis.DeepSeekHarness.executedTool_provider_reply
 #print axioms Cordis.Transformation.Closure.commute
 #print axioms Cordis.Transformation.commute_of_generators
 #print axioms Cordis.Transformation.seq_monoid_subset_joint

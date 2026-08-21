@@ -21,6 +21,7 @@ import Cordis.DeepSeekRichMultiStream
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
+import Cordis.DeepSeekHarness
 import Cordis.Effect
 import Cordis.Examples.Counter
 import Cordis.Examples.CounterWire
