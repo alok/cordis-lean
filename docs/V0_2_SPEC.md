@@ -219,6 +219,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekSchemaStreamConversation`, carrying the same registry through the typed
   `stream: true` SSE/rich-stream/session boundary, validating a complete streamed body before
   heterogeneous dispatch, and distinguishing a text terminal from caller-fuel exhaustion;
+- `Cordis.DeepSeekSchemaStreamPrefixConversation`, preserving the accepted line prefix and typed
+  line-budget/cancellation stop while deferring registry dispatch until the completed `[DONE]`
+  rich/session certificate;
 - `Cordis.DeepSeekHarnessErrors`, adding an explicit fail-closed/default-versus-opt-in policy seam
   for provider failures: `.include` retains typed failure evidence and appends model-visible
   `isError` tool results without changing the model state;
@@ -1087,6 +1090,13 @@ dispatched, and a finite run retains heterogeneous tool rounds or a typed exhaus
 fixture also exercises a text-only terminal body. Incremental readers, backpressure, cancellation,
 reconnects, provider-complete assembly, call-ID authenticity, persistence, external effects, and
 deployed Harness equivalence remain outside this slice.
+
+`Cordis.DeepSeekSchemaStreamPrefixConversation` sits immediately below that complete-body loop. A
+process line policy can return a proof-carrying prefix at a caller-selected boundary; a finite read
+budget is a separate stop, and only completion of the strict SSE/rich/session validator unlocks
+the dependent weather/clock dispatch. This remains line-oriented: byte framing, blocked-read
+interruption, backpressure, reconnects, provider-complete assembly, call-ID authenticity,
+persistence, external effects, and deployed Harness equivalence remain outside.
 
 `Cordis.DeepSeekHarnessPersistenceIO` composes the same runner attachment with the executable
 `HarnessPersistenceIO.ReadCertificate`. A successful memory or temporary-file read retains the

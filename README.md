@@ -280,6 +280,13 @@ complete-body process adapter; incremental delivery, backpressure, cancellation,
 provider-complete assembly, call-ID authenticity, persistence, external effects, and deployed
 Harness equivalence remain outside.
 
+`Cordis.DeepSeekSchemaStreamPrefixConversation` adds the line-oriented process-prefix boundary for
+that same heterogeneous loop. It preserves the exact accepted prefix on read-budget exhaustion or
+line cancellation and refuses to dispatch calls until a complete `[DONE]` rich/session certificate
+exists. The boundary remains line-oriented and does not claim blocked-read interruption,
+backpressure, reconnects, provider-complete assembly, call-ID authenticity, persistence, external
+effects, or deployed Harness equivalence.
+
 `Cordis.DeepSeekHarnessErrors` is the explicit opt-in continuation policy for provider failures.
 `ErrorToolResultPolicy.reject` is the default fail-closed request behavior; selecting `.include`
 lets a proof-carrying `ProviderFailedTool` become an `isError` tool-result message while retaining
@@ -1024,6 +1031,7 @@ placeholders.
 | `Cordis.DeepSeekSchemaConversation`                 | Connects registry-derived tool declarations to a typed complete-body transport request and validated response, retaining the wire plan, response certificate, heterogeneous execution batch, and runner endpoint for one round.                                                                                                          |
 | `Cordis.DeepSeekSchemaConversationLoop`             | Fuel-bounded heterogeneous transport loop with an explicit terminal no-tool response, dependent round history, model/runner endpoint, and distinct exhaustion stop; retries, cancellation, persistence, and deployed semantics remain external.                                                                                          |
 | `Cordis.DeepSeekSchemaStreamConversation`           | Complete-body SSE/rich-stream/session continuation for the heterogeneous registry: a certified `stream: true` request, terminal streamed-body validation, mixed registry dispatch, and a caller-fueled history with distinct completion/exhaustion stops; incremental delivery and deployed semantics remain external.                   |
+| `Cordis.DeepSeekSchemaStreamPrefixConversation`     | Line-oriented process-prefix continuation for the heterogeneous registry: exact accepted prefixes, typed line-budget/cancellation stops, and post-`[DONE]` dependent dispatch into the existing runner; byte framing, blocked-read interruption, and deployed semantics remain external.                                                 |
 | `Cordis.HarnessPersistenceIO`                       | Executable UTF-8 byte/text adapter over memory and filesystem backends: exact read certificates, canonical replacement, validated append-only rows, and structured invalid-encoding/semantic failures; host acknowledgements are not durability proofs.                                                                                  |
 | `Cordis.DeepSeekApi`                                | Typed OpenAI-compatible DeepSeek chat request construction, fail-closed response decoding, dependent parse/decode certificates, and an explicit transport/status/API-error boundary.                                                                                                                                                     |
 | `Cordis.DeepSeekRequestMode`                        | Type-indexed complete/streaming request plans with a proof tying the serialized `stream` flag to the mode; terminal execution accepts only the complete certificate.                                                                                                                                                                     |

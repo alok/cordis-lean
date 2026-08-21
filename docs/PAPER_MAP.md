@@ -648,6 +648,11 @@ entry-specific calls, and keeps a caller-fueled history separate from a text ter
 exhaustion. Incremental transport, provider-complete assembly, and deployed Harness equivalence
 remain unmapped claims.
 
+`Cordis.DeepSeekSchemaStreamPrefixConversation` adds the line-oriented companion: it retains an
+accepted prefix and typed budget/cancellation stop, then unlocks the same dependent registry only
+after strict `[DONE]` rich/session validation. Byte framing, blocked-read interruption, and
+deployed Harness equivalence remain unmapped.
+
 ## Paper claims not implemented by the mapped modules
 
 The following are intentionally not presented as completed formalization work.

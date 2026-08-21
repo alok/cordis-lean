@@ -609,6 +609,12 @@ text completion distinct from exhaustion. This does not prove incremental readin
 backpressure, cancellation, reconnect, provider-complete assembly, call-ID authenticity,
 persistence, external effects, or deployed Harness equivalence.
 
+`DeepSeekSchemaStreamPrefixConversation` additionally retains a process prefix at a caller-selected
+line budget or cancellation boundary and refuses registry dispatch until the completed `[DONE]`
+rich/session certificate exists. This is line-oriented evidence only; byte framing, blocked-read
+interruption, backpressure, reconnects, provider-complete assembly, call-ID authenticity,
+persistence, external effects, and deployed Harness equivalence remain unproved.
+
 ## Trusted base and assumptions
 
 ### Lean foundations and build

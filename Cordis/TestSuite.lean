@@ -34,6 +34,7 @@ import Cordis.DeepSeekSchemaRegistry
 import Cordis.DeepSeekSchemaConversation
 import Cordis.DeepSeekSchemaConversationLoop
 import Cordis.DeepSeekSchemaStreamConversation
+import Cordis.DeepSeekSchemaStreamPrefixConversation
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessErrors
@@ -2539,6 +2540,47 @@ private def testDeepSeekSchemaStreamConversation : IO Unit := do
                 terminal.processed.finished.finished.view.rawToolCalls.length 0
           | .fuelExhausted _ _ => fail "stream text terminal run exhausted before completion"
 
+private def testDeepSeekSchemaStreamPrefixConversation : IO Unit := do
+  match DeepSeekToolSchema.weatherToolCertificate,
+      DeepSeekSchemaRegistry.Example.clockToolCertificate with
+  | .error error, _ => fail s!"prefix schema weather certificate failed: {reprStr error}"
+  | _, .error error => fail s!"prefix schema clock certificate failed: {reprStr error}"
+  | .ok weatherCertificate, .ok clockCertificate =>
+      match ← DeepSeekSchemaStreamPrefixConversation.Example.dualToolPrefixRun
+          weatherCertificate clockCertificate with
+      | .error error => fail s!"prefix heterogeneous schema run failed: {reprStr error}"
+      | .ok result =>
+          assertEqual "prefix heterogeneous schema loop records one tool round"
+            result.rounds.length 1
+          assertEqual "prefix heterogeneous schema loop preserves the final model"
+            result.finalModel 0
+          match result.stop with
+          | .fuelExhausted _ _ => pure ()
+          | .completed _ _ => fail "prefix heterogeneous schema loop unexpectedly completed"
+          | .cancelled _ _ _ _ _ _ => fail "prefix schema fuel fixture reported cancellation"
+      match ← DeepSeekSchemaStreamPrefixConversation.Example.dualToolPrefixCancelled
+          weatherCertificate clockCertificate with
+      | .error error => fail s!"prefix cancellation fixture failed: {reprStr error}"
+      | .ok result =>
+          assertEqual "prefix cancellation retains no completed rounds" result.rounds.length 0
+          match result.stop with
+          | .cancelled _ _ _ line reason _ =>
+              assertEqual "prefix cancellation reports its line" line 1
+              assertEqual "prefix cancellation reports its reason" reason "cancelled:prefix"
+          | .completed _ _ => fail "prefix cancellation unexpectedly completed"
+          | .fuelExhausted _ _ => fail "prefix cancellation unexpectedly exhausted"
+      match ← DeepSeekSchemaStreamPrefixConversation.Example.textTerminalPrefixRun
+          weatherCertificate clockCertificate with
+      | .error error => fail s!"prefix text terminal fixture failed: {reprStr error}"
+      | .ok result =>
+          assertEqual "prefix text terminal has no tool rounds" result.rounds.length 0
+          match result.stop with
+          | .completed _ terminal =>
+              assertEqual "prefix text terminal has no parsed tool calls"
+                terminal.processed.finished.finished.view.rawToolCalls.length 0
+          | .fuelExhausted _ _ => fail "prefix text terminal exhausted"
+          | .cancelled _ _ _ _ _ _ => fail "prefix text terminal was cancelled"
+
 private def testDeepSeekHarnessEventArchive : IO Unit := do
   match DeepSeekHarnessEventArchive.toolRestored with
   | .error error => fail s!"current event archive restoration failed: {error}"
@@ -4473,6 +4515,7 @@ def run : IO Unit := do
   testDeepSeekHarnessMetadataArchive
   testDeepSeekToolSchema
   testDeepSeekSchemaStreamConversation
+  testDeepSeekSchemaStreamPrefixConversation
   testDeepSeekHarnessEventArchive
   testDeepSeekStreamHarness
   testDeepSeekStreamHarnessCancellation

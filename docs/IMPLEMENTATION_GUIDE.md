@@ -2103,6 +2103,14 @@ and from exhaustion. Do not silently upgrade this to incremental delivery, backp
 cancellation, reconnect, provider-complete assembly, call-ID authenticity, persistence, external
 effects, or deployed Harness equivalence.
 
+`Cordis.DeepSeekSchemaStreamPrefixConversation` is the line-oriented companion. Use its
+`LinePolicy` and read budget to expose the exact prefix and typed stop; do not feed a partial body
+to the rich/session validator or the registry executor. Only the completed `[DONE]` branch may
+advance the dependent model and runner. The process remains a complete-line adapter, so byte
+framing, blocked-read interruption, backpressure, reconnects, provider-complete assembly,
+call-ID authenticity, persistence, external effects, and deployed Harness equivalence remain
+separate work.
+
 `Cordis.DeepSeekHarnessCancellation` adds the corresponding pre-round control boundary: the policy
 is checked before a complete request round, and a cancellation result carries the unchanged
 runner/model endpoint and completed prefix. Keep the boundary honest: interrupting an in-flight
