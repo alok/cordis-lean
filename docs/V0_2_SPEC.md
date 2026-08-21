@@ -176,6 +176,10 @@ Current machine-checked evidence includes:
   `ConversationRunner` with exact final-session equality and a request certificate that is
   preserved when the request is rebuilt from the archive session; filesystem/compression,
   torn-tail repair, concurrent writers, and archive authenticity remain external;
+- `Cordis.DeepSeekHarnessEventArchive`, requiring both a lossless full-event archive and a
+  stateful semantic validation certificate before attaching current-Harness events to a
+  `ConversationRunner`; opaque known/extension events reject restoration, while the supported
+  tool-message fixture rebuilds a typed request;
 - `Cordis.DeepSeekHarnessErrors`, adding an explicit fail-closed/default-versus-opt-in policy seam
   for provider failures: `.include` retains typed failure evidence and appends model-visible
   `isError` tool results without changing the model state;
@@ -954,6 +958,13 @@ remain typed opaque records with their exact raw AST, so assistant reasoning/ima
 provider usage/failure objects, tool-result `error`/`meta`, and future request fields are retained
 without an invented local meaning.
 
+`Cordis.DeepSeekHarnessEventArchive` consumes both sides of that boundary. A
+`SupportedEventLog` carries the lossless archive, the stateful `ValidatedJsonLog`, and a proof
+that every archived event is non-opaque. `RestoredRunner` then exposes exact equality between the
+runner session and the validated final session, preserves the archive's raw-event ledger, and
+supports a proof-carrying request rebuild. The fixture is executable; known opaque and extension
+events are rejection cases rather than silently ignored records.
+
 `Cordis.SessionPayloadArchive` moves one layer inward without inventing provider semantics. It
 classifies the five current content-block tags plus unknown block extensions, retains exact message
 content arrays and source objects, preserves assistant-chunk objects and raw usage, and retains
@@ -1096,7 +1107,9 @@ This slice does not by itself prove:
 - semantic completeness for the Harness event/storage union: `HarnessPersistenceRefinement` is a
   logical semantic AST refinement for the pinned header and three packed-row forms, while
   `HarnessPersistenceArchive` preserves the header, packed row tags, and envelope-valid opaque
-  records without expanding or assigning them semantics;
+  records without expanding or assigning them semantics; `DeepSeekHarnessEventArchive` attaches
+  only the subset for which every retained event is both losslessly archived and semantically
+  validated, and does not assign meanings to opaque records;
 - byte-level persistence refinement beyond the supported `ByteArray` UTF-8/JSONL witness in
   `Cordis.HarnessPersistenceBytes`;
 - filesystem/database persistence beyond the narrow tested adapters, stable-media/flush barriers,

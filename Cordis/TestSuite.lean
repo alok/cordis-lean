@@ -24,6 +24,7 @@ import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
 import Cordis.DeepSeekHarnessPersistence
+import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessErrors
 import Cordis.DeepSeekHarnessRetry
 import Cordis.DeepSeekHarnessCancellation
@@ -2070,6 +2071,48 @@ private def testDeepSeekHarnessPersistence : IO Unit := do
               DeepSeekHarnessPersistence.persistedToolSource certificate.build_eq
           pure ()
 
+private def testDeepSeekHarnessEventArchive : IO Unit := do
+  match DeepSeekHarnessEventArchive.toolRestored with
+  | .error error => fail s!"current event archive restoration failed: {error}"
+  | .ok restored =>
+      assertEqual "current event archive restores the validated sequence endpoint"
+        restored.runner.session.nextSeq 8
+      assertEqual "current event archive restores the typed surface messages"
+        restored.runner.session.messages [
+          .user "look up lean",
+          .assistant "I will look it up." [{
+            id := { value := 0 }
+            name := "lookup"
+            arguments := "{\"q\":\"lean\"}"
+          }],
+          .toolResult { value := 0 } "result" false
+        ]
+      assertEqual "current event archive preserves every raw event in order"
+        (restored.log.archive.events.map SessionEventArchive.ArchivedEvent.raw ==
+          SessionRefinement.toolMessageExampleJson)
+        true
+      match DeepSeekHarnessEventArchive.buildRequestCertificate restored
+          { model := "deepseek-reasoner", errorToolResults := .reject } with
+      | .error error => fail s!"current event archive request construction failed: {reprStr error}"
+      | .ok certificate =>
+          assertEqual "current event archive request preserves the restored messages"
+            certificate.request.messages.toList [
+              .user "look up lean",
+              .assistant (some "I will look it up.") none [{
+                id := "0"
+                name := "lookup"
+                arguments := "{\"q\":\"lean\"}"
+              }],
+              .tool "0" "result"
+            ]
+          let _buildCertificate := certificate.build_eq
+          let _archiveCertificate :=
+            DeepSeekHarnessEventArchive.buildRequest_session_eq_archive restored
+              { model := "deepseek-reasoner", errorToolResults := .reject }
+              certificate.build_eq
+          let _supportCertificate := restored.log.supported
+          pure ()
+
 private def testDeepSeekStreamHarness : IO Unit := do
   let process := DeepSeekStreamHarness.streamFlagFixtureProcess
     DeepSeekStreamHarness.counterToolStreamBody
@@ -3957,6 +4000,7 @@ def run : IO Unit := do
   testDeepSeekApiSession
   testDeepSeekHarness
   testDeepSeekHarnessPersistence
+  testDeepSeekHarnessEventArchive
   testDeepSeekStreamHarness
   testDeepSeekStreamHarnessCancellation
   testDeepSeekStreamHarnessPrefix

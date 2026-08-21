@@ -190,6 +190,13 @@ equality to the archive's final session, and a proof-carrying request rebuilt fr
 runner is proven to be the same request rebuilt from the archive session. Filesystem I/O,
 compression, torn-tail repair, concurrent writers, and archive authenticity remain outside.
 
+`Cordis.DeepSeekHarnessEventArchive` attaches the broader current-Harness event vocabulary to
+the same runner only when both certificates are present: `SessionEventArchive` must preserve
+every envelope exactly and `SessionRefinement` must validate every event semantically. Known
+opaque and extension events therefore cause restoration to fail closed rather than being
+dropped, while the deterministic tool-message fixture restores a runner and rebuilds its typed
+request.
+
 `Cordis.DeepSeekHarnessErrors` is the explicit opt-in continuation policy for provider failures.
 `ErrorToolResultPolicy.reject` is the default fail-closed request behavior; selecting `.include`
 lets a proof-carrying `ProviderFailedTool` become an `isError` tool-result message while retaining
@@ -919,6 +926,7 @@ placeholders.
 | `Cordis.TextRefinement`                             | Newline-delimited UTF-8 JSON parsing into exact AST lines, plus proof-carrying composition with stream/session refinement and explicit text/encoding failures.                                                                                                                                                                           |
 | `Cordis.HarnessPersistenceRefinement`               | Logical Harness JSONL header/storage decoding, lossless text/reasoning/tool packed-row expansion, safe sequence/time reconstruction, and composition with stateful session validation; physical compression and crash repair remain external.                                                                                            |
 | `Cordis.HarnessPersistenceBytes`                    | Pure `ByteArray` UTF-8/JSONL ingress retaining source bytes, decoded text, parsed rows, packed expansion, and the final Session/Protocol projection; positive and rejection fixtures run at the executable boundary.                                                                                                                     |
+| `Cordis.DeepSeekHarnessEventArchive`                | Certificate-gated attachment of a lossless current-Harness event archive plus stateful semantic validation to `ConversationRunner`; opaque/extension events reject restoration, and the tool-message fixture rebuilds a typed request.                                                                                                   |
 | `Cordis.HarnessPersistenceIO`                       | Executable UTF-8 byte/text adapter over memory and filesystem backends: exact read certificates, canonical replacement, validated append-only rows, and structured invalid-encoding/semantic failures; host acknowledgements are not durability proofs.                                                                                  |
 | `Cordis.DeepSeekApi`                                | Typed OpenAI-compatible DeepSeek chat request construction, fail-closed response decoding, dependent parse/decode certificates, and an explicit transport/status/API-error boundary.                                                                                                                                                     |
 | `Cordis.DeepSeekRequestMode`                        | Type-indexed complete/streaming request plans with a proof tying the serialized `stream` flag to the mode; terminal execution accepts only the complete certificate.                                                                                                                                                                     |

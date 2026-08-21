@@ -1886,6 +1886,13 @@ metadata on log-only tags, delegates accepted records to `SessionRefinement`, an
 unsupported known payloads as raw typed opaque records. It deliberately does not invent payload
 types for assistant reasoning/image blocks, provider usage/failure objects, tool-result `error`/
 `meta`, or future request configuration.
+`Cordis.DeepSeekHarnessEventArchive` is the next type-level seam rather than a second parser. Its
+`SupportedEventLog` requires both the lossless `ArchivedLog` and the stateful
+`ValidatedJsonLog`, plus a proof that no retained event is opaque. `RestoredRunner` then makes
+the resulting `ConversationRunner.session` equal to the validated final session; request
+certificates can be rebuilt from that runner and related back to the archive session. The fixture
+demonstrates a supported tool-message archive. Opaque known payloads and extensions are rejected,
+not silently omitted, and filesystem durability remains outside.
 `Cordis.SessionPayloadArchive` is the next typed raw-payload boundary. It classifies the five
 current content-block tags plus unknown block extensions, preserves exact content arrays and
 message/chunk source objects, and retains assistant usage/tool-result `error`/`meta` as raw JSON.
@@ -1979,6 +1986,12 @@ retains the successful request construction from that restored runner, and
 same request. This is deliberately not a filesystem implementation: compression, torn-tail
 repair, concurrent writers, host acknowledgements, and archive authenticity remain separate
 engineering obligations.
+
+The broader current-event attachment is intentionally separate. `DeepSeekHarnessEventArchive`
+requires a lossless `SessionEventArchive.ArchivedLog`, a stateful `SessionRefinement.ValidatedJsonLog`,
+and an all-events-supported proof before constructing its `RestoredRunner`. This keeps the
+full event ledger available while making opaque or extension records a typed restoration error;
+the supported tool-message fixture exercises the successful request-rebuild path.
 
 `Cordis.DeepSeekHarnessCancellation` adds the corresponding pre-round control boundary: the policy
 is checked before a complete request round, and a cancellation result carries the unchanged
