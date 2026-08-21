@@ -1087,6 +1087,13 @@ Without additional proofs or tests, do not state that:
   complete provider schema compatibility, streaming behavior, executable trust, or local
   `ToolSpec` validation; they provide typed codec and pure/process transport seams exercised by
   deterministic fixtures;
+- `DeepSeekApiErrorEnvelope` proves only the response-body `{error: ...}` parse/decode certificate;
+  it does not authenticate the provider's error, establish retry/backoff safety, or change the
+  credential/network/deployment boundary;
+- `DeepSeekOutcomeTransportLoop` proves only complete-body generic-transport continuation. Its
+  non-success API-error branch preserves the typed error and unchanged runner, while malformed
+  envelopes remain typed boundary errors; incremental IO, retries, cancellation, and deployed
+  equivalence remain external;
 - `DeepSeekCurlSession` proves no source-event or provider-ID authenticity, persistence,
   cancellation, external execution, or whole-session equivalence; it is a complete-body terminal
   composition that retains the process/wire certificate and local runner append proofs;

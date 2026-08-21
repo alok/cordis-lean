@@ -4,6 +4,7 @@ import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.DeepSeekApi
+import Cordis.DeepSeekApiErrorEnvelope
 import Cordis.DeepSeekRequestMode
 import Cordis.DeepSeekCurlTransport
 import Cordis.DeepSeekCurlStream
@@ -526,6 +527,8 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekApi.decodeResponseJson
 #print axioms Cordis.DeepSeekApi.validateResponse
 #print axioms Cordis.DeepSeekApi.execute
+#print axioms Cordis.DeepSeekApiErrorEnvelope.validateApiError
+#print axioms Cordis.DeepSeekApiErrorEnvelope.validateApiError_decoded
 #print axioms Cordis.DeepSeekCurlTransport.parseOutput
 #print axioms Cordis.DeepSeekCurlTransport.parseOutput_of_split
 #print axioms Cordis.DeepSeekCurlTransport.runProcess
@@ -544,6 +547,7 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekOutcomeTransportLoop.executeOutcomeTransportRound
 #print axioms Cordis.DeepSeekOutcomeTransportLoop.runOutcomeTransport
 #print axioms Cordis.DeepSeekOutcomeTransportLoop.Example.run
+#print axioms Cordis.DeepSeekOutcomeTransportLoop.Example.apiFailureRun
 #print axioms Cordis.DeepSeekCurlSession.executeWith
 #print axioms Cordis.DeepSeekCurlSession.appendProcessed_nextSeq
 #print axioms Cordis.DeepSeekCurlSession.appendProcessed_nextCall

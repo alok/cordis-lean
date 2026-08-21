@@ -2221,10 +2221,15 @@ dependent executor and append the typed tool-result surface. Tool policy, retry,
 cancellation, and provider-ID authentication remain outside this bridge.
 `Cordis.DeepSeekOutcomeTransportLoop` carries the same continuation over the generic `Transport`
 interface. Each round builds the type-indexed streaming request, validates a complete terminal
-body, executes dependent tools, and either completes on a no-tool response or recurses with the
-updated model and runner. Its deterministic sequence transport exercises the tool-then-text path;
-transport/status/semantic/execution errors and provider failures remain distinct, while
-incremental IO, retries, cancellation, and deployed equivalence remain external.
+body, recognizes a typed non-success `{error: ...}` API envelope, executes dependent tools, and
+either completes on a no-tool response or recurses with the updated model and runner. Its
+deterministic sequence transport exercises the tool-then-text path, and its failure fixture proves
+that the API error preserves the unchanged runner; transport/status/envelope/semantic/execution
+errors and stream provider failures remain distinct, while incremental IO, error authenticity,
+retries, cancellation, and deployed equivalence remain external.
+`Cordis.DeepSeekApiErrorEnvelope` is the small reusable parser behind that status branch. It keeps
+the exact response JSON and `ApiErrorBody` together with the equality showing that the decoded
+response is an API error, rather than treating every non-success body as an opaque status string.
 `Cordis.DeepSeekApiSession` covers the non-streaming response path with the same
 fail-closed policy: singleton index-zero choice, supported finish, and nonempty
 content/tool payload are required before the append. Extra choices and unsupported

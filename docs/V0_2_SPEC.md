@@ -170,9 +170,13 @@ Current machine-checked evidence includes:
   execution variant that appends certified typed tool results;
 - `Cordis.DeepSeekOutcomeTransportLoop`, carrying the same rich terminal language across a
   generic `Transport`: each type-indexed streaming request is validated as a complete body,
-  dependent tools are executed, and the updated runner is fed into the next request. Provider
-  failure, transport/status/semantic/execution error, text completion, and fuel exhaustion are
-  distinct typed outcomes;
+  dependent tools are executed, and the updated runner is fed into the next request. Stream
+  provider failures and non-success `{error: ...}` API envelopes are retained as distinct typed
+  stops; transport/status/envelope/semantic/execution errors, text completion, and fuel exhaustion
+  remain separate;
+- `Cordis.DeepSeekApiErrorEnvelope`, validating a non-success OpenAI-compatible `{error: ...}`
+  response body with exact JSON parse/decode certificates; provider-error authenticity and retry
+  policy remain caller/runtime obligations;
 - `Cordis.DeepSeekCurlSession`, composing a terminal process-backed text response through the
   rich/session bridge and append-only runner while retaining wire and runner certificates;
 - `Cordis.DeepSeekStreamHarness`, composing complete-body terminal rich tool streams with the

@@ -63,6 +63,11 @@ non-streaming default while `buildStreamingRequest` and its body certificate
 construct the explicit `stream: true` variant. Its transport is an explicit
 `IO` seam; the repository tests deterministic pure and process-backed fixtures,
 not credentials or a live model call.
+`Cordis.DeepSeekApiErrorEnvelope` closes the adjacent non-success response seam:
+an OpenAI-compatible `{ "error": ... }` body is retained with its parsed
+`ApiErrorBody` and exact JSON decode equation, while malformed or successful
+non-error bodies remain typed validation failures. It does not authenticate
+provider errors or choose retry/backoff policy.
 `Cordis.DeepSeekRequestMode` adds the type-indexed `TypedRequestPlan`: complete
 and streaming plans carry a proof tying the request's serialized `stream` flag
 to their mode, and the terminal execution wrapper accepts only a complete plan.
@@ -115,9 +120,11 @@ preserve the conversation unchanged. It does not choose retry, persistence, canc
 failure-message policy.
 `Cordis.DeepSeekOutcomeTransportLoop` moves that rich continuation across the generic
 `Transport` boundary: each round builds a proof-carrying streaming request, validates a
-complete terminal body, executes dependent tools, and feeds the updated runner into the next
-request. Transport, status, semantic, execution, provider-failure, completion, and fuel stops
-remain distinct; incremental IO, retry, cancellation, and deployed equivalence remain outside.
+complete terminal body, validates a typed non-success API-error envelope when the status is not
+successful, executes dependent tools, and feeds the updated runner into the next request. Transport,
+status, API-envelope, semantic, execution, provider-failure, completion, and fuel stops remain
+distinct; error authenticity, incremental IO, retry, cancellation, and deployed equivalence remain
+outside.
 `Cordis.DeepSeekCurlSession` composes a terminal process-backed SSE body with the
 accepted rich-stream projections and the append-only session runner, retaining
 both the wire certificate and the resulting runner. It uses a terminal text

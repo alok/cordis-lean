@@ -1,5 +1,6 @@
 import Cordis.DeepSeekOutcomeConversation
 import Cordis.DeepSeekRequestMode
+import Cordis.DeepSeekApiErrorEnvelope
 
 /-!
 # Transport-backed terminal-outcome conversation loop
@@ -21,6 +22,7 @@ namespace Cordis.DeepSeekOutcomeTransportLoop
 
 open Cordis
 open Cordis.DeepSeekApi
+open Cordis.DeepSeekApiErrorEnvelope
 open Cordis.DeepSeekHarness
 open Cordis.DeepSeekOutcomeConversation
 open Cordis.DeepSeekStreamFailure
@@ -31,6 +33,10 @@ inductive OutcomeTransportError where
   | transport (message : String)
   | httpStatus (status : Nat) (body : String)
   | outcome (error : TerminalOutcomeError)
+  | apiEnvelope
+      (status : Nat)
+      (body : String)
+      (error : DeepSeekApiErrorEnvelope.ValidationError)
   | execution (error : ExecutionError)
 deriving DecidableEq, Repr
 
@@ -51,6 +57,11 @@ inductive OutcomeTransportResult
   | providerFailure
       (plan : TypedRequestPlan .streaming)
       (validated : ValidatedFailureStream body)
+      (runner : ConversationRunner)
+  | apiFailure
+      (plan : TypedRequestPlan .streaming)
+      (status : Nat)
+      (validated : ValidatedApiError body)
       (runner : ConversationRunner)
   | assistant (result : OutcomeTransportAssistant cfg before (body := body))
 
@@ -92,7 +103,11 @@ def executeOutcomeTransportRound
                       round
                     }⟩)
           else
-            pure (.error (.httpStatus response.status response.body))
+            match validateApiError response.body with
+            | .error error =>
+                pure (.error (.apiEnvelope response.status response.body error))
+            | .ok validated =>
+                pure (.ok ⟨response.body, .apiFailure plan response.status validated runner⟩)
 
 abbrev OutcomeTransportWitness
     {Model Capability : Type}
@@ -108,6 +123,11 @@ inductive OutcomeTransportStop
   | providerFailure
       {body : String}
       (validated : ValidatedFailureStream body)
+      (runner : ConversationRunner)
+  | apiFailure
+      {body : String}
+      (status : Nat)
+      (validated : ValidatedApiError body)
       (runner : ConversationRunner)
   | fuelExhausted
 
@@ -153,6 +173,13 @@ def runOutcomeTransportAux
             runner := failureRunner
             finalModel := before
             stop := .providerFailure validated failureRunner
+          })
+      | .ok ⟨_body, .apiFailure _ status validated failureRunner⟩ =>
+          pure (.ok {
+            rounds := history
+            runner := failureRunner
+            finalModel := before
+            stop := .apiFailure status validated failureRunner
           })
       | .ok ⟨body, .assistant assistant⟩ =>
           let witness : OutcomeTransportWitness cfg := ⟨before, ⟨body, assistant⟩⟩
@@ -203,6 +230,18 @@ def run : IO (Except OutcomeTransportError
     (OutcomeTransportRunResult Cordis.Harness.counterConfig)) := do
   let calls ← IO.mkRef 0
   runOutcomeTransport 2 (sequenceTransport calls) "https://fixture.invalid"
+    { value := "fixture-key" } DeepSeekHarness.counterRequestSource [] (by simp) (by simp) 0
+    (ConversationRunner.empty 1)
+
+def apiFailureTransport : Transport where
+  send _request := pure (.ok {
+    status := 429
+    body := DeepSeekApiErrorEnvelope.exampleBody
+  })
+
+def apiFailureRun : IO (Except OutcomeTransportError
+    (OutcomeTransportRunResult Cordis.Harness.counterConfig)) := do
+  runOutcomeTransport 2 apiFailureTransport "https://fixture.invalid"
     { value := "fixture-key" } DeepSeekHarness.counterRequestSource [] (by simp) (by simp) 0
     (ConversationRunner.empty 1)
 

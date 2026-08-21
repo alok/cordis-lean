@@ -4,6 +4,7 @@ import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.DeepSeekApi
+import Cordis.DeepSeekApiErrorEnvelope
 import Cordis.DeepSeekCurlTransport
 import Cordis.DeepSeekCurlStream
 import Cordis.DeepSeekCurlSession
@@ -1457,7 +1458,25 @@ private def testDeepSeekOutcomeTransportLoop : IO Unit := do
           let _completionEvidence := noCalls
           pure ()
       | .providerFailure _ _ => fail "outcome transport loop stopped on provider failure"
+      | .apiFailure _ _ _ => fail "outcome transport loop stopped on API failure"
       | .fuelExhausted => fail "outcome transport loop exhausted before text completion"
+  match ← DeepSeekOutcomeTransportLoop.Example.apiFailureRun with
+  | .error error => fail s!"outcome transport API failure failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "outcome transport API failure leaves rounds empty"
+        result.rounds.length 0
+      assertEqual "outcome transport API failure preserves runner"
+        result.runner.session.nextSeq 0
+      match result.stop with
+      | .apiFailure status validated runner =>
+          assertEqual "outcome transport API failure preserves status" status 429
+          assertEqual "outcome transport API failure preserves message"
+            validated.error.message "rate limited"
+          assertEqual "outcome transport API failure keeps the same runner"
+            runner.session.messages []
+      | .completed _ _ => fail "outcome transport API failure completed"
+      | .providerFailure _ _ => fail "outcome transport API failure became stream failure"
+      | .fuelExhausted => fail "outcome transport API failure exhausted"
 
 private def testDeepSeekCurlSession : IO Unit := do
   match ← DeepSeekCurlSession.fixtureTextResponse with
