@@ -2021,11 +2021,13 @@ schema vocabulary actually represented by the local DeepSeek API: an object para
 primitive property `type` tags, optional property descriptions, a duplicate-free `required`
 array whose names are present in `properties`, and optional `additionalProperties`. The
 `ValidatedParameters` and `ValidatedToolDefinition` records retain exact source JSON, while
-`CertifiedRequestSource` indexes a validated tool-list certificate by the original
-`RequestSource.tools` list before exposing certified request builders. This is intentionally not
-a full JSON-Schema interpreter: nested objects/arrays, unions, constraints, defaults, enums,
-provider extensions, and external model obedience remain unsupported and must be added with
-separate semantics rather than inferred from the raw field.
+`ValidatedArguments` checks parsed argument objects for duplicate-free fields, required names,
+primitive value kinds, and unknown names under `additionalProperties: false`. `CertifiedRequestSource`
+indexes a validated tool-list certificate by the original `RequestSource.tools` list before
+exposing certified request builders. This is intentionally not a full JSON-Schema interpreter:
+nested objects/arrays, unions, constraints, defaults, enums, provider extensions, provider-side
+validation, and external model obedience remain unsupported and must be added with separate
+semantics rather than inferred from the raw field.
 
 `Cordis.DeepSeekHarnessCancellation` adds the corresponding pre-round control boundary: the policy
 is checked before a complete request round, and a cancellation result carries the unchanged

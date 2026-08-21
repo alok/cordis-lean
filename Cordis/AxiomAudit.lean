@@ -635,6 +635,8 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessMetadataArchive.metadataRestored_request_messages
 #print axioms Cordis.DeepSeekToolSchema.validateParameters
 #print axioms Cordis.DeepSeekToolSchema.ValidatedParameters.raw_eq
+#print axioms Cordis.DeepSeekToolSchema.validateArguments
+#print axioms Cordis.DeepSeekToolSchema.ValidatedToolDefinition.validateArguments
 #print axioms Cordis.DeepSeekToolSchema.validateToolDefinition
 #print axioms Cordis.DeepSeekToolSchema.validateRequestSource
 #print axioms Cordis.DeepSeekToolSchema.CertifiedRequestSource.buildRequestPlan

@@ -192,7 +192,8 @@ Current machine-checked evidence includes:
   available beside the sanitized runner;
 - `Cordis.DeepSeekToolSchema`, adding a bounded proof-carrying function-tool schema admission
   layer with exact parameter-JSON retention, primitive property types, required-name checks,
-  duplicate-name rejection, and certified request construction;
+  duplicate-name rejection, parsed argument-object certificates, and certified request
+  construction;
 - `Cordis.DeepSeekHarnessErrors`, adding an explicit fail-closed/default-versus-opt-in policy seam
   for provider failures: `.include` retains typed failure evidence and appends model-visible
   `isError` tool results without changing the model state;
@@ -993,9 +994,11 @@ schema implementation. Its `ValidatedParameters` certificate accepts object root
 properties use primitive JSON Schema `type` tags, optional string descriptions, and an optional
 boolean `additionalProperties`; required names must be unique and present in the property map.
 `ValidatedToolDefinition` additionally rejects empty names, and `CertifiedRequestSource` rejects
-duplicate tool names before exposing request builders. Every accepted certificate retains the
-exact source parameter AST. Nested schemas, unions, constraints, defaults, enums, provider
-extensions, and model obedience remain outside this bounded vocabulary.
+duplicate tool names before exposing request builders. `ValidatedArguments` parses a candidate
+object and proves duplicate-free fields, required names, primitive value kinds, and restrictive
+unknown-field rejection. Every accepted certificate retains the exact source parameter AST.
+Nested schemas, unions, constraints, defaults, enums, provider extensions, provider-side
+validation, and model obedience remain outside this bounded vocabulary.
 
 `Cordis.DeepSeekHarnessPersistenceIO` composes the same runner attachment with the executable
 `HarnessPersistenceIO.ReadCertificate`. A successful memory or temporary-file read retains the

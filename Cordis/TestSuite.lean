@@ -2267,6 +2267,48 @@ private def testDeepSeekToolSchema : IO Unit := do
                 streamPlan.source.stream true
               let _streamCertificate := streamPlan.streaming_source_stream
           pure ()
+  assertEqual "valid weather arguments are admitted"
+    DeepSeekToolSchema.validWeatherArgumentsAccepted true
+  assertEqual "wrong primitive weather arguments are rejected"
+    DeepSeekToolSchema.wrongWeatherArgumentsRejected true
+  assertEqual "missing required weather arguments are rejected"
+    DeepSeekToolSchema.missingWeatherArgumentsRejected true
+  assertEqual "unknown weather arguments are rejected"
+    DeepSeekToolSchema.unknownWeatherArgumentsRejected true
+  match DeepSeekToolSchema.weatherToolCertificate with
+  | .error error => fail s!"weather tool argument certificate setup failed: {reprStr error}"
+  | .ok certificate =>
+      match certificate.validateArguments "{\"city\":\"San Francisco\"}" with
+      | .error error => fail s!"valid weather arguments were rejected: {reprStr error}"
+      | .ok arguments =>
+          assertEqual "validated weather arguments retain one source field"
+            arguments.fields.length 1
+          assertEqual "validated weather arguments retain the source field name"
+            (arguments.fields.map Prod.fst) ["city"]
+          let _parsed := arguments.parsed_eq
+          let _shape := arguments.source_is_object
+          let _unique := arguments.fields_nodup
+          let _required := arguments.required_present
+          let _properties := arguments.properties_valid
+          let _unknown := arguments.unknown_properties_ok
+      match certificate.validateArguments "{\"city\":3}" with
+      | .error (.typeMismatch path "string" .number) =>
+          assertEqual "wrong primitive argument reports its exact path"
+            path [.field "city"]
+      | .error error => fail s!"wrong primitive argument returned {reprStr error}"
+      | .ok _ => fail "wrong primitive argument was accepted"
+      match certificate.validateArguments "{}" with
+      | .error (.missingRequired path "city") =>
+          assertEqual "missing required argument reports its path"
+            path [.field "required", .field "city"]
+      | .error error => fail s!"missing required argument returned {reprStr error}"
+      | .ok _ => fail "missing required argument was accepted"
+      match certificate.validateArguments "{\"city\":\"SF\",\"extra\":true}" with
+      | .error (.unknownProperty path "extra") =>
+          assertEqual "unknown argument reports its exact path"
+            path [.field "extra"]
+      | .error error => fail s!"unknown argument returned {reprStr error}"
+      | .ok _ => fail "unknown argument was accepted"
   match DeepSeekToolSchema.malformedToolResult with
   | .error (.unsupportedTag path "date") =>
       assertEqual "unsupported property type reports its exact path"

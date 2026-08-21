@@ -221,10 +221,13 @@ the raw envelope ledger and proves that the known opaque `tool/result` event was
 `Cordis.DeepSeekToolSchema` adds a bounded typed admission layer for DeepSeek function tools.
 It accepts only object parameter schemas with primitive property types, optional string
 descriptions, duplicate-free required names that are present in the property object, and an
-optional boolean `additionalProperties` field. Successful certificates retain the exact source
-JSON and the original tool list, and certified request construction consumes that dependent
-certificate. Nested schemas, unions, constraints, provider extensions, complete JSON-Schema
-semantics, and model/provider compliance remain outside this deliberately small vocabulary.
+optional boolean `additionalProperties` field. For an admitted tool, `ValidatedArguments`
+also checks parsed argument objects for duplicate-free fields, required names, primitive value
+kinds, and unknown names when `additionalProperties: false`. Successful certificates retain the
+exact source JSON and the original tool list, and certified request construction consumes that
+dependent certificate. Nested schemas, unions, constraints, provider extensions, complete
+JSON-Schema semantics, provider-side validation, and model/provider compliance remain outside
+this deliberately small vocabulary.
 
 `Cordis.DeepSeekHarnessErrors` is the explicit opt-in continuation policy for provider failures.
 `ErrorToolResultPolicy.reject` is the default fail-closed request behavior; selecting `.include`
@@ -959,7 +962,7 @@ placeholders.
 | `Cordis.DeepSeekHarnessOpaqueMetadata`              | Lossless quarantine of tool-result `error`/`meta` alongside a sanitized `ConversationRunner`; exact metadata order, session equality, and request reconstruction are certified while provider/tool semantics remain uninterpreted.                                                                                                       |
 | `Cordis.DeepSeekHarnessMetadataArchive`             | Composes the full current-event envelope archive with the sanitized opaque-metadata runner seam, retaining raw envelopes, one known opaque event, exact metadata order, and a sanitized request projection without dropping the record.                                                                                                  |
 | `Cordis.DeepSeekHarnessPersistenceIO`               | Byte-backed UTF-8/JSONL read certificates attach memory- and temporary-file-backed persistence to a DeepSeek `ConversationRunner`, preserving exact session/request equalities and structured invalid-encoding failures without claiming fsync or crash durability.                                                                      |
-| `Cordis.DeepSeekToolSchema`                         | Bounded proof-carrying function-tool admission: object parameters, primitive property types, required-name and duplicate-name checks, exact source JSON retention, and certified request construction.                                                                                                                                   |
+| `Cordis.DeepSeekToolSchema`                         | Bounded proof-carrying function-tool admission: object parameters, primitive property types, required-name and duplicate-name checks, proof-carrying argument objects, exact source JSON retention, and certified request construction.                                                                                                  |
 | `Cordis.HarnessPersistenceIO`                       | Executable UTF-8 byte/text adapter over memory and filesystem backends: exact read certificates, canonical replacement, validated append-only rows, and structured invalid-encoding/semantic failures; host acknowledgements are not durability proofs.                                                                                  |
 | `Cordis.DeepSeekApi`                                | Typed OpenAI-compatible DeepSeek chat request construction, fail-closed response decoding, dependent parse/decode certificates, and an explicit transport/status/API-error boundary.                                                                                                                                                     |
 | `Cordis.DeepSeekRequestMode`                        | Type-indexed complete/streaming request plans with a proof tying the serialized `stream` flag to the mode; terminal execution accepts only the complete certificate.                                                                                                                                                                     |
