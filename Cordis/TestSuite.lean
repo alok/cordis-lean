@@ -1598,7 +1598,7 @@ private def testDeepSeekHarness : IO Unit := do
       assertEqual "fuel exhaustion retains the completed round prefix"
         result.rounds.length 1
       assertEqual "fuel exhaustion returns the post-tool runner"
-        result.runner.session.nextSeq 2
+        result.runner.session.nextSeq 3
       assertEqual "fuel exhaustion reports a non-completed stop"
         (DeepSeekHarness.ConversationStop.isCompleted result.stop) false
       let exhaustedBodiesSnapshot ← exhaustedBodies.get
