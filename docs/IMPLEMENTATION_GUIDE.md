@@ -2043,6 +2043,13 @@ successful result is a dependent existential carrying the selected generic reque
 validation equalities. The binding is not a proof that a provider schema and `ToolSpec` have the
 same semantics, nor is it execution, call-ID authentication, or deployed Harness equivalence.
 
+`Cordis.DeepSeekSchemaExecution` is the explicitly separate dispatch layer above it. Its
+`executeCertifiedCall` consumes only the existential call returned by `validateAndAdmit`, checks
+the existing generic `PolicyDecision`, and invokes the committed dependent `View` only on
+`.allow`. The result retains the provider certificate, policy equality, dependent reply, and
+execution equality; the raw compatibility executor remains available, and no live process,
+provider obedience, call-ID authenticity, or deployed equivalence is inferred.
+
 `Cordis.DeepSeekHarnessCancellation` adds the corresponding pre-round control boundary: the policy
 is checked before a complete request round, and a cancellation result carries the unchanged
 runner/model endpoint and completed prefix. Keep the boundary honest: interrupting an in-flight

@@ -1017,6 +1017,12 @@ the bound catalog operation. This is a pre-execution admission bridge, not a pro
 schema/`ToolSpec` semantic equivalence, external execution, call-ID authenticity, or deployed
 Harness equivalence.
 
+`Cordis.DeepSeekSchemaExecution` is the separate dispatch adapter for this certified path. It
+consumes only the existential call returned by `validateAndAdmit`, applies the generic policy, and
+invokes the committed dependent `View` on `.allow`, retaining policy and reply equalities. It
+does not alter raw-call compatibility execution or prove live external-tool, provider-obedience,
+call-ID, or deployed Harness semantics.
+
 `Cordis.DeepSeekHarnessPersistenceIO` composes the same runner attachment with the executable
 `HarnessPersistenceIO.ReadCertificate`. A successful memory or temporary-file read retains the
 decoded bytes/text/rows certificate before restoring the runner, and the request certificate is

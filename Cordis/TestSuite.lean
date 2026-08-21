@@ -26,6 +26,7 @@ import Cordis.DeepSeekHarness
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
 import Cordis.DeepSeekGenericBridge
+import Cordis.DeepSeekSchemaExecution
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessErrors
@@ -2358,6 +2359,20 @@ private def testDeepSeekToolSchema : IO Unit := do
             DeepSeekGenericBridge.validateAndAdmit_generic_tool_eq
               (DeepSeekGenericBridge.Example.weatherBinding certificate) checked
           let _validation := checked.validation
+          pure ()
+  assertEqual "schema-certified provider call reaches dependent execution"
+    DeepSeekSchemaExecution.Example.weatherExecutionAccepted true
+  match DeepSeekToolSchema.weatherToolCertificate with
+  | .error error => fail s!"schema execution setup failed: {reprStr error}"
+  | .ok certificate =>
+      match DeepSeekSchemaExecution.Example.weatherExecuted certificate with
+      | .error error => fail s!"schema-certified execution failed: {reprStr error}"
+      | .ok ⟨call, executed⟩ =>
+          assertEqual "schema execution selects the bound operation"
+            (call.op == DeepSeekGenericBridge.Example.Operation.weather) true
+          let _operation := executed.generic_tool_eq
+          let _policy := executed.policy
+          let _execution := executed.execution
           pure ()
   match DeepSeekToolSchema.malformedToolResult with
   | .error (.unsupportedTag path "date") =>
