@@ -69,6 +69,8 @@ structure SchemaRegistryConversationResult
     {body : String}
     (accepted : AcceptedToolCalls body)
     (batch : RegistryExecutionBatch cfg before accepted.calls) where
+  accepted : AcceptedToolCalls body
+  batch : RegistryExecutionBatch cfg before accepted.calls
   plan : TypedRequestPlan .complete
   response : ValidatedResponse body
   round : SchemaRegistryRoundResult registry runner before accepted batch
@@ -84,7 +86,7 @@ theorem SchemaRegistryConversationResult.finalRunner_nextSeq
     {batch : RegistryExecutionBatch cfg before accepted.calls}
     (result : SchemaRegistryConversationResult registry runner before accepted batch) :
     result.round.finalRunner.session.nextSeq =
-      result.round.assistantRunner.session.nextSeq + batch.executions.length := by
+      result.round.assistantRunner.session.nextSeq + result.batch.executions.length := by
   exact SchemaRegistryRoundResult.finalRunner_nextSeq result.round
 
 /-! ## Complete-body request/transport composition -/
@@ -120,6 +122,8 @@ def executeSchemaRegistryConversationRound
           | .error (.execution error) => pure (.error (.execution error))
           | .ok ⟨accepted, ⟨batch, round⟩⟩ =>
               pure (.ok ⟨body, ⟨accepted, ⟨batch, {
+                accepted
+                batch
                 plan
                 response
                 round

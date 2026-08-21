@@ -210,6 +210,12 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekSchemaRegistry`, lifting the same boundary to a finite heterogeneous registry
   whose dependent name lookup selects entry-specific schema/generic bindings, with mixed-operation
   execution, exact runner accounting, and typed unknown-name rejection;
+- `Cordis.DeepSeekSchemaConversation`, attaching registry-derived tool declarations to a typed
+  complete-body transport request and validated response while retaining the exact plan, response,
+  heterogeneous execution batch, and runner endpoint for one round;
+- `Cordis.DeepSeekSchemaConversationLoop`, carrying those rounds through a caller-fueled dependent
+  loop with an explicit validated no-tool terminal witness, accumulated round history, and a
+  distinct fuel-exhaustion stop;
 - `Cordis.DeepSeekHarnessErrors`, adding an explicit fail-closed/default-versus-opt-in policy seam
   for provider failures: `.include` retains typed failure evidence and appends model-visible
   `isError` tool results without changing the model state;
@@ -1061,6 +1067,15 @@ model through a mixed call list. `executeSchemaRegistryRound` appends the assist
 certified results to the existing runner; the fixture covers weather followed by clock and a
 later unknown-name rejection. This is not a provider-complete registry, live transport, call-ID
 authenticator, persistence layer, or deployed Harness-equivalence theorem.
+
+`Cordis.DeepSeekSchemaConversation` closes the adjacent one-round transport seam by deriving the
+typed request's tool list from that registry, executing an explicit complete-body `Transport`, and
+retaining the request plan, validated response, accepted calls, heterogeneous batch, and runner
+endpoint together. `Cordis.DeepSeekSchemaConversationLoop` then recurses under explicit fuel,
+advances the dependent model after every certified tool round, preserves an existential history,
+and retains a validated no-tool response as terminal rather than confusing it with exhaustion.
+These modules remain complete-body and caller-fueled; provider obedience, retries, cancellation,
+persistence, external effects, and deployed Harness equivalence remain outside.
 
 `Cordis.DeepSeekHarnessPersistenceIO` composes the same runner attachment with the executable
 `HarnessPersistenceIO.ReadCertificate`. A successful memory or temporary-file read retains the

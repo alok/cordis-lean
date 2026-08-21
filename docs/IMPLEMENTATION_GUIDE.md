@@ -2084,6 +2084,16 @@ list through the existing runner. The executable fixture uses weather then clock
 final sequence/model endpoint. Keep provider-complete discovery, remote transport, call-ID
 authenticity, persistence, and deployed semantics outside this pure registry.
 
+`Cordis.DeepSeekSchemaConversation` is the next composition boundary: it derives the typed
+complete-body request from the registry's exact tool list, executes an explicit transport, and
+retains the request plan, validated response, accepted calls, heterogeneous execution batch, and
+runner endpoint in one dependent result. `Cordis.DeepSeekSchemaConversationLoop` lifts that result
+under caller-supplied fuel. Its history contains only certified tool rounds; a validated response
+with no calls is an explicit terminal witness, while fuel exhaustion is a separate typed stop.
+Implement this as a finite loop over the existing registry theorem, not as an untyped retry or a
+claim about remote model/tool behavior. Retries, cancellation, persistence, and external effects
+remain separate authorities.
+
 `Cordis.DeepSeekHarnessCancellation` adds the corresponding pre-round control boundary: the policy
 is checked before a complete request round, and a cancellation result carries the unchanged
 runner/model endpoint and completed prefix. Keep the boundary honest: interrupting an in-flight

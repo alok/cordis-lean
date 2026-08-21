@@ -263,6 +263,14 @@ clock fixture proves sequential execution, runner accounting, and typed unknown-
 This remains a pure registry/runner boundary: live transport, provider obedience, call-ID
 authenticity, persistence, and deployed Harness equivalence remain outside.
 
+`Cordis.DeepSeekSchemaConversation` attaches that heterogeneous registry to the typed complete-body
+DeepSeek transport seam, retaining the request plan, validated response, accepted calls, and
+runner endpoint for one round. `Cordis.DeepSeekSchemaConversationLoop` then distinguishes a
+certified no-tool terminal response from fuel exhaustion while carrying a finite history of
+dependent tool rounds. The loop is still caller-fueled and complete-body; it does not claim
+provider obedience, retries, cancellation, persistence, external effects, or deployed Harness
+equivalence.
+
 `Cordis.DeepSeekHarnessErrors` is the explicit opt-in continuation policy for provider failures.
 `ErrorToolResultPolicy.reject` is the default fail-closed request behavior; selecting `.include`
 lets a proof-carrying `ProviderFailedTool` become an `isError` tool-result message while retaining
@@ -1004,6 +1012,8 @@ placeholders.
 | `Cordis.DeepSeekSchemaRound`                        | Bounded complete-body round for one accepted singleton assistant tool call: exact response/tool-call extraction, schema-certified dispatch, typed rejection of zero/multiple calls, and certified runner endpoint.                                                                                                                       |
 | `Cordis.DeepSeekSchemaMultiRound`                   | Bounded complete-body round for a nonempty homogeneous list of calls under one explicit schema/generic binding: sequential dependent execution, exact execution-list length, typed later-call failures, and certified multi-result runner endpoint. Heterogeneous registries and deployed semantics remain external.                     |
 | `Cordis.DeepSeekSchemaRegistry`                     | Bounded heterogeneous registry: dependent name lookup selects an entry-specific schema binding, sequential calls may target different generic operations, and the runner endpoint retains exact execution length/sequence evidence. Live transport and deployed semantics remain external.                                               |
+| `Cordis.DeepSeekSchemaConversation`                 | Connects registry-derived tool declarations to a typed complete-body transport request and validated response, retaining the wire plan, response certificate, heterogeneous execution batch, and runner endpoint for one round.                                                                                                          |
+| `Cordis.DeepSeekSchemaConversationLoop`             | Fuel-bounded heterogeneous transport loop with an explicit terminal no-tool response, dependent round history, model/runner endpoint, and distinct exhaustion stop; retries, cancellation, persistence, and deployed semantics remain external.                                                                                          |
 | `Cordis.HarnessPersistenceIO`                       | Executable UTF-8 byte/text adapter over memory and filesystem backends: exact read certificates, canonical replacement, validated append-only rows, and structured invalid-encoding/semantic failures; host acknowledgements are not durability proofs.                                                                                  |
 | `Cordis.DeepSeekApi`                                | Typed OpenAI-compatible DeepSeek chat request construction, fail-closed response decoding, dependent parse/decode certificates, and an explicit transport/status/API-error boundary.                                                                                                                                                     |
 | `Cordis.DeepSeekRequestMode`                        | Type-indexed complete/streaming request plans with a proof tying the serialized `stream` flag to the mode; terminal execution accepts only the complete certificate.                                                                                                                                                                     |

@@ -32,6 +32,7 @@ import Cordis.DeepSeekSchemaRound
 import Cordis.DeepSeekSchemaMultiRound
 import Cordis.DeepSeekSchemaRegistry
 import Cordis.DeepSeekSchemaConversation
+import Cordis.DeepSeekSchemaConversationLoop
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessErrors
@@ -2459,6 +2460,36 @@ private def testDeepSeekToolSchema : IO Unit := do
             (DeepSeekSchemaHarness.Example.counterRunner.session.nextSeq + 3)
           assertEqual "transport-backed registry sends both declared tools"
             result.plan.source.tools.length 2
+  match DeepSeekToolSchema.weatherToolCertificate,
+      DeepSeekSchemaRegistry.Example.clockToolCertificate with
+  | .error error, _ => fail s!"schema conversation loop weather schema failed: {reprStr error}"
+  | _, .error error => fail s!"schema conversation loop clock schema failed: {reprStr error}"
+  | .ok weatherCertificate, .ok clockCertificate =>
+      match ← DeepSeekSchemaConversationLoop.Example.dualConversationRun
+          weatherCertificate clockCertificate with
+      | .error error => fail s!"schema conversation loop failed: {reprStr error}"
+      | .ok result =>
+          assertEqual "schema conversation loop records one tool round"
+            result.rounds.length 1
+          assertEqual "schema conversation loop preserves the final model"
+            result.finalModel 0
+          assertEqual "schema conversation loop appends the tool round"
+            result.runner.session.nextSeq
+            (DeepSeekSchemaHarness.Example.counterRunner.session.nextSeq + 3)
+          match result.stop with
+          | .completed terminal =>
+              assertEqual "schema conversation loop retains terminal no-tool response"
+                terminal.accepted.validated.response.choices.head.message.toolCalls []
+          | .fuelExhausted _ _ => fail "schema conversation loop exhausted before terminal response"
+      match ← DeepSeekSchemaConversationLoop.Example.dualConversationExhausted
+          weatherCertificate clockCertificate with
+      | .error error => fail s!"schema conversation loop exhaustion fixture failed: {reprStr error}"
+      | .ok result =>
+          match result.stop with
+          | .fuelExhausted _ _ =>
+              assertEqual "schema conversation loop preserves its certified prefix on exhaustion"
+                result.rounds.length 1
+          | .completed _ => fail "schema conversation loop reported completion without fuel"
   match DeepSeekToolSchema.malformedToolResult with
   | .error (.unsupportedTag path "date") =>
       assertEqual "unsupported property type reports its exact path"
