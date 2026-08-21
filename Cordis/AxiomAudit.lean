@@ -14,6 +14,7 @@ import Cordis.DeepSeekCurlPrefixSession
 import Cordis.DeepSeekCurlOutcome
 import Cordis.DeepSeekOutcomeSession
 import Cordis.DeepSeekOutcomeConversation
+import Cordis.DeepSeekOutcomeConversationLoop
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekStreamFailure
 import Cordis.DeepSeekTerminalOutcome
@@ -537,6 +538,8 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekOutcomeConversation.executeAndDispatchOutcome
 #print axioms Cordis.DeepSeekOutcomeConversation.executeOutcomeWithTools
 #print axioms Cordis.DeepSeekOutcomeConversation.executeAndRunOutcome
+#print axioms Cordis.DeepSeekOutcomeConversationLoop.runOutcomeBodies
+#print axioms Cordis.DeepSeekOutcomeConversationLoop.exampleRun
 #print axioms Cordis.DeepSeekCurlSession.executeWith
 #print axioms Cordis.DeepSeekCurlSession.appendProcessed_nextSeq
 #print axioms Cordis.DeepSeekCurlSession.appendProcessed_nextCall

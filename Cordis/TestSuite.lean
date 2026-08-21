@@ -13,6 +13,7 @@ import Cordis.DeepSeekCurlPrefixSession
 import Cordis.DeepSeekCurlOutcome
 import Cordis.DeepSeekOutcomeSession
 import Cordis.DeepSeekOutcomeConversation
+import Cordis.DeepSeekOutcomeConversationLoop
 import Cordis.DeepSeekAsyncHarness
 import Cordis.DeepSeekAsyncStreamHarness
 import Cordis.DeepSeekAsyncStreamCancellation
@@ -1413,6 +1414,25 @@ private def testDeepSeekOutcomeConversationExecution : IO Unit := do
       assertEqual "outcome conversation counter execution appends tool result"
         round.runner.session.nextSeq 2
   | .ok _ => fail "outcome conversation counter execution returned a failure"
+
+private def testDeepSeekOutcomeConversationLoop : IO Unit := do
+  match DeepSeekOutcomeConversationLoop.exampleRun with
+  | .error error => fail s!"outcome conversation loop failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "outcome conversation loop executes two terminal rounds"
+        result.rounds.length 2
+      assertEqual "outcome conversation loop preserves final model"
+        result.finalModel 0
+      assertEqual "outcome conversation loop retains one tool call"
+        result.runner.nextCall 1
+      assertEqual "outcome conversation loop appends assistant/tool/assistant"
+        result.runner.session.nextSeq 3
+      match result.stop with
+      | .completed _ noCalls =>
+          let _completionEvidence := noCalls
+          pure ()
+      | .providerFailure _ _ => fail "outcome conversation loop stopped on provider failure"
+      | .fuelExhausted => fail "outcome conversation loop exhausted before text completion"
 
 private def testDeepSeekCurlSession : IO Unit := do
   match ← DeepSeekCurlSession.fixtureTextResponse with
@@ -4786,6 +4806,7 @@ def run : IO Unit := do
   testDeepSeekOutcomeSession
   testDeepSeekOutcomeConversation
   testDeepSeekOutcomeConversationExecution
+  testDeepSeekOutcomeConversationLoop
   testDeepSeekCurlSession
   testDeepSeekCurlIncremental
   testDeepSeekCurlPrefix

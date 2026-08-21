@@ -19,6 +19,7 @@ import Cordis.DeepSeekCurlPrefixSession
 import Cordis.DeepSeekCurlOutcome
 import Cordis.DeepSeekOutcomeSession
 import Cordis.DeepSeekOutcomeConversation
+import Cordis.DeepSeekOutcomeConversationLoop
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekStreamFailure
 import Cordis.DeepSeekTerminalOutcome
