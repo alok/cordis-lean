@@ -30,6 +30,7 @@ import Cordis.DeepSeekSchemaExecution
 import Cordis.DeepSeekSchemaHarness
 import Cordis.DeepSeekSchemaRound
 import Cordis.DeepSeekSchemaMultiRound
+import Cordis.DeepSeekSchemaRegistry
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessErrors
@@ -2433,6 +2434,12 @@ private def testDeepSeekToolSchema : IO Unit := do
     DeepSeekSchemaMultiRound.Example.twoWeatherRoundFinalNextSeq true
   assertEqual "schema-aware multi-round rejects a later wrong tool name"
     DeepSeekSchemaMultiRound.Example.wrongSecondNameRejected true
+  assertEqual "schema registry executes heterogeneous weather and clock tools"
+    DeepSeekSchemaRegistry.Example.dualRoundAccepted true
+  assertEqual "schema registry accounts for assistant plus heterogeneous results"
+    DeepSeekSchemaRegistry.Example.dualRoundFinalNextSeq true
+  assertEqual "schema registry rejects an unknown later tool name"
+    DeepSeekSchemaRegistry.Example.unknownToolRejected true
   match DeepSeekToolSchema.malformedToolResult with
   | .error (.unsupportedTag path "date") =>
       assertEqual "unsupported property type reports its exact path"

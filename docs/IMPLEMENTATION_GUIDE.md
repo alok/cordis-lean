@@ -2075,6 +2075,15 @@ existing runner theorem and exposes a typed index for a later-call failure. The 
 is intentionally homogeneous; a heterogeneous schema registry needs a separate dependent lookup
 certificate rather than an implicit name-to-tool map.
 
+`Cordis.DeepSeekSchemaRegistry` is that next dependent lookup slice. `SchemaToolRegistry` carries
+name-unique entries whose bindings may select different catalog operations, while
+`resolveSchemaTool` retains the selected entry and exact name equality. The recursive registry
+executor preserves the dependent model transition for each selected entry, emits a typed unknown-
+name or execution failure with its call index, and appends the resulting heterogeneous execution
+list through the existing runner. The executable fixture uses weather then clock and checks the
+final sequence/model endpoint. Keep provider-complete discovery, remote transport, call-ID
+authenticity, persistence, and deployed semantics outside this pure registry.
+
 `Cordis.DeepSeekHarnessCancellation` adds the corresponding pre-round control boundary: the policy
 is checked before a complete request round, and a cancellation result carries the unchanged
 runner/model endpoint and completed prefix. Keep the boundary honest: interrupting an in-flight

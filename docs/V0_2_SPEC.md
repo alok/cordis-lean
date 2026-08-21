@@ -207,6 +207,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekSchemaMultiRound`, lifting that composition to a nonempty homogeneous list under
   one explicit provider/generic binding, with sequential dependent model transitions, exact
   execution-list length, typed later-call failures, and certified multi-result runner append;
+- `Cordis.DeepSeekSchemaRegistry`, lifting the same boundary to a finite heterogeneous registry
+  whose dependent name lookup selects entry-specific schema/generic bindings, with mixed-operation
+  execution, exact runner accounting, and typed unknown-name rejection;
 - `Cordis.DeepSeekHarnessErrors`, adding an explicit fail-closed/default-versus-opt-in policy seam
   for provider failures: `.include` retains typed failure evidence and appends model-visible
   `isError` tool results without changing the model state;
@@ -1049,6 +1052,15 @@ certificate, the exact final model, an execution-list length equality, typed fai
 and the runner endpoint after appending every certified result. Heterogeneous schema registries,
 live transport, provider obedience, call-ID authenticity, persistence, and deployed Harness
 equivalence remain outside.
+
+`Cordis.DeepSeekSchemaRegistry` removes only the homogeneous-binding restriction in a bounded,
+source-local way. `SchemaToolRegistry` stores entry-specific provider declarations and dependent
+`SchemaToolBinding`s, `resolveSchemaTool` returns the chosen entry together with exact name
+equality, and `executeSchemaRegistryCalls` threads the selected operation's certified successor
+model through a mixed call list. `executeSchemaRegistryRound` appends the assistant plus all
+certified results to the existing runner; the fixture covers weather followed by clock and a
+later unknown-name rejection. This is not a provider-complete registry, live transport, call-ID
+authenticator, persistence layer, or deployed Harness-equivalence theorem.
 
 `Cordis.DeepSeekHarnessPersistenceIO` composes the same runner attachment with the executable
 `HarnessPersistenceIO.ReadCertificate`. A successful memory or temporary-file read retains the

@@ -33,6 +33,7 @@ import Cordis.DeepSeekSchemaExecution
 import Cordis.DeepSeekSchemaHarness
 import Cordis.DeepSeekSchemaRound
 import Cordis.DeepSeekSchemaMultiRound
+import Cordis.DeepSeekSchemaRegistry
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessErrors
