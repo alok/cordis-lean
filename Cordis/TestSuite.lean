@@ -1278,6 +1278,46 @@ private def testSessionRefinement : IO Unit := do
       assertEqual "request/header retains provider/model and selected tool schema"
         header SessionRefinement.headerChunkExpectedHeader
   | _ => fail "request/header was not retained in the certified session log"
+  match SessionRefinement.validationSummary
+      (SessionRefinement.validateJsonLog SessionRefinement.metadataExampleJson) with
+  | none => fail "todo/context/seed example failed to validate"
+  | some summary =>
+      assertRuntimeStateEqual "todo/context/seed metadata remains log-only"
+        (eraseState summary.protocol) (.ready 2)
+      assertEqual "todo/context/seed metadata preserves sequence continuity"
+        summary.nextSeq 8
+      assertEqual "todo/context/seed metadata does not alter model messages"
+        summary.messages []
+      assertEqual "todo/context/seed metadata preserves only structural runtime events"
+        summary.runtimeEvents [
+          .turnStart 1,
+          .stepStart 1 0,
+          .stepEnd 1 0,
+          .turnEnd 1 1
+        ]
+  match SessionRefinement.decodeEvents SessionRefinement.metadataExampleJson with
+  | .ok (first :: second :: third :: _) =>
+      match first.payload, second.payload, third.payload with
+      | .requestContext context, .todoWrite write, .sessionEndSeed =>
+          assertEqual "request/context retains its provider route"
+            context.provider "deepseek"
+          assertEqual "request/context retains its model route"
+            context.model "deepseek-reasoner"
+          assertEqual "request/context retains its safe context window"
+            (context.contextWindow.map (fun value => value.value)) (some 131072)
+          assertEqual "todo/write retains the complete whole-list snapshot"
+            write.todos [
+              { content := "formalize context", status := .completed },
+              { content := "audit session seed", status := .inProgress }
+            ]
+      | _, _, _ => fail "decoded metadata payload tags were not preserved"
+  | result => fail s!"todo/write/session-end-seed payloads were not retained: {reprStr result}"
+  match SessionRefinement.decodeEvent SessionRefinement.malformedTodoStatusExampleJson with
+  | .error (.unsupportedTag _ "blocked") => pure ()
+  | result => fail s!"unknown todo status was not rejected: {reprStr result}"
+  match SessionRefinement.decodeEvent SessionRefinement.malformedSessionEndSeedExampleJson with
+  | .error (.unsupportedField _ "unexpected") => pure ()
+  | result => fail s!"nonempty session/end-seed payload was not rejected: {reprStr result}"
   match SessionRefinement.decodeEvent SessionRefinement.malformedAssistantChunkExampleJson with
   | .error (.unsupportedTag _ "reasoning-delta") => pure ()
   | result => fail s!"reasoning assistant chunk was not rejected: {reprStr result}"

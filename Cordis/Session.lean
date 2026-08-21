@@ -40,6 +40,33 @@ structure RequestHeader where
   toolSchemas : List ToolSchema
   deriving DecidableEq, Repr
 
+/-- One item in the log-only whole-list todo snapshot. -/
+inductive TodoStatus where
+  | pending
+  | inProgress
+  | completed
+  deriving DecidableEq, Repr
+
+structure TodoItem where
+  content : String
+  status : TodoStatus
+  deriving DecidableEq, Repr
+
+structure TodoWritePayload where
+  todos : List TodoItem
+  deriving DecidableEq, Repr
+
+/-- Route metadata logged separately from the full request header. -/
+structure RequestContext where
+  provider : String
+  model : String
+  contextWindow : Option Nat
+  deriving DecidableEq, Repr
+
+/-- The seed boundary carries meaning in its sequence position, not its payload. -/
+structure SessionEndSeedPayload where
+  deriving DecidableEq, Repr
+
 /-- Why a harness turn stopped. -/
 inductive TurnEndReason where
   | completed
@@ -129,6 +156,9 @@ inductive Kind (schema : ExtensionSchema) : Visibility → Type where
   | stepEnd : Kind schema .logOnly
   | userMessage : Kind schema .surface
   | requestHeader : Kind schema .logOnly
+  | todoWrite : Kind schema .logOnly
+  | requestContext : Kind schema .logOnly
+  | sessionEndSeed : Kind schema .logOnly
   | assistantChunk : Kind schema .logOnly
   | assistantMessage : Kind schema .surface
   | toolCall : Kind schema .logOnly
@@ -146,6 +176,9 @@ namespace Kind
   | _, .stepEnd => StepEndPayload
   | _, .userMessage => UserMessagePayload
   | _, .requestHeader => RequestHeader
+  | _, .todoWrite => TodoWritePayload
+  | _, .requestContext => RequestContext
+  | _, .sessionEndSeed => SessionEndSeedPayload
   | _, .assistantChunk => AssistantChunkPayload
   | _, .assistantMessage => AssistantMessagePayload
   | _, .toolCall => ToolCallEventPayload
@@ -170,6 +203,9 @@ def projectMessage {schema : ExtensionSchema} :
   | _, .stepEnd, _ => none
   | _, .userMessage, payload => some (.user payload.content)
   | _, .requestHeader, _ => none
+  | _, .todoWrite, _ => none
+  | _, .requestContext, _ => none
+  | _, .sessionEndSeed, _ => none
   | _, .assistantChunk, _ => none
   | _, .assistantMessage, payload => some (.assistant payload.content payload.rawToolCalls)
   | _, .toolCall, _ => none

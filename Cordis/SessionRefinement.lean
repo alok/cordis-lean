@@ -18,20 +18,21 @@ The translation synthesizes only values fixed by the accepted prefix and named n
 * provider string call ids receive the next fresh local numeric id and remain in a certified map;
 * absent tool-result `isError` becomes `false`, matching the TypeScript optional Boolean default.
 
-The supported event vocabulary is turn/step boundaries, restricted request headers, text-only
-assistant chunks, text-only user messages, assistant messages with text and complete tool-call
-blocks, tool calls, and a restricted tool result whose three call-id occurrences agree and whose
-nested result content is exactly one text block. Only upstream `completed` and `max-tokens` turn-end
-reasons map without information loss. Surface messages retain their upstream identity and source
-metadata in the refinement state while their text and typed tool calls are projected into the
-smaller local `Session.Message` vocabulary. Request-header wire witnesses retain the provider/model,
-optional system text, selected tool schemas, and stop reason; the local `Session.RequestHeader`
-projection retains the fields it represents. Assistant chunks retain only text-delta blocks at
-index zero as log-only events.
+The supported event vocabulary is turn/step boundaries, restricted request headers, route context,
+whole-list todo snapshots, empty session-seed markers, text-only assistant chunks, text-only user
+messages, assistant messages with text and complete tool-call blocks, tool calls, and a restricted
+tool result whose three call-id occurrences agree and whose nested result content is exactly one
+text block. Only upstream `completed` and `max-tokens` turn-end reasons map without information
+loss. Surface messages retain their upstream identity and source metadata in the refinement state
+while their text and typed tool calls are projected into the smaller local `Session.Message`
+vocabulary. Request-header wire witnesses retain the provider/model, optional system text, selected
+tool schemas, and stop reason; the local `Session.RequestHeader` projection retains the fields it
+represents. Route context, todo items, and the empty seed boundary are retained as typed log-only
+payloads. Assistant chunks retain only text-delta blocks at index zero as log-only events.
 
-Request context, todo/session-end seed events, assistant reasoning blocks,
-assistant replay state, tool-result error identity/meta, multimodal tool results, and all extension
-events are rejected. Complete assistant tool calls are allocated into the same provider-to-local
+Assistant reasoning blocks, assistant replay state, tool-result error identity/meta, multimodal tool
+results, unknown todo statuses, nonempty seed payloads, and all extension events are rejected.
+Complete assistant tool calls are allocated into the same provider-to-local
 binding state used by later `tool/call` and `tool/result` events. Their upstream payloads still
 contain arbitrary JSON, provenance, replay data, or modalities absent from the local types. The
 wire witness retains upstream `time`; the local session has no timestamp field, so no local
@@ -114,6 +115,61 @@ def toLocal (header : WireRequestHeader) : Session.RequestHeader := {
 
 end WireRequestHeader
 
+/-- A source-shaped todo status; the whole list is a log-only snapshot. -/
+inductive WireTodoStatus where
+  | pending
+  | inProgress
+  | completed
+  deriving BEq, DecidableEq, Repr
+
+structure WireTodoItem where
+  content : String
+  status : WireTodoStatus
+  deriving DecidableEq, Repr
+
+structure WireTodoWrite where
+  todos : List WireTodoItem
+  deriving DecidableEq, Repr
+
+namespace WireTodoStatus
+
+def toLocal : WireTodoStatus → Session.TodoStatus
+  | .pending => .pending
+  | .inProgress => .inProgress
+  | .completed => .completed
+
+end WireTodoStatus
+
+namespace WireTodoWrite
+
+def toLocalItem (item : WireTodoItem) : Session.TodoItem := {
+  content := item.content
+  status := item.status.toLocal
+}
+
+def toLocal (write : WireTodoWrite) : Session.TodoWritePayload := {
+  todos := write.todos.map WireTodoWrite.toLocalItem
+}
+
+end WireTodoWrite
+
+/-- Route metadata separate from the full request/header snapshot. -/
+structure WireRequestContext where
+  provider : String
+  model : String
+  contextWindow : Option SafeNat
+  deriving DecidableEq, Repr
+
+namespace WireRequestContext
+
+def toLocal (context : WireRequestContext) : Session.RequestContext := {
+  provider := context.provider
+  model := context.model
+  contextWindow := context.contextWindow.map (fun value => value.value)
+}
+
+end WireRequestContext
+
 /-- A text-only `assistant/chunk` payload. Other stream block kinds stay outside this slice. -/
 structure WireAssistantChunk where
   turn : SafeNat
@@ -195,6 +251,9 @@ inductive WirePayload where
   | stepStart (turn step : SafeNat)
   | stepEnd (turn step : SafeNat)
   | requestHeader (header : WireRequestHeader)
+  | todoWrite (write : WireTodoWrite)
+  | requestContext (context : WireRequestContext)
+  | sessionEndSeed
   | assistantChunk (chunk : WireAssistantChunk)
   | userMessage (append : WireSurfaceAppend)
   | assistantMessage (turn step : SafeNat) (append : WireSurfaceAppend)
@@ -509,6 +568,67 @@ private def decodeWireRequestHeaderReason (path : List PathSegment) : Lean.Json 
   | .str reason => .error (.unsupportedTag path reason)
   | value => .error (.typeMismatch path "string" (jsonKind value))
 
+private def decodeWireTodoStatus (path : List PathSegment) : Lean.Json →
+    Except DecodeError WireTodoStatus
+  | .str "pending" => .ok .pending
+  | .str "in_progress" => .ok .inProgress
+  | .str "completed" => .ok .completed
+  | .str status => .error (.unsupportedTag path status)
+  | value => .error (.typeMismatch path "string" (jsonKind value))
+
+private def decodeWireTodoItem (path : List PathSegment) (json : Lean.Json) :
+    Except DecodeError WireTodoItem :=
+  match json with
+  | .obj _ => do
+      let content ← decodeRequiredString json path "content"
+      let status ← decodeWireTodoStatus (fieldPath path "status")
+        (← requireField json path "status")
+      .ok { content, status }
+  | value => .error (.typeMismatch path "object" (jsonKind value))
+
+private def decodeWireTodoItems (path : List PathSegment) (json : Lean.Json) :
+    Except DecodeError (List WireTodoItem) :=
+  match json with
+  | .arr values =>
+      let rec loop : Nat → List Lean.Json → Except DecodeError (List WireTodoItem)
+        | _, [] => .ok []
+        | index, value :: rest => do
+            let item ← decodeWireTodoItem (indexPath path index) value
+            let suffix ← loop (index + 1) rest
+            .ok (item :: suffix)
+      loop 0 values.toList
+  | value => .error (.typeMismatch path "array" (jsonKind value))
+
+private def decodeWireTodoWriteData (event : Lean.Json) (eventPath : List PathSegment)
+    (data : Lean.Json) (dataPath : List PathSegment) : Except DecodeError WireTodoWrite := do
+  rejectSurfaceMetadata event eventPath
+  let todos ← decodeWireTodoItems (fieldPath dataPath "todos")
+    (← requireField data dataPath "todos")
+  .ok { todos }
+
+private def decodeWireRequestContextData (event : Lean.Json) (eventPath : List PathSegment)
+    (data : Lean.Json) (dataPath : List PathSegment) :
+    Except DecodeError WireRequestContext := do
+  rejectSurfaceMetadata event eventPath
+  let provider ← decodeRequiredString data dataPath "provider"
+  let model ← decodeRequiredString data dataPath "model"
+  let contextWindow ← decodeOptionalNat data dataPath "contextWindow"
+  .ok { provider, model, contextWindow }
+
+private def decodeWireSessionEndSeedData (event : Lean.Json) (eventPath : List PathSegment)
+    (data : Lean.Json) (dataPath : List PathSegment) :
+    Except DecodeError Unit :=
+  match data with
+  | .obj fields =>
+      match fields.toList with
+      | [] => do
+          rejectSurfaceMetadata event eventPath
+          .ok ()
+      | (name, _) :: _ => do
+          rejectSurfaceMetadata event eventPath
+          .error (.unsupportedField dataPath name)
+  | value => .error (.typeMismatch dataPath "object" (jsonKind value))
+
 private def decodeWireRequestHeaderData (event : Lean.Json) (eventPath : List PathSegment)
     (data : Lean.Json) (dataPath : List PathSegment) :
     Except DecodeError WireRequestHeader := do
@@ -641,6 +761,13 @@ private def decodePayload (event : Lean.Json) (path : List PathSegment)
             (← decodeRequiredNat data dataPath "step")
       | "request/header" =>
           .requestHeader <$> decodeWireRequestHeaderData event path data dataPath
+      | "todo/write" =>
+          .todoWrite <$> decodeWireTodoWriteData event path data dataPath
+      | "request/context" =>
+          .requestContext <$> decodeWireRequestContextData event path data dataPath
+      | "session/end-seed" => do
+          let _ ← decodeWireSessionEndSeedData event path data dataPath
+          return .sessionEndSeed
       | "assistant/chunk" =>
           .assistantChunk <$> decodeWireAssistantChunkData event path data dataPath
       | "user/message" =>
@@ -964,6 +1091,36 @@ private def candidate (before : State) (wire : WireEvent) :
       }
   | .requestHeader header =>
       let localEvent := logOnlyEvent wire.seq.value .requestHeader header.toLocal
+      .ok {
+        localEvent
+        runtime := none
+        calls := before.calls
+        wireAppend := none
+        seq_eq := rfl
+        projection_eq := rfl
+      }
+  | .todoWrite write =>
+      let localEvent := logOnlyEvent wire.seq.value .todoWrite write.toLocal
+      .ok {
+        localEvent
+        runtime := none
+        calls := before.calls
+        wireAppend := none
+        seq_eq := rfl
+        projection_eq := rfl
+      }
+  | .requestContext context =>
+      let localEvent := logOnlyEvent wire.seq.value .requestContext context.toLocal
+      .ok {
+        localEvent
+        runtime := none
+        calls := before.calls
+        wireAppend := none
+        seq_eq := rfl
+        projection_eq := rfl
+      }
+  | .sessionEndSeed =>
+      let localEvent := logOnlyEvent wire.seq.value .sessionEndSeed {}
       .ok {
         localEvent
         runtime := none
@@ -1573,6 +1730,72 @@ def headerChunkExampleJson : List Lean.Json := [
   ]
 ]
 
+/-! ## Todo/context/seed log-only example -/
+
+def metadataExampleJson : List Lean.Json := [
+  Lean.Json.mkObj [
+    ("type", .str "request/context"), ("seq", .num 0), ("time", .num 500),
+    ("data", Lean.Json.mkObj [
+      ("provider", .str "deepseek"), ("model", .str "deepseek-reasoner"),
+      ("contextWindow", .num 131072)
+    ])
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "todo/write"), ("seq", .num 1), ("time", .num 501),
+    ("data", Lean.Json.mkObj [
+      ("todos", .arr #[
+        Lean.Json.mkObj [("content", .str "formalize context"), ("status", .str "completed")],
+        Lean.Json.mkObj [("content", .str "audit session seed"), ("status", .str "in_progress")]
+      ])
+    ])
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "session/end-seed"), ("seq", .num 2), ("time", .num 502),
+    ("data", Lean.Json.mkObj [])
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "turn/start"), ("seq", .num 3), ("time", .num 503),
+    ("data", Lean.Json.mkObj [("turn", .num 1)])
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "step/start"), ("seq", .num 4), ("time", .num 504),
+    ("data", Lean.Json.mkObj [("turn", .num 1), ("step", .num 1)])
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "assistant/chunk"), ("seq", .num 5), ("time", .num 505),
+    ("data", Lean.Json.mkObj [
+      ("turn", .num 1), ("step", .num 1),
+      ("chunk", Lean.Json.mkObj [
+        ("type", .str "text-delta"), ("index", .num 0), ("text", .str "seeded")
+      ])
+    ])
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "step/end"), ("seq", .num 6), ("time", .num 506),
+    ("data", Lean.Json.mkObj [("turn", .num 1), ("step", .num 1)])
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "turn/end"), ("seq", .num 7), ("time", .num 507),
+    ("data", Lean.Json.mkObj [
+      ("turn", .num 1), ("reason", Lean.Json.mkObj [("kind", .str "completed")])
+    ])
+  ]
+]
+
+def malformedTodoStatusExampleJson : Lean.Json := Lean.Json.mkObj [
+  ("type", .str "todo/write"), ("seq", .num 0), ("time", .num 0),
+  ("data", Lean.Json.mkObj [
+    ("todos", .arr #[
+      Lean.Json.mkObj [("content", .str "blocked task"), ("status", .str "blocked")]
+    ])
+  ])
+]
+
+def malformedSessionEndSeedExampleJson : Lean.Json := Lean.Json.mkObj [
+  ("type", .str "session/end-seed"), ("seq", .num 0), ("time", .num 0),
+  ("data", Lean.Json.mkObj [("unexpected", .bool true)])
+]
+
 def malformedAssistantChunkExampleJson : Lean.Json := Lean.Json.mkObj [
   ("type", .str "assistant/chunk"), ("seq", .num 0), ("time", .num 0),
   ("data", Lean.Json.mkObj [
@@ -1768,6 +1991,34 @@ theorem validate_header_chunk_example :
 theorem validate_header_chunk_latestHeader :
     latestHeaderSummary (validateJsonLog headerChunkExampleJson) =
       some (some headerChunkExpectedHeader) := by
+  rfl
+
+/-- Todo, route-context, and seed-boundary events remain log-only while a later turn still
+    validates through the same stateful protocol/refinement fold. -/
+theorem validate_metadata_example :
+    validationSummary (validateJsonLog metadataExampleJson) = some {
+      protocol := .ready 2
+      nextSeq := 8
+      messages := []
+      runtimeEvents := [
+        .turnStart 1,
+        .stepStart 1 0,
+        .stepEnd 1 0,
+        .turnEnd 1 1
+      ]
+    } := by
+  rfl
+
+/-- Todo statuses are a closed source union; unknown status strings fail at their indexed path. -/
+theorem reject_todo_unknownStatus :
+    decodeEvent malformedTodoStatusExampleJson = .error (.unsupportedTag
+      [.field "data", .field "todos", .index 0, .field "status"] "blocked") := by
+  rfl
+
+/-- The seed marker has an empty payload; extra fields are not silently discarded. -/
+theorem reject_sessionEndSeed_nonempty :
+    decodeEvent malformedSessionEndSeedExampleJson = .error (.unsupportedField
+      [.field "data"] "unexpected") := by
   rfl
 
 theorem reject_replacement_incompleteCoverage :

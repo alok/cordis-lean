@@ -739,7 +739,8 @@ sound supported-subset refinement; it is not a completeness or behavioral-equiva
 for the TypeScript `BlockAssembler`.
 
 `Cordis.SessionRefinement` covers a separate stateful subset of current `SessionEvent` JSON:
-turn/step boundaries, selected request/header snapshots, text-only index-zero assistant chunks,
+turn/step boundaries, selected request/header snapshots, route context, whole-list todo snapshots,
+empty seed markers, and text-only index-zero assistant chunks,
 text user/assistant blocks, complete assistant tool-call blocks, tool calls, restricted
 singleton-text tool results, and exact append/replacement surface operations. It retains source sequence/time values in wire witnesses, derives
 local zero-based steps and `turn/end.nextStep` only from the validated prefix, and assigns
@@ -750,7 +751,7 @@ surface IDs, provider/model metadata, usage, and source references
 remain in `State.wireSurface`, while the local session stores projected text plus typed tool calls.
 Every admitted event passes the rich
 Session append validator; runtime events also pass the intrinsic Protocol validator. Unsupported
-request-context/todo/session-seed events, unsupported header fields, non-text chunks, replay state,
+header fields, unknown todo statuses, nonempty seed payloads, non-text chunks, replay state,
 reasoning/tool/image blocks, error/meta payloads,
 extension events, and non-equivalent turn reasons fail closed.
 

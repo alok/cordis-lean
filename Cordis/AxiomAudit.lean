@@ -338,6 +338,9 @@ set_option format.width 200
 #print axioms Cordis.SessionRefinement.validate_replacement_message_example
 #print axioms Cordis.SessionRefinement.validate_header_chunk_example
 #print axioms Cordis.SessionRefinement.validate_header_chunk_latestHeader
+#print axioms Cordis.SessionRefinement.validate_metadata_example
+#print axioms Cordis.SessionRefinement.reject_todo_unknownStatus
+#print axioms Cordis.SessionRefinement.reject_sessionEndSeed_nonempty
 #print axioms Cordis.SessionRefinement.reject_replacement_incompleteCoverage
 #print axioms Cordis.SessionRefinement.reject_assistantChunk_reasoning
 #print axioms Cordis.SessionRefinement.reject_assistantChunk_nonzeroIndex
