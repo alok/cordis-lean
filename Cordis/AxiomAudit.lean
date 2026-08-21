@@ -117,6 +117,7 @@ import Cordis.RichStream
 import Cordis.RuntimeRefinement
 import Cordis.RuntimeFailureRefinement
 import Cordis.RuntimeOutcomeRefinement
+import Cordis.RuntimeOutcomeSession
 import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
@@ -426,6 +427,14 @@ set_option format.width 200
 #print axioms Cordis.RuntimeOutcomeRefinement.validate_successfulExample
 #print axioms Cordis.RuntimeOutcomeRefinement.validate_failureExample
 #print axioms Cordis.RuntimeOutcomeRefinement.neitherExample_rejected_by_both
+#print axioms Cordis.RuntimeOutcomeSession.finishJson
+#print axioms Cordis.RuntimeOutcomeSession.appendJson_messages
+#print axioms Cordis.RuntimeOutcomeSession.appendJson_nextSeq
+#print axioms Cordis.RuntimeOutcomeSession.appendJson_nextCall
+#print axioms Cordis.RuntimeOutcomeSession.dispatchOutcome_failure
+#print axioms Cordis.RuntimeOutcomeSession.dispatchOutcome_success
+#print axioms Cordis.RuntimeOutcomeSession.validateAndDispatch_failureExample
+#print axioms Cordis.RuntimeOutcomeSession.validateAndDispatch_successExample
 #print axioms Cordis.Observational.Quotient.Respects.comp
 #print axioms Cordis.Observational.Quotient.MapRelated.comp
 #print axioms Cordis.Observational.Quotient.AppliedRelated.trans

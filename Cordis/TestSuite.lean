@@ -119,6 +119,7 @@ import Cordis.RichStream
 import Cordis.RuntimeRefinement
 import Cordis.RuntimeFailureRefinement
 import Cordis.RuntimeOutcomeRefinement
+import Cordis.RuntimeOutcomeSession
 import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
@@ -1038,6 +1039,28 @@ private def testRuntimeOutcomeRefinement : IO Unit := do
         failureError (.ordinary 0 (.unsupportedTag
           [.field "type"] "unsupported"))
   | .ok _ => fail "unsupported stream was accepted by the outcome dispatcher"
+
+private def testRuntimeOutcomeSession : IO Unit := do
+  match RuntimeOutcomeSession.fixtureFailureDispatch with
+  | .error error => fail s!"failure session dispatch failed: {reprStr error}"
+  | .ok (.failure validated runner) =>
+      assertEqual "failure session dispatch preserves its terminal kind"
+        validated.terminal.kind RuntimeFailureRefinement.FailureKind.error
+      assertEqual "failure session dispatch leaves the runner sequence unchanged"
+        runner.session.nextSeq 0
+      assertEqual "failure session dispatch leaves the runner turn unchanged"
+        runner.turn 1
+  | .ok (.appended _ _) => fail "in-band failure was appended as an assistant message"
+  match RuntimeOutcomeSession.fixtureSuccessDispatch with
+  | .error error => fail s!"successful session dispatch failed: {reprStr error}"
+  | .ok (.failure _ _) => fail "successful stream was preserved as a failure"
+  | .ok (.appended finished runner) =>
+      assertEqual "successful session dispatch preserves the decoded source"
+        finished.source.chunks RuntimeRefinement.exampleChunks
+      assertEqual "successful session dispatch advances the sequence"
+        runner.session.nextSeq 1
+      assertEqual "successful session dispatch appends the assistant text"
+        runner.session.messages [.assistant "hello" []]
 
 private def testTextRefinement : IO Unit := do
   let streamSource := TextRefinement.renderJsonLines RuntimeRefinement.exampleJson
@@ -4971,6 +4994,7 @@ def run : IO Unit := do
   testRuntimeRefinement
   testRuntimeFailureRefinement
   testRuntimeOutcomeRefinement
+  testRuntimeOutcomeSession
   testTextRefinement
   testHarnessPersistence
   testHarnessPersistenceBytes

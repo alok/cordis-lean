@@ -346,6 +346,8 @@ Current machine-checked evidence includes:
 - `Cordis.RuntimeOutcomeRefinement`, dispatching the supported successful and normalized failure
   languages into one dependent outcome while retaining both structured errors when neither
   language accepts;
+- `Cordis.RuntimeOutcomeSession`, composing that outcome with the pure local session runner:
+  success appends a finished assistant view, while failure leaves the runner unchanged;
 - `Cordis.SessionRefinement`, statefully translating a supported source-shaped Harness session
   prefix into joint `Session.ValidatedAppend` and intrinsic `Protocol.ValidatedEvent` witnesses;
 - `Cordis.SessionOpaqueMetadata`, quarantining only provider/tool-owned tool-result `error` and
@@ -992,6 +994,12 @@ contains the exact ordinary prefix and terminal, and a rejection contains both s
 This is a dispatcher rather than a policy layer: it does not reconstruct open blocks, choose
 retry/cancellation behavior, append a session message, authenticate a provider, or claim runtime
 equivalence.
+
+`Cordis.RuntimeOutcomeSession` is the next policy-free boundary. Given a validated outcome and
+the existing pure runner, it appends only a terminal successful assistant view. A normalized
+failure returns its exact failure certificate and the unchanged runner. It does not synthesize
+an assistant error message, retry/cancellation event, source-event list, persistence row, or
+provider/deployed-session equivalence.
 
 `Cordis.DeepSeekRichMixedStream` is a separate provider-wire projection, not an extension of
 `RuntimeRefinement`'s current-Harness JSON-AST decoder. It accepts one choice and at most one

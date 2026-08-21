@@ -1856,6 +1856,11 @@ successful rich trace.
 normalized-failure languages into one dependent result, preserving either
 certificate or both structured errors without selecting retry/cancellation
 policy.
+`Cordis.RuntimeOutcomeSession` is the deliberately small session-facing follow-up:
+it finishes and appends only successful certificates through the existing pure
+runner, while returning normalized failures with the runner unchanged. Keep the
+failure branch policy-free; retry, cancellation, error-message synthesis, and
+event persistence belong to later layers.
 `Cordis.SessionArchive` is the adjacent lossless envelope layer: it retains every
 envelope-valid record, classifies unsupported required versus explicitly ignorable
 extensions, and attaches a `SessionRefinement.WireEvent` certificate when the
