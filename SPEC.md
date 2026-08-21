@@ -147,7 +147,7 @@ records with the moved replacements. A
 nonempty-prefix example rewrites `[O-Insert, L-Begin, O-Insert]` to
 `[O-Insert, O-Insert, L-Begin]`. This does not derive branch laws for arbitrary records. A merely
 birth-erased local endpoint still cannot attach to the retained exact suffix without a separate
-bisimulation, so registering activation/O-Insert, normalization, deletion, Lemma 72, and
+bisimulation, so registering activation/O-Insert, automatic/canonical normalization, deletion, Lemma 72, and
 confluence remain open.
 
 The bounded deletion layer now gives trace filtering an intrinsic semantics. `DeletionReplay`
@@ -164,7 +164,10 @@ retained O-Insert can lose its parent; other kernel witnesses expose unrecovered
 changed surviving birth ranks, and redraw of a removed bare name. The module supplies semantic
 no-redraw and vestigial-or-absent vocabulary, but no lifecycle/oracle/recovery suffix simulation or
 birth-erased outside relation. Lemma 72, Theorem 73, canonical form, confluence, and both
-normalization and maximal-lifecycle termination remain open.
+automatic/canonical normalization and maximal-lifecycle termination remain open. The separate
+`GlobalPaperTraceNormalization` module composes a finite connected list of supplied
+`RelatedAdjacentRewrite` certificates, retaining assignments and proving terminal relation plus
+rule/actor permutations; it does not supply a rewrite strategy, canonical form, or confluence.
 
 The paper-relation layer then erases the allocator artifacts that the reference refinement added
 but the paper does not observe. Its full-domain relation compares active values plus exact
@@ -181,8 +184,8 @@ orchestration traces replay directionally through an intrinsic all-keep `Deletio
 opposite-allocation endpoints are related despite exact
 state and current-rule-relation inequality. A clock-sensitive target-changed model has an actual
 L-DivertAbort but no same-lifecycle-rule peer, refuting any unconditional assigned lifecycle
-simulation. General lifecycle replay, relation-aware activation swaps, Lemma 72, normalization,
-and confluence remain open.
+simulation. General lifecycle replay, relation-aware activation swaps, Lemma 72,
+automatic/canonical normalization, and confluence remain open.
 
 The progress layer proves that printed Theorem 66 also needs stronger executable premises. A
 configured oracle may reject a registration that the raw relation can admit through another

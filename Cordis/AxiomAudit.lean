@@ -48,6 +48,7 @@ import Cordis.GlobalNameLifecycle
 import Cordis.GlobalPaperRelation
 import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalPaperTraceDeletion
+import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalProgress
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
@@ -1119,6 +1120,18 @@ namespace Cordis.GlobalPaperTraceDeletion
 #print axioms Example.executableDetailedRules_eq
 #print axioms Example.executableActorNames_eq
 end Cordis.GlobalPaperTraceDeletion
+namespace Cordis.GlobalPaperTraceNormalization
+#print axioms AnyRewriteWitness.target
+#print axioms RewriteChain.single
+#print axioms RewriteChain.single_terminal
+#print axioms RewriteChain.terminal
+#print axioms chain_final_related
+#print axioms chain_rules_perm
+#print axioms chain_actors_perm
+#print axioms Example.empty_chain_related
+#print axioms Example.empty_chain_rules
+#print axioms Example.empty_chain_actors
+end Cordis.GlobalPaperTraceNormalization
 #print axioms Cordis.GlobalRelations.contextRelated_domain
 #print axioms Cordis.GlobalRelations.ruleSetoid
 #print axioms Cordis.GlobalRelations.ruleRelated_registry_domain

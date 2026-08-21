@@ -183,6 +183,9 @@ Current machine-checked evidence includes:
 - `Cordis.GlobalPaperRelation`, erasing only the reference allocator clock/birth ranks from current
   rule observation, proving full-domain bidirectional well-formed orchestration replay, and
   constructing directed relation-aware vestigial suffix replay with lifecycle countermodels;
+- `Cordis.GlobalPaperTraceNormalization`, packaging a finite certificate-driven chain of
+  birth-erased adjacent trace rewrites with transported assignments and final rule/actor
+  permutation facts, while leaving automatic normal-form search and confluence external;
 - `Cordis.GlobalProgress`, distinguishing configured-oracle rejection from the permissive raw
   relation, kernel-refuting progress under exhausted names, and proving conditional state-local
   no-deadlock from finite precedence and exact execution/recovery authorities;
@@ -774,7 +777,8 @@ The bounded algebra/context/global layer now has thirty-seven explicit pieces:
     For finite entries already proved vestigial, safe foreign orchestration suffixes replay exactly
     after removal with positional same-template evidence. A real `[drop, keep]` example and
     parent/clock/redraw/birth countermodels keep the boundary executable. General closing-episode
-    deletion, lifecycle suffix simulation, birth-erased endpoints, Lemma 72, normalization, and
+    deletion, lifecycle suffix simulation, birth-erased endpoints, Lemma 72, automatic
+    normalization, and
     confluence remain absent.
 35. `Cordis.GlobalPaperRelation` defines the finite paper-visible control obtained by erasing only
     `nextBirth` and per-fiber birth from current rule observation. It proves three observation
@@ -784,7 +788,7 @@ The bounded algebra/context/global layer now has thirty-seven explicit pieces:
     combined effect/outside control and safe orchestration traces replay directionally. Outside
     reverse replay and lifecycle simulation are
     kernel-refuted; there is no birth-erased activation swap, general episode deletion,
-    normalization, or confluence.
+    automatic normalization, or confluence.
 36. `Cordis.GlobalProgress` gives Definition 65 its exact state-local provider precedence and an
     explicit finite increasing rank. A configured oracle-rejection model separates fixed-program
     applicability from the raw existential-oracle relation; a Boolean freshness-exhaustion model
@@ -803,6 +807,12 @@ The bounded algebra/context/global layer now has thirty-seven explicit pieces:
     closure assumption necessary, while a root-only positive state exercises the corrected theorem.
     The module does not derive combined order or parent provenance from `FromEmpty`, does not prove
     component-wide Definition 69 or printed Lemma 70, and stops before deletion/confluence.
+38. `Cordis.GlobalPaperTraceNormalization` packages a finite list of supplied
+    `RelatedAdjacentRewrite` certificates. The dependent-safe chain representation connects each
+    link to the next rewritten trace package, retains each transported `TraceProgramAssignment`,
+    and proves final `BirthErasedRuleRelated` plus `List.Perm` facts for trace rules and actors.
+    The empty-chain executable witness exercises the surface. This is not a strategy,
+    canonical-form, termination, confluence, Lemma 72, or Theorem 73 proof.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a

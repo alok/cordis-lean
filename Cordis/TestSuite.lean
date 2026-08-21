@@ -49,6 +49,7 @@ import Cordis.GlobalNameLifecycle
 import Cordis.GlobalPaperRelation
 import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalPaperTraceDeletion
+import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalProgress
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
@@ -2961,6 +2962,13 @@ private def testGlobalPaperTraceDeletion : IO Unit := do
     GlobalPaperTraceDeletion.Example.executableDecisions
     [.keep]
 
+private def testGlobalPaperTraceNormalization : IO Unit := do
+  let _related := GlobalPaperTraceNormalization.Example.empty_chain_related
+  let _rules := GlobalPaperTraceNormalization.Example.empty_chain_rules
+  let _actors := GlobalPaperTraceNormalization.Example.empty_chain_actors
+  assertEqual "finite rewrite-chain surface has an executable empty-chain witness"
+    GlobalPaperTraceNormalization.Example.executableLinkCount 0
+
 private def testGlobalProgress : IO Unit := do
   assertEqual "conditional progress constructs the expected concrete Begin rule"
     GlobalProgress.BeginExample.executableRule .begin
@@ -3341,6 +3349,7 @@ def run : IO Unit := do
   testGlobalPaperRelation
   testGlobalPaperTraceSimulation
   testGlobalPaperTraceDeletion
+  testGlobalPaperTraceNormalization
   testGlobalProgress
   testGlobalSupport
   testGlobalRelations
