@@ -187,6 +187,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekHarnessOpaqueMetadata`, attaching the sanitized runner projection from
   `SessionOpaqueMetadata.RetainedLog` while retaining exact tool-result `error`/`meta` values in
   source order; the request path excludes those uninterpreted provider/tool fields;
+- `Cordis.DeepSeekHarnessMetadataArchive`, composing that retained metadata log with the full
+  `SessionEventArchive.ArchivedLog`, so the raw envelope ledger and the known opaque event remain
+  available beside the sanitized runner;
 - `Cordis.DeepSeekHarnessErrors`, adding an explicit fail-closed/default-versus-opt-in policy seam
   for provider failures: `.include` retains typed failure evidence and appends model-visible
   `isError` tool results without changing the model state;
@@ -976,6 +979,11 @@ events are rejection cases rather than silently ignored records.
 event path. It consumes the sanitized `RetainedLog`, restores its validated final session to a
 runner, and carries the exact `error`/`meta` JSON ledger beside the runner. The local request
 projection intentionally ignores those fields; no provider/tool schema meaning is assigned.
+
+`Cordis.DeepSeekHarnessMetadataArchive` adds the alignment certificate for that exception: its
+`AttachedLog` contains one raw current-event archive and one sanitized metadata validation over
+the same source list. The executable fixture proves that a known opaque `tool/result` survives in
+the raw ledger while the runner and request are built from the sanitized endpoint.
 
 `Cordis.DeepSeekHarnessPersistenceIO` composes the same runner attachment with the executable
 `HarnessPersistenceIO.ReadCertificate`. A successful memory or temporary-file read retains the

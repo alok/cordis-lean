@@ -77,6 +77,7 @@ import Cordis.HarnessPersistenceArchive
 import Cordis.HarnessPersistenceIO
 import Cordis.DeepSeekHarnessPersistenceIO
 import Cordis.DeepSeekHarnessOpaqueMetadata
+import Cordis.DeepSeekHarnessMetadataArchive
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
 import Cordis.MediatedTheorem
@@ -615,6 +616,19 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessOpaqueMetadata.metadataRestored_valid
 #print axioms Cordis.DeepSeekHarnessOpaqueMetadata.metadataRestored_metadata_exact
 #print axioms Cordis.DeepSeekHarnessOpaqueMetadata.metadataRestored_request_messages
+#print axioms Cordis.DeepSeekHarnessMetadataArchive.validate
+#print axioms Cordis.DeepSeekHarnessMetadataArchive.AttachedLog.raw_exact
+#print axioms Cordis.DeepSeekHarnessMetadataArchive.AttachedLog.metadata_eq_source
+#print axioms Cordis.DeepSeekHarnessMetadataArchive.AttachedLog.sanitized_eq_source
+#print axioms Cordis.DeepSeekHarnessMetadataArchive.restoreRunner
+#print axioms Cordis.DeepSeekHarnessMetadataArchive.RestoredRunner.session_eq_log
+#print axioms Cordis.DeepSeekHarnessMetadataArchive.buildRequestCertificate
+#print axioms Cordis.DeepSeekHarnessMetadataArchive.buildRequest_session_eq_log
+#print axioms Cordis.DeepSeekHarnessMetadataArchive.metadataAttached
+#print axioms Cordis.DeepSeekHarnessMetadataArchive.metadataAttached_valid
+#print axioms Cordis.DeepSeekHarnessMetadataArchive.metadataAttached_has_one_opaque_event
+#print axioms Cordis.DeepSeekHarnessMetadataArchive.metadataRestored_metadata_exact
+#print axioms Cordis.DeepSeekHarnessMetadataArchive.metadataRestored_request_messages
 #print axioms Cordis.DeepSeekHarnessEventArchive.restoreRunner
 #print axioms Cordis.DeepSeekHarnessEventArchive.RestoredRunner.session_eq_archive
 #print axioms Cordis.DeepSeekHarnessEventArchive.RestoredRunner.archive_raw_eq_input

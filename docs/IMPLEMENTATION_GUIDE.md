@@ -2007,6 +2007,12 @@ a `ConversationRunner`, and carries `metadataEvents` plus its exact source-order
 the runner. The request certificate is intentionally built from the sanitized session, so the
 provider/tool fields remain quarantined rather than gaining invented local semantics.
 
+`Cordis.DeepSeekHarnessMetadataArchive` composes the same retained log with
+`SessionEventArchive.ArchivedLog`. Its restored runner therefore carries three aligned views of
+the input: raw envelope ASTs, sanitized session validation, and the exact opaque metadata ledger.
+The fixture proves that the known opaque `tool/result` record remains in the archive while the
+request is rebuilt from the sanitized messages.
+
 `Cordis.DeepSeekHarnessCancellation` adds the corresponding pre-round control boundary: the policy
 is checked before a complete request round, and a cancellation result carries the unchanged
 runner/model endpoint and completed prefix. Keep the boundary honest: interrupting an in-flight

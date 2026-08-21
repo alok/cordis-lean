@@ -209,6 +209,10 @@ request.
 carrying the exact provider/tool JSON values in a parallel metadata ledger, so request rebuilding
 still excludes fields whose semantics are not modeled locally.
 
+`Cordis.DeepSeekHarnessMetadataArchive` composes that quarantine with the full
+`SessionEventArchive`: the runner uses the sanitized endpoint, while the retained value exposes
+the raw envelope ledger and proves that the known opaque `tool/result` event was not dropped.
+
 `Cordis.DeepSeekHarnessErrors` is the explicit opt-in continuation policy for provider failures.
 `ErrorToolResultPolicy.reject` is the default fail-closed request behavior; selecting `.include`
 lets a proof-carrying `ProviderFailedTool` become an `isError` tool-result message while retaining
@@ -940,6 +944,7 @@ placeholders.
 | `Cordis.HarnessPersistenceBytes`                    | Pure `ByteArray` UTF-8/JSONL ingress retaining source bytes, decoded text, parsed rows, packed expansion, and the final Session/Protocol projection; positive and rejection fixtures run at the executable boundary.                                                                                                                     |
 | `Cordis.DeepSeekHarnessEventArchive`                | Certificate-gated attachment of a lossless current-Harness event archive plus stateful semantic validation to `ConversationRunner`; opaque/extension events reject restoration, and the tool-message fixture rebuilds a typed request.                                                                                                   |
 | `Cordis.DeepSeekHarnessOpaqueMetadata`              | Lossless quarantine of tool-result `error`/`meta` alongside a sanitized `ConversationRunner`; exact metadata order, session equality, and request reconstruction are certified while provider/tool semantics remain uninterpreted.                                                                                                       |
+| `Cordis.DeepSeekHarnessMetadataArchive`             | Composes the full current-event envelope archive with the sanitized opaque-metadata runner seam, retaining raw envelopes, one known opaque event, exact metadata order, and a sanitized request projection without dropping the record.                                                                                                  |
 | `Cordis.DeepSeekHarnessPersistenceIO`               | Byte-backed UTF-8/JSONL read certificates attach memory- and temporary-file-backed persistence to a DeepSeek `ConversationRunner`, preserving exact session/request equalities and structured invalid-encoding failures without claiming fsync or crash durability.                                                                      |
 | `Cordis.HarnessPersistenceIO`                       | Executable UTF-8 byte/text adapter over memory and filesystem backends: exact read certificates, canonical replacement, validated append-only rows, and structured invalid-encoding/semantic failures; host acknowledgements are not durability proofs.                                                                                  |
 | `Cordis.DeepSeekApi`                                | Typed OpenAI-compatible DeepSeek chat request construction, fail-closed response decoding, dependent parse/decode certificates, and an explicit transport/status/API-error boundary.                                                                                                                                                     |

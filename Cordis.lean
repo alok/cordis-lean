@@ -80,6 +80,7 @@ import Cordis.HarnessPersistenceArchive
 import Cordis.HarnessPersistenceIO
 import Cordis.DeepSeekHarnessPersistenceIO
 import Cordis.DeepSeekHarnessOpaqueMetadata
+import Cordis.DeepSeekHarnessMetadataArchive
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
 import Cordis.MediatedTheorem

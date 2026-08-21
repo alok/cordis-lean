@@ -78,6 +78,7 @@ import Cordis.HarnessPersistenceArchive
 import Cordis.HarnessPersistenceIO
 import Cordis.DeepSeekHarnessPersistenceIO
 import Cordis.DeepSeekHarnessOpaqueMetadata
+import Cordis.DeepSeekHarnessMetadataArchive
 import Cordis.Lifecycle
 import Cordis.MediatedIndependence
 import Cordis.MediatedTheorem
@@ -2185,6 +2186,55 @@ private def testDeepSeekHarnessOpaqueMetadata : IO Unit := do
               DeepSeekHarnessOpaqueMetadata.metadataToolSource certificate.build_eq
           pure ()
 
+private def testDeepSeekHarnessMetadataArchive : IO Unit := do
+  match DeepSeekHarnessMetadataArchive.metadataRestored with
+  | .error error => fail s!"metadata event archive restore failed: {reprStr error}"
+  | .ok restored =>
+      assertEqual "metadata event archive preserves every raw envelope"
+        ((restored.log.archive.events.map SessionEventArchive.ArchivedEvent.raw) ==
+          SessionOpaqueMetadata.metadataExampleJson) true
+      assertEqual "metadata event archive retains one opaque known event"
+        (restored.log.archive.events.countP SessionEventArchive.ArchivedEvent.isOpaque) 1
+      assertEqual "metadata event archive restores the sanitized session"
+        restored.runner.session.nextSeq 8
+      assertEqual "metadata event archive retains the opaque metadata ledger"
+        ((restored.log.retained.metadata.filterMap (fun metadata =>
+          metadata.map (fun value => (value.error, value.metaValue)))) == [
+            (some (Lean.Json.mkObj [
+                ("name", .str "ToolError"), ("code", .str "E_FIXTURE")]),
+              some (Lean.Json.mkObj [("opaque", .str "tool-owned")]))]) true
+      let _rawCertificate :=
+        DeepSeekHarnessMetadataArchive.AttachedLog.raw_exact restored.log
+      let _metadataCertificate :=
+        DeepSeekHarnessMetadataArchive.AttachedLog.metadata_eq_source restored.log
+      let _sanitizedCertificate :=
+        DeepSeekHarnessMetadataArchive.AttachedLog.sanitized_eq_source restored.log
+      let _validCertificate := DeepSeekHarnessMetadataArchive.metadataAttached_valid
+      let _opaqueCertificate :=
+        DeepSeekHarnessMetadataArchive.metadataAttached_has_one_opaque_event
+      let _exactCertificate := DeepSeekHarnessMetadataArchive.metadataRestored_metadata_exact
+      match DeepSeekHarnessMetadataArchive.buildRequestCertificate restored
+          DeepSeekHarnessMetadataArchive.metadataToolSource with
+      | .error error => fail s!"metadata event archive request failed: {reprStr error}"
+      | .ok certificate =>
+          assertEqual "metadata event archive request uses sanitized messages"
+            certificate.request.messages.toList [
+              .user "look up lean",
+              .assistant (some "I will look it up.") none [{
+                id := "0"
+                name := "lookup"
+                arguments := "{\"q\":\"lean\"}"
+              }],
+              .tool "0" "result"
+            ]
+          let _requestCertificate := certificate.build_eq
+          let _archiveCertificate :=
+            DeepSeekHarnessMetadataArchive.buildRequest_session_eq_log restored
+              DeepSeekHarnessMetadataArchive.metadataToolSource certificate.build_eq
+          let _messageCertificate :=
+            DeepSeekHarnessMetadataArchive.metadataRestored_request_messages
+          pure ()
+
 private def testDeepSeekHarnessEventArchive : IO Unit := do
   match DeepSeekHarnessEventArchive.toolRestored with
   | .error error => fail s!"current event archive restoration failed: {error}"
@@ -4116,6 +4166,7 @@ def run : IO Unit := do
   testDeepSeekHarnessPersistence
   testDeepSeekHarnessPersistenceIO
   testDeepSeekHarnessOpaqueMetadata
+  testDeepSeekHarnessMetadataArchive
   testDeepSeekHarnessEventArchive
   testDeepSeekStreamHarness
   testDeepSeekStreamHarnessCancellation

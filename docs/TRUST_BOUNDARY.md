@@ -316,6 +316,11 @@ The byte-backed counterpart is intentionally separate: `DeepSeekHarnessPersisten
 current-event archive plus the stateful event validator. Neither path assigns semantics to an
 opaque payload or claims complete deployed Harness equivalence.
 
+`DeepSeekHarnessMetadataArchive` is the explicit exception for a tool-result metadata event. Its
+`AttachedLog` aligns the raw `SessionEventArchive` with the sanitized `RetainedLog`, so one known
+opaque event remains in the raw ledger while the runner/request uses only the sanitized session.
+This is still quarantine, not provider/tool interpretation or opaque replay.
+
 ### Dependent calls and tool contracts
 
 - `Signature.Response op request` prevents attaching another operation's or request's response
