@@ -641,6 +641,13 @@ with the finite spatial consequences in
 | [`.github/workflows/ci.yml`](../.github/workflows/ci.yml), [`scripts/check_lean_hygiene.py`](../scripts/check_lean_hygiene.py) | **Checked automation:** the pinned workflow verifies the toolchain, strict/default builds, static and runtime tests, demo, lexical source policy, and the selected axiom allow-list.                                                                    | Hosted runners, actions, the script, and its lexical policy remain trusted automation. Passing CI is not a semantic proof of every source declaration.         |
 | [`Main.lean`](../Main.lean)                                                                                                    | **Checked demonstration:** executes the pure counter Harness and prints its model, protocol, record outcomes, per-record policy dispatch counts, and whether a dependent result was encoded.                                                            | Console output is a demo observation, not a theorem or production Harness implementation.                                                                      |
 
+The streamed heterogeneous schema continuation is mapped by
+`Cordis.DeepSeekSchemaStreamConversation`: it proves the typed `stream: true` request, validates a
+complete process-backed SSE body through the existing rich-stream/session certificate, dispatches
+entry-specific calls, and keeps a caller-fueled history separate from a text terminal or
+exhaustion. Incremental transport, provider-complete assembly, and deployed Harness equivalence
+remain unmapped claims.
+
 ## Paper claims not implemented by the mapped modules
 
 The following are intentionally not presented as completed formalization work.

@@ -2094,6 +2094,15 @@ Implement this as a finite loop over the existing registry theorem, not as an un
 claim about remote model/tool behavior. Retries, cancellation, persistence, and external effects
 remain separate authorities.
 
+`Cordis.DeepSeekSchemaStreamConversation` is the corresponding complete-body streamed boundary.
+It derives the validated tool list from the heterogeneous registry, builds the typed request whose
+wire certificate proves `stream: true`, sends a process-backed SSE body through the existing
+rich-stream/session projection, and dispatches the resulting calls through the same dependent
+registry. Its caller-fueled loop keeps certified tool rounds separate from a text-only terminal
+and from exhaustion. Do not silently upgrade this to incremental delivery, backpressure,
+cancellation, reconnect, provider-complete assembly, call-ID authenticity, persistence, external
+effects, or deployed Harness equivalence.
+
 `Cordis.DeepSeekHarnessCancellation` adds the corresponding pre-round control boundary: the policy
 is checked before a complete request round, and a cancellation result carries the unchanged
 runner/model endpoint and completed prefix. Keep the boundary honest: interrupting an in-flight

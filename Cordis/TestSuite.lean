@@ -33,6 +33,7 @@ import Cordis.DeepSeekSchemaMultiRound
 import Cordis.DeepSeekSchemaRegistry
 import Cordis.DeepSeekSchemaConversation
 import Cordis.DeepSeekSchemaConversationLoop
+import Cordis.DeepSeekSchemaStreamConversation
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessErrors
@@ -2507,6 +2508,37 @@ private def testDeepSeekToolSchema : IO Unit := do
   | .error error => fail s!"duplicate tool names returned the wrong error: {reprStr error}"
   | .ok _ => fail "duplicate tool names were accepted"
 
+private def testDeepSeekSchemaStreamConversation : IO Unit := do
+  match DeepSeekToolSchema.weatherToolCertificate,
+      DeepSeekSchemaRegistry.Example.clockToolCertificate with
+  | .error error, _ => fail s!"stream schema weather certificate failed: {reprStr error}"
+  | _, .error error => fail s!"stream schema clock certificate failed: {reprStr error}"
+  | .ok weatherCertificate, .ok clockCertificate =>
+      match ← DeepSeekSchemaStreamConversation.Example.dualToolStreamRun
+          weatherCertificate clockCertificate with
+      | .error error => fail s!"heterogeneous streamed schema run failed: {reprStr error}"
+      | .ok result =>
+          assertEqual "heterogeneous streamed schema loop records one tool round"
+            result.rounds.length 1
+          assertEqual "heterogeneous streamed schema loop preserves the final model"
+            result.finalModel 0
+          assertEqual "heterogeneous streamed schema loop appends assistant and two results"
+            result.runner.session.nextSeq
+            (DeepSeekSchemaHarness.Example.counterRunner.session.nextSeq + 3)
+          match result.stop with
+          | .fuelExhausted _ _ => pure ()
+          | .completed _ => fail "heterogeneous streamed schema loop unexpectedly completed"
+      match ← DeepSeekSchemaStreamConversation.Example.textTerminalRun
+          weatherCertificate clockCertificate with
+      | .error error => fail s!"stream text terminal run failed: {reprStr error}"
+      | .ok result =>
+          assertEqual "stream text terminal run has no tool rounds" result.rounds.length 0
+          match result.stop with
+          | .completed terminal =>
+              assertEqual "stream text terminal run has no parsed tool calls"
+                terminal.processed.finished.finished.view.rawToolCalls.length 0
+          | .fuelExhausted _ _ => fail "stream text terminal run exhausted before completion"
+
 private def testDeepSeekHarnessEventArchive : IO Unit := do
   match DeepSeekHarnessEventArchive.toolRestored with
   | .error error => fail s!"current event archive restoration failed: {error}"
@@ -4440,6 +4472,7 @@ def run : IO Unit := do
   testDeepSeekHarnessOpaqueMetadata
   testDeepSeekHarnessMetadataArchive
   testDeepSeekToolSchema
+  testDeepSeekSchemaStreamConversation
   testDeepSeekHarnessEventArchive
   testDeepSeekStreamHarness
   testDeepSeekStreamHarnessCancellation

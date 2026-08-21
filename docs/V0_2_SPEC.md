@@ -216,6 +216,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekSchemaConversationLoop`, carrying those rounds through a caller-fueled dependent
   loop with an explicit validated no-tool terminal witness, accumulated round history, and a
   distinct fuel-exhaustion stop;
+- `Cordis.DeepSeekSchemaStreamConversation`, carrying the same registry through the typed
+  `stream: true` SSE/rich-stream/session boundary, validating a complete streamed body before
+  heterogeneous dispatch, and distinguishing a text terminal from caller-fuel exhaustion;
 - `Cordis.DeepSeekHarnessErrors`, adding an explicit fail-closed/default-versus-opt-in policy seam
   for provider failures: `.include` retains typed failure evidence and appends model-visible
   `isError` tool results without changing the model state;
@@ -1076,6 +1079,14 @@ advances the dependent model after every certified tool round, preserves an exis
 and retains a validated no-tool response as terminal rather than confusing it with exhaustion.
 These modules remain complete-body and caller-fueled; provider obedience, retries, cancellation,
 persistence, external effects, and deployed Harness equivalence remain outside.
+
+`Cordis.DeepSeekSchemaStreamConversation` applies the same dependent registry to the existing
+complete-body SSE/rich-stream/session boundary. Its request certificate proves `stream: true`,
+the process body is validated through the strict rich/session projection before calls are
+dispatched, and a finite run retains heterogeneous tool rounds or a typed exhaustion stop. The
+fixture also exercises a text-only terminal body. Incremental readers, backpressure, cancellation,
+reconnects, provider-complete assembly, call-ID authenticity, persistence, external effects, and
+deployed Harness equivalence remain outside this slice.
 
 `Cordis.DeepSeekHarnessPersistenceIO` composes the same runner attachment with the executable
 `HarnessPersistenceIO.ReadCertificate`. A successful memory or temporary-file read retains the

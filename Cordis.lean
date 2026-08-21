@@ -36,6 +36,7 @@ import Cordis.DeepSeekSchemaMultiRound
 import Cordis.DeepSeekSchemaRegistry
 import Cordis.DeepSeekSchemaConversation
 import Cordis.DeepSeekSchemaConversationLoop
+import Cordis.DeepSeekSchemaStreamConversation
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessErrors

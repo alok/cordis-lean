@@ -602,6 +602,13 @@ fail closed before an `AuthorizedCall` is constructed. The adapter still supplie
 codecs, decidability procedures, and proof-producing `certifyAdmission` implementation. Its
 existence does not prove correspondence to a deployed Harness registry.
 
+`DeepSeekSchemaStreamConversation` is also checked/proved/exercised at the complete-body
+process/SSE/rich-stream/session boundary: its registry-derived typed request proves `stream: true`,
+the complete body is validated before heterogeneous dispatch, and its caller-fueled result keeps
+text completion distinct from exhaustion. This does not prove incremental reading,
+backpressure, cancellation, reconnect, provider-complete assembly, call-ID authenticity,
+persistence, external effects, or deployed Harness equivalence.
+
 ## Trusted base and assumptions
 
 ### Lean foundations and build

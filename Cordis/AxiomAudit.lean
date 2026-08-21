@@ -31,6 +31,7 @@ import Cordis.DeepSeekSchemaMultiRound
 import Cordis.DeepSeekSchemaRegistry
 import Cordis.DeepSeekSchemaConversation
 import Cordis.DeepSeekSchemaConversationLoop
+import Cordis.DeepSeekSchemaStreamConversation
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessErrors
@@ -692,6 +693,11 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekSchemaConversationLoop.executeSchemaRegistryConversationStep
 #print axioms Cordis.DeepSeekSchemaConversationLoop.runSchemaConversation
 #print axioms Cordis.DeepSeekSchemaConversationLoop.SchemaConversationStop
+#print axioms Cordis.DeepSeekSchemaStreamConversation.registryValidatedTools
+#print axioms Cordis.DeepSeekSchemaStreamConversation.registryCertifiedRequestSource
+#print axioms Cordis.DeepSeekSchemaStreamConversation.executeSchemaStreamConversationStep
+#print axioms Cordis.DeepSeekSchemaStreamConversation.runSchemaStreamConversation
+#print axioms Cordis.DeepSeekSchemaStreamConversation.SchemaStreamConversationStop
 #print axioms Cordis.DeepSeekHarnessEventArchive.restoreRunner
 #print axioms Cordis.DeepSeekHarnessEventArchive.RestoredRunner.session_eq_archive
 #print axioms Cordis.DeepSeekHarnessEventArchive.RestoredRunner.archive_raw_eq_input
