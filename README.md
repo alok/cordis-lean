@@ -80,6 +80,12 @@ line is delivered to a typed callback before the private status trailer is
 consumed, while the complete reconstructed body still receives strict SSE
 validation under an explicit read budget. Byte framing, backpressure,
 cancellation, and deployment semantics remain explicit runtime obligations.
+`Cordis.DeepSeekCurlPrefix` connects that process boundary to the proof-carrying
+prefix state: each accepted process line updates the typed body/frame state,
+and a line policy can stop before the next read while cleanup kills and waits
+for the child. The result retains both the raw process body and normalized
+prefix state; asynchronous blocked-read cancellation, backpressure, reconnect,
+and deployed stream equivalence remain external.
 `Cordis.DeepSeekRichStream` composes that wire certificate with `RichStream` for
 one source-honest text-only subset: exactly one assistant choice at index zero,
 terminal usage, and stop/max-token completion. Reasoning, tool-call, extra-choice,
@@ -799,6 +805,7 @@ placeholders.
 | `Cordis.DeepSeekCurlStream`                         | Complete-body process-backed SSE validation with typed process/status/stream errors and a deterministic `sh` fixture; incremental reader semantics remain external.                                                                                                                                                      |
 | `Cordis.DeepSeekCurlSession`                        | Complete-body process-backed SSE composition into accepted rich/session terminal values, retaining the wire certificate and runner append invariants; live/deployed session semantics remain external.                                                                                                                   |
 | `Cordis.DeepSeekCurlIncremental`                    | Line-oriented process-backed SSE delivery with callback observations under an explicit read budget, reconstructed-body strict validation, and typed process/status/stream/callback/limit failures; byte-level and live cancellation semantics remain external.                                                           |
+| `Cordis.DeepSeekCurlPrefix`                         | Process-backed proof-carrying prefix execution with synchronous line-boundary fuel/cancellation stops, raw-body retention, normalized frame certificates, and child cleanup; blocked-read cancellation and deployed semantics remain external.                                                                           |
 | `Cordis.DeepSeekRichStream`                         | Source-honest text-only DeepSeek SSE projection into `RichStream`, retaining wire/projection/intrinsic-trace certificates and typed rejection cases.                                                                                                                                                                     |
 | `Cordis.DeepSeekRichToolStream`                     | Restricted one-tool DeepSeek SSE projection into rich tool-call blocks, preserving raw arguments and retaining wire/projection/intrinsic-trace certificates.                                                                                                                                                             |
 | `Cordis.DeepSeekRichMixedStream`                    | Composed one-choice text/reasoning/one-tool DeepSeek SSE projection with first-seen block indices, stateful tool metadata, exact rich-trace certificates, and same-frame mixed-kind rejection.                                                                                                                           |

@@ -144,6 +144,10 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekCurlIncremental`, delivering complete response lines through a process callback
   under an explicit read budget before strict validation of the reconstructed SSE body; byte-level
   and cancellation semantics remain external;
+- `Cordis.DeepSeekCurlPrefix`, connecting the process line reader to the proof-carrying prefix
+  state: each accepted line is parsed before the next read, synchronous fuel/cancellation stops
+  clean up the child, and terminal success retains raw output plus normalized frame certificates;
+  blocked-read cancellation, backpressure, reconnect, and deployment semantics remain external;
 - `Cordis.DeepSeekSessionRunner`, composing accepted text, one-tool, mixed, and multi-call
   terminal traces into the pure append-only local session surface with exact sequence and
   tool-count invariants;

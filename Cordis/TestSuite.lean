@@ -8,6 +8,7 @@ import Cordis.DeepSeekCurlTransport
 import Cordis.DeepSeekCurlStream
 import Cordis.DeepSeekCurlSession
 import Cordis.DeepSeekCurlIncremental
+import Cordis.DeepSeekCurlPrefix
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekStreamIncremental
 import Cordis.DeepSeekRichStream
@@ -1071,6 +1072,53 @@ private def testDeepSeekCurlIncremental : IO Unit := do
       assertEqual "incremental DeepSeek SSE preserves callback failure position" line 0
   | .error error => fail s!"unexpected incremental callback error: {reprStr error}"
   | .ok _ => fail "incremental DeepSeek SSE ignored a callback failure"
+
+private def testDeepSeekCurlPrefix : IO Unit := do
+  match ← DeepSeekCurlPrefix.fixtureResponse with
+  | .error error => fail s!"process-backed prefix fixture failed: {reprStr error}"
+  | .ok response =>
+      assertEqual "process-backed prefix fixture preserves the raw response body"
+        response.rawBody DeepSeekStream.exampleStreamBody
+      assertEqual "process-backed prefix fixture preserves the HTTP status"
+        response.status (some 200)
+      assertEqual "process-backed prefix fixture retains both parsed frames"
+        response.state.frames.length 2
+      assertEqual "process-backed prefix fixture reaches completion"
+        response.isCompleted true
+      assertEqual "process-backed prefix fixture records the terminal marker"
+        response.state.done true
+  let cancelledPolicy := DeepSeekStreamIncremental.LinePolicy.atLine 1 "cancelled:user"
+  match ← DeepSeekCurlPrefix.executeSsePrefix cancelledPolicy 64
+      DeepSeekCurlPrefix.fixtureProcess DeepSeekCurlTransport.fixtureRequest.request with
+  | .error error => fail s!"process-backed prefix cancellation failed: {reprStr error}"
+  | .ok response =>
+      assertEqual "process-backed prefix cancellation reports cancellation"
+        response.isCancelled true
+      assertEqual "process-backed prefix cancellation has no terminal status"
+        response.status none
+      assertEqual "process-backed prefix cancellation stops before the next body line"
+        response.state.frames.length 1
+      match DeepSeekStreamIncremental.finish response.state with
+      | .error .missingDone => pure ()
+      | .error error => fail s!"process-backed prefix cancellation had wrong error: {reprStr error}"
+      | .ok _ => fail "process-backed prefix cancellation fabricated a complete stream"
+  match ← DeepSeekCurlPrefix.executeSsePrefix (DeepSeekStreamIncremental.LinePolicy.never) 1
+      DeepSeekCurlPrefix.fixtureProcess DeepSeekCurlTransport.fixtureRequest.request with
+  | .error error => fail s!"process-backed prefix fuel fixture failed: {reprStr error}"
+  | .ok response =>
+      assertEqual "process-backed prefix fuel exhaustion is distinct"
+        response.isFuelExhausted true
+      assertEqual "process-backed prefix fuel exhaustion retains the first frame"
+        response.state.frames.length 1
+  let malformedConfig : DeepSeekCurlTransport.ProcessConfig := {
+    command := "sh"
+    args := fun _ => #["-c", "printf 'event: bad\\n\\n__CORDIS_HTTP_STATUS__200\\n'"]
+  }
+  match ← DeepSeekCurlPrefix.executeSsePrefix (DeepSeekStreamIncremental.LinePolicy.never) 16
+      malformedConfig DeepSeekCurlTransport.fixtureRequest.request with
+  | .error (.stream (.unexpectedLine _ "event: bad")) => pure ()
+  | .error error => fail s!"malformed process-backed prefix returned {reprStr error}"
+  | .ok _ => fail "malformed process-backed prefix was accepted"
 
 private def testDeepSeekStream : IO Unit := do
   match DeepSeekStream.validateSse DeepSeekStream.exampleStreamBody with
@@ -2937,6 +2985,7 @@ def run : IO Unit := do
   testDeepSeekCurlStream
   testDeepSeekCurlSession
   testDeepSeekCurlIncremental
+  testDeepSeekCurlPrefix
   testDeepSeekStream
   testDeepSeekStreamIncremental
   testDeepSeekRichStream

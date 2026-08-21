@@ -1855,6 +1855,11 @@ proof that this pure complete-body layer does not provide.
 each body line under an explicit read budget before the private status trailer is consumed, while
 the reconstructed body still passes the strict SSE validator. It is not a byte-level reader or a
 proof of backpressure, cancellation, reconnect, process trust, or provider-complete assembly.
+`Cordis.DeepSeekCurlPrefix` is the typed process counterpart: it advances `PrefixState` before
+requesting the next complete line, retains the raw process body separately from the normalized
+prefix certificate, and uses the same line policy for synchronous fuel/cancellation stops. Its
+cleanup kills and waits for the child, but it cannot interrupt a blocked read or establish
+backpressure, reconnect, process trust, or deployed assembler equivalence.
 `Cordis.DeepSeekStream` supplies the next wire boundary: strict in-memory
 `data:` / `[DONE]` SSE framing, typed delta choices, retained raw-frame
 parse/decode certificates, and explicit invalid-UTF-8/JSON/terminal errors.
