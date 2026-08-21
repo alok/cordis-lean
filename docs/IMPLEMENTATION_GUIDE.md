@@ -1901,6 +1901,10 @@ provider-complete assembly, and deployed equivalence remain outside the adapter.
 that streamed loop, preserving the completed streamed prefix and runner/model endpoint while
 leaving interruption of an in-flight process read or external tool as an adapter-specific
 obligation.
+`Cordis.DeepSeekStreamHarnessPrefix` moves that continuation under the existing line-oriented
+process prefix: each complete line is retained before the next read, and completion appends the
+same certified multi-call tool results while fuel or line cancellation returns the exact prefix.
+Byte framing, blocked-read interruption, and deployed stream semantics remain external.
 `Cordis.DeepSeekHarnessErrors` makes the provider-failure policy explicit rather than silently
 choosing one behavior: `.reject` is the default fail-closed request policy, while `.include`
 retains a `ProviderFailedTool` proof and appends its exact provider message as an `isError` tool

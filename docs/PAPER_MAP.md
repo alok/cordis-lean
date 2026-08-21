@@ -427,6 +427,11 @@ Local sources: [`Cordis/RichStream.lean`](../Cordis/RichStream.lean),
 retains the exact completed streamed prefix plus runner/model endpoint. It does not claim to
 interrupt an in-flight process read or to provide deployed cancellation semantics.
 
+`Cordis.DeepSeekStreamHarnessPrefix` connects that continuation to the checked line-oriented
+process prefix: completion appends the certified multi-call tool results, while a line policy or
+read budget returns the exact parsed prefix and typed stop. Byte framing, blocked-read
+interruption, and deployed stream semantics remain outside the claim.
+
 ### Current-development transformation and operation independence
 
 Local sources: [`Cordis/Transformation.lean`](../Cordis/Transformation.lean),

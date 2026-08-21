@@ -571,6 +571,7 @@ the empty-to-final lease-threading certificate.
 | `Cordis.DeepSeekHarnessCancellation`       | Boundary-safe pre-round cancellation: `CancellationPolicy` is checked before each complete request round, and `CancellableRunResult` retains the exact completed prefix, runner/model endpoint, and proof-carrying cancellation decision; fuel exhaustion and completion remain distinct stops. In-flight IO interruption is outside.                                                                                                                                                                                                                                                                                                                             |
 | `Cordis.DeepSeekStreamHarness`             | Complete-body process-backed rich tool-stream continuation into the generic `ConversationRunner`: terminal streamed calls receive local numeric IDs, pass through the same dependent admission/policy/provider execution path, and append certified typed tool results. Both the one-call entry point and `executeConversationMultiStreamRound` are exercised by deterministic process fixtures, including a two-call terminal stream; `runConversationMultiStream` reuses those certificates under explicit fuel and stops on a text-only terminal response or typed exhaustion. Incremental delivery and deployed semantics remain external.                    |
 | `Cordis.DeepSeekStreamHarnessCancellation` | Boundary-safe pre-round cancellation over `runConversationMultiStream`: the policy is checked before each complete streamed request, and the result retains the exact streamed witness prefix, unchanged runner/model endpoint, and typed cancellation decision; in-flight process interruption remains external.                                                                                                                                                                                                                                                                                                                                                 |
+| `Cordis.DeepSeekStreamHarnessPrefix`       | Line-oriented process-prefix continuation for a multi-call streamed round: every complete line is parsed before the next read; completion reuses the typed stream/tool/session continuation, while fuel exhaustion or line cancellation returns the exact prefix and typed stop evidence. Blocked-read interruption and deployed stream semantics remain external.                                                                                                                                                                                                                                                                                                |
 
 The public library umbrella is `Cordis.lean`. `Main.lean` is the
 `cordis_demo` entry point, and `Tests.lean` is the `cordis_tests` entry point.
@@ -761,6 +762,11 @@ claim:
    `runConversationMultiStream` loop composes those rounds under explicit fuel,
    stopping on a text-only terminal response or typed exhaustion. It remains a
    complete-body adapter and does not claim incremental delivery, cancellation,
+   backpressure, reconnects, provider-complete assembly, or deployed equivalence.
+   `Cordis.DeepSeekStreamHarnessPrefix` connects the proof-carrying line prefix to that
+   multi-call continuation: a completed prefix appends certified tool results, while a line
+   policy or read budget returns the exact parsed prefix instead of a generic client error.
+   It remains line-oriented and does not claim byte framing, blocked-read interruption,
    backpressure, reconnects, provider-complete assembly, or deployed equivalence.
    `Cordis.DeepSeekCurlIncremental` then exposes each complete body line through
    an IO callback under an explicit read budget before consuming the private

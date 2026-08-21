@@ -25,6 +25,7 @@ import Cordis.DeepSeekHarnessRetry
 import Cordis.DeepSeekHarnessCancellation
 import Cordis.DeepSeekStreamHarness
 import Cordis.DeepSeekStreamHarnessCancellation
+import Cordis.DeepSeekStreamHarnessPrefix
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -543,6 +544,7 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekStreamHarness.executeConversationMultiStreamRound
 #print axioms Cordis.DeepSeekStreamHarness.runConversationMultiStream
 #print axioms Cordis.DeepSeekStreamHarnessCancellation.runConversationMultiStreamCancellable
+#print axioms Cordis.DeepSeekStreamHarnessPrefix.executeConversationMultiStreamPrefixRound
 #print axioms Cordis.Transformation.Closure.commute
 #print axioms Cordis.Transformation.commute_of_generators
 #print axioms Cordis.Transformation.seq_monoid_subset_joint

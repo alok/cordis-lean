@@ -25,6 +25,7 @@ import Cordis.DeepSeekHarnessRetry
 import Cordis.DeepSeekHarnessCancellation
 import Cordis.DeepSeekStreamHarness
 import Cordis.DeepSeekStreamHarnessCancellation
+import Cordis.DeepSeekStreamHarnessPrefix
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -2189,6 +2190,76 @@ private def testDeepSeekStreamHarnessCancellation : IO Unit := do
       assertEqual "stream cancellation wrapper reports no fuel exhaustion"
         (DeepSeekStreamHarnessCancellation.CancellableStop.isFuelExhausted result.stop) false
 
+private def testDeepSeekStreamHarnessPrefix : IO Unit := do
+  let initialRunner : DeepSeekHarness.ConversationRunner := {
+    session := DeepSeekHarness.counterSession
+    turn := 1
+    step := 0
+    nextCall := 0
+    toolCallCount_eq_nextCall := by rfl
+  }
+  let linePolicy := Cordis.DeepSeekStreamIncremental.LinePolicy.atLine 1 "line:user"
+  let cancelled ← DeepSeekStreamHarnessPrefix.executeConversationMultiStreamPrefixRound
+    linePolicy 64 DeepSeekStreamHarnessPrefix.fixtureMultiProcess
+    "https://fixture.invalid" { value := "fixture-key" }
+    DeepSeekHarness.counterRequestSource Cordis.Harness.counterConfig 0 initialRunner []
+    (by simp) (by intro source sourceMem; cases sourceMem)
+  match cancelled with
+  | .error error => fail s!"DeepSeek prefix cancellation failed: {reprStr error}"
+  | .ok outcome =>
+      assertEqual "DeepSeek prefix cancellation reports cancellation"
+        (DeepSeekStreamHarnessPrefix.PrefixStreamRoundOutcome.isCancelled outcome) true
+      assertEqual "DeepSeek prefix cancellation records line"
+        (DeepSeekStreamHarnessPrefix.PrefixStreamRoundOutcome.cancelledLine outcome) (some 1)
+      match outcome with
+      | .cancelled observed line reason decided =>
+          assertEqual "DeepSeek prefix cancellation retains one parsed line"
+            observed.state.line 1
+          assertEqual "DeepSeek prefix cancellation retains one parsed frame"
+            observed.state.frames.length 1
+          assertEqual "DeepSeek prefix cancellation preserves line and reason"
+            (line, reason) (1, "line:user")
+          let _ := decided
+      | _ => fail "DeepSeek prefix cancellation returned the wrong stop"
+
+  let completed ← DeepSeekStreamHarnessPrefix.executeConversationMultiStreamPrefixRound
+    Cordis.DeepSeekStreamIncremental.LinePolicy.never 64
+    DeepSeekStreamHarnessPrefix.fixtureMultiProcess
+    "https://fixture.invalid" { value := "fixture-key" }
+    DeepSeekHarness.counterRequestSource Cordis.Harness.counterConfig 0 initialRunner []
+    (by simp) (by intro source sourceMem; cases sourceMem)
+  match completed with
+  | .error error => fail s!"DeepSeek prefix completion failed: {reprStr error}"
+  | .ok outcome =>
+      assertEqual "DeepSeek prefix completion reports completion"
+        (DeepSeekStreamHarnessPrefix.PrefixStreamRoundOutcome.isCompleted outcome) true
+      match outcome with
+      | .completed observed _ round =>
+          assertEqual "DeepSeek prefix completion retains all body lines"
+            observed.state.line 7
+          assertEqual "DeepSeek prefix completion appends both streamed tools"
+            round.executions.length 2
+          assertEqual "DeepSeek prefix completion advances the session"
+            round.runner.session.nextSeq 4
+      | _ => fail "DeepSeek prefix completion returned the wrong stop"
+
+  let exhausted ← DeepSeekStreamHarnessPrefix.executeConversationMultiStreamPrefixRound
+    Cordis.DeepSeekStreamIncremental.LinePolicy.never 1
+    DeepSeekStreamHarnessPrefix.fixtureMultiProcess
+    "https://fixture.invalid" { value := "fixture-key" }
+    DeepSeekHarness.counterRequestSource Cordis.Harness.counterConfig 0 initialRunner []
+    (by simp) (by intro source sourceMem; cases sourceMem)
+  match exhausted with
+  | .error error => fail s!"DeepSeek prefix fuel stop failed: {reprStr error}"
+  | .ok outcome =>
+      assertEqual "DeepSeek prefix fuel stop is distinct from completion"
+        (DeepSeekStreamHarnessPrefix.PrefixStreamRoundOutcome.isFuelExhausted outcome) true
+      match outcome with
+      | .fuelExhausted observed =>
+          assertEqual "DeepSeek prefix fuel stop retains the first line"
+            observed.state.line 1
+      | _ => fail "DeepSeek prefix fuel stop returned the wrong stop"
+
 private def failingProvider (operation : Operation) :
     Provider catalog.signature operation where
   id := providerId operation
@@ -3555,6 +3626,7 @@ def run : IO Unit := do
   testDeepSeekHarness
   testDeepSeekStreamHarness
   testDeepSeekStreamHarnessCancellation
+  testDeepSeekStreamHarnessPrefix
   testDeepSeekHarnessErrors
   testDeepSeekHarnessRetry
   testDeepSeekHarnessCancellation

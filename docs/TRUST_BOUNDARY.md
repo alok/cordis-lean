@@ -533,6 +533,11 @@ conversation loop with a typed pre-round cancellation decision. A cancelled resu
 completed streamed prefix and unchanged runner/model endpoint; interruption of an in-flight
 process read, HTTP request, stream reader, or external tool remains outside this boundary.
 
+`Cordis.DeepSeekStreamHarnessPrefix` extends the same continuation over the line-oriented
+process prefix. It retains either a completed multi-call tool append or the exact parsed prefix
+with a typed line-cancellation/read-budget stop; byte framing and blocked-read interruption are
+not proved.
+
 When an adapter such as `ToolWire` is used, textual resolution, decoding, and admission can
 fail closed before an `AuthorizedCall` is constructed. The adapter still supplies its resolver,
 codecs, decidability procedures, and proof-producing `certifyAdmission` implementation. Its

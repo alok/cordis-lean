@@ -144,6 +144,9 @@ Current machine-checked evidence includes:
   until a text-only terminal response or typed exhaustion;
 - `Cordis.DeepSeekStreamHarnessCancellation`, adding the same typed pre-round cancellation
   decision to the streamed loop while keeping in-flight process interruption external;
+- `Cordis.DeepSeekStreamHarnessPrefix`, connecting the line-oriented process-prefix state to
+  the multi-call continuation and retaining exact completion, fuel, or line-cancellation
+  evidence while byte framing and blocked-read interruption remain external;
 - `Cordis.DeepSeekHarnessErrors`, adding an explicit fail-closed/default-versus-opt-in policy seam
   for provider failures: `.include` retains typed failure evidence and appends model-visible
   `isError` tool results without changing the model state;

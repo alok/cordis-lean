@@ -195,6 +195,11 @@ decision to that streamed loop. It retains the completed streamed prefix and unc
 runner/model endpoint when cancellation is selected; it does not interrupt an in-flight
 process read or claim deployed cancellation semantics.
 
+`Cordis.DeepSeekStreamHarnessPrefix` moves the same continuation over the line-oriented
+process-prefix adapter. It returns either a completed multi-call tool round or the exact parsed
+prefix with a typed line-cancellation/read-budget stop; byte framing, blocked-read interruption,
+and deployed stream semantics remain external.
+
 The next paper layer is explicit rather than assumed. `Cordis.OperationalEquivalence` models
 Definition 34's heterogeneous finite tests and proves the generator-level coarsest relation of
 Lemma 35, while a compiled counterexample shows that same-word tests do not imply the stronger
