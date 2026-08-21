@@ -8,6 +8,7 @@ import Cordis.DeepSeekStream
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekSessionBridge
+import Cordis.DeepSeekSessionRunner
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -359,6 +360,9 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekRichToolStream.validateToolStream
 #print axioms Cordis.DeepSeekSessionBridge.finishAssistant
 #print axioms Cordis.DeepSeekSessionBridge.appendFinishedAssistant_messages
+#print axioms Cordis.DeepSeekSessionRunner.finishText
+#print axioms Cordis.DeepSeekSessionRunner.Runner.append
+#print axioms Cordis.DeepSeekSessionRunner.Runner.append_session_messages
 #print axioms Cordis.Transformation.Closure.commute
 #print axioms Cordis.Transformation.commute_of_generators
 #print axioms Cordis.Transformation.seq_monoid_subset_joint

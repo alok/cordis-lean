@@ -8,6 +8,7 @@ import Cordis.DeepSeekStream
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekSessionBridge
+import Cordis.DeepSeekSessionRunner
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -1063,6 +1064,35 @@ private def testDeepSeekSessionBridge : IO Unit := do
             (by simp) (by simp)
           pure ()
 
+private def testDeepSeekSessionRunner : IO Unit := do
+  match DeepSeekSessionRunner.Runner.appendText
+      (DeepSeekSessionRunner.Runner.empty 1)
+      DeepSeekRichStream.exampleTextStreamBody [] (by simp) (by simp) with
+  | .error error => fail s!"DeepSeek session runner text append failed: {reprStr error}"
+  | .ok afterText =>
+      assertEqual "DeepSeek session runner advances after a terminal text response"
+        afterText.session.nextSeq 1
+      assertEqual "DeepSeek session runner keeps the tool-call count at zero for text"
+        afterText.nextCall 0
+      match DeepSeekSessionRunner.Runner.appendTool afterText
+          DeepSeekRichToolStream.exampleToolStreamBody [] (by simp) (by simp) with
+      | .error error => fail s!"DeepSeek session runner tool append failed: {reprStr error}"
+      | .ok final =>
+          assertEqual "DeepSeek session runner advances a second terminal response"
+            final.session.nextSeq 2
+          assertEqual "DeepSeek session runner allocates the next local tool ID"
+            final.nextCall 1
+          assertEqual "DeepSeek session runner preserves model message order" final.session.messages [
+            .assistant "Hello world" [],
+            .assistant "" [{
+              id := { value := 0 }
+              name := "lookup"
+              arguments := "{\\\"q\\\":lean\\\"}"
+            }]
+          ]
+          let _countCertificate := final.toolCallCount_eq_nextCall
+          pure ()
+
 private def testQuotientEffects : IO Unit := do
   let applied := Observational.Quotient.Example.program.run
     Observational.Quotient.Example.initial
@@ -1787,6 +1817,7 @@ def run : IO Unit := do
   testDeepSeekRichStream
   testDeepSeekRichToolStream
   testDeepSeekSessionBridge
+  testDeepSeekSessionRunner
   testQuotientEffects
   testCoeffectQuotientLift
   testOperationalEquivalence

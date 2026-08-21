@@ -7,6 +7,7 @@ import Cordis.DeepSeekStream
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekSessionBridge
+import Cordis.DeepSeekSessionRunner
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO

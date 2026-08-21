@@ -13,6 +13,7 @@ import Cordis.DeepSeekStream
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekSessionBridge
+import Cordis.DeepSeekSessionRunner
 import Cordis.Effect
 import Cordis.Examples.Counter
 import Cordis.Examples.CounterWire

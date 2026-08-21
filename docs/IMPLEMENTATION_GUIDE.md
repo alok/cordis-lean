@@ -1829,6 +1829,11 @@ plus earlier source-event sequence proofs before appending the assistant payload
 The bridge proves the exact resulting message projection, but does not
 authenticate provider IDs, persist the append, or establish whole-session
 equivalence with the deployed Harness.
+`Cordis.DeepSeekSessionRunner` composes `finishText` and `finishTool` into a pure
+append-only runner. Its state carries exact physical sequence, turn/step coordinates,
+and a proved total tool-call count; each append allocates local IDs by count and
+preserves message order. The runner is a proof-carrying composition test, not a live
+transport, cancellation, persistence, or external-tool implementation.
 Continue by defining translations for additional pinned Harness events and tool
 definitions and proving only the invariants actually shared by the two
 representations. Expect to model more payloads, surface semantics, session
