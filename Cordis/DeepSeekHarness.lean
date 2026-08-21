@@ -495,6 +495,140 @@ theorem appendRoundToolResults_protocolProjection
       rw [← round.assistantSeq_eq]
       exact Nat.lt_succ_self _)
 
+/-! ## Tool-aware continuation runner -/
+
+theorem executedToolMessages_toolCallCount
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (baseCall : Nat)
+    (executions : List (ExecutedTool cfg)) :
+    toolCallCount (executedToolMessages baseCall executions) = 0 := by
+  induction executions generalizing baseCall with
+  | nil => rfl
+  | cons executed rest inductionHypothesis =>
+      change 0 + toolCallCount (executedToolMessages (baseCall + 1) rest) = 0
+      simp [inductionHypothesis]
+
+structure ConversationRunner where
+  session : Session.Session Session.noExtensions
+  turn : Nat
+  step : Nat
+  nextCall : Nat
+  toolCallCount_eq_nextCall : toolCallCount session.messages = nextCall
+
+namespace ConversationRunner
+
+def empty (turn : Nat := 1) : ConversationRunner where
+  session := Session.Session.empty Session.noExtensions
+  turn
+  step := 0
+  nextCall := 0
+  toolCallCount_eq_nextCall := by rfl
+
+def appendAcceptedApi
+    (runner : ConversationRunner)
+    {body : String}
+    (accepted : AcceptedApiResponse body)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    ConversationRunner :=
+  let assistantView := view accepted
+  let assignment := sequentialAssignment runner.nextCall assistantView
+  let session := StreamSession.appendAssistant runner.session runner.turn runner.step
+    assistantView assignment sourceEventSeqs sourcesNodup sourcesEarlier
+  {
+    session
+    turn := runner.turn
+    step := runner.step + 1
+    nextCall := runner.nextCall + assistantView.rawToolCalls.length
+    toolCallCount_eq_nextCall := by
+      have messages_eq :
+          session.messages = runner.session.messages ++ [.assistant assistantView.content
+            (StreamSession.toSessionToolCalls assistantView assignment)] := by
+        simp [session, StreamSession.appendAssistant, Session.Session.appendSurface,
+          Session.Session.append, Session.Session.messages_eq_surface,
+          StreamSession.toAssistantPayload]
+      simp only [messages_eq]
+      rw [toolCallCount_append]
+      rw [runner.toolCallCount_eq_nextCall]
+      simp [toolCallCount, messageToolCallCount,
+        StreamSession.toSessionToolCalls_length]
+  }
+
+theorem appendAcceptedApi_session_messages
+    (runner : ConversationRunner)
+    {body : String}
+    (accepted : AcceptedApiResponse body)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    (appendAcceptedApi runner accepted sourceEventSeqs sourcesNodup sourcesEarlier).session.messages =
+      runner.session.messages ++ [.assistant (view accepted).content
+        (StreamSession.toSessionToolCalls (view accepted)
+          (sequentialAssignment runner.nextCall (view accepted)))] := by
+  change (StreamSession.appendAssistant runner.session runner.turn runner.step
+      (view accepted) (sequentialAssignment runner.nextCall (view accepted))
+      sourceEventSeqs sourcesNodup sourcesEarlier).messages = _
+  simp [StreamSession.appendAssistant, Session.Session.appendSurface,
+    Session.Session.append, Session.Session.messages_eq_surface,
+    StreamSession.toAssistantPayload]
+
+theorem appendAcceptedApi_nextCall
+    (runner : ConversationRunner)
+    {body : String}
+    (accepted : AcceptedApiResponse body)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    (appendAcceptedApi runner accepted sourceEventSeqs sourcesNodup sourcesEarlier).nextCall =
+      runner.nextCall +
+        accepted.validated.response.choices.head.message.toolCalls.length := by
+  change runner.nextCall + (view accepted).rawToolCalls.length = _
+  rw [view_rawToolCalls_length]
+
+def afterRound
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    {before : Model}
+    {body : String}
+    (round : RoundResult cfg before body) :
+    ConversationRunner :=
+  let session := appendRoundToolResults round
+  {
+    session := session
+    turn := round.runner.turn
+    step := round.runner.step
+    nextCall := round.runner.nextCall
+    toolCallCount_eq_nextCall := by
+      have hcount :
+          toolCallCount (appendRoundToolResults round).messages = round.runner.nextCall := by
+        calc
+          toolCallCount (appendRoundToolResults round).messages =
+              toolCallCount
+                (round.runner.session.messages ++
+                  executedToolMessages round.callBase round.executions) :=
+            congrArg toolCallCount (appendRoundToolResults_messages round)
+          _ = round.runner.nextCall := by
+            rw [toolCallCount_append]
+            rw [executedToolMessages_toolCallCount]
+            change toolCallCount round.runner.session.messages = round.runner.nextCall
+            exact round.runner.toolCallCount_eq_nextCall
+      simpa [session, Session.Session.messages_eq_surface] using hcount
+  }
+
+theorem afterRound_session_messages
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    {before : Model}
+    {body : String}
+    (round : RoundResult cfg before body) :
+    (afterRound round).session.messages =
+      round.runner.session.messages ++ executedToolMessages round.callBase round.executions := by
+  exact appendRoundToolResults_messages round
+
+end ConversationRunner
+
 /-! ## Deterministic executable fixture -/
 
 def counterReadTool : ToolDefinition where
