@@ -1853,6 +1853,12 @@ metadata on log-only tags, delegates accepted records to `SessionRefinement`, an
 unsupported known payloads as raw typed opaque records. It deliberately does not invent payload
 types for assistant reasoning/image blocks, provider usage/failure objects, tool-result `error`/
 `meta`, or future request configuration.
+`Cordis.SessionPayloadArchive` is the next typed raw-payload boundary. It classifies the five
+current content-block tags plus unknown block extensions, preserves exact content arrays and
+message/chunk source objects, and retains assistant usage/tool-result `error`/`meta` as raw JSON.
+Shape failures attach to the already-retained event instead of dropping it. This moves the source
+contract inward without claiming provider/tool schema equivalence, replay, or local Session
+equivalence.
 `Cordis.DeepSeekApi` now supplies the adjacent provider boundary: typed
 OpenAI-compatible chat requests become exact POST plans, successful responses
 retain parse/decode certificates, and transport, HTTP-status, and API errors

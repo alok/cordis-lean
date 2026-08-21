@@ -86,6 +86,7 @@ import Cordis.Session
 import Cordis.SessionRefinement
 import Cordis.SessionArchive
 import Cordis.SessionEventArchive
+import Cordis.SessionPayloadArchive
 import Cordis.SessionValidation
 import Cordis.Stream
 import Cordis.StreamSession
@@ -2586,6 +2587,33 @@ private def testSessionEventArchive : IO Unit := do
         [(false, true), (false, false)]
   | .error error => fail s!"extension archive failed: {reprStr error}"
 
+private def testSessionPayloadArchive : IO Unit := do
+  assertEqual "payload archive classifies reasoning/image blocks without projecting them"
+    SessionPayloadArchive.reasoningImageTyped true
+  assertEqual "payload archive retains assistant usage and tool-result opaque fields"
+    SessionPayloadArchive.toolResultOpaqueTyped true
+  assertEqual "payload archive captures raw assistant usage"
+    SessionPayloadArchive.assistantUsageCaptured true
+  assertEqual "payload archive captures raw tool-result error/meta"
+    SessionPayloadArchive.toolResultErrorMetaCaptured true
+  assertEqual "payload archive retains unknown content-block extensions"
+    SessionPayloadArchive.unknownBlockRetained true
+  assertEqual "payload archive retains malformed known payloads losslessly"
+    SessionPayloadArchive.malformedPayloadIsRetained true
+  match SessionPayloadArchive.archivePayload
+      [SessionPayloadArchive.reasoningImagePayloadJson,
+        SessionPayloadArchive.toolResultOpaquePayloadJson] with
+  | .error error => fail s!"typed payload archive failed: {reprStr error}"
+  | .ok log =>
+      assertEqual "typed payload archive preserves event count" log.events.length 2
+      assertEqual "typed payload archive preserves raw event order"
+        (log.events.map SessionPayloadArchive.EnrichedEvent.raw ==
+          [SessionPayloadArchive.reasoningImagePayloadJson,
+            SessionPayloadArchive.toolResultOpaquePayloadJson]) true
+      assertEqual "typed payload archive exposes both payload tags"
+        (log.events.map SessionPayloadArchive.EnrichedEvent.tag?)
+        [some .assistantMessage, some .toolResult]
+
 private def testTransformationIndependence : IO Unit := do
   let modelOrder := Effect.seq Transformation.Example.bumpLeft
     Transformation.Example.bumpRight Transformation.Example.initial
@@ -3288,6 +3316,7 @@ def run : IO Unit := do
   testSessionRefinement
   testSessionArchive
   testSessionEventArchive
+  testSessionPayloadArchive
   testTransformationIndependence
   testOperationIndependence
   testArbitraryRemoval

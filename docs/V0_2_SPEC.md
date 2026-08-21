@@ -13,8 +13,10 @@ proof-produces append/replacement and finite-suffix certificates from parsed-but
 events. A current-Harness `StreamChunk` subset is also decoded from `Lean.Json` ASTs into the
 intrinsic rich-stream validator. `TextRefinement` now adds a supported UTF-8 JSONL ingress that
 parses exact lines before invoking the stream/session validators. `SessionEventArchive` now
-recognizes every pinned core event tag and preserves unsupported known payloads as raw records,
-while full payload semantics and the later production/refinement layers listed below remain open;
+recognizes every pinned core event tag and preserves unsupported known payloads as raw records;
+`SessionPayloadArchive` adds typed raw retention for message/chunk payloads, content-block tags,
+usage, tool-result error/meta, and malformed known shapes. Full payload semantics and the later
+production/refinement layers listed below remain open;
 this file is therefore an in-progress contract, not a completed `0.2.0` release claim.
 
 The pure scheduler boundary is now multi-segment: `Cordis.ParallelSchedule` executes any finite
@@ -215,6 +217,9 @@ Current machine-checked evidence includes:
 - `Cordis.SessionEventArchive`, recognizing all thirteen pinned core event tags, enforcing
   object-shaped data and log-only metadata rules, and retaining unsupported known payloads and
   unknown extensions as exact raw records;
+- `Cordis.SessionPayloadArchive`, classifying all current content-block tags (including unknown
+  extensions), retaining exact message/chunk/content arrays and raw usage/error/meta fields, and
+  preserving malformed known payloads without dropping their event ASTs;
 - `Cordis.HarnessPersistenceRefinement`, validating the pinned logical JSONL session header and
   storage rows, expanding the three lossless packed chunk-row forms, and composing that result
   with the stateful session validator;
@@ -862,6 +867,13 @@ delegates accepted payloads to `SessionRefinement`. Known payloads outside that 
 remain typed opaque records with their exact raw AST, so assistant reasoning/image blocks,
 provider usage/failure objects, tool-result `error`/`meta`, and future request fields are retained
 without an invented local meaning.
+
+`Cordis.SessionPayloadArchive` moves one layer inward without inventing provider semantics. It
+classifies the five current content-block tags plus unknown block extensions, retains exact message
+content arrays and source objects, preserves assistant-chunk objects and raw usage, and retains
+tool-result `error`/`meta` JSON. Malformed known payload shapes become attached shape errors while
+event order and raw records remain exact. This is typed raw retention, not provider/tool schema
+validation, replay, or complete local Session equivalence.
 
 `Cordis.TextRefinement` composes these AST-level validators with the Lean JSON parser and UTF-8
 decoder. `parseJsonLines` rejects empty sources and interior blank lines, preserves zero-based

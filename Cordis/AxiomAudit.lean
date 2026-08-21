@@ -83,6 +83,7 @@ import Cordis.Session
 import Cordis.SessionRefinement
 import Cordis.SessionArchive
 import Cordis.SessionEventArchive
+import Cordis.SessionPayloadArchive
 import Cordis.SessionValidation
 import Cordis.Stream
 import Cordis.StreamSession
@@ -410,6 +411,11 @@ set_option format.width 200
 #print axioms Cordis.SessionEventArchive.reject_log_only_surface_metadata
 #print axioms Cordis.SessionEventArchive.reject_known_nonobject_data
 #print axioms Cordis.SessionEventArchive.extensions_remain_opaque
+#print axioms Cordis.SessionPayloadArchive.PayloadLog.raw_exact
+#print axioms Cordis.SessionPayloadArchive.PayloadLog.length_exact
+#print axioms Cordis.SessionPayloadArchive.enrichEvent_raw
+#print axioms Cordis.SessionPayloadArchive.RawContent.blocks_raw_exact
+#print axioms Cordis.SessionPayloadArchive.RawMessage.content_raw_exact
 #print axioms Cordis.HarnessPersistenceRefinement.decodeSessionHeader
 #print axioms Cordis.HarnessPersistenceArchive.archivePersistedJson
 #print axioms Cordis.HarnessPersistenceArchive.ArchivedPersistedJson.rows_raw_exact
