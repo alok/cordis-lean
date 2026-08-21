@@ -1257,6 +1257,36 @@ private def testSessionRefinement : IO Unit := do
         SessionRefinement.malformedReplacementMessageExampleJson) with
   | none => pure ()
   | some _ => fail "replacement surface accepted incomplete source coverage"
+  match SessionRefinement.validationSummary
+      (SessionRefinement.validateJsonLog SessionRefinement.headerChunkExampleJson) with
+  | none => fail "request-header/text-chunk example failed to validate"
+  | some summary =>
+      assertRuntimeStateEqual "request-header/text-chunk example reaches the closed local turn"
+        (eraseState summary.protocol) (.ready 2)
+      assertEqual "request-header/text-chunk example preserves physical sequence continuity"
+        summary.nextSeq 6
+      assertEqual "text chunks remain log-only in the intrinsic protocol projection"
+        summary.runtimeEvents [
+          .turnStart 1,
+          .stepStart 1 0,
+          .stepEnd 1 0,
+          .turnEnd 1 1
+        ]
+  match SessionRefinement.latestHeaderSummary
+      (SessionRefinement.validateJsonLog SessionRefinement.headerChunkExampleJson) with
+  | some (some header) =>
+      assertEqual "request/header retains provider/model and selected tool schema"
+        header SessionRefinement.headerChunkExpectedHeader
+  | _ => fail "request/header was not retained in the certified session log"
+  match SessionRefinement.decodeEvent SessionRefinement.malformedAssistantChunkExampleJson with
+  | .error (.unsupportedTag _ "reasoning-delta") => pure ()
+  | result => fail s!"reasoning assistant chunk was not rejected: {reprStr result}"
+  match SessionRefinement.decodeEvent SessionRefinement.malformedAssistantChunkIndexExampleJson with
+  | .error (.unsupportedTag _ "1") => pure ()
+  | result => fail s!"nonzero-index assistant chunk was not rejected: {reprStr result}"
+  match SessionRefinement.decodeEvent SessionRefinement.malformedRequestHeaderExampleJson with
+  | .error (.unsupportedField _ "temperature") => pure ()
+  | result => fail s!"unsupported request-header field was not rejected: {reprStr result}"
 
 private def testTransformationIndependence : IO Unit := do
   let modelOrder := Effect.seq Transformation.Example.bumpLeft

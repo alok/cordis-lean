@@ -1,5 +1,6 @@
 import Cordis.RuntimeRefinement
 import Cordis.SessionValidation
+import Lean.Data.Json.Printer
 
 /-!
 # Stateful current-Harness session refinement
@@ -17,14 +18,18 @@ The translation synthesizes only values fixed by the accepted prefix and named n
 * provider string call ids receive the next fresh local numeric id and remain in a certified map;
 * absent tool-result `isError` becomes `false`, matching the TypeScript optional Boolean default.
 
-The supported event vocabulary is turn/step boundaries, text-only user messages, assistant
-messages with text and complete tool-call blocks, tool calls, and a restricted tool result whose
-three call-id occurrences agree and whose nested result content is exactly one text block. Only
-upstream `completed` and `max-tokens` turn-end reasons map without information loss. Surface
-messages retain their upstream identity and source metadata in the refinement state while their
-text and typed tool calls are projected into the smaller local `Session.Message` vocabulary.
+The supported event vocabulary is turn/step boundaries, restricted request headers, text-only
+assistant chunks, text-only user messages, assistant messages with text and complete tool-call
+blocks, tool calls, and a restricted tool result whose three call-id occurrences agree and whose
+nested result content is exactly one text block. Only upstream `completed` and `max-tokens` turn-end
+reasons map without information loss. Surface messages retain their upstream identity and source
+metadata in the refinement state while their text and typed tool calls are projected into the
+smaller local `Session.Message` vocabulary. Request-header wire witnesses retain the provider/model,
+optional system text, selected tool schemas, and stop reason; the local `Session.RequestHeader`
+projection retains the fields it represents. Assistant chunks retain only text-delta blocks at
+index zero as log-only events.
 
-Assistant chunks, request headers/context, assistant reasoning blocks,
+Request context, todo/session-end seed events, assistant reasoning blocks,
 assistant replay state, tool-result error identity/meta, multimodal tool results, and all extension
 events are rejected. Complete assistant tool calls are allocated into the same provider-to-local
 binding state used by later `tool/call` and `tool/result` events. Their upstream payloads still
@@ -68,6 +73,53 @@ def toLocal : WireTurnEndReason → Session.TurnEndReason
   | .maxTokens => .maxTokens
 
 end WireTurnEndReason
+
+/-- The restricted request-header stop reason retained from the upstream envelope. -/
+inductive WireRequestHeaderReason where
+  | initial
+  | resume
+  | change
+  deriving BEq, DecidableEq, Repr
+
+/-- A tool schema whose JSON parameters are compressed into the local schema string field. -/
+structure WireRequestToolSchema where
+  name : String
+  description : String
+  parameters : String
+  deriving DecidableEq, Repr
+
+/-- The selected source-shaped request header fields admitted by this refinement. -/
+structure WireRequestHeader where
+  provider : String
+  model : String
+  system : Option String
+  tools : List WireRequestToolSchema
+  reason : WireRequestHeaderReason
+  deriving DecidableEq, Repr
+
+namespace WireRequestHeader
+
+def toLocalTool (tool : WireRequestToolSchema) : Session.ToolSchema := {
+  name := tool.name
+  description := tool.description
+  inputSchema := tool.parameters
+}
+
+def toLocal (header : WireRequestHeader) : Session.RequestHeader := {
+  provider := header.provider
+  model := header.model
+  system := header.system
+  toolSchemas := header.tools.map WireRequestHeader.toLocalTool
+}
+
+end WireRequestHeader
+
+/-- A text-only `assistant/chunk` payload. Other stream block kinds stay outside this slice. -/
+structure WireAssistantChunk where
+  turn : SafeNat
+  step : SafeNat
+  text : String
+  deriving DecidableEq, Repr
 
 /-- Surface operations use the upstream object's `{ op, start, end }` shape for replacement. -/
 inductive WireSurfaceOp where
@@ -142,6 +194,8 @@ inductive WirePayload where
   | turnEnd (turn : SafeNat) (reason : WireTurnEndReason)
   | stepStart (turn step : SafeNat)
   | stepEnd (turn step : SafeNat)
+  | requestHeader (header : WireRequestHeader)
+  | assistantChunk (chunk : WireAssistantChunk)
   | userMessage (append : WireSurfaceAppend)
   | assistantMessage (turn step : SafeNat) (append : WireSurfaceAppend)
   | toolCall (turn step : SafeNat) (providerCallId name arguments : String)
@@ -215,6 +269,13 @@ private def decodeOptionalNat (json : Lean.Json) (path : List PathSegment)
   match field? json name with
   | none => .ok none
   | some value => some <$> decodeSafeNat (fieldPath path name) value
+
+private def decodeOptionalString (json : Lean.Json) (path : List PathSegment)
+    (name : String) : Except DecodeError (Option String) :=
+  match field? json name with
+  | none => .ok none
+  | some .null => .ok none
+  | some value => some <$> decodeString (fieldPath path name) value
 
 private def decodeOptionalBool (json : Lean.Json) (path : List PathSegment)
     (name : String) : Except DecodeError (Option Bool) :=
@@ -413,6 +474,89 @@ private def decodeAssistantMessageData (event : Lean.Json) (eventPath : List Pat
     surfaceOp := metadata.surfaceOp
   })
 
+private def decodeWireRequestToolSchema (path : List PathSegment) (json : Lean.Json) :
+    Except DecodeError WireRequestToolSchema :=
+  match json with
+  | .obj _ => do
+      let name ← decodeRequiredString json path "name"
+      let description ← decodeRequiredString json path "description"
+      let parameters ← requireField json path "parameters"
+      match parameters with
+      | .obj _ => .ok {
+          name, description, parameters := Lean.Json.compress parameters
+        }
+      | value => .error (.typeMismatch (fieldPath path "parameters") "object" (jsonKind value))
+  | value => .error (.typeMismatch path "object" (jsonKind value))
+
+private def decodeWireRequestToolSchemas (path : List PathSegment) (json : Lean.Json) :
+    Except DecodeError (List WireRequestToolSchema) :=
+  match json with
+  | .arr values =>
+      let rec loop : Nat → List Lean.Json → Except DecodeError (List WireRequestToolSchema)
+        | _, [] => .ok []
+        | index, value :: rest => do
+            let tool ← decodeWireRequestToolSchema (indexPath path index) value
+            let suffix ← loop (index + 1) rest
+            .ok (tool :: suffix)
+      loop 0 values.toList
+  | value => .error (.typeMismatch path "array" (jsonKind value))
+
+private def decodeWireRequestHeaderReason (path : List PathSegment) : Lean.Json →
+    Except DecodeError WireRequestHeaderReason
+  | .str "initial" => .ok .initial
+  | .str "resume" => .ok .resume
+  | .str "change" => .ok .change
+  | .str reason => .error (.unsupportedTag path reason)
+  | value => .error (.typeMismatch path "string" (jsonKind value))
+
+private def decodeWireRequestHeaderData (event : Lean.Json) (eventPath : List PathSegment)
+    (data : Lean.Json) (dataPath : List PathSegment) :
+    Except DecodeError WireRequestHeader := do
+  rejectSurfaceMetadata event eventPath
+  let headerJson ← requireField data dataPath "header"
+  let headerPath := fieldPath dataPath "header"
+  let header ← match headerJson with
+    | .obj _ => .ok headerJson
+    | value => .error (.typeMismatch headerPath "object" (jsonKind value))
+  rejectPresent header headerPath "adapterDefaults"
+  let configJson ← requireField header headerPath "config"
+  let configPath := fieldPath headerPath "config"
+  let config ← match configJson with
+    | .obj _ => .ok configJson
+    | value => .error (.typeMismatch configPath "object" (jsonKind value))
+  rejectPresent config configPath "temperature"
+  rejectPresent config configPath "maxTokens"
+  rejectPresent config configPath "reasoningEffort"
+  rejectPresent config configPath "stop"
+  let provider ← decodeRequiredString config configPath "provider"
+  let model ← decodeRequiredString config configPath "model"
+  let system ← decodeOptionalString header headerPath "system"
+  let tools ← match field? header "tools" with
+    | none => .ok []
+    | some value => decodeWireRequestToolSchemas (fieldPath headerPath "tools") value
+  let reason ← decodeWireRequestHeaderReason (fieldPath dataPath "reason")
+    (← requireField data dataPath "reason")
+  .ok { provider, model, system, tools, reason }
+
+private def decodeWireAssistantChunkData (event : Lean.Json) (eventPath : List PathSegment)
+    (data : Lean.Json) (dataPath : List PathSegment) :
+    Except DecodeError WireAssistantChunk := do
+  rejectSurfaceMetadata event eventPath
+  let turn ← decodeRequiredNat data dataPath "turn"
+  let step ← decodeRequiredNat data dataPath "step"
+  let chunkJson ← requireField data dataPath "chunk"
+  let chunkPath := fieldPath dataPath "chunk"
+  let chunk ← match chunkJson with
+    | .obj _ => .ok chunkJson
+    | value => .error (.typeMismatch chunkPath "object" (jsonKind value))
+  expectTag (fieldPath chunkPath "type") "text-delta"
+    (← decodeRequiredString chunk chunkPath "type")
+  let index ← decodeRequiredNat chunk chunkPath "index"
+  if index.value = 0 then
+    .ok { turn, step, text := ← decodeRequiredString chunk chunkPath "text" }
+  else
+    .error (.unsupportedTag (fieldPath chunkPath "index") (toString index.value))
+
 private structure DecodedToolResultBlock where
   callId : String
   content : String
@@ -495,6 +639,10 @@ private def decodePayload (event : Lean.Json) (path : List PathSegment)
           return .stepEnd
             (← decodeRequiredNat data dataPath "turn")
             (← decodeRequiredNat data dataPath "step")
+      | "request/header" =>
+          .requestHeader <$> decodeWireRequestHeaderData event path data dataPath
+      | "assistant/chunk" =>
+          .assistantChunk <$> decodeWireAssistantChunkData event path data dataPath
       | "user/message" =>
           .userMessage <$> decodeUserMessageData event path data dataPath
       | "assistant/message" => do
@@ -810,6 +958,29 @@ private def candidate (before : State) (wire : WireEvent) :
         localEvent
         runtime := some (.stepEnd turn.value localStep)
         calls := before.calls.clear
+        wireAppend := none
+        seq_eq := rfl
+        projection_eq := rfl
+      }
+  | .requestHeader header =>
+      let localEvent := logOnlyEvent wire.seq.value .requestHeader header.toLocal
+      .ok {
+        localEvent
+        runtime := none
+        calls := before.calls
+        wireAppend := none
+        seq_eq := rfl
+        projection_eq := rfl
+      }
+  | .assistantChunk chunk => do
+      let localStep ← normalizeStep chunk.step
+      let localEvent := logOnlyEvent wire.seq.value .assistantChunk {
+        turn := chunk.turn.value, step := localStep, delta := chunk.text
+      }
+      .ok {
+        localEvent
+        runtime := none
+        calls := before.calls
         wireAppend := none
         seq_eq := rfl
         projection_eq := rfl
@@ -1338,6 +1509,103 @@ def malformedReplacementMessageExampleJson : List Lean.Json :=
     ]
   ]
 
+/-! ## Request-header and text-chunk log-only example -/
+
+def headerChunkParametersJson : Lean.Json := Lean.Json.mkObj [
+  ("type", .str "object"),
+  ("properties", Lean.Json.mkObj [("query", Lean.Json.mkObj [("type", .str "string")])])
+]
+
+def headerChunkExpectedHeader : Session.RequestHeader := {
+  provider := "deepseek"
+  model := "deepseek-reasoner"
+  system := some "Answer briefly."
+  toolSchemas := [{
+    name := "lookup"
+    description := "Look up a key"
+    inputSchema := Lean.Json.compress headerChunkParametersJson
+  }]
+}
+
+def headerChunkExampleJson : List Lean.Json := [
+  Lean.Json.mkObj [
+    ("type", .str "request/header"), ("seq", .num 0), ("time", .num 400),
+    ("data", Lean.Json.mkObj [
+      ("header", Lean.Json.mkObj [
+        ("config", Lean.Json.mkObj [
+          ("provider", .str "deepseek"), ("model", .str "deepseek-reasoner")
+        ]),
+        ("system", .str "Answer briefly."),
+        ("tools", .arr #[Lean.Json.mkObj [
+          ("name", .str "lookup"), ("description", .str "Look up a key"),
+          ("parameters", headerChunkParametersJson)
+        ]])
+      ]),
+      ("reason", .str "initial")
+    ])
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "turn/start"), ("seq", .num 1), ("time", .num 401),
+    ("data", Lean.Json.mkObj [("turn", .num 1)])
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "step/start"), ("seq", .num 2), ("time", .num 402),
+    ("data", Lean.Json.mkObj [("turn", .num 1), ("step", .num 1)])
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "assistant/chunk"), ("seq", .num 3), ("time", .num 403),
+    ("data", Lean.Json.mkObj [
+      ("turn", .num 1), ("step", .num 1),
+      ("chunk", Lean.Json.mkObj [
+        ("type", .str "text-delta"), ("index", .num 0), ("text", .str "hello")
+      ])
+    ])
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "step/end"), ("seq", .num 4), ("time", .num 404),
+    ("data", Lean.Json.mkObj [("turn", .num 1), ("step", .num 1)])
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "turn/end"), ("seq", .num 5), ("time", .num 405),
+    ("data", Lean.Json.mkObj [
+      ("turn", .num 1), ("reason", Lean.Json.mkObj [("kind", .str "completed")])
+    ])
+  ]
+]
+
+def malformedAssistantChunkExampleJson : Lean.Json := Lean.Json.mkObj [
+  ("type", .str "assistant/chunk"), ("seq", .num 0), ("time", .num 0),
+  ("data", Lean.Json.mkObj [
+    ("turn", .num 1), ("step", .num 1),
+    ("chunk", Lean.Json.mkObj [
+      ("type", .str "reasoning-delta"), ("index", .num 0), ("text", .str "hidden")
+    ])
+  ])
+]
+
+def malformedAssistantChunkIndexExampleJson : Lean.Json := Lean.Json.mkObj [
+  ("type", .str "assistant/chunk"), ("seq", .num 0), ("time", .num 0),
+  ("data", Lean.Json.mkObj [
+    ("turn", .num 1), ("step", .num 1),
+    ("chunk", Lean.Json.mkObj [
+      ("type", .str "text-delta"), ("index", .num 1), ("text", .str "hello")
+    ])
+  ])
+]
+
+def malformedRequestHeaderExampleJson : Lean.Json := Lean.Json.mkObj [
+  ("type", .str "request/header"), ("seq", .num 0), ("time", .num 0),
+  ("data", Lean.Json.mkObj [
+    ("header", Lean.Json.mkObj [
+      ("config", Lean.Json.mkObj [
+        ("provider", .str "deepseek"), ("model", .str "deepseek-reasoner"),
+        ("temperature", .num 0)
+      ])
+    ]),
+    ("reason", .str "initial")
+  ])
+]
+
 private def wireSurfaceIds : List WireSurfaceAppend → List String
   | [] => []
   | append :: rest =>
@@ -1392,6 +1660,12 @@ def validationSummary {input : List Lean.Json} :
       messages := validated.final.session.messages
       runtimeEvents := validated.sequence.runtimeEvents
     }
+
+def latestHeaderSummary {input : List Lean.Json} :
+    Except (DecodeError ⊕ RefinementError) (ValidatedJsonLog input) →
+      Option (Option Session.RequestHeader)
+  | .error _ => none
+  | .ok validated => some validated.final.session.latestHeader
 
 /-- Full supported JSON prefix reaches a closed local turn and one tool-result surface node. -/
 theorem validate_example :
@@ -1475,9 +1749,48 @@ theorem validate_replacement_message_example :
       } := by
   decide
 
+/-- A restricted request header and text delta are retained as log-only events while the
+    structural protocol still reaches the same closed turn. -/
+theorem validate_header_chunk_example :
+    validationSummary (validateJsonLog headerChunkExampleJson) = some {
+      protocol := .ready 2
+      nextSeq := 6
+      messages := []
+      runtimeEvents := [
+        .turnStart 1,
+        .stepStart 1 0,
+        .stepEnd 1 0,
+        .turnEnd 1 1
+      ]
+    } := by
+  decide
+
+theorem validate_header_chunk_latestHeader :
+    latestHeaderSummary (validateJsonLog headerChunkExampleJson) =
+      some (some headerChunkExpectedHeader) := by
+  rfl
+
 theorem reject_replacement_incompleteCoverage :
     surfaceValidationSummary (validateJsonLog malformedReplacementMessageExampleJson) = none := by
   decide
+
+/-- Reasoning chunks are rejected rather than silently projected to text. -/
+theorem reject_assistantChunk_reasoning :
+    decodeEvent malformedAssistantChunkExampleJson = .error (.unsupportedTag
+      [.field "data", .field "chunk", .field "type"] "reasoning-delta") := by
+  rfl
+
+/-- The restricted text-delta projection admits only the source's first block index. -/
+theorem reject_assistantChunk_nonzeroIndex :
+    decodeEvent malformedAssistantChunkIndexExampleJson = .error (.unsupportedTag
+      [.field "data", .field "chunk", .field "index"] "1") := by
+  rfl
+
+/-- Header fields without a local lossless representation are rejected explicitly. -/
+theorem reject_requestHeader_temperature :
+    decodeEvent malformedRequestHeaderExampleJson = .error (.unsupportedField
+      [.field "data", .field "header", .field "config"] "temperature") := by
+  rfl
 
 /-- Assistant reasoning blocks remain outside the text-only session projection. -/
 theorem reject_assistantReasoningBlock :
