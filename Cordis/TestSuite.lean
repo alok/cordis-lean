@@ -29,6 +29,7 @@ import Cordis.DeepSeekGenericBridge
 import Cordis.DeepSeekSchemaExecution
 import Cordis.DeepSeekSchemaHarness
 import Cordis.DeepSeekSchemaRound
+import Cordis.DeepSeekSchemaMultiRound
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessErrors
@@ -2426,6 +2427,12 @@ private def testDeepSeekToolSchema : IO Unit := do
     DeepSeekSchemaRound.Example.weatherRoundFinalNextSeq true
   assertEqual "schema-aware round rejects an assistant response without a tool call"
     DeepSeekSchemaRound.Example.emptyResponseRejected true
+  assertEqual "schema-aware multi-round executes two certified calls"
+    DeepSeekSchemaMultiRound.Example.twoWeatherRoundAccepted true
+  assertEqual "schema-aware multi-round accounts for assistant plus two results"
+    DeepSeekSchemaMultiRound.Example.twoWeatherRoundFinalNextSeq true
+  assertEqual "schema-aware multi-round rejects a later wrong tool name"
+    DeepSeekSchemaMultiRound.Example.wrongSecondNameRejected true
   match DeepSeekToolSchema.malformedToolResult with
   | .error (.unsupportedTag path "date") =>
       assertEqual "unsupported property type reports its exact path"

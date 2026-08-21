@@ -2067,6 +2067,14 @@ the accepted assistant view, runs `executeCertifiedFunctionCall`, and appends th
 errors explicit: this is a one-tool certificate, not a silent reduction of the general multi-tool
 response language.
 
+`Cordis.DeepSeekSchemaMultiRound` is the next recursive step. `acceptToolCalls` retains a
+nonempty response list, `executeSchemaCalls` threads the certified successor model through each
+call, and `SchemaExecutionBatch.length_eq` prevents a successful result from silently dropping or
+duplicating a call. `executeSchemaMultiRound` appends the mapped certified executions through the
+existing runner theorem and exposes a typed index for a later-call failure. The current binding
+is intentionally homogeneous; a heterogeneous schema registry needs a separate dependent lookup
+certificate rather than an implicit name-to-tool map.
+
 `Cordis.DeepSeekHarnessCancellation` adds the corresponding pre-round control boundary: the policy
 is checked before a complete request round, and a cancellation result carries the unchanged
 runner/model endpoint and completed prefix. Keep the boundary honest: interrupting an in-flight

@@ -204,6 +204,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekSchemaRound`, composing an accepted singleton function-call response with
   schema-certified dispatch and the existing conversation runner while rejecting zero/multiple
   calls structurally;
+- `Cordis.DeepSeekSchemaMultiRound`, lifting that composition to a nonempty homogeneous list under
+  one explicit provider/generic binding, with sequential dependent model transitions, exact
+  execution-list length, typed later-call failures, and certified multi-result runner append;
 - `Cordis.DeepSeekHarnessErrors`, adding an explicit fail-closed/default-versus-opt-in policy seam
   for provider failures: `.include` retains typed failure evidence and appends model-visible
   `isError` tool results without changing the model state;
@@ -1037,9 +1040,15 @@ provider obedience, call-ID authenticity, persistence, or deployed Harness equiv
 
 `Cordis.DeepSeekSchemaRound` is the bounded complete-body response composition for exactly one
 assistant function call. It retains the accepted response and singleton tool-call equality,
-dispatches through `DeepSeekSchemaExecution`, and appends via the existing runner. It is an
-explicit one-tool slice; multi-tool response execution, live transport, provider obedience,
-call-ID authenticity, persistence, and deployed Harness equivalence remain outside.
+dispatches through `DeepSeekSchemaExecution`, and appends via the existing runner. It remains the
+one-tool certificate used as the base case for `Cordis.DeepSeekSchemaMultiRound`.
+
+`Cordis.DeepSeekSchemaMultiRound` accepts a nonempty list of calls for one explicit homogeneous
+provider/generic binding. Its recursive result carries each schema/generic/policy/execution
+certificate, the exact final model, an execution-list length equality, typed failure position,
+and the runner endpoint after appending every certified result. Heterogeneous schema registries,
+live transport, provider obedience, call-ID authenticity, persistence, and deployed Harness
+equivalence remain outside.
 
 `Cordis.DeepSeekHarnessPersistenceIO` composes the same runner attachment with the executable
 `HarnessPersistenceIO.ReadCertificate`. A successful memory or temporary-file read retains the
