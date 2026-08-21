@@ -106,6 +106,13 @@ structure AssistantChunkPayload where
   delta : String
   deriving DecidableEq, Repr
 
+/-- A reasoning delta retained in the append-only log without a local surface projection. -/
+structure AssistantReasoningPayload where
+  turn : Nat
+  step : Nat
+  delta : String
+  deriving DecidableEq, Repr
+
 structure AssistantMessagePayload where
   turn : Nat
   step : Nat
@@ -160,6 +167,7 @@ inductive Kind (schema : ExtensionSchema) : Visibility → Type where
   | requestContext : Kind schema .logOnly
   | sessionEndSeed : Kind schema .logOnly
   | assistantChunk : Kind schema .logOnly
+  | assistantReasoning : Kind schema .logOnly
   | assistantMessage : Kind schema .surface
   | toolCall : Kind schema .logOnly
   | toolResult : Kind schema .surface
@@ -180,6 +188,7 @@ namespace Kind
   | _, .requestContext => RequestContext
   | _, .sessionEndSeed => SessionEndSeedPayload
   | _, .assistantChunk => AssistantChunkPayload
+  | _, .assistantReasoning => AssistantReasoningPayload
   | _, .assistantMessage => AssistantMessagePayload
   | _, .toolCall => ToolCallEventPayload
   | _, .toolResult => ToolResultPayload
@@ -207,6 +216,7 @@ def projectMessage {schema : ExtensionSchema} :
   | _, .requestContext, _ => none
   | _, .sessionEndSeed, _ => none
   | _, .assistantChunk, _ => none
+  | _, .assistantReasoning, _ => none
   | _, .assistantMessage, payload => some (.assistant payload.content payload.rawToolCalls)
   | _, .toolCall, _ => none
   | _, .toolResult, payload => some (.toolResult payload.callId payload.content payload.isError)

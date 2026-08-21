@@ -343,7 +343,7 @@ set_option format.width 200
 #print axioms Cordis.SessionRefinement.reject_todo_unknownStatus
 #print axioms Cordis.SessionRefinement.reject_sessionEndSeed_nonempty
 #print axioms Cordis.SessionRefinement.reject_replacement_incompleteCoverage
-#print axioms Cordis.SessionRefinement.reject_assistantChunk_reasoning
+#print axioms Cordis.SessionRefinement.accept_assistantChunk_reasoning
 #print axioms Cordis.SessionRefinement.reject_assistantChunk_nonzeroIndex
 #print axioms Cordis.SessionRefinement.reject_requestHeader_temperature
 #print axioms Cordis.SessionRefinement.reject_surfaceMetadataOnStepStart
@@ -355,6 +355,7 @@ set_option format.width 200
 #print axioms Cordis.HarnessPersistenceRefinement.ValidatedPersistedJson.split_exact
 #print axioms Cordis.HarnessPersistenceRefinement.ValidatedPersistedJson.expansion_exact
 #print axioms Cordis.HarnessPersistenceRefinement.packedPersistenceExample_valid
+#print axioms Cordis.HarnessPersistenceRefinement.packedReasoningPersistenceExample_valid
 #print axioms Cordis.HarnessPersistenceRefinement.malformedPackedRow_rejected
 #print axioms Cordis.HarnessPersistenceRefinement.foreignVersion_rejected
 #print axioms Cordis.HarnessPersistenceRefinement.foreignHeaderTag_rejected

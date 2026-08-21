@@ -484,6 +484,17 @@ def packedTextExample : Lean.Json := Lean.Json.mkObj [
 
 def packedPersistenceExample : List Lean.Json := [headerExample, packedTextExample]
 
+def packedReasoningExample : Lean.Json := Lean.Json.mkObj [
+  ("type", .str "reasoning-chunks"), ("seq0", intJson 0), ("time0", intJson 200),
+  ("data", Lean.Json.mkObj [
+    ("turn", intJson 1), ("step", intJson 1), ("index", intJson 0),
+    ("dt", .arr #[intJson 1]),
+    ("texts", .arr #[.str "hidden", .str "chain"])
+  ])
+]
+
+def packedReasoningPersistenceExample : List Lean.Json := [headerExample, packedReasoningExample]
+
 /-- Proof-erased observation used by executable persistence fixtures. -/
 def persistenceSummary {input : List Lean.Json} :
     Except PersistenceError (ValidatedPersistedJson input) → Option (Nat × Nat × Nat)
@@ -495,6 +506,11 @@ def persistenceSummary {input : List Lean.Json} :
 
 theorem packedPersistenceExample_valid :
     persistenceSummary (validatePersistedJson packedPersistenceExample) = some (0, 3, 3) := by
+  decide
+
+theorem packedReasoningPersistenceExample_valid :
+    persistenceSummary (validatePersistedJson packedReasoningPersistenceExample) =
+      some (0, 2, 2) := by
   decide
 
 def malformedPackedRow : Lean.Json := Lean.Json.mkObj [

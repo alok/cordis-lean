@@ -862,6 +862,13 @@ private def testHarnessPersistence : IO Unit := do
       let _projectionCertificate := validated.projection_exact
       pure ()
   match HarnessPersistenceRefinement.validatePersistedJson
+      HarnessPersistenceRefinement.packedReasoningPersistenceExample with
+  | .error error => fail s!"packed reasoning persistence example failed: {reprStr error}"
+  | .ok validated =>
+      assertEqual "packed reasoning rows remain log-only while expanding exactly"
+        (HarnessPersistenceRefinement.persistenceSummary (.ok validated)) (some (0, 2, 2))
+      pure ()
+  match HarnessPersistenceRefinement.validatePersistedJson
       [HarnessPersistenceRefinement.headerExample,
         HarnessPersistenceRefinement.malformedPackedRow] with
   | .error (.storage (.malformed "text-chunks"
@@ -1364,9 +1371,12 @@ private def testSessionRefinement : IO Unit := do
   match SessionRefinement.decodeEvent SessionRefinement.malformedSessionEndSeedExampleJson with
   | .error (.unsupportedField _ "unexpected") => pure ()
   | result => fail s!"nonempty session/end-seed payload was not rejected: {reprStr result}"
-  match SessionRefinement.decodeEvent SessionRefinement.malformedAssistantChunkExampleJson with
-  | .error (.unsupportedTag _ "reasoning-delta") => pure ()
-  | result => fail s!"reasoning assistant chunk was not rejected: {reprStr result}"
+  if SessionRefinement.assistantChunkSummary
+      (SessionRefinement.decodeEvent SessionRefinement.malformedAssistantChunkExampleJson) ==
+      some (1, 1, "hidden") then
+    pure ()
+  else
+    fail "reasoning assistant chunk was not retained as a log-only payload"
   match SessionRefinement.decodeEvent SessionRefinement.malformedAssistantChunkIndexExampleJson with
   | .error (.unsupportedTag _ "1") => pure ()
   | result => fail s!"nonzero-index assistant chunk was not rejected: {reprStr result}"

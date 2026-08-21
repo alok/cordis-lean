@@ -19,8 +19,9 @@ The translation synthesizes only values fixed by the accepted prefix and named n
 * absent tool-result `isError` becomes `false`, matching the TypeScript optional Boolean default.
 
 The supported event vocabulary is turn/step boundaries, restricted request headers, route context,
-whole-list todo snapshots, empty session-seed markers, text-only assistant chunks, text-only user
-messages, assistant messages with text and complete tool-call blocks, tool calls, and a restricted
+whole-list todo snapshots, empty session-seed markers, text/reasoning assistant chunks,
+text-only user messages, assistant messages with text and complete tool-call blocks, tool calls,
+and a restricted
 tool result whose three call-id occurrences agree and whose nested result content is exactly one
 text block. Only upstream `completed` and `max-tokens` turn-end reasons map without information
 loss. Surface messages retain their upstream identity and source metadata in the refinement state
@@ -30,7 +31,8 @@ tool schemas, and stop reason; the local `Session.RequestHeader` projection reta
 represents. Route context, todo items, and the empty seed boundary are retained as typed log-only
 payloads. Assistant chunks retain only text-delta blocks at index zero as log-only events.
 
-Assistant reasoning blocks, assistant replay state, tool-result error identity/meta, multimodal tool
+Assistant reasoning blocks inside surface `assistant/message` records, assistant replay state,
+tool-result error identity/meta, multimodal tool
 results, unknown todo statuses, nonempty seed payloads, and all extension events are rejected.
 Complete assistant tool calls are allocated into the same provider-to-local
 binding state used by later `tool/call` and `tool/result` events. Their upstream payloads still
@@ -170,8 +172,15 @@ def toLocal (context : WireRequestContext) : Session.RequestContext := {
 
 end WireRequestContext
 
-/-- A text-only `assistant/chunk` payload. Other stream block kinds stay outside this slice. -/
+/-- A text `assistant/chunk` payload. Reasoning chunks use `WireReasoningChunk`. -/
 structure WireAssistantChunk where
+  turn : SafeNat
+  step : SafeNat
+  text : String
+  deriving DecidableEq, Repr
+
+/-- A reasoning `assistant/chunk` payload retained as a log-only event. -/
+structure WireReasoningChunk where
   turn : SafeNat
   step : SafeNat
   text : String
@@ -255,6 +264,7 @@ inductive WirePayload where
   | requestContext (context : WireRequestContext)
   | sessionEndSeed
   | assistantChunk (chunk : WireAssistantChunk)
+  | assistantReasoningChunk (chunk : WireReasoningChunk)
   | userMessage (append : WireSurfaceAppend)
   | assistantMessage (turn step : SafeNat) (append : WireSurfaceAppend)
   | toolCall (turn step : SafeNat) (providerCallId name arguments : String)
@@ -677,6 +687,25 @@ private def decodeWireAssistantChunkData (event : Lean.Json) (eventPath : List P
   else
     .error (.unsupportedTag (fieldPath chunkPath "index") (toString index.value))
 
+private def decodeWireReasoningChunkData (event : Lean.Json) (eventPath : List PathSegment)
+    (data : Lean.Json) (dataPath : List PathSegment) :
+    Except DecodeError WireReasoningChunk := do
+  rejectSurfaceMetadata event eventPath
+  let turn ← decodeRequiredNat data dataPath "turn"
+  let step ← decodeRequiredNat data dataPath "step"
+  let chunkJson ← requireField data dataPath "chunk"
+  let chunkPath := fieldPath dataPath "chunk"
+  let chunk ← match chunkJson with
+    | .obj _ => .ok chunkJson
+    | value => .error (.typeMismatch chunkPath "object" (jsonKind value))
+  expectTag (fieldPath chunkPath "type") "reasoning-delta"
+    (← decodeRequiredString chunk chunkPath "type")
+  let index ← decodeRequiredNat chunk chunkPath "index"
+  if index.value = 0 then
+    .ok { turn, step, text := ← decodeRequiredString chunk chunkPath "text" }
+  else
+    .error (.unsupportedTag (fieldPath chunkPath "index") (toString index.value))
+
 private structure DecodedToolResultBlock where
   callId : String
   content : String
@@ -769,7 +798,14 @@ private def decodePayload (event : Lean.Json) (path : List PathSegment)
           let _ ← decodeWireSessionEndSeedData event path data dataPath
           return .sessionEndSeed
       | "assistant/chunk" =>
-          .assistantChunk <$> decodeWireAssistantChunkData event path data dataPath
+          match field? data "chunk" with
+          | some (.obj fields) =>
+              match fields.get? "type" with
+              | some (.str "reasoning-delta") =>
+                  .assistantReasoningChunk <$>
+                    decodeWireReasoningChunkData event path data dataPath
+              | _ => .assistantChunk <$> decodeWireAssistantChunkData event path data dataPath
+          | _ => .assistantChunk <$> decodeWireAssistantChunkData event path data dataPath
       | "user/message" =>
           .userMessage <$> decodeUserMessageData event path data dataPath
       | "assistant/message" => do
@@ -1132,6 +1168,19 @@ private def candidate (before : State) (wire : WireEvent) :
   | .assistantChunk chunk => do
       let localStep ← normalizeStep chunk.step
       let localEvent := logOnlyEvent wire.seq.value .assistantChunk {
+        turn := chunk.turn.value, step := localStep, delta := chunk.text
+      }
+      .ok {
+        localEvent
+        runtime := none
+        calls := before.calls
+        wireAppend := none
+        seq_eq := rfl
+        projection_eq := rfl
+      }
+  | .assistantReasoningChunk chunk => do
+      let localStep ← normalizeStep chunk.step
+      let localEvent := logOnlyEvent wire.seq.value .assistantReasoning {
         turn := chunk.turn.value, step := localStep, delta := chunk.text
       }
       .ok {
@@ -2025,11 +2074,20 @@ theorem reject_replacement_incompleteCoverage :
     surfaceValidationSummary (validateJsonLog malformedReplacementMessageExampleJson) = none := by
   decide
 
-/-- Reasoning chunks are rejected rather than silently projected to text. -/
-theorem reject_assistantChunk_reasoning :
-    decodeEvent malformedAssistantChunkExampleJson = .error (.unsupportedTag
-      [.field "data", .field "chunk", .field "type"] "reasoning-delta") := by
-  rfl
+/-! Reasoning chunks are retained as log-only payloads rather than silently projected to text. -/
+
+def assistantChunkSummary : Except DecodeError WireEvent → Option (Nat × Nat × String)
+  | .ok event =>
+      match event.payload with
+      | .assistantChunk chunk => some (chunk.turn.value, chunk.step.value, chunk.text)
+      | .assistantReasoningChunk chunk => some (chunk.turn.value, chunk.step.value, chunk.text)
+      | _ => none
+  | .error _ => none
+
+theorem accept_assistantChunk_reasoning :
+    assistantChunkSummary (decodeEvent malformedAssistantChunkExampleJson) =
+      some (1, 1, "hidden") := by
+  decide
 
 /-- The restricted text-delta projection admits only the source's first block index. -/
 theorem reject_assistantChunk_nonzeroIndex :
