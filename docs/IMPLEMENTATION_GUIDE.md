@@ -2041,6 +2041,11 @@ exact source text (or source bytes plus the UTF-8 decoding equality), parsed arc
 validation, and restored runner in one dependent result. The byte path delegates to the text path;
 invalid encoding and opaque/extension events remain structured failures rather than being dropped.
 This does not add logger framing, transport, persistence, or deployed-Harness equivalence.
+`Cordis.DeepSeekHarnessPayloadText` composes that result with
+`SessionPayloadArchive.PayloadLog`. The dependent payload index is aligned to the same parsed
+JSONL lines, retaining raw content-block tags, assistant usage, tool-result `error`/`meta`, and
+unknown block extensions beside the runner. These values remain provider/tool-owned JSON; this
+layer adds shape retention, not provider-schema semantics.
 
 `Cordis.DeepSeekHarnessOpaqueMetadata` takes the one supported opaque-field exception one step
 further. It consumes `SessionOpaqueMetadata.RetainedLog`, restores the sanitized final session to

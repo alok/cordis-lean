@@ -45,6 +45,7 @@ import Cordis.DeepSeekSchemaStreamErrors
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessEventText
+import Cordis.DeepSeekHarnessPayloadText
 import Cordis.DeepSeekHarnessErrors
 import Cordis.DeepSeekHarnessRetry
 import Cordis.DeepSeekHarnessCancellation
@@ -789,6 +790,15 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessEventText.buildRequestCertificate
 #print axioms Cordis.DeepSeekHarnessEventText.toolTextRestored
 #print axioms Cordis.DeepSeekHarnessEventText.toolBytesRestored
+#print axioms Cordis.DeepSeekHarnessPayloadText.restoreTextPayloadRunner
+#print axioms Cordis.DeepSeekHarnessPayloadText.restoreBytesPayloadRunner
+#print axioms Cordis.DeepSeekHarnessPayloadText.RestoredPayloadRunner.session_eq
+#print axioms Cordis.DeepSeekHarnessPayloadText.RestoredPayloadRunner.payload_raw_eq_lines
+#print axioms Cordis.DeepSeekHarnessPayloadText.RestoredPayloadRunner.payload_raw_exact
+#print axioms Cordis.DeepSeekHarnessPayloadText.RestoredBytesPayloadRunner.decoded_eq
+#print axioms Cordis.DeepSeekHarnessPayloadText.buildRequestCertificate
+#print axioms Cordis.DeepSeekHarnessPayloadText.toolPayloadRestored
+#print axioms Cordis.DeepSeekHarnessPayloadText.toolPayloadBytesRestored
 #print axioms Cordis.DeepSeekStreamHarness.projectedToolCallToFunctionCall
 #print axioms Cordis.DeepSeekStreamHarness.ConversationRunner.appendFinished
 #print axioms Cordis.DeepSeekStreamHarness.ConversationRunner.appendFinished_session_messages

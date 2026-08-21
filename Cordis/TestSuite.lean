@@ -47,6 +47,7 @@ import Cordis.DeepSeekSchemaStreamErrors
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessEventText
+import Cordis.DeepSeekHarnessPayloadText
 import Cordis.DeepSeekHarnessErrors
 import Cordis.DeepSeekHarnessRetry
 import Cordis.DeepSeekHarnessCancellation
@@ -3199,6 +3200,52 @@ private def testDeepSeekHarnessEventText : IO Unit := do
   | .error error => fail s!"invalid event UTF-8 returned the wrong error: {reprStr error}"
   | .ok _ => fail "invalid event UTF-8 was accepted"
 
+private def testDeepSeekHarnessPayloadText : IO Unit := do
+  match DeepSeekHarnessPayloadText.toolPayloadRestored with
+  | .error error => fail s!"current payload text restoration failed: {reprStr error}"
+  | .ok restored =>
+      assertEqual "payload text retains the runner endpoint"
+        restored.restored.restored.runner.session.nextSeq 8
+      assertEqual "payload text retains every archived event"
+        restored.payload.events.length 8
+      assertEqual "payload text classifies every fixture payload"
+        restored.payload.typedCount 8
+      let _sessionCertificate :=
+        DeepSeekHarnessPayloadText.RestoredPayloadRunner.session_eq restored
+      let _rawLines :=
+        DeepSeekHarnessPayloadText.RestoredPayloadRunner.payload_raw_eq_lines restored
+      let _rawArchive :=
+        DeepSeekHarnessPayloadText.RestoredPayloadRunner.payload_raw_exact restored
+      match DeepSeekHarnessPayloadText.buildRequestCertificate restored
+          { model := "deepseek-reasoner", errorToolResults := .reject } with
+      | .error error => fail s!"payload text request construction failed: {reprStr error}"
+      | .ok certificate =>
+          assertEqual "payload text request uses the restored tool message"
+            certificate.request.messages.toList [
+              .user "look up lean",
+              .assistant (some "I will look it up.") none [{
+                id := "0"
+                name := "lookup"
+                arguments := "{\"q\":\"lean\"}"
+              }],
+              .tool "0" "result"
+            ]
+          let _buildCertificate := certificate.build_eq
+          pure ()
+  match DeepSeekHarnessPayloadText.toolPayloadBytesRestored with
+  | .error error => fail s!"current payload bytes restoration failed: {reprStr error}"
+  | .ok restored =>
+      assertEqual "payload bytes retain decoded text"
+        restored.text DeepSeekHarnessPayloadText.toolPayloadTextSource
+      assertEqual "payload bytes retain the runner endpoint"
+        restored.restored.restored.restored.runner.session.nextSeq 8
+      let _decoded := DeepSeekHarnessPayloadText.RestoredBytesPayloadRunner.decoded_eq restored
+      pure ()
+  match DeepSeekHarnessPayloadText.restoreBytesPayloadRunner (ByteArray.mk #[255]) 1 1 with
+  | .error (.restore (.text .invalidUtf8)) => pure ()
+  | .error error => fail s!"invalid payload UTF-8 returned the wrong error: {reprStr error}"
+  | .ok _ => fail "invalid payload UTF-8 was accepted"
+
 private def testDeepSeekStreamHarness : IO Unit := do
   let process := DeepSeekStreamHarness.streamFlagFixtureProcess
     DeepSeekStreamHarness.counterToolStreamBody
@@ -5106,6 +5153,7 @@ def run : IO Unit := do
   testDeepSeekSchemaStreamErrors
   testDeepSeekHarnessEventArchive
   testDeepSeekHarnessEventText
+  testDeepSeekHarnessPayloadText
   testDeepSeekStreamHarness
   testDeepSeekStreamHarnessCancellation
   testDeepSeekStreamHarnessPrefix

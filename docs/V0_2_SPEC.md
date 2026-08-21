@@ -207,6 +207,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekHarnessEventText`, lifting that certificate-gated event attachment to exact
   UTF-8/JSONL text and `ByteArray` ingress while retaining source/decoded text and rejecting
   invalid encoding or opaque/extension events;
+- `Cordis.DeepSeekHarnessPayloadText`, composing the same text/byte restore with the raw
+  `SessionPayloadArchive.PayloadLog` so block tags, usage, and tool-result metadata remain aligned
+  with the runner without inventing provider-owned semantics;
 - `Cordis.DeepSeekHarnessOpaqueMetadata`, attaching the sanitized runner projection from
   `SessionOpaqueMetadata.RetainedLog` while retaining exact tool-result `error`/`meta` values in
   source order; the request path excludes those uninterpreted provider/tool fields;
@@ -1073,6 +1076,12 @@ retains the parsed source, archive lines, validated session, and restored runner
 adds the exact UTF-8 decoding equality before reusing the text certificate. Invalid UTF-8 and
 opaque/extension events remain typed failures. This is still a pure parser/validator boundary,
 not a logger, transport, persistence, or deployed-Harness equivalence theorem.
+
+`Cordis.DeepSeekHarnessPayloadText` adds one lossless view without widening the semantic runner.
+The payload log and runner are indexed by the same parsed JSONL lines, so reasoning/image blocks,
+assistant usage, tool-result `error`/`meta`, and unknown block tags remain available as exact raw
+JSON beside the supported Session/Protocol projection. Provider-owned payload schemas remain
+outside the local type system.
 
 `Cordis.DeepSeekHarnessOpaqueMetadata` is the narrow quarantined exception to that fail-closed
 event path. It consumes the sanitized `RetainedLog`, restores its validated final session to a
