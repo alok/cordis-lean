@@ -86,6 +86,7 @@ import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
 import Cordis.SessionArchive
+import Cordis.SessionEventArchive
 import Cordis.SessionValidation
 import Cordis.Examples.DependentChoiceSession
 import Cordis.Stream

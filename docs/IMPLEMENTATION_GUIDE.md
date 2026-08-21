@@ -1847,6 +1847,12 @@ and only appends a row after the current document validates. Treat the backend's
 write/flush acknowledgement as operational evidence, not as a durability theorem:
 fsync, stable media, locking, torn-tail repair, and crash recovery still require
 separate contracts.
+`Cordis.SessionEventArchive` now closes the adjacent wire-vocabulary gap. It recognizes all
+thirteen pinned core `SessionEvent` tags, checks object-shaped payloads and forbids surface
+metadata on log-only tags, delegates accepted records to `SessionRefinement`, and preserves
+unsupported known payloads as raw typed opaque records. It deliberately does not invent payload
+types for assistant reasoning/image blocks, provider usage/failure objects, tool-result `error`/
+`meta`, or future request configuration.
 `Cordis.DeepSeekApi` now supplies the adjacent provider boundary: typed
 OpenAI-compatible chat requests become exact POST plans, successful responses
 retain parse/decode certificates, and transport, HTTP-status, and API errors
@@ -1936,9 +1942,9 @@ transport, cancellation, persistence, or external-tool implementation.
 fail-closed policy: singleton index-zero choice, supported finish, and nonempty
 content/tool payload are required before the append. Extra choices and unsupported
 terminal states are preserved as typed rejection rather than silently dropped.
-Continue by defining translations for additional pinned Harness events and tool
-definitions and proving only the invariants actually shared by the two
-representations. Expect to model more payloads, surface semantics, session
+Continue by defining translations for additional pinned Harness payload fields and tool
+definitions and proving only the invariants actually shared by the two representations. Expect to
+model more payloads, surface semantics, session
 extensions, policy phases, persistence, and cancellation. Similar names and a
 one-way supported-subset text/AST decoder are not a whole-runtime equivalence theorem;
 Lean's parser and the external logger remain explicit boundaries.

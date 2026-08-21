@@ -85,6 +85,7 @@ import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
 import Cordis.SessionArchive
+import Cordis.SessionEventArchive
 import Cordis.SessionValidation
 import Cordis.Stream
 import Cordis.StreamSession
@@ -2540,6 +2541,51 @@ private def testSessionArchive : IO Unit := do
   | .error (.missingField [.index 1] "time") => pure ()
   | _ => fail "archive did not retain the failing envelope index"
 
+private def testSessionEventArchive : IO Unit := do
+  assertEqual "full current event union exposes every pinned core tag"
+    SessionEventArchive.allKnownTagWires
+    (SessionEventArchive.KnownTag.all.map SessionEventArchive.KnownTag.wire)
+  match SessionEventArchive.archive SessionEventArchive.allKnownEventJson with
+  | .error error => fail s!"full event-tag archive failed: {reprStr error}"
+  | .ok log =>
+      assertEqual "full event-tag archive retains all thirteen core envelopes"
+        log.events.length 13
+      assertEqual "full event-tag archive preserves raw input order"
+        (log.events.map SessionEventArchive.ArchivedEvent.raw ==
+          SessionEventArchive.allKnownEventJson) true
+      assertEqual "full event-tag archive recognizes every record as a known core event"
+        (log.events.map SessionEventArchive.ArchivedEvent.isKnown)
+        (List.replicate 13 true)
+  match SessionEventArchive.archive [SessionEventArchive.unsupportedReasoningSurfaceJson] with
+  | .ok log =>
+      match log.events with
+      | [event] =>
+          assertEqual "unsupported reasoning surface payload stays opaque but tagged"
+            (event.isOpaque, event.tag?) (true, some .assistantMessage)
+      | _ => fail "reasoning fixture did not produce one archived event"
+  | .error error => fail s!"reasoning payload was not archived: {reprStr error}"
+  match SessionEventArchive.archive [SessionEventArchive.unsupportedToolResultMetaJson] with
+  | .ok log =>
+      match log.events with
+      | [event] =>
+          assertEqual "tool-result error/meta stays opaque but tagged"
+            (event.isOpaque, event.tag?) (true, some .toolResult)
+      | _ => fail "tool-result fixture did not produce one archived event"
+  | .error error => fail s!"tool-result payload was not archived: {reprStr error}"
+  match SessionEventArchive.archive [SessionEventArchive.illegalLogOnlyMetadataJson] with
+  | .error (.knownMetadata 0 .turnStart) => pure ()
+  | _ => fail "log-only surface metadata was not rejected"
+  match SessionEventArchive.archive [SessionEventArchive.knownNonObjectDataJson] with
+  | .error (.knownDataNotObject 0 .turnStart) => pure ()
+  | _ => fail "known non-object data was not rejected"
+  match SessionEventArchive.archive [SessionEventArchive.requiredExtensionJson,
+      SessionEventArchive.ignorableExtensionJson] with
+  | .ok log =>
+      assertEqual "unknown required and ignorable extensions remain opaque"
+        (log.events.map fun event => (event.isKnown, event.isRequired))
+        [(false, true), (false, false)]
+  | .error error => fail s!"extension archive failed: {reprStr error}"
+
 private def testTransformationIndependence : IO Unit := do
   let modelOrder := Effect.seq Transformation.Example.bumpLeft
     Transformation.Example.bumpRight Transformation.Example.initial
@@ -3241,6 +3287,7 @@ def run : IO Unit := do
   testOperationalEquivalence
   testSessionRefinement
   testSessionArchive
+  testSessionEventArchive
   testTransformationIndependence
   testOperationIndependence
   testArbitraryRemoval

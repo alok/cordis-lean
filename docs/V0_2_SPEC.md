@@ -12,9 +12,10 @@ instantiations) are implemented. `SessionValidation`
 proof-produces append/replacement and finite-suffix certificates from parsed-but-untrusted typed
 events. A current-Harness `StreamChunk` subset is also decoded from `Lean.Json` ASTs into the
 intrinsic rich-stream validator. `TextRefinement` now adds a supported UTF-8 JSONL ingress that
-parses exact lines before invoking the stream/session validators. Full `SessionEvent` decoding
-and the later production/refinement layers listed below remain open; this file is therefore an
-in-progress contract, not a completed `0.2.0` release claim.
+parses exact lines before invoking the stream/session validators. `SessionEventArchive` now
+recognizes every pinned core event tag and preserves unsupported known payloads as raw records,
+while full payload semantics and the later production/refinement layers listed below remain open;
+this file is therefore an in-progress contract, not a completed `0.2.0` release claim.
 
 The pure scheduler boundary is now multi-segment: `Cordis.ParallelSchedule` executes any finite
 sequence of certified parallel windows and exclusive barriers, with exact composed endpoint and
@@ -211,6 +212,9 @@ Current machine-checked evidence includes:
 - `Cordis.SessionArchive`, retaining every syntactically valid current-Harness event envelope
   losslessly, classifying supported records versus required/ignorable opaque extensions, and
   attaching the existing typed decoder certificate where available;
+- `Cordis.SessionEventArchive`, recognizing all thirteen pinned core event tags, enforcing
+  object-shaped data and log-only metadata rules, and retaining unsupported known payloads and
+  unknown extensions as exact raw records;
 - `Cordis.HarnessPersistenceRefinement`, validating the pinned logical JSONL session header and
   storage rows, expanding the three lossless packed chunk-row forms, and composing that result
   with the stateful session validator;
@@ -851,6 +855,13 @@ as a local `TurnEndReason` variant.
 `SessionRefinement.WireEvent` certificate; unknown or semantically unsupported records are retained
 as `opaqueRequired` or `opaqueIgnorable` rather than discarded. This does not assign extension
 payload types, replay semantics, or a local session projection to opaque records.
+
+`Cordis.SessionEventArchive` closes the adjacent wire-vocabulary gap. It recognizes all thirteen
+pinned core tags, requires object-shaped `data`, rejects surface metadata on log-only tags, and
+delegates accepted payloads to `SessionRefinement`. Known payloads outside that semantic subset
+remain typed opaque records with their exact raw AST, so assistant reasoning/image blocks,
+provider usage/failure objects, tool-result `error`/`meta`, and future request fields are retained
+without an invented local meaning.
 
 `Cordis.TextRefinement` composes these AST-level validators with the Lean JSON parser and UTF-8
 decoder. `parseJsonLines` rejects empty sources and interior blank lines, preserves zero-based
