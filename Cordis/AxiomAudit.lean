@@ -8,6 +8,7 @@ import Cordis.DeepSeekStream
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekRichMixedStream
+import Cordis.DeepSeekRichMultiStream
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
@@ -386,12 +387,20 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekRichMixedStream.validateMixedStream
 #print axioms Cordis.DeepSeekRichMixedStream.project_mixed_chunks_exact
 #print axioms Cordis.DeepSeekRichMixedStream.reject_sameFrame_mixedKinds
+#print axioms Cordis.DeepSeekRichMultiStream.projectFrames
+#print axioms Cordis.DeepSeekRichMultiStream.projectChunks
+#print axioms Cordis.DeepSeekRichMultiStream.validateMultiStream
+#print axioms Cordis.DeepSeekRichMultiStream.project_multi_chunks_exact
+#print axioms Cordis.DeepSeekRichMultiStream.reject_mismatched_call_id
+#print axioms Cordis.DeepSeekRichMultiStream.reject_multiple_choices
 #print axioms Cordis.DeepSeekSessionBridge.finishAssistant
 #print axioms Cordis.DeepSeekSessionBridge.appendFinishedAssistant_messages
 #print axioms Cordis.DeepSeekSessionRunner.finishText
 #print axioms Cordis.DeepSeekSessionRunner.finishMixed
+#print axioms Cordis.DeepSeekSessionRunner.finishMulti
 #print axioms Cordis.DeepSeekSessionRunner.Runner.append
 #print axioms Cordis.DeepSeekSessionRunner.Runner.appendMixed
+#print axioms Cordis.DeepSeekSessionRunner.Runner.appendMulti
 #print axioms Cordis.DeepSeekSessionRunner.Runner.append_session_messages
 #print axioms Cordis.DeepSeekApiSession.acceptResponse
 #print axioms Cordis.DeepSeekApiSession.Runner.appendApi

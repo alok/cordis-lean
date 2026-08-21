@@ -8,6 +8,7 @@ import Cordis.DeepSeekStream
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekRichMixedStream
+import Cordis.DeepSeekRichMultiStream
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
@@ -1104,6 +1105,28 @@ private def testDeepSeekRichMixedStream : IO Unit := do
   | some .mixedKinds => pure ()
   | result => fail s!"DeepSeek mixed projection accepted same-frame mixed kinds: {reprStr result}"
 
+private def testDeepSeekRichMultiStream : IO Unit := do
+  assertEqual "DeepSeek multi projection preserves interleaved raw chunks"
+    (DeepSeekRichMultiStream.chunkRawSummary DeepSeekRichMultiStream.multiChunks)
+    (some DeepSeekRichMultiStream.multiRaw)
+  match DeepSeekRichMultiStream.jsonSummary DeepSeekRichMultiStream.multiBody with
+  | some frameCount =>
+      assertEqual "DeepSeek multi JSON fixture retains three data frames plus DONE"
+        frameCount 4
+  | none => fail "DeepSeek multi JSON fixture was rejected"
+  let existingCall : DeepSeekRichMultiStream.MultiState := {
+    DeepSeekRichMultiStream.MultiState.initial with
+    tools := [{ providerIndex := 9, localIndex := 0, id := some "call-b", name := some "sum" }]
+  }
+  match DeepSeekRichMultiStream.projectChunks existingCall
+      [DeepSeekRichMultiStream.mismatchedCallChunk] with
+  | .error (.toolIdMismatch 9 "call-b" "other") => pure ()
+  | result => fail s!"DeepSeek multi projection missed per-call ID mismatch: {reprStr result}"
+  match DeepSeekRichMultiStream.projectChunks DeepSeekRichMultiStream.MultiState.initial
+      [DeepSeekRichMultiStream.multiChoiceChunk] with
+  | .error (.multipleChoices 2) => pure ()
+  | result => fail s!"DeepSeek multi projection accepted multiple choices: {reprStr result}"
+
 private def testDeepSeekSessionBridge : IO Unit := do
   match DeepSeekRichToolStream.validateToolStream
       DeepSeekRichToolStream.exampleToolStreamBody with
@@ -1194,7 +1217,23 @@ private def testDeepSeekSessionRunner : IO Unit := do
                   arguments := "{\"q\":\"lean\"}"
                 }]
               ]
-              pure ()
+              match DeepSeekSessionRunner.Runner.appendMulti mixedFinal
+                  DeepSeekRichMultiStream.multiBody [] (by simp) (by simp) with
+              | .error error =>
+                  fail s!"DeepSeek session runner multi append failed: {reprStr error}"
+              | .ok multiFinal =>
+                  assertEqual "DeepSeek session runner advances a multi-call response"
+                    multiFinal.session.nextSeq 4
+                  assertEqual "DeepSeek session runner counts both multi-call tools"
+                    multiFinal.nextCall 4
+                  assertEqual "DeepSeek session runner preserves multi-call order"
+                    multiFinal.session.messages.getLast? (some (.assistant "" [
+                      { id := { value := 2 }, name := "lookup",
+                        arguments := "{\"q\":\"lean\"}" },
+                      { id := { value := 3 }, name := "sum",
+                        arguments := "{\"xs\":[1,2]}" }
+                    ]))
+                  pure ()
 
 private def testDeepSeekApiSession : IO Unit := do
   match DeepSeekApiSession.acceptResponse "" with
@@ -2098,6 +2137,7 @@ def run : IO Unit := do
   testDeepSeekRichStream
   testDeepSeekRichToolStream
   testDeepSeekRichMixedStream
+  testDeepSeekRichMultiStream
   testDeepSeekSessionBridge
   testDeepSeekSessionRunner
   testDeepSeekApiSession

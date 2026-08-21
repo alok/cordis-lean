@@ -115,8 +115,12 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekRichMixedStream`, projecting a single strict SSE choice that interleaves text,
   reasoning, and one indexed tool call across frames into an exact rich trace, while rejecting
   same-frame mixed fields and retaining explicit wire/projection/intrinsic certificates;
-- `Cordis.DeepSeekSessionRunner`, composing accepted text, one-tool, and mixed terminal traces
-  into the pure append-only local session surface with exact sequence and tool-count invariants;
+- `Cordis.DeepSeekRichMultiStream`, projecting one strict SSE choice with any finite list of
+  indexed function calls, first-seen contiguous local block indices, per-call metadata and raw
+  argument accumulation, exact block closure, and typed negative witnesses;
+- `Cordis.DeepSeekSessionRunner`, composing accepted text, one-tool, mixed, and multi-call
+  terminal traces into the pure append-only local session surface with exact sequence and
+  tool-count invariants;
 - `Cordis.GlobalDeletion`, constructing intrinsic relation-indexed keep/drop replays and exact
   assignment-carrying safe orchestration suffixes after finite families of already-vestigial
   entries, while kernel-separating parent, redraw, and allocator obstructions to full Lemma 72;
@@ -753,6 +757,14 @@ same-frame mixed fields, multiple choices/calls, unsupported finishes, replay me
 transport remain explicit rejection or nonclaim boundaries. `DeepSeekSessionRunner` now accepts
 this mixed certificate alongside the text-only and one-tool certificates, but remains a pure
 local append surface rather than a deployed Harness session equivalence.
+
+`Cordis.DeepSeekRichMultiStream` extends that provider-wire boundary to multiple indexed
+function calls. It retains a per-provider-index accumulator and maps first-seen calls to local
+rich-stream indices, so calls may be interleaved or introduced together in one frame. The
+cross-kind ordering rule is unchanged: a frame cannot carry content/reasoning and tool calls
+together. The validator still accepts one choice only, successful terminal usage/finish, and no
+replay metadata or live transport. `DeepSeekSessionRunner.appendMulti` composes the resulting
+terminal view with the same local numeric-ID assignment proof used by the smaller validators.
 
 `Cordis.SessionRefinement` covers a separate stateful subset of current `SessionEvent` JSON:
 turn/step boundaries, selected request/header snapshots, route context, whole-list todo snapshots,

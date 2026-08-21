@@ -1,16 +1,17 @@
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekRichMixedStream
+import Cordis.DeepSeekRichMultiStream
 import Cordis.DeepSeekSessionBridge
 
 /-!
 # Proof-carrying DeepSeek assistant session runner
 
 This module composes the accepted DeepSeek stream boundaries instead of treating them as isolated
-parsers. A response is accepted only as a text, one-tool, or mixed rich trace, terminal extraction
-is explicit, and each append advances a typed session runner while preserving a tool-call-count
-invariant. Numeric IDs are allocated locally from the runner's count; provider string IDs remain
-payload data and are not authenticated or treated as globally stable identities.
+parsers. A response is accepted only as a text, one-tool, mixed, or multi-call rich trace. Terminal
+extraction is explicit, and each append advances a typed session runner while preserving a
+tool-call-count invariant. Numeric IDs are allocated locally from the runner's count; provider
+string IDs remain payload data and are not authenticated or treated as globally stable identities.
 
 The runner is intentionally pure and append-only. HTTP, cancellation, persistence, external tool
 execution, and the full deployed Harness event/session union remain separate boundaries.
@@ -27,6 +28,7 @@ inductive AcceptedResponse (body : String) where
   | text (validated : DeepSeekRichStream.ValidatedTextStream body)
   | tool (validated : DeepSeekRichToolStream.ValidatedToolStream body)
   | mixed (validated : DeepSeekRichMixedStream.ValidatedMixedStream body)
+  | multi (validated : DeepSeekRichMultiStream.ValidatedMultiStream body)
 
 structure FinishedResponse (body : String) where
   source : AcceptedResponse body
@@ -38,6 +40,7 @@ inductive ResponseError where
   | text (error : DeepSeekRichStream.TextStreamError)
   | tool (error : DeepSeekRichToolStream.ToolStreamError)
   | mixed (error : DeepSeekRichMixedStream.MixedStreamError)
+  | multi (error : DeepSeekRichMultiStream.MultiStreamError)
   | terminal (error : DeepSeekSessionBridge.BridgeError)
 deriving DecidableEq, Repr
 
@@ -89,6 +92,15 @@ def finishResponse {body : String} (response : AcceptedResponse body) :
           validated := validated.rich
           finished
         }
+  | .multi validated =>
+      match DeepSeekSessionBridge.finishAssistant validated.rich with
+      | .error error => .error error
+      | .ok finished => .ok {
+          source := .multi validated
+          raw := validated.raw
+          validated := validated.rich
+          finished
+        }
 
 def finishText (body : String) :
     Except ResponseError (FinishedResponse body) :=
@@ -112,6 +124,21 @@ def finishMixed (body : String) :
     Except ResponseError (FinishedResponse body) :=
   match acceptMixed body with
   | .error error => .error (.mixed error)
+  | .ok response =>
+      match finishResponse response with
+      | .error error => .error (.terminal error)
+      | .ok finished => .ok finished
+
+def acceptMulti (body : String) :
+    Except DeepSeekRichMultiStream.MultiStreamError (AcceptedResponse body) :=
+  match DeepSeekRichMultiStream.validateMultiStream body with
+  | .error error => .error error
+  | .ok validated => .ok (.multi validated)
+
+def finishMulti (body : String) :
+    Except ResponseError (FinishedResponse body) :=
+  match acceptMulti body with
+  | .error error => .error (.multi error)
   | .ok response =>
       match finishResponse response with
       | .error error => .error (.terminal error)
@@ -267,6 +294,17 @@ def appendMixed
     (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
     Except ResponseError Runner :=
   match finishMixed body with
+  | .error error => .error error
+  | .ok finished => .ok (append runner finished sourceEventSeqs sourcesNodup sourcesEarlier)
+
+def appendMulti
+    (runner : Runner)
+    (body : String)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    Except ResponseError Runner :=
+  match finishMulti body with
   | .error error => .error error
   | .ok finished => .ok (append runner finished sourceEventSeqs sourcesNodup sourcesEarlier)
 

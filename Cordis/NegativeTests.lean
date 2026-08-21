@@ -6,6 +6,7 @@ import Cordis.DeepSeekApi
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
+import Cordis.DeepSeekRichMultiStream
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession

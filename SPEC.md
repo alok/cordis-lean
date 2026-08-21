@@ -538,8 +538,9 @@ the empty-to-final lease-threading certificate.
 | `Cordis.DeepSeekRichStream`      | Source-honest text-only SSE projection into `RichStream.ValidatedTrace`, with wire/projection/rich certificates and fail-closed semantic errors.                                                  |
 | `Cordis.DeepSeekRichToolStream`  | Restricted one-tool SSE projection into rich tool-call blocks, preserving raw arguments and retaining wire/projection/rich certificates.                                                          |
 | `Cordis.DeepSeekRichMixedStream` | Composed one-choice text/reasoning/one-tool SSE projection with first-seen block indices, stateful tool metadata, exact rich-trace certificates, and same-frame mixed-kind rejection.             |
+| `Cordis.DeepSeekRichMultiStream` | One-choice text/reasoning/multi-tool SSE projection with provider-indexed call state, first-seen local blocks, exact per-call argument assembly, terminal closure, and typed rejection paths.     |
 | `Cordis.DeepSeekSessionBridge`   | Terminal rich-view extraction and proof-carrying session append with caller-supplied numeric call IDs and source-event evidence.                                                                  |
-| `Cordis.DeepSeekSessionRunner`   | Pure composition of accepted text/one-tool/mixed responses into an append-only runner with exact sequence, message-order, and tool-call-count invariants.                                         |
+| `Cordis.DeepSeekSessionRunner`   | Pure composition of accepted text/one-tool/mixed/multi-call responses into an append-only runner with exact sequence, message-order, and tool-call-count invariants.                              |
 | `Cordis.DeepSeekApiSession`      | Fail-closed projection of decoded non-streaming DeepSeek responses into the append-only runner with singleton-choice, finish, payload, and local ID/count certificates.                           |
 
 The public library umbrella is `Cordis.lean`. `Main.lean` is the
@@ -694,12 +695,16 @@ claim:
    one indexed function call, and `Cordis.DeepSeekRichMixedStream` composes one
    choice that interleaves text, reasoning, and one indexed function call across
    frames while rejecting same-frame mixed kinds.
+   `Cordis.DeepSeekRichMultiStream` extends the same source-honest boundary to
+   any finite list of indexed function calls, retaining per-call IDs/names and
+   raw argument fragments while assigning contiguous local block indices.
    `Cordis.DeepSeekSessionBridge` is the final local seam for a certified
    terminal rich view: it appends an assistant payload only with explicit
    numeric call-ID assignment and source-event proofs supplied by the caller.
    `Cordis.DeepSeekSessionRunner` composes those accepted responses sequentially
    and proves contiguous session sequence plus local tool-call-count invariants,
-   but does not model transport, cancellation, persistence, or external tools.
+   including the multi-call response path, but does not model transport,
+   cancellation, persistence, or external tools.
    `Cordis.DeepSeekApiSession` applies the same guards to the decoded non-streaming
    response path; it rejects extra choices and unsupported or empty terminal payloads
    before the local append.
@@ -707,10 +712,10 @@ claim:
    backpressure, cancellation, tool-call payload assembly, provider-complete
    parser state, and a live HTTP reader; the current `DeepSeekStream` module is
    only the strict in-memory `data:` / `[DONE]` boundary. The rich projections
-   cover text-only, one-tool, and one-choice mixed text/reasoning/one-tool
-   subsets, but still reject extra choices/calls, unsupported provider finishes,
-   replay metadata, and deployed assembler behavior rather than claiming the
-   production stream protocol.
+   cover text-only, one-tool, one-choice mixed text/reasoning/one-tool, and
+   one-choice multi-call subsets, but still reject extra choices, unsupported
+   provider finishes, replay metadata, and deployed assembler behavior rather
+   than claiming the production stream protocol.
 1. **Production policy guarantees.** Add durable lease storage, atomic
    consumption, multi-process exclusion, retries, and crash recovery before
    claiming global exactly-once behavior.
