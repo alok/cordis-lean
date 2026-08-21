@@ -16,6 +16,11 @@ parses exact lines before invoking the stream/session validators. Full `SessionE
 and the later production/refinement layers listed below remain open; this file is therefore an
 in-progress contract, not a completed `0.2.0` release claim.
 
+The pure scheduler boundary is now multi-segment: `Cordis.ParallelSchedule` executes any finite
+sequence of certified parallel windows and exclusive barriers, with exact composed endpoint and
+recovery proofs, model-order reports, and globally unique task IDs. Wall-clock overlap, worker IO,
+promise races, fairness, and deployed scheduler equivalence remain explicit non-claims.
+
 The slice closes two concrete gaps in the original objective:
 
 1. the runner becomes generic over a dependent tool catalog instead of importing the counter
@@ -213,6 +218,8 @@ Current machine-checked evidence includes:
 - `Cordis.GenericSessionHarness`, factoring the rich Session/request/projection wrapper over an
   arbitrary `GenericHarness.Config`; the counter and dependent-choice configurations are both
   executable fixtures;
+- `Cordis.ParallelSchedule`, composing arbitrary finite pure windows and exclusive barriers while
+  preserving endpoint/recovery equality, model-order reports, and global task-ID uniqueness;
 - `Cordis.StreamSession`, making the provider-string-ID to unique numeric-session-`CallId`
   assignment explicit before a validated rich assistant view enters the canonical surface;
 - `Harness.RunnerState.protocolProjection_eq_log` and `protocolProjection_replays`, tying the
@@ -884,6 +891,8 @@ The slice requires all existing gates plus the following new coverage:
 - quotient-effect composition and lifted coeffect context preservation;
 - a complete supported current-Harness turn/step/tool session prefix plus stateful rejection
   cases;
+- an executable finite multi-segment scheduler fixture covering windows, exclusive barriers,
+  model-order reports, globally unique IDs, endpoint equality, and exact recovery;
 - full generator-to-transformation-monoid promotion and inverse stability; and
 - exact total operation independence, finite partial distinct-key words, outcome-dependent
   mediated execution, and the forward-only inverse-stability counterexample;
@@ -950,7 +959,8 @@ This slice does not by itself prove:
   defined binary format over immutable Lean byte lists with a supplied frame count, and
   `Cordis.DurableIO` and `Cordis.HarnessPersistenceIO` exercise host memory/file calls without turning acknowledgement into
   fsync, crash atomicity, or external-effect exactly-once evidence;
-- task/fiber scheduling, fairness, cancellation delivery, or wall-clock concurrency;
+- wall-clock task/fiber scheduling, fairness, cancellation delivery, or concurrency. The pure
+  finite schedule certificate above does not model worker IO, promise races, or deployed behavior;
 - the stronger paired-inverse law from same-word tests without its explicit coherence premise;
 - identification of the finite exact partial/Kleisli theorem with the paper's literal
   total/quotient Theorem 42;

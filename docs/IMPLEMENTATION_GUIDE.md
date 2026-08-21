@@ -1801,6 +1801,15 @@ launch `IO` tasks, model promise races or cleanup, or claim equivalence to the T
 `tool-calls.ts` implementation. A production adapter must first prove that its worker, result,
 cancellation, and persistence behavior refines these fields.
 
+[`../Cordis/ParallelSchedule.lean`](../Cordis/ParallelSchedule.lean) now composes an arbitrary
+finite list of those windows and barriers. `Plan.execute` threads each segment's endpoint and
+newest-first recovery, proves equality with the canonical composed effect, emits reports in model
+order, and checks global task-ID uniqueness across segment boundaries. This closes the pure
+finite-schedule construction step; it still does not launch workers or prove wall-clock overlap,
+promise races, fairness, cancellation delivery, cleanup, persistence, or TypeScript refinement.
+The next production step is an explicit adapter from those certificate fields to the real
+Harness worker/result lifecycle.
+
 ### 19.5 Relate the model to DeepSeek Harness
 
 The active `Cordis.RuntimeRefinement` module begins this work for a supported

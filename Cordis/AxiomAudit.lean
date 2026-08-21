@@ -69,6 +69,7 @@ import Cordis.OperationIndependence
 import Cordis.ObservationalPartialTransformation
 import Cordis.OperationalEquivalence
 import Cordis.ParallelHarness
+import Cordis.ParallelSchedule
 import Cordis.PartialTransformation
 import Cordis.Policy
 import Cordis.QuotientEffect
@@ -274,6 +275,18 @@ set_option format.width 200
 #print axioms Cordis.ParallelHarness.example_window_committed
 #print axioms Cordis.ParallelHarness.example_plan_after
 #print axioms Cordis.ParallelHarness.example_plan_recovers
+#print axioms Cordis.ParallelSchedule.SegmentData.effect_eq
+#print axioms Cordis.ParallelSchedule.SegmentData.reports_ids
+#print axioms Cordis.ParallelSchedule.Plan.effect_eq
+#print axioms Cordis.ParallelSchedule.Plan.reports_eq_canonical
+#print axioms Cordis.ParallelSchedule.Plan.execute_after_eq_canonical
+#print axioms Cordis.ParallelSchedule.Plan.execute_undo_eq_canonical
+#print axioms Cordis.ParallelSchedule.Plan.execute_recovers
+#print axioms Cordis.ParallelSchedule.Plan.execute_reports_ids_nodup
+#print axioms Cordis.ParallelSchedule.Plan.execute_reports_model_order
+#print axioms Cordis.ParallelSchedule.example_after
+#print axioms Cordis.ParallelSchedule.example_reports
+#print axioms Cordis.ParallelSchedule.example_recovers
 #print axioms Cordis.RichStream.AlignedMetadata.hasFinalBlockCount
 #print axioms Cordis.RichStream.noEventAfterTerminal
 #print axioms Cordis.RichStream.noFinishWithoutUsage

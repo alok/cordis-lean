@@ -71,6 +71,7 @@ import Cordis.OperationIndependence
 import Cordis.ObservationalPartialTransformation
 import Cordis.OperationalEquivalence
 import Cordis.ParallelHarness
+import Cordis.ParallelSchedule
 import Cordis.PartialTransformation
 import Cordis.Policy
 import Cordis.Protocol
@@ -654,6 +655,27 @@ private def testParallelHarness : IO Unit := do
       | .cancelled reason =>
           assertEqual "cancellation drain emits a synthetic abort reason" reason "cancelled:timeout"
   | [] => fail "cancellation drain emitted no synthetic reports"
+
+private def testParallelSchedule : IO Unit := do
+  let outcome := ParallelSchedule.Plan.execute
+    ParallelSchedule.examplePlan ParallelSchedule.exampleBefore
+  assertEqual "finite parallel schedule reaches the canonical endpoint"
+    outcome.applied.after
+    { x := 11, y := 22, z := 33 }
+  assertEqual "finite parallel schedule retains all model-order report IDs"
+    (outcome.reports.map ParallelHarness.Report.id) [0, 1, 2, 3]
+  assertEqual "finite parallel schedule emits one report per segment task"
+    outcome.reports.length 4
+  match outcome.reports with
+  | _ :: _ :: _ :: barrierReport :: [] =>
+      match barrierReport.status with
+      | .completed value =>
+          assertEqual "finite schedule barrier observes prior segment endpoints" value 66
+      | .cancelled reason => fail s!"finite schedule barrier was cancelled: {reason}"
+  | reports => fail s!"finite schedule emitted unexpected report shape: {reports.length}"
+  assertEqual "finite parallel schedule recovers its exact predecessor"
+    (outcome.applied.undo outcome.applied.after)
+    ParallelSchedule.exampleBefore
 
 private def testDurableSettlement : IO Unit := do
   assertEqual "durable first commit reaches its indexed successor"
@@ -3084,6 +3106,7 @@ def run : IO Unit := do
   testReactiveCoeffects
   testFiniteSchedules
   testParallelHarness
+  testParallelSchedule
   testDurableSettlement
   testDurableCodec
   testDurableBytes

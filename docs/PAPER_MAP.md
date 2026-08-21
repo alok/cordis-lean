@@ -460,6 +460,14 @@ Local source: [`Cordis/ParallelHarness.lean`](../Cordis/ParallelHarness.lean).
 | `Plan`, `Plan.execute`                    | **Proved:** an optional `ExclusiveTask` is run after the certified window, with exact endpoint and recovery equality; its mode is intrinsically `.exclusive`.                                                                 | Exclusive barrier after a batch in the current Harness scheduler.                        | The barrier is one explicit pure task. Dynamic admission, nested barriers, retries, and external resource isolation remain outside.                                                    |
 | `drain`, `drainOutcome`                   | **Proved:** draining a finite pending list emits one synthetic cancellation report per task, preserves the model exactly, and preserves task IDs/order.                                                                       | Synthetic abort/cancellation reporting at a scheduler boundary.                          | This is a pure cancellation model; it does not prove cancellation of running promises, cleanup, persistence, or crash recovery.                                                        |
 
+`Cordis.ParallelSchedule` extends this bounded slice to an arbitrary finite
+sequence of the same two segment kinds. `Plan.execute` folds the segment
+certificates, proves exact equality with the canonical composed effect and
+newest-first recovery, emits reports in model order, and preserves global task
+ID uniqueness across all windows and barriers. It remains a pure schedule
+certificate: no wall-clock overlap, worker IO, promise race, fairness, or
+TypeScript scheduler refinement is claimed.
+
 ### Current-development durable settlement boundary
 
 Local sources: [`Cordis/DurableSettlement.lean`](../Cordis/DurableSettlement.lean),
@@ -716,8 +724,9 @@ paths, the mapped Lean modules do not establish:
   execution pipeline;
 - the complete TypeScript parallel-dispatch behavior, including wall-clock overlap, promise
   races, cleanup, retries, and persistence. `Cordis.ParallelHarness` proves only the bounded
-  pure certificate slice above: model-ordered commits, one explicit exclusive barrier, and a
-  no-effect synthetic drain;
+  pure certificate slice above, while `Cordis.ParallelSchedule` composes that slice over a finite
+  sequence: model-ordered commits, exclusive barriers, exact recovery, and a no-effect synthetic
+  drain;
 - a filesystem or database persistence refinement beyond the narrow executable `DurableIO`
   adapter. `Cordis.DurableSettlement` proves the typed crash-prefix/resume boundary above, and
   `DurableIO` tests host memory/file calls plus suffix-aware recovery, but neither proves fsync,
