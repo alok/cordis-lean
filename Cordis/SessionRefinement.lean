@@ -23,8 +23,10 @@ whole-list todo snapshots, empty session-seed markers, text/reasoning assistant 
 text-only user messages, assistant messages with text and complete tool-call blocks, tool calls,
 and a restricted
 tool result whose three call-id occurrences agree and whose nested result content is exactly one
-text block. Only upstream `completed` and `max-tokens` turn-end reasons map without information
-loss. Surface messages retain their upstream identity and source metadata in the refinement state
+text block. Every pinned upstream turn-end reason is decoded. The local session projects
+`aborted` to cancellation and the structured `blocked`, `error`, and `interrupted` reasons to its
+smaller failed-string case; the exact source reason remains in the wire witness and refinement
+state. Surface messages retain their upstream identity and source metadata in the refinement state
 while their text and typed tool calls are projected into the smaller local `Session.Message`
 vocabulary. Request-header wire witnesses retain the provider/model, optional system text, selected
 tool schemas, and stop reason; the local `Session.RequestHeader` projection retains the fields it
@@ -63,17 +65,43 @@ inductive DecodeError where
   | unsafeInteger (path : List PathSegment) (value : Nat)
   deriving BEq, DecidableEq, Repr
 
-/-- Turn-end reasons shared without loss by the upstream and local vocabularies. -/
+/-- Structured provider failure facts carried by the current Harness turn-end union. -/
+structure WireFailure where
+  message : String
+  code : String
+  status : Option SafeNat
+  providerRetryAfterMs : Option SafeNat
+  requestId : Option String
+  deriving BEq, DecidableEq, Repr
+
+/-- Cancellation causes carried by the current Harness aborted-turn reason. -/
+inductive WireCancelCause where
+  | user
+  | parent
+  | hook (reason : String)
+  | disposed
+  | legacy
+  deriving BEq, DecidableEq, Repr
+
+/-- All turn-end reasons in the pinned current Harness session union. -/
 inductive WireTurnEndReason where
   | completed
+  | aborted (cause : WireCancelCause)
+  | blocked
+  | error (failure : WireFailure)
   | maxTokens
+  | interrupted
   deriving BEq, DecidableEq, Repr
 
 namespace WireTurnEndReason
 
 def toLocal : WireTurnEndReason → Session.TurnEndReason
   | .completed => .completed
+  | .aborted _ => .cancelled
+  | .blocked => .failed "blocked"
+  | .error failure => .failed failure.message
   | .maxTokens => .maxTokens
+  | .interrupted => .failed "interrupted"
 
 end WireTurnEndReason
 
@@ -384,13 +412,50 @@ private def rejectSurfaceMetadata (json : Lean.Json) (path : List PathSegment) :
   rejectPresent json path "surfaceOp"
   rejectPresent json path "sourceEventSeqs"
 
+private def decodeWireFailure (path : List PathSegment) (json : Lean.Json) :
+    Except DecodeError WireFailure :=
+  match json with
+  | .obj _ => do
+      .ok {
+        message := ← decodeRequiredString json path "message"
+        code := ← decodeRequiredString json path "code"
+        status := ← decodeOptionalNat json path "status"
+        providerRetryAfterMs := ← decodeOptionalNat json path "providerRetryAfterMs"
+        requestId := ← decodeOptionalString json path "requestId"
+      }
+  | value => .error (.typeMismatch path "object" (jsonKind value))
+
+private def decodeWireCancelCause (path : List PathSegment) (json : Lean.Json) :
+    Except DecodeError WireCancelCause :=
+  match json with
+  | .obj _ => do
+      let kind ← decodeRequiredString json path "kind"
+      match kind with
+      | "user" => .ok .user
+      | "parent" => .ok .parent
+      | "hook" => .hook <$> decodeRequiredString json path "reason"
+      | "disposed" => .ok .disposed
+      | "legacy" => .ok .legacy
+      | kind => .error (.unsupportedTag (fieldPath path "kind") kind)
+  | value => .error (.typeMismatch path "object" (jsonKind value))
+
 private def decodeTurnEndReason (path : List PathSegment) : Lean.Json →
     Except DecodeError WireTurnEndReason
   | json@(.obj _) => do
       let kind ← decodeRequiredString json path "kind"
       match kind with
       | "completed" => .ok .completed
+      | "aborted" => do
+          let cause ← decodeWireCancelCause (fieldPath path "reason")
+            (← requireField json path "reason")
+          .ok (.aborted cause)
+      | "blocked" => .ok .blocked
+      | "error" => do
+          let failure ← decodeWireFailure (fieldPath path "error")
+            (← requireField json path "error")
+          .ok (.error failure)
       | "max-tokens" => .ok .maxTokens
+      | "interrupted" => .ok .interrupted
       | kind => .error (.unsupportedTag (fieldPath path "kind") kind)
   | json => .error (.typeMismatch path "object" (jsonKind json))
 
@@ -2141,20 +2206,82 @@ theorem reject_ignorableCoreEvent :
     ]) = .error (.unsupportedField [] "ignorable") :=
   rfl
 
-/-- An upstream abort cause has more structure than the local supported reason subset. -/
-theorem reject_unmodeledTurnEndReason :
-    decodeEvent (Lean.Json.mkObj [
-      ("type", .str "turn/end"), ("seq", .num 0), ("time", .num 0),
-      ("data", Lean.Json.mkObj [
-        ("turn", .num 1),
-        ("reason", Lean.Json.mkObj [
-          ("kind", .str "aborted"),
-          ("reason", Lean.Json.mkObj [("kind", .str "user")])
-        ])
+/-! The full pinned turn-end union is retained in the wire witness even when the local
+projection uses its smaller cancellation/failed vocabulary. -/
+
+def turnEndReasonSummary : Except DecodeError WireEvent → Option WireTurnEndReason
+  | .ok event =>
+      match event.payload with
+      | .turnEnd _ reason => some reason
+      | _ => none
+  | .error _ => none
+
+def abortedTurnEndExampleJson : Lean.Json := Lean.Json.mkObj [
+  ("type", .str "turn/end"), ("seq", .num 0), ("time", .num 0),
+  ("data", Lean.Json.mkObj [
+    ("turn", .num 1),
+    ("reason", Lean.Json.mkObj [
+      ("kind", .str "aborted"),
+      ("reason", Lean.Json.mkObj [("kind", .str "user")])
+    ])
+  ])
+]
+
+def blockedTurnEndExampleJson : Lean.Json := Lean.Json.mkObj [
+  ("type", .str "turn/end"), ("seq", .num 0), ("time", .num 0),
+  ("data", Lean.Json.mkObj [
+    ("turn", .num 1),
+    ("reason", Lean.Json.mkObj [("kind", .str "blocked")])
+  ])
+]
+
+def interruptedTurnEndExampleJson : Lean.Json := Lean.Json.mkObj [
+  ("type", .str "turn/end"), ("seq", .num 0), ("time", .num 0),
+  ("data", Lean.Json.mkObj [
+    ("turn", .num 1), ("reason", Lean.Json.mkObj [("kind", .str "interrupted")])
+  ])
+]
+
+def errorTurnEndExampleJson : Lean.Json := Lean.Json.mkObj [
+  ("type", .str "turn/end"), ("seq", .num 0), ("time", .num 0),
+  ("data", Lean.Json.mkObj [
+    ("turn", .num 1),
+    ("reason", Lean.Json.mkObj [
+      ("kind", .str "error"),
+      ("error", Lean.Json.mkObj [
+        ("message", .str "provider failed"), ("code", .str "TIMEOUT"),
+        ("status", .num 504), ("providerRetryAfterMs", .num 250),
+        ("requestId", .str "req-1")
       ])
-    ]) = .error (.unsupportedTag
-      [.field "data", .field "reason", .field "kind"] "aborted") :=
-  rfl
+    ])
+  ])
+]
+
+theorem accept_abortedTurnEndReason :
+    turnEndReasonSummary (decodeEvent abortedTurnEndExampleJson) =
+      some (.aborted .user) := by
+  decide
+
+theorem accept_blockedTurnEndReason :
+    turnEndReasonSummary (decodeEvent blockedTurnEndExampleJson) =
+      some .blocked := by
+  decide
+
+theorem accept_interruptedTurnEndReason :
+    turnEndReasonSummary (decodeEvent interruptedTurnEndExampleJson) =
+      some .interrupted := by
+  decide
+
+theorem accept_errorTurnEndReason :
+    turnEndReasonSummary (decodeEvent errorTurnEndExampleJson) =
+      some (.error {
+        message := "provider failed"
+        code := "TIMEOUT"
+        status := some { value := 504, safe := by decide }
+        providerRetryAfterMs := some { value := 250, safe := by decide }
+        requestId := some "req-1"
+      }) := by
+  decide
 
 /-- An upstream zero step has no predecessor under the named one-to-zero normalization. -/
 theorem reject_zeroStep :

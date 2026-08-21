@@ -388,7 +388,10 @@ set_option format.width 200
 #print axioms Cordis.SessionRefinement.reject_requestHeader_temperature
 #print axioms Cordis.SessionRefinement.reject_surfaceMetadataOnStepStart
 #print axioms Cordis.SessionRefinement.reject_ignorableCoreEvent
-#print axioms Cordis.SessionRefinement.reject_unmodeledTurnEndReason
+#print axioms Cordis.SessionRefinement.accept_abortedTurnEndReason
+#print axioms Cordis.SessionRefinement.accept_blockedTurnEndReason
+#print axioms Cordis.SessionRefinement.accept_interruptedTurnEndReason
+#print axioms Cordis.SessionRefinement.accept_errorTurnEndReason
 #print axioms Cordis.SessionRefinement.reject_mismatchedToolResultIds
 #print axioms Cordis.SessionRefinement.reject_underdeterminedTurnEnd
 #print axioms Cordis.HarnessPersistenceRefinement.ValidatedPersistedJson.projection_exact

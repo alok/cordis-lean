@@ -827,14 +827,18 @@ singleton-text tool results, and exact append/replacement surface operations. It
 local zero-based steps and `turn/end.nextStep` only from the validated prefix, and assigns
 provider string call IDs to fresh numeric local IDs with uniqueness proofs, reusing those IDs in
 later call/result events. Header wire records retain provider/model, optional system text, selected
-tool schemas, and header reason; the local header projection retains the fields it represents. Text
+tool schemas, and header reason; the local header projection retains the fields it represents. All
+six pinned turn-end reason tags (`completed`, `aborted`, `blocked`, `error`, `max-tokens`, and
+`interrupted`) remain in the wire witness; the local projection normalizes cancellation and failed
+string cases explicitly. Text
 surface IDs, provider/model metadata, usage, and source references
 remain in `State.wireSurface`, while the local session stores projected text plus typed tool calls.
 Every admitted event passes the rich
 Session append validator; runtime events also pass the intrinsic Protocol validator. Unsupported
 header fields, unknown todo statuses, nonempty seed payloads, unsupported chunk kinds, replay state,
-reasoning surface/tool/image blocks, error/meta payloads,
-extension events, and non-equivalent turn reasons fail closed.
+reasoning surface/tool/image blocks, error/meta payloads, and extension events fail closed. The
+structured cancellation/failure payload remains in wire/refinement state rather than being claimed
+as a local `TurnEndReason` variant.
 
 `Cordis.TextRefinement` composes these AST-level validators with the Lean JSON parser and UTF-8
 decoder. `parseJsonLines` rejects empty sources and interior blank lines, preserves zero-based

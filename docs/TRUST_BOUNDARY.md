@@ -258,12 +258,14 @@ to fresh numeric IDs with proof-carrying uniqueness state, reusing those IDs in 
 events. Text `user/message` blocks and complete assistant `tool-call` blocks additionally retain
 source IDs, provider/model metadata, usage, and provenance references in `State.wireSurface`,
 while projecting assistant text plus typed tool calls into the smaller local `Session.Message`
-vocabulary. Each admitted event carries both a
+vocabulary. All six pinned turn-end reason tags are decoded into the wire witness: `aborted` maps
+to local cancellation, while structured `blocked`, `error`, and `interrupted` facts map to the
+local failed-string case without discarding the source payload. Each admitted event carries both a
 `Session.ValidatedAppend` and, for runtime events, a `Protocol.ValidatedEvent`; the cumulative
 theorem equates the complete rich-session structural projection with intrinsic trace erasure.
 Unsupported header/chunk shapes, unsupported replacement shapes, extensions, opaque tool metadata,
 replay state, reasoning surface and multimodal blocks,
-and non-equivalent turn reasons are rejected. No completeness, persistence, or whole-session
+and unsupported turn-end tags are rejected. No completeness, persistence, or whole-session
 behavioral equivalence follows.
 
 ### Dependent calls and tool contracts
@@ -525,7 +527,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 882
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1109
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.

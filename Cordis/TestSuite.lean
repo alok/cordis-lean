@@ -2277,6 +2277,28 @@ private def testOperationalEquivalence : IO Unit := do
   | some _ => fail "operational test ignored a failed operation precondition"
 
 private def testSessionRefinement : IO Unit := do
+  assertEqual "aborted turn-end reasons retain their structured wire cause"
+    (SessionRefinement.turnEndReasonSummary
+      (SessionRefinement.decodeEvent SessionRefinement.abortedTurnEndExampleJson))
+    (some (.aborted .user))
+  assertEqual "blocked turn-end reasons remain source-visible"
+    (SessionRefinement.turnEndReasonSummary
+      (SessionRefinement.decodeEvent SessionRefinement.blockedTurnEndExampleJson))
+    (some .blocked)
+  assertEqual "interrupted turn-end reasons remain source-visible"
+    (SessionRefinement.turnEndReasonSummary
+      (SessionRefinement.decodeEvent SessionRefinement.interruptedTurnEndExampleJson))
+    (some .interrupted)
+  assertEqual "error turn-end reasons retain structured failure facts"
+    (SessionRefinement.turnEndReasonSummary
+      (SessionRefinement.decodeEvent SessionRefinement.errorTurnEndExampleJson))
+    (some (.error {
+      message := "provider failed"
+      code := "TIMEOUT"
+      status := some { value := 504, safe := by decide }
+      providerRetryAfterMs := some { value := 250, safe := by decide }
+      requestId := some "req-1"
+    }))
   match SessionRefinement.validateJsonLog SessionRefinement.exampleJson with
   | .error error => fail s!"supported current-Harness session prefix failed: {reprStr error}"
   | .ok validated =>

@@ -2073,10 +2073,13 @@ the current `{type, seq, time, data, ignorable?, sourceEventSeqs?, surfaceOp?}` 
 6. compose the witnesses and prove the final Session projection equals intrinsic trace erasure.
 
 Keep the subset narrow. The current implementation supports boundary events, tool calls, a
-restricted singleton-text tool result, and append/replacement surface operations whose ranges and
-source coverage are discharged by `Session.validateAppend`. It rejects identities/payloads the
-local type cannot preserve, opaque metadata, extensions, and non-equivalent turn reasons. This is
-stateful supported-subset soundness, not a persisted JSONL or whole-session equivalence theorem.
+restricted singleton-text tool result, all six pinned turn-end reason tags, and append/replacement
+surface operations whose ranges and source coverage are discharged by `Session.validateAppend`.
+It rejects identities/payloads the local type cannot preserve, opaque metadata, extensions, and
+unsupported turn-end tags. Structured turn-end cancellation/failure facts remain in the
+wire/refinement state even when the smaller local type projects them to cancellation or a
+failed-string reason. This is stateful supported-subset soundness, not a persisted JSONL or
+whole-session equivalence theorem.
 
 ### 19.9 Rebuild the first global registry slice by hand
 
