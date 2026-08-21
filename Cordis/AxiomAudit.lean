@@ -21,6 +21,7 @@ import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
+import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessErrors
@@ -632,6 +633,12 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessMetadataArchive.metadataAttached_has_one_opaque_event
 #print axioms Cordis.DeepSeekHarnessMetadataArchive.metadataRestored_metadata_exact
 #print axioms Cordis.DeepSeekHarnessMetadataArchive.metadataRestored_request_messages
+#print axioms Cordis.DeepSeekToolSchema.validateParameters
+#print axioms Cordis.DeepSeekToolSchema.ValidatedParameters.raw_eq
+#print axioms Cordis.DeepSeekToolSchema.validateToolDefinition
+#print axioms Cordis.DeepSeekToolSchema.validateRequestSource
+#print axioms Cordis.DeepSeekToolSchema.CertifiedRequestSource.buildRequestPlan
+#print axioms Cordis.DeepSeekToolSchema.CertifiedRequestSource.buildTypedStreamingRequestPlan
 #print axioms Cordis.DeepSeekHarnessEventArchive.restoreRunner
 #print axioms Cordis.DeepSeekHarnessEventArchive.RestoredRunner.session_eq_archive
 #print axioms Cordis.DeepSeekHarnessEventArchive.RestoredRunner.archive_raw_eq_input

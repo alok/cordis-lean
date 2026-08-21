@@ -2016,6 +2016,17 @@ the input: raw envelope ASTs, sanitized session validation, and the exact opaque
 The fixture proves that the known opaque `tool/result` record remains in the archive while the
 request is rebuilt from the sanitized messages.
 
+`Cordis.DeepSeekToolSchema` is the next request-side type boundary. It validates the bounded
+schema vocabulary actually represented by the local DeepSeek API: an object parameter root,
+primitive property `type` tags, optional property descriptions, a duplicate-free `required`
+array whose names are present in `properties`, and optional `additionalProperties`. The
+`ValidatedParameters` and `ValidatedToolDefinition` records retain exact source JSON, while
+`CertifiedRequestSource` indexes a validated tool-list certificate by the original
+`RequestSource.tools` list before exposing certified request builders. This is intentionally not
+a full JSON-Schema interpreter: nested objects/arrays, unions, constraints, defaults, enums,
+provider extensions, and external model obedience remain unsupported and must be added with
+separate semantics rather than inferred from the raw field.
+
 `Cordis.DeepSeekHarnessCancellation` adds the corresponding pre-round control boundary: the policy
 is checked before a complete request round, and a cancellation result carries the unchanged
 runner/model endpoint and completed prefix. Keep the boundary honest: interrupting an in-flight

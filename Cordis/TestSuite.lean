@@ -23,6 +23,7 @@ import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
+import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessErrors
@@ -2242,6 +2243,47 @@ private def testDeepSeekHarnessMetadataArchive : IO Unit := do
             DeepSeekHarnessMetadataArchive.metadataRestored_request_messages
           pure ()
 
+private def testDeepSeekToolSchema : IO Unit := do
+  match DeepSeekToolSchema.weatherCertificate with
+  | .error error => fail s!"bounded weather schema was rejected: {reprStr error}"
+  | .ok certificate =>
+      assertEqual "bounded weather schema retains the certified tool count"
+        DeepSeekToolSchema.weatherSource.tools.length 1
+      match DeepSeekToolSchema.CertifiedRequestSource.buildRequestPlan
+          "https://fixture.invalid" { value := "fixture-key" } certificate
+          DeepSeekHarness.counterSession with
+      | .error error => fail s!"certified tool request failed: {reprStr error}"
+      | .ok plan =>
+          assertEqual "certified tool request preserves the tool name"
+            (plan.source.tools.head?.map (fun tool => tool.function.name)) (some "get_weather")
+          assertEqual "certified tool request preserves the exact model"
+            plan.source.model "deepseek-reasoner"
+          match DeepSeekToolSchema.CertifiedRequestSource.buildTypedStreamingRequestPlan
+              "https://fixture.invalid" { value := "fixture-key" } certificate
+              DeepSeekHarness.counterSession with
+          | .error error => fail s!"certified streaming tool request failed: {reprStr error}"
+          | .ok streamPlan =>
+              assertEqual "certified streaming request enables the provider stream flag"
+                streamPlan.source.stream true
+              let _streamCertificate := streamPlan.streaming_source_stream
+          pure ()
+  match DeepSeekToolSchema.malformedToolResult with
+  | .error (.unsupportedTag path "date") =>
+      assertEqual "unsupported property type reports its exact path"
+        path [.field "properties", .field "city", .field "type"]
+  | .error error => fail s!"malformed tool returned the wrong error: {reprStr error}"
+  | .ok _ => fail "malformed tool schema was accepted"
+  match DeepSeekToolSchema.unknownRequiredResult with
+  | .error (.unknownRequired path "missing") =>
+      assertEqual "unknown required name reports its exact array path"
+        path [.field "required", .index 0]
+  | .error error => fail s!"unknown required name returned the wrong error: {reprStr error}"
+  | .ok _ => fail "unknown required name was accepted"
+  match DeepSeekToolSchema.duplicateNamesResult with
+  | .error (.duplicateToolName "get_weather") => pure ()
+  | .error error => fail s!"duplicate tool names returned the wrong error: {reprStr error}"
+  | .ok _ => fail "duplicate tool names were accepted"
+
 private def testDeepSeekHarnessEventArchive : IO Unit := do
   match DeepSeekHarnessEventArchive.toolRestored with
   | .error error => fail s!"current event archive restoration failed: {error}"
@@ -4174,6 +4216,7 @@ def run : IO Unit := do
   testDeepSeekHarnessPersistenceIO
   testDeepSeekHarnessOpaqueMetadata
   testDeepSeekHarnessMetadataArchive
+  testDeepSeekToolSchema
   testDeepSeekHarnessEventArchive
   testDeepSeekStreamHarness
   testDeepSeekStreamHarnessCancellation
