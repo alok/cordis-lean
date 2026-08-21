@@ -539,6 +539,7 @@ the empty-to-final lease-threading certificate.
 | `Cordis.DeepSeekRichToolStream` | Restricted one-tool SSE projection into rich tool-call blocks, preserving raw arguments and retaining wire/projection/rich certificates.                                                          |
 | `Cordis.DeepSeekSessionBridge`  | Terminal rich-view extraction and proof-carrying session append with caller-supplied numeric call IDs and source-event evidence.                                                                  |
 | `Cordis.DeepSeekSessionRunner`  | Pure composition of accepted text/one-tool responses into an append-only runner with exact sequence, message-order, and tool-call-count invariants.                                               |
+| `Cordis.DeepSeekApiSession`     | Fail-closed projection of decoded non-streaming DeepSeek responses into the append-only runner with singleton-choice, finish, payload, and local ID/count certificates.                           |
 
 The public library umbrella is `Cordis.lean`. `Main.lean` is the
 `cordis_demo` entry point, and `Tests.lean` is the `cordis_tests` entry point.
@@ -696,6 +697,9 @@ claim:
    `Cordis.DeepSeekSessionRunner` composes those accepted responses sequentially
    and proves contiguous session sequence plus local tool-call-count invariants,
    but does not model transport, cancellation, persistence, or external tools.
+   `Cordis.DeepSeekApiSession` applies the same guards to the decoded non-streaming
+   response path; it rejects extra choices and unsupported or empty terminal payloads
+   before the local append.
 1. **Production streaming.** Extend the bounded text model with transport,
    backpressure, cancellation, tool-call payload assembly, provider-complete
    parser state, and a live HTTP reader; the current `DeepSeekStream` module is

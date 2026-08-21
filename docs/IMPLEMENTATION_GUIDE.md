@@ -1834,6 +1834,10 @@ append-only runner. Its state carries exact physical sequence, turn/step coordin
 and a proved total tool-call count; each append allocates local IDs by count and
 preserves message order. The runner is a proof-carrying composition test, not a live
 transport, cancellation, persistence, or external-tool implementation.
+`Cordis.DeepSeekApiSession` covers the non-streaming response path with the same
+fail-closed policy: singleton index-zero choice, supported finish, and nonempty
+content/tool payload are required before the append. Extra choices and unsupported
+terminal states are preserved as typed rejection rather than silently dropped.
 Continue by defining translations for additional pinned Harness events and tool
 definitions and proving only the invariants actually shared by the two
 representations. Expect to model more payloads, surface semantics, session

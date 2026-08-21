@@ -9,6 +9,7 @@ import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
+import Cordis.DeepSeekApiSession
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -1093,6 +1094,38 @@ private def testDeepSeekSessionRunner : IO Unit := do
           let _countCertificate := final.toolCallCount_eq_nextCall
           pure ()
 
+private def testDeepSeekApiSession : IO Unit := do
+  match DeepSeekApiSession.acceptResponse "" with
+  | .error (.response (.invalidJson _)) => pure ()
+  | .error error => fail s!"DeepSeek API session returned the wrong rejection: {reprStr error}"
+  | .ok _ => fail "DeepSeek API session accepted an empty response body"
+  match DeepSeekApiSession.acceptResponse DeepSeekApi.exampleResponseBody with
+  | .error error => fail s!"DeepSeek API session acceptance failed: {reprStr error}"
+  | .ok accepted =>
+      assertEqual "DeepSeek API session accepts the singleton indexed choice"
+        accepted.validated.response.choices.head.index 0
+      assertEqual "DeepSeek API session retains the provider tool call"
+        accepted.validated.response.choices.head.message.toolCalls.length 1
+      let final := DeepSeekApiSession.Runner.appendApi
+        (DeepSeekSessionRunner.Runner.empty 2) accepted [] (by simp) (by simp)
+      assertEqual "DeepSeek API session append advances the local sequence"
+        final.session.nextSeq 1
+      assertEqual "DeepSeek API session append allocates one local call ID"
+        final.nextCall 1
+      assertEqual "DeepSeek API session append projects the decoded assistant payload"
+        final.session.messages [
+          .assistant "I will check that." [{
+            id := { value := 0 }
+            name := "get_weather"
+            arguments := "{\"city\":\"San Francisco\"}"
+          }]
+        ]
+      let _messageCertificate := DeepSeekApiSession.Runner.appendApi_session_messages
+        (DeepSeekSessionRunner.Runner.empty 2) accepted [] (by simp) (by simp)
+      let _sequenceCertificate := DeepSeekApiSession.Runner.appendApi_nextSeq
+        (DeepSeekSessionRunner.Runner.empty 2) accepted [] (by simp) (by simp)
+      pure ()
+
 private def testQuotientEffects : IO Unit := do
   let applied := Observational.Quotient.Example.program.run
     Observational.Quotient.Example.initial
@@ -1818,6 +1851,7 @@ def run : IO Unit := do
   testDeepSeekRichToolStream
   testDeepSeekSessionBridge
   testDeepSeekSessionRunner
+  testDeepSeekApiSession
   testQuotientEffects
   testCoeffectQuotientLift
   testOperationalEquivalence
