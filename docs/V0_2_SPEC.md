@@ -183,6 +183,9 @@ Current machine-checked evidence includes:
   rich/session bridge and append-only runner while retaining wire and runner certificates;
 - `Cordis.DeepSeekHarnessProcess`, retaining the typed Harness request source, exact request plan,
   successful build equation, complete-body process response, and indexed runner append endpoint;
+- `Cordis.DeepSeekHarnessProcessOutcome`, retaining a typed `stream: true` request plan through
+  complete-body provider-failure or rich terminal classification, dependent tool execution, and
+  the final `ConversationRunner` endpoint;
 - `Cordis.DeepSeekStreamHarness`, composing complete-body terminal rich tool streams with the
   generic conversation runner, dependent tool execution, and certified typed-result append;
   streamed rounds use a request source/body certificate proving `stream: true`, and an executable

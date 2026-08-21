@@ -1972,6 +1972,14 @@ process/wire/semantic response and exact append endpoint, while `executeSourceTe
 construction failures separate from process/status/stream/terminal failures. This remains a
 complete-body local runner bridge; persistence, external tools, cancellation, credential and
 provider authenticity, and deployed Harness equivalence remain explicit obligations.
+`Cordis.DeepSeekHarnessProcessOutcome` carries that provenance through the rich outcome handoff.
+`PreparedStreamingRequest` retains the typed source, exact `stream: true` plan, and successful
+build equation. `ProcessOutcomeRound` then retains the complete process outcome, the exact
+dependent `executeOutcomeWithTools` equality, and the final `ConversationRunner` endpoint. Text,
+tool, mixed, multi-call, and provider-failure branches remain distinct, as do request,
+process/status/stream, and execution failures. This is still a complete-body local adapter:
+provider/credential authenticity, incremental delivery, cancellation, persistence, external tool
+trust, and deployed Harness equivalence remain explicit obligations.
 `Cordis.DeepSeekStreamHarness` applies the same complete-body boundary to terminal rich tool
 streams: it assigns local numeric IDs, sends each streamed call through the generic dependent
 admission/policy/provider path, and appends the certified typed results to a reusable

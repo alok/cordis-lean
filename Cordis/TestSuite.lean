@@ -9,6 +9,7 @@ import Cordis.DeepSeekCurlTransport
 import Cordis.DeepSeekCurlStream
 import Cordis.DeepSeekCurlSession
 import Cordis.DeepSeekHarnessProcess
+import Cordis.DeepSeekHarnessProcessOutcome
 import Cordis.DeepSeekCurlIncremental
 import Cordis.DeepSeekCurlPrefix
 import Cordis.DeepSeekCurlPrefixSession
@@ -1715,6 +1716,55 @@ private def testDeepSeekHarnessProcess : IO Unit := do
       let _nextCallCertificate :=
         DeepSeekHarnessProcess.ProcessRound.nextCall round
       pure ()
+
+private def testDeepSeekHarnessProcessOutcome : IO Unit := do
+  match ← DeepSeekHarnessProcessOutcome.Example.text with
+  | .error error => fail s!"typed outcome text fixture failed: {reprStr error}"
+  | .ok ⟨prepared, ⟨body, round⟩⟩ =>
+      assertEqual "typed outcome process preserves text body"
+        body DeepSeekRichStream.exampleTextStreamBody
+      assertEqual "typed outcome process proves streaming mode"
+        prepared.plan.source.stream true
+      match round.result with
+      | .providerFailure _ _ => fail "text outcome became a provider failure"
+      | .assistant executed =>
+          assertEqual "typed outcome text appends one assistant event"
+            executed.runner.session.nextSeq 1
+          assertEqual "typed outcome text executes no tools"
+            executed.executions.length 0
+          let _resultCertificate :=
+            DeepSeekHarnessProcessOutcome.ProcessOutcomeRound.result_exact round
+          let _endpointCertificate :=
+            DeepSeekHarnessProcessOutcome.ProcessOutcomeRound.endpoint_exact round
+          let _streamCertificate :=
+            DeepSeekHarnessProcessOutcome.ProcessOutcomeRound.stream_flag round
+          pure ()
+  match ← DeepSeekHarnessProcessOutcome.Example.tool with
+  | .error error => fail s!"typed outcome tool fixture failed: {reprStr error}"
+  | .ok ⟨_prepared, ⟨body, round⟩⟩ =>
+      assertEqual "typed outcome process preserves tool body"
+        body DeepSeekOutcomeConversation.counterToolStreamBody
+      match round.result with
+      | .providerFailure _ _ => fail "tool outcome became a provider failure"
+      | .assistant executed =>
+          assertEqual "typed outcome tool executes one dependent call"
+            executed.executions.length 1
+          assertEqual "typed outcome tool appends assistant and tool result"
+            executed.runner.session.nextSeq 2
+          pure ()
+  match ← DeepSeekHarnessProcessOutcome.Example.failure with
+  | .error error => fail s!"typed outcome failure fixture failed: {reprStr error}"
+  | .ok ⟨_prepared, ⟨body, round⟩⟩ =>
+      assertEqual "typed outcome process preserves provider-failure body"
+        body DeepSeekStreamFailure.exampleContentFilterBody
+      match round.result with
+      | .providerFailure validated runner =>
+          assertEqual "typed outcome failure preserves provider failure kind"
+            validated.view.reason DeepSeekStreamFailure.FailureReason.contentFilter
+          assertEqual "typed outcome failure preserves the runner"
+            runner.session.nextSeq 0
+      | .assistant _ => fail "provider failure became an assistant"
+
 private def testDeepSeekCurlIncremental : IO Unit := do
   let seen ← IO.mkRef ([] : List (Nat × String))
   let result ← DeepSeekCurlIncremental.executeSseIncremental
@@ -5222,6 +5272,7 @@ def run : IO Unit := do
   testDeepSeekOutcomeTransportLoop
   testDeepSeekCurlSession
   testDeepSeekHarnessProcess
+  testDeepSeekHarnessProcessOutcome
   testDeepSeekCurlIncremental
   testDeepSeekCurlPrefix
   testDeepSeekCurlPrefixSession

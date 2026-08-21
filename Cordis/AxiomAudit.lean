@@ -10,6 +10,7 @@ import Cordis.DeepSeekCurlTransport
 import Cordis.DeepSeekCurlStream
 import Cordis.DeepSeekCurlSession
 import Cordis.DeepSeekHarnessProcess
+import Cordis.DeepSeekHarnessProcessOutcome
 import Cordis.DeepSeekCurlIncremental
 import Cordis.DeepSeekCurlPrefix
 import Cordis.DeepSeekCurlPrefixSession
@@ -597,6 +598,14 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessProcess.executeSourceText
 #print axioms Cordis.DeepSeekHarnessProcess.ProcessRound.nextSeq
 #print axioms Cordis.DeepSeekHarnessProcess.ProcessRound.nextCall
+#print axioms Cordis.DeepSeekHarnessProcessOutcome.prepareStreamingRequest
+#print axioms Cordis.DeepSeekHarnessProcessOutcome.PreparedStreamingRequest.build_exact
+#print axioms Cordis.DeepSeekHarnessProcessOutcome.PreparedStreamingRequest.source_stream
+#print axioms Cordis.DeepSeekHarnessProcessOutcome.PreparedStreamingRequest.body_eq_source
+#print axioms Cordis.DeepSeekHarnessProcessOutcome.executePreparedOutcome
+#print axioms Cordis.DeepSeekHarnessProcessOutcome.executeSourceOutcome
+#print axioms Cordis.DeepSeekHarnessProcessOutcome.ProcessOutcomeRound.result_exact
+#print axioms Cordis.DeepSeekHarnessProcessOutcome.ProcessOutcomeRound.endpoint_exact
 #print axioms Cordis.DeepSeekCurlIncremental.readBodyLines
 #print axioms Cordis.DeepSeekCurlIncremental.executeSseIncremental
 #print axioms Cordis.DeepSeekCurlPrefix.executeSsePrefix
