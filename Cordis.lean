@@ -20,6 +20,7 @@ import Cordis.DeepSeekCurlOutcome
 import Cordis.DeepSeekOutcomeSession
 import Cordis.DeepSeekOutcomeConversation
 import Cordis.DeepSeekOutcomeConversationLoop
+import Cordis.DeepSeekOutcomeTransportLoop
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekStreamFailure
 import Cordis.DeepSeekTerminalOutcome

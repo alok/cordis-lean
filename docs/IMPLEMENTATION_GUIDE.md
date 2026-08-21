@@ -2219,6 +2219,12 @@ preserve failures in `ConversationRunner` and append successful rich views with 
 model/tool-count proofs, while its execution fixtures route completed calls through the existing
 dependent executor and append the typed tool-result surface. Tool policy, retry, persistence,
 cancellation, and provider-ID authentication remain outside this bridge.
+`Cordis.DeepSeekOutcomeTransportLoop` carries the same continuation over the generic `Transport`
+interface. Each round builds the type-indexed streaming request, validates a complete terminal
+body, executes dependent tools, and either completes on a no-tool response or recurses with the
+updated model and runner. Its deterministic sequence transport exercises the tool-then-text path;
+transport/status/semantic/execution errors and provider failures remain distinct, while
+incremental IO, retries, cancellation, and deployed equivalence remain external.
 `Cordis.DeepSeekApiSession` covers the non-streaming response path with the same
 fail-closed policy: singleton index-zero choice, supported finish, and nonempty
 content/tool payload are required before the append. Extra choices and unsupported

@@ -14,6 +14,7 @@ import Cordis.DeepSeekCurlOutcome
 import Cordis.DeepSeekOutcomeSession
 import Cordis.DeepSeekOutcomeConversation
 import Cordis.DeepSeekOutcomeConversationLoop
+import Cordis.DeepSeekOutcomeTransportLoop
 import Cordis.DeepSeekAsyncHarness
 import Cordis.DeepSeekAsyncStreamHarness
 import Cordis.DeepSeekAsyncStreamCancellation
@@ -1433,6 +1434,30 @@ private def testDeepSeekOutcomeConversationLoop : IO Unit := do
           pure ()
       | .providerFailure _ _ => fail "outcome conversation loop stopped on provider failure"
       | .fuelExhausted => fail "outcome conversation loop exhausted before text completion"
+
+private def testDeepSeekOutcomeTransportLoop : IO Unit := do
+  match ← DeepSeekOutcomeTransportLoop.Example.run with
+  | .error error => fail s!"outcome transport loop failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "outcome transport loop executes two terminal rounds"
+        result.rounds.length 2
+      assertEqual "outcome transport loop preserves final model"
+        result.finalModel 0
+      assertEqual "outcome transport loop retains one tool call"
+        result.runner.nextCall 1
+      assertEqual "outcome transport loop appends assistant/tool/assistant"
+        result.runner.session.nextSeq 3
+      match result.rounds with
+      | first :: _ =>
+          assertEqual "outcome transport loop uses a streaming request"
+            first.2.2.plan.source.stream true
+      | [] => fail "outcome transport loop returned no successful rounds"
+      match result.stop with
+      | .completed _ noCalls =>
+          let _completionEvidence := noCalls
+          pure ()
+      | .providerFailure _ _ => fail "outcome transport loop stopped on provider failure"
+      | .fuelExhausted => fail "outcome transport loop exhausted before text completion"
 
 private def testDeepSeekCurlSession : IO Unit := do
   match ← DeepSeekCurlSession.fixtureTextResponse with
@@ -4807,6 +4832,7 @@ def run : IO Unit := do
   testDeepSeekOutcomeConversation
   testDeepSeekOutcomeConversationExecution
   testDeepSeekOutcomeConversationLoop
+  testDeepSeekOutcomeTransportLoop
   testDeepSeekCurlSession
   testDeepSeekCurlIncremental
   testDeepSeekCurlPrefix
