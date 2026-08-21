@@ -194,6 +194,8 @@ Current machine-checked evidence includes:
   layer with exact parameter-JSON retention, primitive property types, required-name checks,
   duplicate-name rejection, parsed argument-object certificates, and certified request
   construction;
+- `Cordis.DeepSeekToolAdmission`, tying a provider `FunctionCall` to one certified tool name and
+  carrying its parsed argument certificate before generic capability execution;
 - `Cordis.DeepSeekHarnessErrors`, adding an explicit fail-closed/default-versus-opt-in policy seam
   for provider failures: `.include` retains typed failure evidence and appends model-visible
   `isError` tool results without changing the model state;
@@ -999,6 +1001,11 @@ object and proves duplicate-free fields, required names, primitive value kinds, 
 unknown-field rejection. Every accepted certificate retains the exact source parameter AST.
 Nested schemas, unions, constraints, defaults, enums, provider extensions, provider-side
 validation, and model obedience remain outside this bounded vocabulary.
+
+`Cordis.DeepSeekToolAdmission` then checks exact provider-call name agreement and carries the
+argument certificate into a `CertifiedFunctionCall`. It is intentionally not a capability
+resolver or provider-obedience theorem: call-ID authenticity, generic execution correspondence,
+and deployed Harness equivalence remain separate boundaries.
 
 `Cordis.DeepSeekHarnessPersistenceIO` composes the same runner attachment with the executable
 `HarnessPersistenceIO.ReadCertificate`. A successful memory or temporary-file read retains the

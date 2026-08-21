@@ -2029,6 +2029,12 @@ nested objects/arrays, unions, constraints, defaults, enums, provider extensions
 validation, and external model obedience remain unsupported and must be added with separate
 semantics rather than inferred from the raw field.
 
+`Cordis.DeepSeekToolAdmission` closes the name-and-arguments seam immediately above that schema
+certificate. `validateFunctionCall` consumes a `ValidatedToolDefinition` and a raw provider
+`FunctionCall`, rejecting a name mismatch and otherwise carrying the parsed `ValidatedArguments`
+proof. It deliberately stops before generic capability execution: call-ID authenticity, provider
+obedience, and correspondence to a local `GenericHarness.Config` are separate contracts.
+
 `Cordis.DeepSeekHarnessCancellation` adds the corresponding pre-round control boundary: the policy
 is checked before a complete request round, and a cancellation result carries the unchanged
 runner/model endpoint and completed prefix. Keep the boundary honest: interrupting an in-flight

@@ -24,6 +24,7 @@ import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
 import Cordis.DeepSeekToolSchema
+import Cordis.DeepSeekToolAdmission
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessErrors
@@ -2309,6 +2310,38 @@ private def testDeepSeekToolSchema : IO Unit := do
             path [.field "extra"]
       | .error error => fail s!"unknown argument returned {reprStr error}"
       | .ok _ => fail "unknown argument was accepted"
+  assertEqual "certified provider tool calls are admitted"
+    DeepSeekToolAdmission.weatherCallAccepted true
+  assertEqual "provider calls for another tool are rejected"
+    DeepSeekToolAdmission.weatherCallWrongNameRejected true
+  assertEqual "provider calls with wrong argument kinds are rejected"
+    DeepSeekToolAdmission.weatherCallWrongArgumentsRejected true
+  match DeepSeekToolSchema.weatherToolCertificate with
+  | .error error => fail s!"weather tool call setup failed: {reprStr error}"
+  | .ok certificate =>
+      match DeepSeekToolAdmission.validateFunctionCall certificate
+          DeepSeekToolAdmission.weatherCall with
+      | .error error => fail s!"valid provider tool call was rejected: {reprStr error}"
+      | .ok call =>
+          assertEqual "certified provider call preserves its declared name"
+            DeepSeekToolAdmission.weatherCall.name "get_weather"
+          let _name := call.name_eq
+          let _parsed := call.arguments_parse_eq
+          let _source := call.arguments.source_is_object
+          let _required := call.arguments.required_present
+      match DeepSeekToolAdmission.validateFunctionCall certificate
+          DeepSeekToolAdmission.weatherCallWrongName with
+      | .error (.nameMismatch "call-weather-0" "wrong_tool" "get_weather") => pure ()
+      | .error error => fail s!"wrong provider tool name returned {reprStr error}"
+      | .ok _ => fail "wrong provider tool name was accepted"
+      match DeepSeekToolAdmission.validateFunctionCall certificate
+          DeepSeekToolAdmission.weatherCallWrongArguments with
+      | .error (.arguments "call-weather-0" "get_weather"
+          (.typeMismatch path "string" .number)) =>
+          assertEqual "provider argument error retains its exact field path"
+            path [.field "city"]
+      | .error error => fail s!"wrong provider argument returned {reprStr error}"
+      | .ok _ => fail "wrong provider argument was accepted"
   match DeepSeekToolSchema.malformedToolResult with
   | .error (.unsupportedTag path "date") =>
       assertEqual "unsupported property type reports its exact path"
