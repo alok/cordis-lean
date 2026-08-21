@@ -38,6 +38,7 @@ import Cordis.MediatedTheorem
 import Cordis.OperationIndependence
 import Cordis.ObservationalPartialTransformation
 import Cordis.OperationalEquivalence
+import Cordis.ParallelHarness
 import Cordis.PartialTransformation
 import Cordis.Policy
 import Cordis.QuotientEffect
@@ -187,6 +188,24 @@ set_option format.width 200
 #print axioms Cordis.Schedule.CertifiedSchedule.recovers
 #print axioms Cordis.Schedule.example_orders_equal
 #print axioms Cordis.Schedule.reverseSchedule_recovers
+#print axioms Cordis.ParallelHarness.ParallelWindow.effect_eq
+#print axioms Cordis.ParallelHarness.ParallelWindow.scheduled_after_eq_canonical
+#print axioms Cordis.ParallelHarness.ParallelWindow.scheduled_undo_eq_canonical
+#print axioms Cordis.ParallelHarness.WindowOutcome.execute_after_eq_canonical
+#print axioms Cordis.ParallelHarness.WindowOutcome.execute_undo_eq_canonical
+#print axioms Cordis.ParallelHarness.WindowOutcome.execute_recovers
+#print axioms Cordis.ParallelHarness.Plan.effect_eq
+#print axioms Cordis.ParallelHarness.Plan.execute_after_eq_canonical
+#print axioms Cordis.ParallelHarness.Plan.execute_recovers
+#print axioms Cordis.ParallelHarness.Plan.barrier_is_exclusive
+#print axioms Cordis.ParallelHarness.drain.ids_eq
+#print axioms Cordis.ParallelHarness.drain.all_cancelled
+#print axioms Cordis.ParallelHarness.drain.drainOutcome_after_eq
+#print axioms Cordis.ParallelHarness.drain.drainOutcome_reports_ids
+#print axioms Cordis.ParallelHarness.example_window_after
+#print axioms Cordis.ParallelHarness.example_window_committed
+#print axioms Cordis.ParallelHarness.example_plan_after
+#print axioms Cordis.ParallelHarness.example_plan_recovers
 #print axioms Cordis.RichStream.AlignedMetadata.hasFinalBlockCount
 #print axioms Cordis.RichStream.noEventAfterTerminal
 #print axioms Cordis.RichStream.noFinishWithoutUsage

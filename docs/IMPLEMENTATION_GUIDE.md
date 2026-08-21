@@ -1754,6 +1754,17 @@ order from model-commit and result order, and represent cancellation, drain,
 provider failure, and synthetic abort results. A theorem about pure reorderings
 does not authorize real parallel I/O without a concrete refinement.
 
+The bounded next slice is now available in
+[`../Cordis/ParallelHarness.lean`](../Cordis/ParallelHarness.lean). Its `ParallelWindow`
+requires the scheduler-facing obligations as fields: finite task IDs and modes, a complete
+effect-commutation certificate, and a result-permutation certificate. `WindowOutcome.execute`
+evaluates the supplied schedule and exposes model-order commits; `Plan` adds one explicit
+exclusive barrier; `drainOutcome` emits ordered synthetic cancellation reports while leaving the
+model unchanged. This is deliberately an executable pure scheduler certificate. It does not
+launch `IO` tasks, model promise races or cleanup, or claim equivalence to the TypeScript
+`tool-calls.ts` implementation. A production adapter must first prove that its worker, result,
+cancellation, and persistence behavior refines these fields.
+
 ### 19.5 Relate the model to DeepSeek Harness
 
 The active `Cordis.RuntimeRefinement` module begins this work for a supported

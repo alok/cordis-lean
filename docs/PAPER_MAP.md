@@ -386,6 +386,16 @@ relation-respecting descent in
 | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Schedule.runEffects_eq_of_perm`, `CertifiedSchedule.*` | **Proved:** every permutation of a finite family carrying a pairwise complete-effect commutation certificate denotes the same successor and undo. | Adjacent to Definitions 19–21 and temporal composability. | Sequential pure semantic reordering, not transformation-monoid independence, arbitrary removal, tasks, cancellation, or wall-clock concurrency. |
 
+### Current-development bounded scheduler slice
+
+Local source: [`Cordis/ParallelHarness.lean`](../Cordis/ParallelHarness.lean).
+
+| Lean declaration                          | Status and exact Lean guarantee                                                                                                                                                                                               | Harness correspondence                                                                   | Boundary                                                                                                                                                                               |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ParallelWindow`, `WindowOutcome.execute` | **Proved:** a finite task window carries explicit parallel-mode, ID, effect, commutation, and result-permutation certificates; scheduled evaluation reaches the canonical endpoint and exposes model-order committed results. | A proof-carrying analogue of the pinned tool-call scheduler's overlap-then-commit shape. | The task/result permutation and effect laws are supplied fields. Evaluation is a pure fold; no `IO`, wall-clock overlap, worker failure, fairness, or TypeScript refinement is proved. |
+| `Plan`, `Plan.execute`                    | **Proved:** an optional `ExclusiveTask` is run after the certified window, with exact endpoint and recovery equality; its mode is intrinsically `.exclusive`.                                                                 | Exclusive barrier after a batch in the current Harness scheduler.                        | The barrier is one explicit pure task. Dynamic admission, nested barriers, retries, and external resource isolation remain outside.                                                    |
+| `drain`, `drainOutcome`                   | **Proved:** draining a finite pending list emits one synthetic cancellation report per task, preserves the model exactly, and preserves task IDs/order.                                                                       | Synthetic abort/cancellation reporting at a scheduler boundary.                          | This is a pure cancellation model; it does not prove cancellation of running promises, cleanup, persistence, or crash recovery.                                                        |
+
 ### Current-development global registry and orchestration
 
 Local sources: [`Cordis/GlobalRegistry.lean`](../Cordis/GlobalRegistry.lean),
@@ -624,8 +634,10 @@ paths, the mapped Lean modules do not establish:
 - equivalence of Lean JSON schemas/decoders to Harness JSON Schema validation;
 - scoped registration, shadowing, restrictions, approval routing, or the complete tool
   execution pipeline;
-- bounded parallel dispatch, exclusive barriers, model-ordered commits, cancellation drains,
-  or synthetic abort results;
+- the complete TypeScript parallel-dispatch behavior, including wall-clock overlap, promise
+  races, cleanup, retries, and persistence. `Cordis.ParallelHarness` proves only the bounded
+  pure certificate slice above: model-ordered commits, one explicit exclusive barrier, and a
+  no-effect synthetic drain;
 - the complete merge-extensible session vocabulary, surface replacement rules, persistence,
   checkpoint durability, or crash recovery; or
 - correctness of real tool I/O, host callbacks, JavaScript promises, an OS sandbox, or a

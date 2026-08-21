@@ -125,10 +125,18 @@ to a larger real-world interpretation without a refinement proof.
 - `CertifiedTwoBatch.execute_order_irrelevant` proves that either of two certified pure
   evaluation orders yields the same proof-carrying effect and model-ordered result pair;
   `execute_recovers` proves either outcome recovers that predecessor.
+- `ParallelHarness.ParallelWindow` generalizes this to a finite proof-carrying window: the
+  scheduled task list carries explicit ID/mode/effect/result-permutation certificates, and
+  `WindowOutcome.execute` proves the scheduled endpoint agrees with canonical model order.
+- `ParallelHarness.Plan` adds one intrinsically exclusive pure barrier after that window, while
+  `ParallelHarness.drainOutcome` emits ordered synthetic cancellation reports with an unchanged
+  model. These are scheduler certificates, not concurrent execution.
 
 These results do not prove that an inverse recovers an arbitrary state, that arbitrary effects
-are independent, or that external side effects are reversible. The two-call evaluator performs
-no `IO`, launches no tasks, and proves no concurrency or safe-parallel-execution property.
+are independent, or that external side effects are reversible. The evaluators perform no `IO`,
+launch no tasks, and prove no wall-clock concurrency, promise cancellation, fairness, or
+safe-parallel-execution property. The scheduler layer requires its effect, ID, and result
+permutation certificates from the caller.
 
 ### Reactive, isolated, and observational contexts
 
@@ -396,6 +404,7 @@ Executable rejection is valuable, but it is not a refinement theorem.
 | `GlobalVestigial`                            | Proves vestigial removal effect-equivalent and gives exact bidirectional orchestration removal squares under all kernel-necessary exceptions, with well-formed countermodels.                                                                                                                                                          | Corrected L57 orchestration fragment only; pinned clauses omit parent adoption/removal, and iterator/lifecycle/oracle/inertia/recovery insensitivity is unproved.                                                                                                                                                                |
 | `GlobalSpatial`                              | Proves dependency provision, explicit nested episode order, committed resolution/no-unload propagation, conditional table constancy, and local reloading-step classification.                                                                                                                                                          | Finite T63/T64 fragments only; nesting/maximality, same-owner confinement, initial intervals, eventual close, and recovery conclusions remain premises or absent.                                                                                                                                                                |
 | `CertifiedTwoBatch`                          | Requires same-successor, pointwise same-recovery, and result-stability certificate fields before either order is permitted.                                                                                                                                                                                                            | The certificate is supplied, exactly two pure calls are modeled, and no actual concurrency or external-effect safety follows.                                                                                                                                                                                                    |
+| `ParallelHarness`                            | Requires finite task IDs/modes, effect commutation, and result-permutation certificates; proves model-order commit, one exclusive barrier, and a no-effect cancellation drain.                                                                                                                                                         | The bounded proof-carrying scheduler slice is pure and finite; no promise races, cleanup, fairness, persistence, or TypeScript equivalence follows.                                                                                                                                                                              |
 | `Registry.setAt`                             | Uses dependent equality transport so a value cannot be installed at a differently typed key.                                                                                                                                                                                                                                           | No runtime aliasing, notification, or mutable-store semantics are modeled.                                                                                                                                                                                                                                                       |
 | `View.resolve`                               | Requires `needs op` before a binding can be requested.                                                                                                                                                                                                                                                                                 | Construction of the view and completeness of its registry snapshot remain obligations.                                                                                                                                                                                                                                           |
 | `ToolSpec.Invocation`                        | Requires proof fields before dispatch through the dependent API.                                                                                                                                                                                                                                                                       | The origin and adequacy of the propositions are not certified by the structure itself.                                                                                                                                                                                                                                           |
@@ -839,7 +848,8 @@ Without additional proofs or tests, do not state that:
 
 - CORDIS Lean formalizes the entire paper;
 - `setEffect_commute` or `CertifiedTwoBatch.execute_order_irrelevant` proves paper Definition
-  19, Theorem 20, Corollary 21, or safe parallel scheduling;
+  19, Theorem 20, Corollary 21, or real parallel scheduling; `ParallelHarness` is only the
+  bounded pure certificate slice documented above;
 - `unload_recovers` proves paper Theorem 61 or Corollary 62 for interleaved fibers;
 - the lifecycle guard proves paper Theorem 63, deadlock freedom, or termination;
 - retaining the inactive recovered model or one committed view on one edge proves the complete

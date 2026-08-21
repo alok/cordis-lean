@@ -37,6 +37,7 @@ import Cordis.Protocol
 import Cordis.OperationIndependence
 import Cordis.ObservationalPartialTransformation
 import Cordis.OperationalEquivalence
+import Cordis.ParallelHarness
 import Cordis.PartialTransformation
 import Cordis.QuotientEffect
 import Cordis.Removal

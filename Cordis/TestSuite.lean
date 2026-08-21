@@ -40,6 +40,7 @@ import Cordis.MediatedTheorem
 import Cordis.OperationIndependence
 import Cordis.ObservationalPartialTransformation
 import Cordis.OperationalEquivalence
+import Cordis.ParallelHarness
 import Cordis.PartialTransformation
 import Cordis.Policy
 import Cordis.Protocol
@@ -552,6 +553,38 @@ private def testFiniteSchedules : IO Unit := do
     (rotate.undo { x := 100, y := 200, z := 300 })
   assertEqual "reverse schedule recovers its exact predecessor"
     (reverse.undo reverse.after) Schedule.exampleBefore
+
+private def testParallelHarness : IO Unit := do
+  let window := ParallelHarness.WindowOutcome.execute
+    ParallelHarness.exampleWindow ParallelHarness.exampleBefore
+  assertEqual "parallel window reaches the canonical state"
+    window.applied.after
+    { x := 11, y := 22, z := 33 }
+  assertEqual "parallel window commits results in model order"
+    (window.committed.map fun result => (result.id, result.value))
+    [(0, 10), (1, 20), (2, 30)]
+  let plan := ParallelHarness.Plan.execute
+    ParallelHarness.examplePlan ParallelHarness.exampleBefore
+  assertEqual "exclusive barrier runs after the parallel window"
+    plan.applied.after
+    { x := 11, y := 22, z := 33 }
+  match plan.barrierReport with
+  | none => fail "parallel plan lost its exclusive barrier report"
+  | some report =>
+      assertEqual "exclusive barrier report retains its task id" report.id 3
+      match report.status with
+      | .cancelled reason => fail s!"exclusive barrier was cancelled: {reason}"
+      | .completed value => assertEqual "exclusive barrier observes the committed state" value 66
+  let drained := ParallelHarness.drain [ParallelHarness.taskX, ParallelHarness.taskY] .timeout
+  assertEqual "cancellation drain preserves every pending task id"
+    (drained.map ParallelHarness.Report.id) [0, 1]
+  match drained with
+  | first :: _ =>
+      match first.status with
+      | .completed _ => fail "cancellation drain fabricated a completed result"
+      | .cancelled reason =>
+          assertEqual "cancellation drain emits a synthetic abort reason" reason "cancelled:timeout"
+  | [] => fail "cancellation drain emitted no synthetic reports"
 
 private def testRichStream : IO Unit := do
   match RichStream.validateTrace RichStream.State.initial RichStream.interleavedRaw with
@@ -1391,6 +1424,7 @@ def run : IO Unit := do
   testSessionValidation
   testReactiveCoeffects
   testFiniteSchedules
+  testParallelHarness
   testRichStream
   testStreamSessionBridge
   testContextualEquivalence

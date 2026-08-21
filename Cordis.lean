@@ -42,6 +42,7 @@ import Cordis.MediatedTheorem
 import Cordis.OperationIndependence
 import Cordis.ObservationalPartialTransformation
 import Cordis.OperationalEquivalence
+import Cordis.ParallelHarness
 import Cordis.PartialTransformation
 import Cordis.Policy
 import Cordis.Protocol
