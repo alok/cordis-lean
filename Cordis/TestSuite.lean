@@ -25,6 +25,7 @@ import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
+import Cordis.DeepSeekGenericBridge
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessErrors
@@ -2342,6 +2343,22 @@ private def testDeepSeekToolSchema : IO Unit := do
             path [.field "city"]
       | .error error => fail s!"wrong provider argument returned {reprStr error}"
       | .ok _ => fail "wrong provider argument was accepted"
+  assertEqual "certified provider call reaches generic dependent admission"
+    DeepSeekGenericBridge.Example.weatherAccepted true
+  match DeepSeekToolSchema.weatherToolCertificate with
+  | .error error => fail s!"generic bridge setup failed: {reprStr error}"
+  | .ok certificate =>
+      match DeepSeekGenericBridge.Example.weatherAdmitted certificate with
+      | .error error => fail s!"generic bridge rejected a certified call: {reprStr error}"
+      | .ok ⟨call, checked⟩ =>
+          assertEqual "generic bridge selects the bound catalog operation"
+            (call.op == DeepSeekGenericBridge.Example.Operation.weather) true
+          let _name := checked.provider_name_eq
+          let _operation :=
+            DeepSeekGenericBridge.validateAndAdmit_generic_tool_eq
+              (DeepSeekGenericBridge.Example.weatherBinding certificate) checked
+          let _validation := checked.validation
+          pure ()
   match DeepSeekToolSchema.malformedToolResult with
   | .error (.unsupportedTag path "date") =>
       assertEqual "unsupported property type reports its exact path"

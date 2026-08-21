@@ -28,6 +28,7 @@ import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
+import Cordis.DeepSeekGenericBridge
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessErrors

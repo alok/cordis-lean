@@ -196,6 +196,9 @@ Current machine-checked evidence includes:
   construction;
 - `Cordis.DeepSeekToolAdmission`, tying a provider `FunctionCall` to one certified tool name and
   carrying its parsed argument certificate before generic capability execution;
+- `Cordis.DeepSeekGenericBridge`, composing that provider certificate with an explicit named
+  `SchemaToolBinding` and generic dependent `Config.validate`, returning both certificates and an
+  existentially indexed local call without claiming schema semantic equivalence or execution;
 - `Cordis.DeepSeekHarnessErrors`, adding an explicit fail-closed/default-versus-opt-in policy seam
   for provider failures: `.include` retains typed failure evidence and appends model-visible
   `isError` tool results without changing the model state;
@@ -1006,6 +1009,13 @@ validation, and model obedience remain outside this bounded vocabulary.
 argument certificate into a `CertifiedFunctionCall`. It is intentionally not a capability
 resolver or provider-obedience theorem: call-ID authenticity, generic execution correspondence,
 and deployed Harness equivalence remain separate boundaries.
+
+`Cordis.DeepSeekGenericBridge` composes that certificate with a named `SchemaToolBinding` and
+generic `Config.validate`. The successful result retains the provider certificate and an
+existentially indexed generic call, with an equality proving that the generic resolver selected
+the bound catalog operation. This is a pre-execution admission bridge, not a proof of provider
+schema/`ToolSpec` semantic equivalence, external execution, call-ID authenticity, or deployed
+Harness equivalence.
 
 `Cordis.DeepSeekHarnessPersistenceIO` composes the same runner attachment with the executable
 `HarnessPersistenceIO.ReadCertificate`. A successful memory or temporary-file read retains the

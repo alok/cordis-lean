@@ -2035,6 +2035,14 @@ certificate. `validateFunctionCall` consumes a `ValidatedToolDefinition` and a r
 proof. It deliberately stops before generic capability execution: call-ID authenticity, provider
 obedience, and correspondence to a local `GenericHarness.Config` are separate contracts.
 
+`Cordis.DeepSeekGenericBridge` supplies that next, deliberately explicit contract. A
+`SchemaToolBinding` names one generic catalog operation and records the provider declaration's
+validated schema plus the exact name equality. `validateAndAdmit` first retains the provider
+`CertifiedFunctionCall`, then feeds its parsed JSON AST into generic `Config.validate`; a
+successful result is a dependent existential carrying the selected generic request type and both
+validation equalities. The binding is not a proof that a provider schema and `ToolSpec` have the
+same semantics, nor is it execution, call-ID authentication, or deployed Harness equivalence.
+
 `Cordis.DeepSeekHarnessCancellation` adds the corresponding pre-round control boundary: the policy
 is checked before a complete request round, and a cancellation result carries the unchanged
 runner/model endpoint and completed prefix. Keep the boundary honest: interrupting an in-flight
