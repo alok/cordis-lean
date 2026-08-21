@@ -739,13 +739,15 @@ sound supported-subset refinement; it is not a completeness or behavioral-equiva
 for the TypeScript `BlockAssembler`.
 
 `Cordis.SessionRefinement` covers a separate stateful subset of current `SessionEvent` JSON:
-turn/step boundaries, tool calls, and restricted append-only singleton-text tool results. It
-retains source sequence/time values in wire witnesses, derives local zero-based steps and
-`turn/end.nextStep` only from the validated prefix, and assigns provider string call IDs to
-fresh numeric local IDs with uniqueness proofs. Every admitted event passes both the rich
-Session append validator and intrinsic Protocol validator. Unsupported messages, chunks,
-headers, replacements, error/meta payloads, extension events, and non-equivalent turn reasons
-fail closed.
+turn/step boundaries, text-only user/assistant messages, tool calls, and restricted append-only
+singleton-text tool results. It retains source sequence/time values in wire witnesses, derives
+local zero-based steps and `turn/end.nextStep` only from the validated prefix, and assigns
+provider string call IDs to fresh numeric local IDs with uniqueness proofs. Text surface IDs,
+provider/model metadata, usage, and source references remain in `State.wireSurface`, while the
+local session intentionally stores only the projected text. Every admitted event passes the rich
+Session append validator; runtime events also pass the intrinsic Protocol validator. Unsupported
+chunks, headers, replacements, replay state, reasoning/tool/image blocks, error/meta payloads,
+extension events, and non-equivalent turn reasons fail closed.
 
 `Cordis.TextRefinement` composes these AST-level validators with the Lean JSON parser and UTF-8
 decoder. `parseJsonLines` rejects empty sources and interior blank lines, preserves zero-based

@@ -333,6 +333,7 @@ set_option format.width 200
 #print axioms Cordis.SessionRefinement.ValidatedJsonLog.projection_exact
 #print axioms Cordis.SessionRefinement.validate_example
 #print axioms Cordis.SessionRefinement.example_turnEndStep_isDerived
+#print axioms Cordis.SessionRefinement.validate_message_example
 #print axioms Cordis.SessionRefinement.reject_surfaceMetadataOnStepStart
 #print axioms Cordis.SessionRefinement.reject_ignorableCoreEvent
 #print axioms Cordis.SessionRefinement.reject_unmodeledTurnEndReason

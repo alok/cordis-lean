@@ -17,15 +17,18 @@ The translation synthesizes only values fixed by the accepted prefix and named n
 * provider string call ids receive the next fresh local numeric id and remain in a certified map;
 * absent tool-result `isError` becomes `false`, matching the TypeScript optional Boolean default.
 
-The supported event vocabulary is turn/step boundaries, tool calls, and a restricted tool result
-whose three call-id occurrences agree and whose nested result content is exactly one text block.
-Only upstream `completed` and `max-tokens` turn-end reasons map without information loss.
+The supported event vocabulary is turn/step boundaries, text-only user and assistant messages,
+tool calls, and a restricted tool result whose three call-id occurrences agree and whose nested
+result content is exactly one text block. Only upstream `completed` and `max-tokens` turn-end
+reasons map without information loss. Surface messages retain their upstream identity and source
+metadata in the refinement state while their text-only content is projected into the smaller local
+`Session.Message` vocabulary.
 
-User and assistant messages, assistant chunks, request headers/context, replacement surface ops,
-tool-result error identity/meta, multimodal or multi-block tool results, and all extension events
-are rejected. Their upstream payloads contain identities, provenance, replay data, arbitrary JSON,
-or modalities absent from the local types. The wire witness retains upstream `time`; the local
-session has no timestamp field, so no local projection claim mentions it. This is a sound
+Assistant chunks, request headers/context, replacement surface ops, assistant tool-call/reasoning
+blocks, assistant replay state, tool-result error identity/meta, multimodal tool results, and all
+extension events are rejected. Their upstream payloads contain arbitrary JSON, provenance, replay
+data, or modalities absent from the local types. The wire witness retains upstream `time`; the
+local session has no timestamp field, so no local projection claim mentions it. This is a sound
 supported-subset refinement, not a
 behavioral-equivalence claim or a general current/future session-log reader. JSON text parsing,
 UTF-8, timestamps as wall-clock facts, persistence framing, and storage recovery remain outside.
@@ -77,12 +80,55 @@ structure WireToolResult where
   sourceEventSeqs : List SafeNat
   deriving DecidableEq, Repr
 
+/-- One text block retained from an upstream surface message. -/
+structure WireTextBlock where
+  text : String
+  deriving DecidableEq, Repr
+
+/-- The source-shaped fields preserved for an admitted user message. -/
+structure WireUserMessage where
+  id : String
+  content : List WireTextBlock
+  deriving DecidableEq, Repr
+
+/-- Optional token accounting retained on an admitted assistant message. -/
+structure WireUsage where
+  inputTokens : SafeNat
+  outputTokens : SafeNat
+  cacheReadTokens : Option SafeNat
+  cacheWriteTokens : Option SafeNat
+  reasoningTokens : Option SafeNat
+  deriving DecidableEq, Repr
+
+/-- The source-shaped fields preserved for an admitted assistant message. -/
+structure WireAssistantMessage where
+  id : String
+  provider : String
+  model : String
+  content : List WireTextBlock
+  usage : Option WireUsage
+  deriving DecidableEq, Repr
+
+/-- Surface messages retained separately from the smaller local session projection. -/
+inductive WireSurfaceMessage where
+  | user (message : WireUserMessage)
+  | assistant (message : WireAssistantMessage)
+  deriving DecidableEq, Repr
+
+/-- A source surface message together with its optional upstream provenance references. -/
+structure WireSurfaceAppend where
+  message : WireSurfaceMessage
+  sourceEventSeqs : Option (List SafeNat)
+  deriving DecidableEq, Repr
+
 /-- Supported payloads selected by the current upstream event `type`. -/
 inductive WirePayload where
   | turnStart (turn : SafeNat)
   | turnEnd (turn : SafeNat) (reason : WireTurnEndReason)
   | stepStart (turn step : SafeNat)
   | stepEnd (turn step : SafeNat)
+  | userMessage (append : WireSurfaceAppend)
+  | assistantMessage (turn step : SafeNat) (append : WireSurfaceAppend)
   | toolCall (turn step : SafeNat) (providerCallId name arguments : String)
   | toolResult (result : WireToolResult)
   deriving DecidableEq, Repr
@@ -149,6 +195,12 @@ private def decodeRequiredNat (json : Lean.Json) (path : List PathSegment)
     (name : String) : Except DecodeError SafeNat := do
   decodeSafeNat (fieldPath path name) (← requireField json path name)
 
+private def decodeOptionalNat (json : Lean.Json) (path : List PathSegment)
+    (name : String) : Except DecodeError (Option SafeNat) :=
+  match field? json name with
+  | none => .ok none
+  | some value => some <$> decodeSafeNat (fieldPath path name) value
+
 private def decodeOptionalBool (json : Lean.Json) (path : List PathSegment)
     (name : String) : Except DecodeError (Option Bool) :=
   match field? json name with
@@ -202,6 +254,102 @@ private def decodeTextBlock (path : List PathSegment) : Lean.Json → Except Dec
       expectTag (fieldPath path "type") "text" (← decodeRequiredString json path "type")
       decodeRequiredString json path "text"
   | json => .error (.typeMismatch path "object" (jsonKind json))
+
+private def decodeTextBlocks (path : List PathSegment) : Lean.Json →
+    Except DecodeError (List WireTextBlock)
+  | .arr values =>
+      let rec loop : Nat → List Lean.Json → Except DecodeError (List WireTextBlock)
+        | _, [] => .ok []
+        | index, value :: rest => do
+            let text ← decodeTextBlock (indexPath path index) value
+            let suffix ← loop (index + 1) rest
+            .ok ({ text } :: suffix)
+      loop 0 values.toList
+  | json => .error (.typeMismatch path "array" (jsonKind json))
+
+private def decodeWireUsage (path : List PathSegment) : Lean.Json →
+    Except DecodeError WireUsage
+  | json@(.obj _) => do
+      .ok {
+        inputTokens := ← decodeRequiredNat json path "inputTokens"
+        outputTokens := ← decodeRequiredNat json path "outputTokens"
+        cacheReadTokens := ← decodeOptionalNat json path "cacheReadTokens"
+        cacheWriteTokens := ← decodeOptionalNat json path "cacheWriteTokens"
+        reasoningTokens := ← decodeOptionalNat json path "reasoningTokens"
+      }
+  | json => .error (.typeMismatch path "object" (jsonKind json))
+
+private def decodeOptionalWireUsage (json : Lean.Json) (path : List PathSegment) :
+    Except DecodeError (Option WireUsage) :=
+  match field? json "usage" with
+  | none | some .null => .ok none
+  | some value => some <$> decodeWireUsage (fieldPath path "usage") value
+
+private def decodeUserMessage (path : List PathSegment) (json : Lean.Json) :
+    Except DecodeError WireUserMessage := do
+  let id ← decodeRequiredString json path "id"
+  expectTag (fieldPath path "role") "user"
+    (← decodeRequiredString json path "role")
+  let source ← requireField json path "source"
+  let sourcePath := fieldPath path "source"
+  match source with
+  | .obj _ =>
+      expectTag (fieldPath sourcePath "kind") "user"
+        (← decodeRequiredString source sourcePath "kind")
+  | value => .error (.typeMismatch sourcePath "object" (jsonKind value))
+  let content ← decodeTextBlocks (fieldPath path "content")
+    (← requireField json path "content")
+  .ok { id, content }
+
+private def decodeAssistantMessage (path : List PathSegment) (json : Lean.Json) :
+    Except DecodeError WireAssistantMessage := do
+  let id ← decodeRequiredString json path "id"
+  expectTag (fieldPath path "role") "assistant"
+    (← decodeRequiredString json path "role")
+  let source ← requireField json path "source"
+  let sourcePath := fieldPath path "source"
+  let provider ← match source with
+    | .obj _ => do
+        expectTag (fieldPath sourcePath "kind") "model"
+          (← decodeRequiredString source sourcePath "kind")
+        rejectPresent source sourcePath "replayState"
+        decodeRequiredString source sourcePath "provider"
+    | value => .error (.typeMismatch sourcePath "object" (jsonKind value))
+  let model ← decodeRequiredString source sourcePath "model"
+  let content ← decodeTextBlocks (fieldPath path "content")
+    (← requireField json path "content")
+  let usage ← decodeOptionalWireUsage json path
+  .ok { id, provider, model, content, usage }
+
+private def decodeSurfaceMetadata (event : Lean.Json) (path : List PathSegment) :
+    Except DecodeError (Option (List SafeNat)) := do
+  let surfaceOp ← decodeRequiredString event path "surfaceOp"
+  expectTag (fieldPath path "surfaceOp") "append" surfaceOp
+  match field? event "sourceEventSeqs" with
+  | none => .ok none
+  | some value => some <$> decodeSafeNatList (fieldPath path "sourceEventSeqs") value
+
+private def decodeUserMessageData (event : Lean.Json) (eventPath : List PathSegment)
+    (data : Lean.Json) (dataPath : List PathSegment) :
+    Except DecodeError WireSurfaceAppend := do
+  let message ← decodeUserMessage dataPath data
+  let sourceEventSeqs ← decodeSurfaceMetadata event eventPath
+  .ok { message := .user message, sourceEventSeqs }
+
+private def decodeAssistantMessageData (event : Lean.Json) (eventPath : List PathSegment)
+    (data : Lean.Json) (dataPath : List PathSegment) :
+    Except DecodeError (SafeNat × SafeNat × WireSurfaceAppend) := do
+  let turn ← decodeRequiredNat data dataPath "turn"
+  let step ← decodeRequiredNat data dataPath "step"
+  let messageJson ← requireField data dataPath "message"
+  let messagePath := fieldPath dataPath "message"
+  let message ← match messageJson with
+    | .obj _ => decodeAssistantMessage messagePath messageJson
+    | value => .error (.typeMismatch messagePath "object" (jsonKind value))
+  let usage ← decodeOptionalWireUsage data dataPath
+  let message := { message with usage }
+  let sourceEventSeqs ← decodeSurfaceMetadata event eventPath
+  .ok (turn, step, { message := .assistant message, sourceEventSeqs })
 
 private structure DecodedToolResultBlock where
   callId : String
@@ -284,6 +432,11 @@ private def decodePayload (event : Lean.Json) (path : List PathSegment)
           return .stepEnd
             (← decodeRequiredNat data dataPath "turn")
             (← decodeRequiredNat data dataPath "step")
+      | "user/message" =>
+          .userMessage <$> decodeUserMessageData event path data dataPath
+      | "assistant/message" => do
+          let (turn, step, append) ← decodeAssistantMessageData event path data dataPath
+          return .assistantMessage turn step append
       | "tool/call" => do
           rejectSurfaceMetadata event path
           return .toolCall
@@ -367,6 +520,7 @@ structure State where
   session : Session.Session Session.noExtensions
   protocol : SessionState
   calls : BindingState
+  wireSurface : List WireSurfaceAppend
 
 namespace State
 
@@ -375,12 +529,14 @@ def initial : State where
   session := Session.Session.empty Session.noExtensions
   protocol := .ready 1
   calls := .empty
+  wireSurface := []
 
 end State
 
 /-- Stateful failures distinguish translation, session, and protocol rejection. -/
 inductive RefinementError where
   | zeroStep
+  | surfaceKindMismatch
   | duplicateProviderCall (providerId : String)
   | unknownProviderCall (providerId : String)
   | mismatchedToolResultIds (sourceId blockId : String)
@@ -432,10 +588,11 @@ private def allocate (before : BindingState) (providerId : String) :
 /-- Exact local event, protocol projection, and next call map proposed for one wire event. -/
 structure Candidate (before : State) (wire : WireEvent) where
   localEvent : Session.LoggedEvent Session.noExtensions
-  runtime : RuntimeEvent
+  runtime : Option RuntimeEvent
   calls : BindingState
+  wireAppend : Option WireSurfaceAppend
   seq_eq : localEvent.seq = wire.seq.value
-  projection_eq : Session.LoggedEvent.protocolEvent? localEvent = some runtime
+  projection_eq : Session.LoggedEvent.protocolEvent? localEvent = runtime
 
 private def logOnlyEvent (seq : Nat) (kind : Session.Kind Session.noExtensions .logOnly)
     (payload : kind.Payload) : Session.LoggedEvent Session.noExtensions where
@@ -453,6 +610,45 @@ private def toolResultEvent (seq : Nat) (payload : Session.ToolResultPayload)
   payload
   intent := .append sources
 
+private def userMessageEvent (seq : Nat) (content : String)
+    (sources : List Nat) : Session.LoggedEvent Session.noExtensions where
+  visibility := .surface
+  seq
+  kind := .userMessage
+  payload := { content }
+  intent := .append sources
+
+private def assistantMessageEvent (seq turn step : Nat) (content : String)
+    (sources : List Nat) : Session.LoggedEvent Session.noExtensions where
+  visibility := .surface
+  seq
+  kind := .assistantMessage
+  payload := { turn, step, content, rawToolCalls := [] }
+  intent := .append sources
+
+private def concatText : List WireTextBlock → String
+  | [] => ""
+  | block :: rest => block.text ++ concatText rest
+
+private def sourceSeqsToNat : Option (List SafeNat) → List Nat
+  | none => []
+  | some values => values.map RuntimeRefinement.SafeNat.value
+
+private def userLocalContent (message : WireUserMessage) : String :=
+  concatText message.content
+
+private def assistantLocalContent (message : WireAssistantMessage) : String :=
+  concatText message.content
+
+private def expectUserMessage : WireSurfaceMessage → Except RefinementError WireUserMessage
+  | .user message => .ok message
+  | .assistant _ => .error .surfaceKindMismatch
+
+private def expectAssistantMessage : WireSurfaceMessage →
+    Except RefinementError WireAssistantMessage
+  | .user _ => .error .surfaceKindMismatch
+  | .assistant message => .ok message
+
 private def candidate (before : State) (wire : WireEvent) :
     Except RefinementError (Candidate before wire) :=
   match wire.payload with
@@ -460,8 +656,9 @@ private def candidate (before : State) (wire : WireEvent) :
       let localEvent := logOnlyEvent wire.seq.value .turnStart { turn := turn.value }
       .ok {
         localEvent
-        runtime := .turnStart turn.value
+        runtime := some (.turnStart turn.value)
         calls := before.calls
+        wireAppend := none
         seq_eq := rfl
         projection_eq := rfl
       }
@@ -473,8 +670,9 @@ private def candidate (before : State) (wire : WireEvent) :
           }
           .ok {
             localEvent
-            runtime := .turnEnd turn.value nextStep
+            runtime := some (.turnEnd turn.value nextStep)
             calls := before.calls.clear
+            wireAppend := none
             seq_eq := rfl
             projection_eq := rfl
           }
@@ -486,8 +684,9 @@ private def candidate (before : State) (wire : WireEvent) :
       }
       .ok {
         localEvent
-        runtime := .stepStart turn.value localStep
+        runtime := some (.stepStart turn.value localStep)
         calls := before.calls
+        wireAppend := none
         seq_eq := rfl
         projection_eq := rfl
       }
@@ -498,8 +697,9 @@ private def candidate (before : State) (wire : WireEvent) :
       }
       .ok {
         localEvent
-        runtime := .stepEnd turn.value localStep
+        runtime := some (.stepEnd turn.value localStep)
         calls := before.calls.clear
+        wireAppend := none
         seq_eq := rfl
         projection_eq := rfl
       }
@@ -513,8 +713,35 @@ private def candidate (before : State) (wire : WireEvent) :
       }
       .ok {
         localEvent
-        runtime := .toolCall turn.value localStep allocated.localId
+        runtime := some (.toolCall turn.value localStep allocated.localId)
         calls := allocated.after
+        wireAppend := none
+        seq_eq := rfl
+        projection_eq := rfl
+      }
+  | .userMessage append => do
+      let message ← expectUserMessage append.message
+      let sources := sourceSeqsToNat append.sourceEventSeqs
+      let localEvent := userMessageEvent wire.seq.value
+        (userLocalContent message) sources
+      .ok {
+        localEvent
+        runtime := none
+        calls := before.calls
+        wireAppend := some append
+        seq_eq := rfl
+        projection_eq := rfl
+      }
+  | .assistantMessage turn step append => do
+      let localStep ← normalizeStep step
+      let message ← expectAssistantMessage append.message
+      let localEvent := assistantMessageEvent wire.seq.value turn.value localStep
+        (assistantLocalContent message) (sourceSeqsToNat append.sourceEventSeqs)
+      .ok {
+        localEvent
+        runtime := none
+        calls := before.calls
+        wireAppend := some append
         seq_eq := rfl
         projection_eq := rfl
       }
@@ -535,8 +762,9 @@ private def candidate (before : State) (wire : WireEvent) :
         } sources
         .ok {
           localEvent
-          runtime := .toolResult result.turn.value localStep binding.localId
+          runtime := some (.toolResult result.turn.value localStep binding.localId)
           calls := before.calls
+          wireAppend := none
           seq_eq := rfl
           projection_eq := rfl
         }
@@ -544,23 +772,82 @@ private def candidate (before : State) (wire : WireEvent) :
         .error (.mismatchedToolResultIds result.sourceCallId result.blockCallId)
 
 /-- One wire event admitted by both local validators with exact structural projection. -/
+inductive ProtocolDelta (before : SessionState) : Option RuntimeEvent → Type where
+  | none : ProtocolDelta before none
+  | some {runtime : RuntimeEvent}
+      (validated : Cordis.ValidatedEvent before runtime) :
+      ProtocolDelta before (some runtime)
+
+namespace ProtocolDelta
+
+def finish {before : SessionState} {runtime : Option RuntimeEvent}
+    (delta : ProtocolDelta before runtime) : SessionState :=
+  match delta with
+  | .none => before
+  | .some validated => validated.finish
+
+def prependTrace
+    {before finish : SessionState} {runtime : Option RuntimeEvent}
+    (delta : ProtocolDelta before runtime)
+    (tail : Cordis.Trace (ProtocolDelta.finish delta) finish) : Cordis.Trace before finish :=
+  match delta with
+  | .none => tail
+  | .some validated => .cons validated.event tail
+
+theorem prependTrace_erase
+    {before finish : SessionState} {runtime : Option RuntimeEvent}
+    (delta : ProtocolDelta before runtime)
+    (tail : Cordis.Trace (ProtocolDelta.finish delta) finish) :
+    (prependTrace delta tail).erase = runtime.toList ++ tail.erase := by
+  cases delta with
+  | none => rfl
+  | some validated =>
+      cases validated with
+      | mk finish event erase_eq =>
+          change event.erase :: tail.erase = _
+          rw [erase_eq]
+          simp
+
+end ProtocolDelta
+
 structure RefinedEvent (before : State) (wire : WireEvent) where
   candidate : Candidate before wire
   append : Session.ValidatedAppend before.session candidate.localEvent
-  protocol : Cordis.ValidatedEvent before.protocol candidate.runtime
+  protocol : ProtocolDelta before.protocol candidate.runtime
 
 namespace RefinedEvent
 
 def after {before : State} {wire : WireEvent} (event : RefinedEvent before wire) : State where
   session := event.append.apply
-  protocol := event.protocol.finish
+  protocol := ProtocolDelta.finish event.protocol
   calls := event.candidate.calls
+  wireSurface := before.wireSurface ++ event.candidate.wireAppend.toList
+
+theorem after_protocol {before : State} {wire : WireEvent}
+    (event : RefinedEvent before wire) :
+    event.after.protocol = ProtocolDelta.finish event.protocol :=
+  rfl
+
+def tailAtFinish
+    {before : State} {wire : WireEvent} {finish : SessionState}
+    (event : RefinedEvent before wire)
+    (tail : Cordis.Trace event.after.protocol finish) :
+    Cordis.Trace (ProtocolDelta.finish event.protocol) finish :=
+  by
+    simpa [after_protocol] using tail
+
+@[simp] theorem tailAtFinish_erase
+    {before : State} {wire : WireEvent} {finish : SessionState}
+    (event : RefinedEvent before wire)
+    (tail : Cordis.Trace event.after.protocol finish) :
+    (tailAtFinish event tail).erase = tail.erase := by
+  simp [tailAtFinish, after_protocol]
 
 /-- The appended local event projects to the exact raw protocol event that was validated. -/
 theorem projection_exact {before : State} {wire : WireEvent}
     (event : RefinedEvent before wire) :
     Session.LoggedEvent.protocolEvent? event.candidate.localEvent =
-      some event.candidate.runtime :=
+      event.candidate.runtime :=
   event.candidate.projection_eq
 
 /-- Physical local sequence identity is preserved exactly from the upstream envelope. -/
@@ -577,17 +864,27 @@ theorem events_eq {before : State} {wire : WireEvent} (event : RefinedEvent befo
 theorem protocolProjection_eq {before : State} {wire : WireEvent}
     (event : RefinedEvent before wire) :
     Session.protocolProjection event.after.session.events =
-      Session.protocolProjection before.session.events ++ [event.candidate.runtime] := by
+      Session.protocolProjection before.session.events ++ event.candidate.runtime.toList := by
   rw [event.events_eq]
   simp only [Session.protocolProjection, List.filterMap_append]
   have singleton :
       List.filterMap Session.LoggedEvent.protocolEvent? [event.candidate.localEvent] =
-        [event.candidate.runtime] := by
+        event.candidate.runtime.toList := by
     simp only [List.filterMap]
     rw [event.projection_exact]
+    rfl
   rw [singleton]
 
 end RefinedEvent
+
+private def validateProtocol (before : SessionState) (runtime : Option RuntimeEvent) :
+    Except RefinementError (ProtocolDelta before runtime) :=
+  match runtime with
+  | none => .ok .none
+  | some raw =>
+      match Cordis.validateEvent before raw with
+      | .ok validated => .ok (.some validated)
+      | .error error => .error (.protocol error)
 
 /-- Translate and jointly validate one source-shaped wire event. -/
 def refineEvent (before : State) (wire : WireEvent) :
@@ -596,9 +893,7 @@ def refineEvent (before : State) (wire : WireEvent) :
   let append ← match Session.validateAppend before.session translated.localEvent with
     | .ok validated => .ok validated
     | .error error => .error (.session error)
-  let protocol ← match Cordis.validateEvent before.protocol translated.runtime with
-    | .ok validated => .ok validated
-    | .error error => .error (.protocol error)
+  let protocol ← validateProtocol before.protocol translated.runtime
   .ok { candidate := translated, append, protocol }
 
 /-- A sequential certificate chaining every jointly validated event. -/
@@ -615,13 +910,17 @@ namespace ValidatedSequence
 def protocolTrace {seed final : State} {events : List WireEvent} :
     ValidatedSequence seed events final → Cordis.Trace seed.protocol final.protocol
   | .nil _ => .nil
-  | .cons head tail => .cons head.protocol.event tail.protocolTrace
+  | .cons head tail =>
+      by
+        simpa [RefinedEvent.after] using
+          (ProtocolDelta.prependTrace head.protocol
+            (RefinedEvent.tailAtFinish head tail.protocolTrace))
 
 /-- Runtime protocol erasure is exactly the per-event projection sequence. -/
 def runtimeEvents {seed final : State} {events : List WireEvent} :
     ValidatedSequence seed events final → List RuntimeEvent
   | .nil _ => []
-  | .cons head tail => head.candidate.runtime :: tail.runtimeEvents
+  | .cons head tail => head.candidate.runtime.toList ++ tail.runtimeEvents
 
 theorem protocolTrace_erase {seed final : State} {events : List WireEvent}
     (sequence : ValidatedSequence seed events final) :
@@ -629,10 +928,12 @@ theorem protocolTrace_erase {seed final : State} {events : List WireEvent}
   induction sequence with
   | nil => rfl
   | cons head tail inductionHypothesis =>
-      change head.protocol.event.erase :: tail.protocolTrace.erase =
-        head.candidate.runtime :: tail.runtimeEvents
-      rw [head.protocol.erase_eq]
-      exact congrArg (List.cons head.candidate.runtime) inductionHypothesis
+      simpa [protocolTrace, runtimeEvents, RefinedEvent.after] using
+        (show (ProtocolDelta.prependTrace head.protocol
+            (RefinedEvent.tailAtFinish head tail.protocolTrace)).erase =
+            head.candidate.runtime.toList ++ tail.runtimeEvents by
+          rw [ProtocolDelta.prependTrace_erase, RefinedEvent.tailAtFinish_erase,
+            inductionHypothesis])
 
 /-- The final local session projection is the seed projection followed by every refined event. -/
 theorem sessionProjection_eq {seed final : State} {events : List WireEvent}
@@ -735,6 +1036,96 @@ def exampleJson : List Lean.Json := [
   ]
 ]
 
+/-! ## Text-message surface example -/
+
+def messageExampleJson : List Lean.Json := [
+  Lean.Json.mkObj [
+    ("type", .str "turn/start"), ("seq", .num 0), ("time", .num 200),
+    ("data", Lean.Json.mkObj [("turn", .num 1)])
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "user/message"), ("seq", .num 1), ("time", .num 201),
+    ("data", Lean.Json.mkObj [
+      ("id", .str "user-1"), ("role", .str "user"),
+      ("source", Lean.Json.mkObj [("kind", .str "user")]),
+      ("content", .arr #[Lean.Json.mkObj [
+        ("type", .str "text"), ("text", .str "hello")
+      ]])
+    ]),
+    ("surfaceOp", .str "append"), ("sourceEventSeqs", .arr #[])
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "step/start"), ("seq", .num 2), ("time", .num 202),
+    ("data", Lean.Json.mkObj [("turn", .num 1), ("step", .num 1)])
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "assistant/message"), ("seq", .num 3), ("time", .num 203),
+    ("data", Lean.Json.mkObj [
+      ("turn", .num 1), ("step", .num 1),
+      ("message", Lean.Json.mkObj [
+        ("id", .str "assistant-1"), ("role", .str "assistant"),
+        ("source", Lean.Json.mkObj [
+          ("kind", .str "model"), ("provider", .str "deepseek"),
+          ("model", .str "deepseek-reasoner")
+        ]),
+        ("content", .arr #[Lean.Json.mkObj [
+          ("type", .str "text"), ("text", .str "hi")
+        ]])
+      ]),
+      ("usage", Lean.Json.mkObj [
+        ("inputTokens", .num 4), ("outputTokens", .num 1)
+      ])
+    ]),
+    ("surfaceOp", .str "append"), ("sourceEventSeqs", .arr #[.num 1])
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "step/end"), ("seq", .num 4), ("time", .num 204),
+    ("data", Lean.Json.mkObj [("turn", .num 1), ("step", .num 1)])
+  ],
+  Lean.Json.mkObj [
+    ("type", .str "turn/end"), ("seq", .num 5), ("time", .num 205),
+    ("data", Lean.Json.mkObj [
+      ("turn", .num 1), ("reason", Lean.Json.mkObj [("kind", .str "completed")])
+    ])
+  ]
+]
+
+private def wireSurfaceIds : List WireSurfaceAppend → List String
+  | [] => []
+  | append :: rest =>
+      let id := match append.message with
+        | .user message => message.id
+        | .assistant message => message.id
+      id :: wireSurfaceIds rest
+
+private def wireSurfaceProviders : List WireSurfaceAppend → List String
+  | [] => []
+  | append :: rest =>
+      let provider := match append.message with
+        | .user _ => ""
+        | .assistant message => message.provider
+      provider :: wireSurfaceProviders rest
+
+structure SurfaceValidationSummary where
+  protocol : SessionState
+  messages : List Session.Message
+  runtimeEvents : List RuntimeEvent
+  surfaceIds : List String
+  surfaceProviders : List String
+  deriving DecidableEq
+
+def surfaceValidationSummary {input : List Lean.Json} :
+    Except (DecodeError ⊕ RefinementError) (ValidatedJsonLog input) →
+      Option SurfaceValidationSummary
+  | .error _ => none
+  | .ok validated => some {
+      protocol := validated.final.protocol
+      messages := validated.final.session.messages
+      runtimeEvents := validated.sequence.runtimeEvents
+      surfaceIds := wireSurfaceIds validated.final.wireSurface
+      surfaceProviders := wireSurfaceProviders validated.final.wireSurface
+    }
+
 /-- Proof-erased observation used only to state executable example outcomes compactly. -/
 structure ValidationSummary where
   protocol : SessionState
@@ -777,12 +1168,43 @@ theorem example_turnEndStep_isDerived :
       (fun summary => summary.runtimeEvents.getLast?) = some (some (.turnEnd 1 1)) := by
   rfl
 
-/-- Current assistant message payloads are explicitly outside this supported subset. -/
-theorem reject_assistantMessage :
+/-- Text surface events append locally while their upstream IDs and provider
+    are retained in state. -/
+theorem validate_message_example :
+    surfaceValidationSummary (validateJsonLog messageExampleJson) = some {
+        protocol := .ready 2
+        messages := [.user "hello", .assistant "hi" []]
+        runtimeEvents := [
+          .turnStart 1,
+          .stepStart 1 0,
+          .stepEnd 1 0,
+          .turnEnd 1 1
+        ]
+        surfaceIds := ["user-1", "assistant-1"]
+        surfaceProviders := ["", "deepseek"]
+      } := by
+  rfl
+
+/-- Assistant reasoning blocks remain outside the text-only session projection. -/
+theorem reject_assistantReasoningBlock :
     decodeEvent (Lean.Json.mkObj [
       ("type", .str "assistant/message"), ("seq", .num 0), ("time", .num 0),
-      ("data", Lean.Json.mkObj [])
-    ]) = .error (.unsupportedTag [.field "type"] "assistant/message") :=
+      ("data", Lean.Json.mkObj [
+        ("turn", .num 1), ("step", .num 1),
+        ("message", Lean.Json.mkObj [
+          ("id", .str "assistant-1"), ("role", .str "assistant"),
+          ("source", Lean.Json.mkObj [
+            ("kind", .str "model"), ("provider", .str "deepseek"),
+            ("model", .str "deepseek-reasoner")
+          ]),
+          ("content", .arr #[Lean.Json.mkObj [
+            ("type", .str "reasoning"), ("text", .str "hidden")
+          ]])
+        ])
+      ]),
+      ("surfaceOp", .str "append")
+    ]) = .error (.unsupportedTag
+      [.field "data", .field "message", .field "content", .index 0, .field "type"] "reasoning") :=
   rfl
 
 /-- Log-only boundary events cannot smuggle conditional surface metadata into the local log. -/

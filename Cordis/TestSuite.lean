@@ -1184,6 +1184,25 @@ private def testSessionRefinement : IO Unit := do
           Session.protocolProjection validated.final.session.events =
             validated.sequence.protocolTrace.erase :=
         validated.projection_exact
+  match SessionRefinement.surfaceValidationSummary
+      (SessionRefinement.validateJsonLog SessionRefinement.messageExampleJson) with
+  | none => fail "text-only surface message example failed to validate"
+  | some summary =>
+      assertRuntimeStateEqual "text-only surface messages reach the closed local turn"
+        (eraseState summary.protocol) (.ready 2)
+      assertEqual "text-only surface messages project into the local message vocabulary"
+        summary.messages [.user "hello", .assistant "hi" []]
+      assertEqual "surface metadata retains upstream message identities"
+        summary.surfaceIds ["user-1", "assistant-1"]
+      assertEqual "surface metadata retains the assistant provider"
+        summary.surfaceProviders ["", "deepseek"]
+      assertEqual "surface messages remain absent from intrinsic protocol events"
+        summary.runtimeEvents [
+          .turnStart 1,
+          .stepStart 1 0,
+          .stepEnd 1 0,
+          .turnEnd 1 1
+        ]
 
 private def testTransformationIndependence : IO Unit := do
   let modelOrder := Effect.seq Transformation.Example.bumpLeft
