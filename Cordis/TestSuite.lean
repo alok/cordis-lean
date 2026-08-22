@@ -101,6 +101,7 @@ import Cordis.DeepSeekHarnessEventProcessPrefix
 import Cordis.DeepSeekHarnessEventProcessTimeout
 import Cordis.DeepSeekHarnessEventProcessTimeoutRefinement
 import Cordis.DeepSeekHarnessEventProcessOutcome
+import Cordis.DeepSeekHarnessEventProcessSchema
 import Cordis.LoaderHMR
 import Cordis.DeepSeekHarnessPayloadText
 import Cordis.DeepSeekHarnessPayloadPersistence
@@ -5658,6 +5659,46 @@ private def testDeepSeekHarnessEventProcessOutcome : IO Unit := do
       assertEqual "restored byte streamed conversation appends the tool result" nextSeq 10
       assertEqual "restored byte streamed conversation distinguishes fuel exhaustion" completed false
 
+private def testDeepSeekHarnessEventProcessSchema : IO Unit := do
+  match DeepSeekToolSchema.weatherToolCertificate,
+      DeepSeekSchemaRegistry.Example.clockToolCertificate with
+  | .error error, _ => fail s!"event/schema process weather schema failed: {reprStr error}"
+  | _, .error error => fail s!"event/schema process clock schema failed: {reprStr error}"
+  | .ok weatherCertificate, .ok clockCertificate =>
+      match ← DeepSeekHarnessEventProcessSchema.Example.toolTextDualSchemaRound
+          weatherCertificate clockCertificate with
+      | .error (.inl error) => fail s!"event/schema text restoration failed: {reprStr error}"
+      | .error (.inr error) => fail s!"event/schema process failed: {reprStr error}"
+      | .ok ⟨restored, ⟨prepared, ⟨_body, round⟩⟩⟩ =>
+          assertEqual "event/schema composition retains the restored session endpoint"
+            restored.restored.runner.session.nextSeq 8
+          assertEqual "event/schema composition retains both registry tools"
+            prepared.plan.source.tools.length 2
+          assertEqual "event/schema composition retains streaming mode"
+            prepared.plan.source.stream true
+          match round.round.step with
+          | .tools toolStep =>
+              assertEqual "event/schema composition appends assistant and tool results"
+                toolStep.runner.session.nextSeq 11
+              assertEqual "event/schema composition preserves the dependent model"
+                toolStep.finalModel 0
+          | .terminal _ =>
+              fail "event/schema composition unexpectedly returned a terminal-only step"
+          let _planCertificate :=
+            DeepSeekHarnessEventProcessSchema.EventSchemaProcessRound.plan_source_stream round
+          let _bodyCertificate :=
+            DeepSeekHarnessEventProcessSchema.EventSchemaProcessRound.plan_body_eq_source round
+          let _requestCertificate :=
+            DeepSeekHarnessEventProcessSchema.EventSchemaProcessRound.request_build_eq_validated_session
+              round
+          let _processedCertificate :=
+            DeepSeekHarnessEventProcessSchema.EventSchemaProcessRound.processed_exact round
+          let _archiveCertificate :=
+            DeepSeekHarnessEventProcessSchema.EventSchemaProcessRound.archive_raw_eq_source round
+          let _projectionCertificate :=
+            DeepSeekHarnessEventProcessSchema.EventSchemaProcessRound.source_projection_exact round
+          pure ()
+
 private def testDeepSeekHarnessEventFileStreamRetryCancellation : IO Unit := do
   match ← DeepSeekHarnessEventFileStreamRetryCancellation.runFixture with
   | .error _ => fail "file-backed current-event cancellation fixture failed"
@@ -8126,6 +8167,7 @@ def run : IO Unit := do
   testDeepSeekHarnessEventProcessPrefix
   testDeepSeekHarnessEventProcessTimeout
   testDeepSeekHarnessEventProcessOutcome
+  testDeepSeekHarnessEventProcessSchema
   testDeepSeekHarnessEventFileStreamRetryCancellation
   testDeepSeekHarnessPersistenceStreamBytePrefixTimeout
   testLoaderHMR

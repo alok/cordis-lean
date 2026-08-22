@@ -2197,6 +2197,13 @@ the prepared first request, typed streamed rounds, final runner/model, and expli
 fuel-exhaustion stop, while the original event archive remains attached. This remains a
 complete-body process fixture boundary rather than blocked-read cancellation or deployed runtime
 equivalence.
+`Cordis.DeepSeekHarnessEventProcessSchema` is the next narrow composition: reuse the restored
+`ConversationRunner` as the index of `PreparedRegistryStreamingRequest`, then pass that exact plan
+through `executeRegistrySchemaRound`. Package the returned `SchemaProcessRound` with the restored
+session equality and archive/raw-line equality; expose the request-body, process-step, and final
+projection theorems from the dependent wrapper. The text fixture and byte entry point use the same
+restored event source, while provider obedience, credentials, byte framing, persistence,
+cancellation, external effects, and deployed equivalence remain separate obligations.
 `Cordis.DeepSeekHarnessEventFileStreamRetryCancellation` is the next concrete composition seam.
 It writes the supported current-event JSONL fixture to a temporary file, reads it back as bytes,
 checks exact source/read equality before restoring the event archive/session, and feeds the

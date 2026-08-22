@@ -110,6 +110,7 @@ import Cordis.DeepSeekHarnessEventProcessPrefix
 import Cordis.DeepSeekHarnessEventProcessTimeout
 import Cordis.DeepSeekHarnessEventProcessTimeoutRefinement
 import Cordis.DeepSeekHarnessEventProcessOutcome
+import Cordis.DeepSeekHarnessEventProcessSchema
 import Cordis.LoaderHMR
 import Cordis.DeepSeekHarnessPayloadText
 import Cordis.DeepSeekHarnessPayloadPersistence

@@ -948,6 +948,13 @@ conversation from the restored endpoint. Its result retains the prepared first r
 round history, final runner/model, and explicit completion-or-exhaustion stop; it does not add
 blocked-read cancellation, persistence, or deployed-runtime equivalence.
 
+`Cordis.DeepSeekHarnessEventProcessSchema` closes the parallel heterogeneous-schema attachment.
+Its indexed round keeps the restored archive/session certificate together with the registry-derived
+streaming plan, complete body, schema step, dependent runner endpoint, exact raw-line equality,
+and protocol projection. The executable weather/clock fixture reaches the `8 -> 11` endpoint;
+provider obedience, credentials, byte framing, persistence, cancellation, external effects, and
+deployed Harness equivalence remain unmapped.
+
 `Cordis.LoaderHMR` is the corresponding source-grounded loader boundary. Its executable model
 keeps Definition 74 entries keyed by stable IDs, classifies pending modules to a fixed point with
 an explicit unresolved-cycle fallback, walks dependencies only across non-declined boundaries,

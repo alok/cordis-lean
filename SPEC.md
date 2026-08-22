@@ -618,6 +618,14 @@ Prepared requests, process/round/tool endpoints, raw archive, restored-session e
 projection, and completion/exhaustion stops remain dependent evidence; caller source, provider
 authenticity, blocked-read cancellation, persistence, and deployed equivalence remain external.
 
+`Cordis.DeepSeekHarnessEventProcessSchema` is the parallel dependent-schema composition. It
+attaches the restored event archive/session to the registry-derived streaming plan, complete
+process body, heterogeneous schema-dispatched step, and dependent runner endpoint, with text and
+byte entry points and an executable two-tool weather/clock fixture. The local `8 -> 11` endpoint
+and exact archive/session/projection equations are checked; provider obedience, credential
+authenticity, byte framing, persistence, cancellation, external effects, and deployed equivalence
+remain outside.
+
 `Cordis.LoaderHMR` now supplies a bounded pure loader/HMR model: Definition 74 entry fields,
 stable-ID keyed reconciliation, Algorithm 8 fixed-point accepted/declined classification with
 unresolved-cycle fallback, Algorithm 9 stale dependency walks with declined boundaries, and

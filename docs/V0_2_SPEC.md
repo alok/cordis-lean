@@ -475,6 +475,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekHarnessProcessSchemaPrefixConversation`, lifting that retained plan through the
   caller-fueled prefix loop so each completed tool round, attempted-round exhaustion, and
   cancellation keeps its own process provenance;
+- `Cordis.DeepSeekHarnessEventProcessSchema`, composing a restored text/byte event session with
+  the heterogeneous registry-aware process path, retaining the exact streaming plan, complete
+  body, schema step, dependent runner endpoint, and archive/session/projection certificates;
 - `Cordis.DeepSeekSchemaStreamPrefixConversation`, preserving the accepted line prefix and typed
   line-budget/cancellation stop while deferring registry dispatch until the completed `[DONE]`
   rich/session certificate;

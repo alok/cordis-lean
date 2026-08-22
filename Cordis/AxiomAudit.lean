@@ -91,6 +91,7 @@ import Cordis.DeepSeekHarnessEventProcessPrefix
 import Cordis.DeepSeekHarnessEventProcessTimeout
 import Cordis.DeepSeekHarnessEventProcessTimeoutRefinement
 import Cordis.DeepSeekHarnessEventProcessOutcome
+import Cordis.DeepSeekHarnessEventProcessSchema
 import Cordis.LoaderHMR
 import Cordis.DeepSeekHarnessPayloadText
 import Cordis.DeepSeekHarnessPayloadPersistence
@@ -1412,6 +1413,16 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessEventProcessOutcome.Example.bytes
 #print axioms Cordis.DeepSeekHarnessEventProcessOutcome.Example.stream
 #print axioms Cordis.DeepSeekHarnessEventProcessOutcome.Example.bytesStream
+#print axioms Cordis.DeepSeekHarnessEventProcessSchema.EventSchemaProcessRound.plan_source_stream
+#print axioms Cordis.DeepSeekHarnessEventProcessSchema.EventSchemaProcessRound.plan_body_eq_source
+#print axioms Cordis.DeepSeekHarnessEventProcessSchema.EventSchemaProcessRound.request_build_eq_validated_session
+#print axioms Cordis.DeepSeekHarnessEventProcessSchema.EventSchemaProcessRound.processed_exact
+#print axioms Cordis.DeepSeekHarnessEventProcessSchema.EventSchemaProcessRound.archive_raw_eq_source
+#print axioms Cordis.DeepSeekHarnessEventProcessSchema.EventSchemaProcessRound.source_projection_exact
+#print axioms Cordis.DeepSeekHarnessEventProcessSchema.executeRestoredSchemaRound
+#print axioms Cordis.DeepSeekHarnessEventProcessSchema.executeRestoredBytesSchemaRound
+#print axioms Cordis.DeepSeekHarnessEventProcessSchema.Example.toolTextDualSchemaRoundFromRestored
+#print axioms Cordis.DeepSeekHarnessEventProcessSchema.Example.toolTextDualSchemaRound
 #print axioms Cordis.LoaderHMR.changeKind
 #print axioms Cordis.LoaderHMR.reconcile_singleton_same
 #print axioms Cordis.LoaderHMR.classify

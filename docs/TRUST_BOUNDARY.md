@@ -573,6 +573,13 @@ rich-outcome adapter. The result retains the restored-session/raw-archive certif
 prepared request, response, dependent-tool, endpoint, and protocol-projection certificates. It
 does not turn the event log into authenticated provider configuration or prove deployed runtime
 equivalence.
+
+`DeepSeekHarnessEventProcessSchema` is the corresponding registry-aware seam. It attaches the
+restored event session to the exact heterogeneous `stream: true` plan, complete process body,
+schema-dispatched step, and dependent runner endpoint; text and byte entry points share the same
+dependent certificate shape. The local fixture checks the restored eight-row session and the
+`8 -> 11` two-tool endpoint, while provider obedience, credentials, byte framing, persistence,
+cancellation, external effects, and deployed equivalence remain explicit obligations.
 Its `executeRestoredStreamConversation` and byte twin also launch the existing fuel-bounded
 complete-body streamed conversation from the restored endpoint, retaining the prepared request,
 round history, final runner/model, and completion-or-exhaustion stop. The source remains
