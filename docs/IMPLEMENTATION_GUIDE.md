@@ -2051,6 +2051,12 @@ by `round.runner` and `round.finalModel`. Keep a distinct `completed` stop with 
 unchanged. The executable fixture covers tool-to-text continuation and an exhausted transient-HTTP
 history; do not infer backoff, idempotency, blocked-read interruption, persistence, reconnect,
 or deployed retry semantics.
+`Cordis.DeepSeekStreamHarnessRetryCancellation` is the next composition boundary. Reuse the
+retry-aware indexed trace, check `CancellationPolicy.decide` before invoking a new process-backed
+round, and make the cancellation constructor retain the current trace prefix and endpoint. The
+recursive branch prepends the accepted head to the tail trace; cancellation never fabricates a
+round. Keep the proof boundary pre-round: do not infer interruption of an in-flight process,
+HTTP request, stream reader, tool, cleanup, reconnect, or deployed cancellation equivalence.
 `Cordis.DeepSeekHarnessErrors` makes the provider-failure policy explicit rather than silently
 choosing one behavior: `.reject` is the default fail-closed request policy, while `.include`
 retains a `ProviderFailedTool` proof and appends its exact provider message as an `isError` tool

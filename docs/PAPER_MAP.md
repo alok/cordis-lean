@@ -519,6 +519,11 @@ streamed tool-to-text completion and an exhausted transient-HTTP policy. Backoff
 blocked-read cancellation, persistence, reconnects, external effects, and deployed retry
 equivalence remain external.
 
+`Cordis.DeepSeekStreamHarnessRetryCancellation` composes that trace with a pre-round cancellation
+policy. Its cancellation result retains the accepted retry-aware prefix, endpoint, decision
+certificate, and each head's retry history; no claim is made about interrupting blocked IO,
+cleanup, reconnect, or deployed Harness cancellation semantics.
+
 ### Current-development transformation and operation independence
 
 Local sources: [`Cordis/Transformation.lean`](../Cordis/Transformation.lean),

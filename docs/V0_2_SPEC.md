@@ -374,6 +374,11 @@ Current machine-checked evidence includes:
   tool-to-text completion and an exhausted transient-HTTP policy, while backoff, idempotency,
   blocked-read cancellation, persistence, reconnects, and deployed retry equivalence remain
   outside;
+- `Cordis.DeepSeekStreamHarnessRetryCancellation`, composing that indexed retry trace with the
+  existing pre-round cancellation policy. Cancellation retains the accepted retry-aware prefix,
+  unchanged runner/model endpoint, round/reason certificate, and retry history inside each head;
+  it does not interrupt in-flight process/HTTP/stream/tool IO or claim deployed cancellation
+  equivalence;
 - `Cordis.DeepSeekHarnessCancellation`, adding a pre-round cancellation decision that retains the
   exact completed prefix, runner/model endpoint, and cancellation certificate; it does not claim
   mid-request IO interruption, cleanup, or deployed Harness cancellation semantics;

@@ -80,6 +80,7 @@ import Cordis.DeepSeekStreamHarnessPrefix
 import Cordis.DeepSeekStreamHarnessErrors
 import Cordis.DeepSeekStreamHarnessRetry
 import Cordis.DeepSeekStreamHarnessRetryConversation
+import Cordis.DeepSeekStreamHarnessRetryCancellation
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -5123,6 +5124,34 @@ private def testDeepSeekStreamHarnessRetryConversation : IO Unit := do
   | .error _ => fail "stream retry conversation returned the wrong failure"
   | .ok _ => fail "stream retry conversation accepted an exhausted transient process"
 
+private def testDeepSeekStreamHarnessRetryCancellation : IO Unit := do
+  match ← DeepSeekStreamHarnessRetryCancellation.Example.loop with
+  | .error _ => fail "retry-aware stream cancellation failed"
+  | .ok ⟨finalRunner, ⟨finalModel, result⟩⟩ =>
+      assertEqual "retry-aware stream cancellation retains the accepted prefix"
+        result.trace.length 1
+      assertEqual "retry-aware stream cancellation preserves the model endpoint"
+        finalModel 0
+      assertEqual "retry-aware stream cancellation preserves the runner endpoint"
+        finalRunner.session.nextSeq 4
+      assertEqual "retry-aware stream cancellation reports cancellation"
+        (DeepSeekStreamHarnessRetryCancellation.RetryCancellableStop.isCancelled result.stop) true
+      assertEqual "retry-aware stream cancellation records its round"
+        (DeepSeekStreamHarnessRetryCancellation.RetryCancellableStop.cancelledRound result.stop)
+        (some 1)
+      assertEqual "retry-aware stream cancellation records its reason"
+        (DeepSeekStreamHarnessRetryCancellation.RetryCancellableStop.cancelledReason result.stop)
+        (some .timeout)
+      match result.trace with
+      | .cons first tail =>
+          assertEqual "retry-aware cancellation retains streamed tool executions"
+            first.round.round.executions.length 2
+          assertEqual "retry-aware cancellation retains retry history"
+            first.round.retryHistory.failures.length 0
+          assertEqual "retry-aware cancellation has no later accepted rounds"
+            tail.length 0
+      | _ => fail "retry-aware stream cancellation returned the wrong trace shape"
+
 private def testDeepSeekHarnessCancellation : IO Unit := do
   let initialRunner : DeepSeekHarness.ConversationRunner := {
     session := DeepSeekHarness.counterSession
@@ -6376,6 +6405,7 @@ def run : IO Unit := do
   testDeepSeekHarnessRetry
   testDeepSeekStreamHarnessRetry
   testDeepSeekStreamHarnessRetryConversation
+  testDeepSeekStreamHarnessRetryCancellation
   testDeepSeekHarnessCancellation
   testQuotientEffects
   testCoeffectQuotientLift

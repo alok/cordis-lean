@@ -639,6 +639,12 @@ while a transient-HTTP fixture proves the bounded failure history. Backoff, idem
 cancellation of blocked reads, persistence, reconnects, external effects, and deployed retry
 equivalence remain external.
 
+`Cordis.DeepSeekStreamHarnessRetryCancellation` composes that indexed retry trace with the
+existing pre-round cancellation policy. A cancellation stop retains the exact accepted retry-aware
+prefix, unchanged runner/model endpoint, round/reason decision, and typed retry histories inside
+each accepted head. It is not an in-flight process/read cancellation or a deployed Harness
+cancellation equivalence claim.
+
 The next paper layer is explicit rather than assumed. `Cordis.OperationalEquivalence` models
 Definition 34's heterogeneous finite tests and proves the generator-level coarsest relation of
 Lemma 35, while a compiled counterexample shows that same-word tests do not imply the stronger
