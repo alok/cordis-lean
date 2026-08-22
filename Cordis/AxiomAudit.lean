@@ -185,6 +185,7 @@ import Cordis.SessionEventArchive
 import Cordis.DeepSeekHarnessEventIgnorableProjection
 import Cordis.DeepSeekHarnessEventIgnorableNormalization
 import Cordis.DeepSeekHarnessEventSimulation
+import Cordis.DeepSeekHarnessEventArchiveReplay
 import Cordis.DeepSeekHarnessEventIgnorableRunner
 import Cordis.DeepSeekHarnessEventIgnorableTransport
 import Cordis.SessionPayloadArchive
@@ -597,6 +598,11 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessEventSimulation.sourceLedger
 #print axioms Cordis.DeepSeekHarnessEventSimulation.replayOccurrences
 #print axioms Cordis.DeepSeekHarnessEventSimulation.simulateNormalized
+#print axioms Cordis.DeepSeekHarnessEventArchiveReplay.ArchiveReplay.toSourceReplay
+#print axioms Cordis.DeepSeekHarnessEventArchiveReplay.ArchiveReplay.toSourceReplay_sourceRaw
+#print axioms Cordis.DeepSeekHarnessEventArchiveReplay.ArchiveReplay.droppedRaw_eq_decisionDrops
+#print axioms Cordis.DeepSeekHarnessEventArchiveReplay.archiveReplay
+#print axioms Cordis.DeepSeekHarnessEventArchiveReplay.toolArchiveReplay
 #print axioms Cordis.DeepSeekHarnessEventIgnorableRunner.restoreRunner
 #print axioms Cordis.DeepSeekHarnessEventIgnorableRunner.buildRequestCertificate
 #print axioms Cordis.DeepSeekHarnessEventIgnorableRunner.RequestCertificate.build_eq_session

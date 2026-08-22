@@ -936,7 +936,7 @@ relation whose union cycles, so the module requires `SupportOrder` directly. It 
 combined-edge well-founded recursion, proves uniqueness, and derives support-equals-active at
 quiescence under state-local provision totality, failure exclusion, and active-parent closure.
 
-The bounded algebra/context/global layer now has sixty-one explicit pieces:
+The bounded algebra/context/global layer now has sixty-two explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -1304,12 +1304,17 @@ The bounded algebra/context/global layer now has sixty-one explicit pieces:
     This is a finite supported-subset transition simulation; opaque semantics, provider behavior,
     bytes, persistence, cancellation delivery, and complete deployed-Harness equivalence remain
     external.
-60. `Cordis.DeepSeekHarnessEventIgnorableRunner` attaches the normalized validated endpoint to the
+60. `Cordis.DeepSeekHarnessEventArchiveReplay` packages that normalized source replay with the
+    physical archive's inductive keep/drop ledger. `ArchiveReplay` retains exact archive and kept
+    raw rows, projects dropped opaque rows and positions, and shares one indexed source transition
+    trace with the simulation certificate. The nine-row tool fixture checks eight supported
+    transitions plus one explicit opaque no-op; required opaque rows still fail closed.
+61. `Cordis.DeepSeekHarnessEventIgnorableRunner` attaches the normalized validated endpoint to the
     pure `ConversationRunner`, preserves exact session/step equalities, and rebuilds a typed
     `ChatRequest` through a dependent request certificate. The executable tool fixture verifies the
     normalized user/assistant/tool messages; provider authenticity, transport, persistence, opaque
     payload semantics, and deployed-Harness equivalence remain external.
-61. `Cordis.DeepSeekHarnessEventIgnorableTransport` carries that restored runner through the existing
+62. `Cordis.DeepSeekHarnessEventIgnorableTransport` carries that restored runner through the existing
     process-backed complete-response conversation trace. `RestoredTransportRun` retains the original
     normalized session/step certificates beside the final runner, model, trace, and stop evidence;
     the deterministic fixture exercises one no-tool completion. Injected transport, credentials,

@@ -63,6 +63,7 @@ import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessEventIgnorableProjection
 import Cordis.DeepSeekHarnessEventIgnorableNormalization
 import Cordis.DeepSeekHarnessEventSimulation
+import Cordis.DeepSeekHarnessEventArchiveReplay
 import Cordis.DeepSeekHarnessEventIgnorableRunner
 import Cordis.DeepSeekHarnessEventIgnorableTransport
 import Cordis.DeepSeekHarnessExtensionArchive
@@ -4747,6 +4748,36 @@ private def testDeepSeekHarnessEventSimulation : IO Unit := do
         DeepSeekHarnessEventSimulation.SourceReplay.sessionProjection_eq replay
       pure ()
 
+private def testDeepSeekHarnessEventArchiveReplay : IO Unit := do
+  match DeepSeekHarnessEventArchiveReplay.toolArchiveReplay with
+  | .error error => fail s!"archive-aware replay failed: {reprStr error}"
+  | .ok ⟨_normalized, certificate⟩ =>
+      assertEqual "archive replay retains every physical archive row"
+        certificate.archive.archiveRaw.length 9
+      assertEqual "archive replay retains eight supported rows"
+        certificate.archive.keptRaw.length 8
+      assertEqual "archive replay records one explicit opaque drop"
+        certificate.archive.droppedRaw.length 1
+      assertEqual "archive replay identifies the dropped physical position"
+        certificate.archive.droppedPositions [2]
+      assertEqual "archive replay keeps the normalized source positions"
+        certificate.archive.sourceReplay.sourcePositions [0, 1, 3, 4, 5, 6, 7, 8]
+      assertEqual "archive replay chains to the normalized endpoint"
+        certificate.simulation.replay.1.session.nextSeq 8
+      assertEqual "archive replay shares the simulation ledger keep positions"
+        certificate.archive.ledger.keptPositions [0, 1, 3, 4, 5, 6, 7, 8]
+      let _archiveRaw := certificate.archive_raw_eq
+      let _sourceRaw := certificate.source_raw_eq
+      let _droppedRaw := certificate.dropped_raw_eq
+      let _replayEq := certificate.normalized_replay
+      let _traceCertificate :=
+        DeepSeekHarnessEventArchiveReplay.ArchiveReplay.protocolTrace_erase
+          certificate.archive
+      let _projectionCertificate :=
+        DeepSeekHarnessEventArchiveReplay.ArchiveReplay.sessionProjection_eq
+          certificate.archive
+      pure ()
+
 private def testDeepSeekHarnessEventIgnorableRunner : IO Unit := do
   match DeepSeekHarnessEventIgnorableRunner.toolNormalizedRequest with
   | .error error => fail s!"ignorable normalized runner/request failed: {reprStr error}"
@@ -7343,6 +7374,7 @@ def run : IO Unit := do
   testDeepSeekHarnessEventIgnorableProjection
   testDeepSeekHarnessEventIgnorableNormalization
   testDeepSeekHarnessEventSimulation
+  testDeepSeekHarnessEventArchiveReplay
   testDeepSeekHarnessEventIgnorableRunner
   testDeepSeekHarnessEventIgnorableTransport
   testDeepSeekHarnessEventText

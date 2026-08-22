@@ -1930,6 +1930,13 @@ surface retains physical positions, source sequences/times, local sequence renum
 erasure, and final session-projection equality for the finite supported subset. It deliberately
 does not model opaque payload behavior, provider execution, bytes, persistence, cancellation
 delivery, or complete deployed-Harness equivalence.
+`Cordis.DeepSeekHarnessEventArchiveReplay` closes the physical/archive alignment seam without
+claiming more semantics: `ArchiveReplay` stores the indexed `SourceReplay` beside the inductive
+keep/drop `DecisionLedger`, so exact archive rows, retained raw rows, and dropped opaque rows and
+positions are all projections of one certificate. The executable tool fixture retains nine rows,
+chains eight supported transitions, and treats the single explicit ignorable row as a state-preserving
+no-op. Required opaque rows still reject; provider behavior, bytes, persistence, cancellation, and
+deployed-Harness equivalence remain outside.
 `Cordis.DeepSeekHarnessEventIgnorableRunner` is the pure attachment above that normalized endpoint: it
 sets the `ConversationRunner` session to the validated final session, retains exact session/step and
 tool-call-count witnesses, and rebuilds a `ChatRequest` with a dependent request-build equality.
