@@ -646,6 +646,12 @@ external execution, or TypeScript/deployed Harness equivalence.
 
 ## What is checked but not proved
 
+`Cordis.EffectContext` proves the exact function-level effect-context tower through the finite
+lift in Theorems 4–5, 7, and 10–15. The `WitnessedEffect` inverse is selected at the application
+state and its one-sided law is explicit in the type. The module does not prove arbitrary
+interleaving, transformation-monoid independence, quotient equivalence, or correspondence to
+the deployed TypeScript Harness.
+
 `Cordis.DeepSeekScopedRegistry` is a pure local routing certificate: nearest-first scopes select
 dependent entries, restrictions fail closed at the matching scope, and an approval ticket is
 retained before the generic provider view executes. Its fixtures cover automatic/review routes

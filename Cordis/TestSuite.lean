@@ -87,6 +87,7 @@ import Cordis.DurableBytes
 import Cordis.DurableIO
 import Cordis.DurableSettlement
 import Cordis.Effect
+import Cordis.EffectContext
 import Cordis.Examples.Counter
 import Cordis.Examples.CounterWire
 import Cordis.Examples.DependentChoice
@@ -268,6 +269,22 @@ private def testEffects : IO Unit := do
   assertEqual "indexed undo stack exactly recovers" (stack.recover second.after) 4
   assertEqual "compiled accumulator agrees with stack"
     (stack.toAccumulator.recover second.after) 4
+
+private def testEffectContext : IO Unit := do
+  let effect := Cordis.EffectContext.Example.add 3
+  let context : Cordis.EffectContext.EffectContext Int := (7, id)
+  let lifted := Cordis.EffectContext.effectLift effect context
+  let reverted := lifted.2 lifted.1
+  assertEqual "effect-context lift changes the current context" lifted.1.1 10
+  assertEqual "effect-context lifted inverse recovers the application state"
+    (Cordis.EffectContext.recover reverted).1 7
+  assertEqual "effect-context composition keeps LIFO inverse order"
+    (Cordis.EffectContext.effectComp
+      (Cordis.EffectContext.Example.add 3)
+      (Cordis.EffectContext.Example.add 2) 10).1 15
+  let _uniform : Cordis.EffectContext.Theorems.UniformInverse effect :=
+    Cordis.EffectContext.Example.add_uniform_inverse 3
+  pure ()
 
 private def testCertifiedBatch : IO Unit := do
   let batch : TwoBatch (Nat × Nat) Nat Nat := {
@@ -6535,6 +6552,7 @@ private def testHarnessDemo : IO Unit := do
 /-- Run all executable adversarial and integration tests. -/
 def run : IO Unit := do
   testEffects
+  testEffectContext
   testCertifiedBatch
   testCodecs
   testStream

@@ -88,6 +88,7 @@ import Cordis.DurableBytes
 import Cordis.DurableIO
 import Cordis.DurableSettlement
 import Cordis.Effect
+import Cordis.EffectContext
 import Cordis.Examples.DependentChoice
 import Cordis.Examples.DependentChoiceSession
 import Cordis.GenericSessionHarness
@@ -1806,6 +1807,18 @@ namespace Cordis.GlobalPaperProgressReplay
 #print axioms ReplayedProgressRun.rules_eq
 #print axioms ReplayedProgressRun.actors_eq
 end Cordis.GlobalPaperProgressReplay
+namespace Cordis.EffectContext
+#print axioms Theorems.track_projection
+#print axioms Theorems.track_comp
+#print axioms Theorems.recover_track
+#print axioms Theorems.effectComp_assoc
+#print axioms Theorems.WitnessedEffect.effectComp
+#print axioms Theorems.effectLift_comp
+#print axioms Theorems.effectLift_inverse_value
+#print axioms Theorems.effectLift_isWitnessed_iff
+#print axioms Example.add_witnessed
+#print axioms Example.add_lift_recovery
+end Cordis.EffectContext
 #print axioms Cordis.GlobalRelations.contextRelated_domain
 #print axioms Cordis.GlobalRelations.ruleSetoid
 #print axioms Cordis.GlobalRelations.ruleRelated_registry_domain

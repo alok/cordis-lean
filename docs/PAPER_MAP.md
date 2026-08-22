@@ -99,6 +99,17 @@ not assumed.
 
 ## Declaration map
 
+### `Cordis.EffectContext`
+
+Local source: [`Cordis/EffectContext.lean`](../Cordis/EffectContext.lean).
+
+| Lean declaration | Status and exact Lean guarantee | Paper correspondence | Boundary |
+| --- | --- | --- | --- |
+| `twistedComp`, `twistedIdentity` | **Proved:** forward maps compose in application order while candidate inverses compose in the opposite order; identity and associativity are extensional. | Definition 1 and the twisted composition monoid `𝔗Γ`. | Function-level context maps only; no quotient or external-effect interpretation. |
+| `EffectContext`, `track`, `recover`, `track_projection`, `track_comp`, `recover_track` | **Proved:** `∂Γ = Γ × (Γ → Γ)` carries the current context and inverse accumulator; tracking projects to the forward map, is a twisted-monoid homomorphism, and preserves the recovery result under the stated one-sided inverse premise. | Definitions 2–3, 6 and Theorems 4–5, 7. | The inverse law is supplied per pair/application; no global invertibility is inferred. |
+| `EffectFunction`, `WitnessedEffect`, `effectComp`, `WitnessedEffect.effectComp` | **Proved:** state-indexed effects return their selected inverse, effect composition has unit/associativity, and witnessed effects form a submonoid. | Definitions 8–9 and Theorems 10–11. | This is exact representative equality, not the later observational quotient or independence theorem. |
+| `effectLift`, `effectLift_comp`, `effectLift_projection`, `effectLift_inverse_value`, `effectLift_isWitnessed_iff` | **Proved:** the next effect-context level preserves composition/projections; the lifted inverse has the exact accumulator formula and preserves recovery, with a precise uniform-inverse criterion for full witnessing. | Definition 12 and Theorems 13–15. | Theorem 16's finite sequence statement remains represented by the separate indexed `UndoStack`; arbitrary interleaving and Definition 19 remain separate claims. |
+
 ### `Cordis.Effect`
 
 Local source: [`Cordis/Effect.lean`](../Cordis/Effect.lean).
@@ -761,10 +772,11 @@ deployed provider behavior.
 
 The following are intentionally not presented as completed formalization work.
 
-1. **Effect-context tower:** Definitions 1–3 and 6 and Theorems 4–5 and 7 (`track`,
-   `recover`, twisted composition, the monoid homomorphism, and the soundness invariant)
-   are not represented directly. Definition 12 and Theorems 13–15, which lift an effect into
-   the next effect-context level, are also absent.
+1. **Effect-context tower beyond the finite lift:** `Cordis.EffectContext` now represents
+   Definitions 1–3, 6, and 8–12 and proves Theorems 4–5, 7, and 10–15, including the exact
+   lifted-inverse/recovery formula. Theorem 16's indexed finite LIFO behavior is covered by
+   `Cordis.Effect`/`UndoStack`, but no theorem here turns that into arbitrary interleaving or
+   the later transformation-monoid independence claims.
 2. **Beyond finite exact removal:** Definitions 17–19, Theorem 20, and Corollary 21 are now
    mechanized for finite exact pairwise-independent effects. Their observational-quotient,
    infinite, asynchronous, and external-effect interpretations are not. The separate Schedule
