@@ -57,6 +57,7 @@ import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessExtensionArchive
 import Cordis.DeepSeekHarnessExtensionRequest
 import Cordis.DeepSeekHarnessExtensionPersistence
+import Cordis.DeepSeekHarnessMixedPersistence
 import Cordis.DeepSeekHarnessEventText
 import Cordis.DeepSeekHarnessEventProcessOutcome
 import Cordis.LoaderHMR
@@ -764,6 +765,12 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessExtensionPersistence.Example.validated_example_summary
 #print axioms Cordis.DeepSeekHarnessExtensionPersistence.Example.reject_known_core
 #print axioms Cordis.DeepSeekHarnessExtensionPersistence.Example.reject_bad_header
+#print axioms Cordis.DeepSeekHarnessMixedPersistence.validate
+#print axioms Cordis.DeepSeekHarnessMixedPersistence.MixedCertificate.archive_raw_exact
+#print axioms Cordis.DeepSeekHarnessMixedPersistence.MixedCertificate.core_projection_exact
+#print axioms Cordis.DeepSeekHarnessMixedPersistence.MixedCertificate.extension_final_nextSeq
+#print axioms Cordis.DeepSeekHarnessMixedPersistence.Example.mixed_summary
+#print axioms Cordis.DeepSeekHarnessMixedPersistence.Example.mixed_schedule_exact
 #print axioms Cordis.DeepSeekHarness.buildTypedCompleteRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan_source_stream

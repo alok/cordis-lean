@@ -2148,6 +2148,13 @@ and the `DurableIO.Backend` adapter re-enters the same certificate after reads, 
 validated appends. Restore the runner only from this indexed endpoint; do not infer mixed-log
 replay, packed-row compatibility, fsync, crash repair, or deployed persistence semantics.
 
+`Cordis.DeepSeekHarnessMixedPersistence` is the deliberately smaller mixed-log composition.
+`MixedRows` carries an explicit schedule whose interleave reconstructs the complete source list;
+`MixedCertificate` then retains one lossless full archive plus independent core and dependent
+extension certificates over their exact projections. This proves source partitioning and both
+indexed endpoints without pretending that extension surface edits, sparse global sequence
+numbers, or the two indexed sessions have already been fused into one arbitrary-schema replay.
+
 `Cordis.DeepSeekToolSchema` is the next request-side type boundary. It validates the bounded
 schema vocabulary actually represented by the local DeepSeek API: an object parameter root,
 primitive property `type` tags, optional property descriptions, a duplicate-free `required`

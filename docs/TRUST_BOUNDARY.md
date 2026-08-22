@@ -123,6 +123,12 @@ surfaces. It retains the exact header/raw suffix and links the restored indexed 
 back to the persisted endpoint. Known core and ignorable rows reject; mixed replay, packed-row
 persistence, fsync/crash guarantees, and deployed persistence equivalence remain external.
 
+`Cordis.DeepSeekHarnessMixedPersistence` is intentionally weaker than a unified mixed-session
+decoder. Its schedule-indexed certificate retains the complete archive and proves the core and
+dependent-extension projection certificates separately. The source partition is real and
+executable; extension surface edits, global sequence renumbering, combined-schema replay, and
+provider/transport/deployed persistence claims remain outside.
+
 The local protocol has both typed erasure and witness-reconstructing validation:
 
 ```text

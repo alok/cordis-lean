@@ -328,6 +328,13 @@ and links a schema-certified request back to that persisted endpoint. Known core
 ignorable rows reject; mixed core/extension replay, packed-row persistence, crash repair, fsync,
 and deployed persistence equivalence remain external.
 
+`Cordis.DeepSeekHarnessMixedPersistence` makes the next boundary explicit rather than silently
+claiming a mixed-schema replay. A schedule-indexed certificate losslessly archives the complete
+row stream and independently validates its core projection with `SessionRefinement` and its
+dependent extension projection with `SessionExtensionArchive`. The two indexed endpoints and
+source AST equations are retained together; extension surface edits, global sequence
+normalization, packed rows, and one combined arbitrary-schema session remain external.
+
 `Cordis.DeepSeekHarnessPersistence` now attaches that bounded runner to the logical JSONL
 persistence refinement. A successful archive restores a `ConversationRunner` with an exact
 equality to the archive's final session, and a proof-carrying request rebuilt from the restored
@@ -1271,6 +1278,7 @@ placeholders.
 | `Cordis.DeepSeekHarnessEventArchive`                    | Certificate-gated attachment of a lossless current-Harness event archive plus stateful semantic validation to `ConversationRunner`; opaque/extension events reject restoration, and the tool-message fixture rebuilds a typed request.                                                                                                                                                              |
 | `Cordis.DeepSeekHarnessExtensionArchive`                | Schema-indexed attachment of a required-extension archive to `ExtensionRunner`; restoration derives the tool-call count, proves exact session equality, and rebuilds a typed request from the same indexed endpoint.                                                                                                                                                                                |
 | `Cordis.DeepSeekHarnessExtensionPersistence`            | Extension-only persistence composition across JSONL AST, text, UTF-8 bytes, and `DurableIO.Backend`; exact header/raw-row certificates restore the indexed runner and schema-certified request, while core/ignorable rows reject.                                                                                                                                                                   |
+| `Cordis.DeepSeekHarnessMixedPersistence`                | Schedule-indexed mixed persistence certificate: one lossless archive covers the complete source row stream while independent core and dependent-extension projections retain exact source ASTs and indexed endpoints; no combined arbitrary-schema replay is claimed.                                                                                                                               |
 | `Cordis.DeepSeekHarnessEventText`                       | UTF-8/JSONL text and `ByteArray` ingress for the event-archive attachment, retaining exact source/decoded text and archive/session certificates before restoring a `ConversationRunner`; invalid UTF-8 and opaque/extension events fail closed.                                                                                                                                                     |
 | `Cordis.DeepSeekHarnessEventProcessOutcome`             | Carries restored text/byte event runners through complete-body rich outcomes and fuel-bounded streamed conversations, retaining prepared request, process/round, tool, endpoint, archive, session, projection, and completion/stop certificates; caller-supplied source and complete-body process boundaries remain explicit.                                                                       |
 | `Cordis.LoaderHMR`                                      | Definition 74 entry records, keyed configuration reconciliation, Algorithm 8 fixed-point accepted/declined classification with cycle fallback, declined-boundary stale detection, and Algorithm 10 indexed transactional reload with exact failure rollback; dynamic imports, filesystem watches, real fibers, and deployed loader equivalence remain external.                                     |

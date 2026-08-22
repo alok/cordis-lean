@@ -86,6 +86,12 @@ boundary: a header plus required extension suffix is validated at the JSON-AST, 
 Known core and ignorable rows fail closed. Mixed current-Harness replay, packed-row persistence,
 crash repair, fsync, and deployed persistence equivalence are not claimed.
 
+`Cordis.DeepSeekHarnessMixedPersistence` adds only a source-partition certificate for mixed rows.
+Its explicit schedule reconstructs the complete archived input while the core and extension
+projections are validated independently at their existing indexed endpoints. It does not claim
+combined arbitrary-schema replay, extension surface integration with the core protocol, global
+sequence normalization, or deployed persistence equivalence.
+
 The slice closes two concrete gaps in the original objective:
 
 1. the runner becomes generic over a dependent tool catalog instead of importing the counter

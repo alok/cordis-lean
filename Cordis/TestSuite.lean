@@ -59,6 +59,7 @@ import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessExtensionArchive
 import Cordis.DeepSeekHarnessExtensionRequest
 import Cordis.DeepSeekHarnessExtensionPersistence
+import Cordis.DeepSeekHarnessMixedPersistence
 import Cordis.DeepSeekHarnessEventText
 import Cordis.DeepSeekHarnessEventProcessOutcome
 import Cordis.LoaderHMR
@@ -3636,6 +3637,26 @@ private def testDeepSeekHarnessExtensionPersistence : IO Unit := do
   | .error error => fail s!"invalid extension persistence bytes returned {reprStr error}"
   | .ok _ => fail "invalid extension persistence bytes were accepted"
 
+private def testDeepSeekHarnessMixedPersistence : IO Unit := do
+  have _summary := DeepSeekHarnessMixedPersistence.Example.mixed_summary
+  have _schedule := DeepSeekHarnessMixedPersistence.Example.mixed_schedule_exact
+  match DeepSeekHarnessMixedPersistence.Example.mixedCertificate with
+  | .error error => fail s!"mixed persistence validation failed: {reprStr error}"
+  | .ok certificate =>
+      assertEqual "mixed persistence archives every source row"
+        certificate.archive.events.length 7
+      assertEqual "mixed persistence core projection reaches its endpoint"
+        certificate.core.final.session.nextSeq 6
+      assertEqual "mixed persistence extension projection reaches its endpoint"
+        certificate.extension.validated.final.nextSeq 1
+      have _archive :=
+        DeepSeekHarnessMixedPersistence.MixedCertificate.archive_raw_exact certificate
+      have _core :=
+        DeepSeekHarnessMixedPersistence.MixedCertificate.core_decode_exact certificate
+      have _extension :=
+        DeepSeekHarnessMixedPersistence.MixedCertificate.extension_raw_exact certificate
+      pure ()
+
 private def testDeepSeekSchemaStreamConversation : IO Unit := do
   match DeepSeekToolSchema.weatherToolCertificate,
       DeepSeekSchemaRegistry.Example.clockToolCertificate with
@@ -6000,6 +6021,7 @@ def run : IO Unit := do
   testDeepSeekHarnessExtensions
   testSessionExtensionRefinement
   testDeepSeekHarnessExtensionPersistence
+  testDeepSeekHarnessMixedPersistence
   testDeepSeekSchemaStreamConversation
   testDeepSeekSchemaStreamPrefixConversation
   testDeepSeekSchemaStreamErrors
