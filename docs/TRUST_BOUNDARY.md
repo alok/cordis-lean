@@ -1571,6 +1571,12 @@ Without additional proofs or tests, do not state that:
   certificate is exact; status-separator padding is explicit, while blocked reads, backpressure,
   cancellation, process trust, persistence, external effects, and deployed equivalence remain
   outside;
+- `DeepSeekCurlProviderAssemblyToolRound` feeds the terminal incremental certificate directly into
+  dependent `FunctionCall` execution and certified assistant/tool-result session append without
+  reparsing the completed body. `DeepSeekCurlProviderAssemblyToolPrefix` also retains the typed
+  provider/tool prefix on synchronous fuel or cancellation and admits execution only on completion;
+  blocked-read interruption, backpressure, reconnects, process trust, persistence, external effects,
+  and deployed equivalence remain outside;
 - `DeepSeekTerminalOutcome` proves only the fixed-order complete-body classification over the
   provider-failure, text, one-tool, mixed, and finite multi-call certificates; it does not turn
   those certificates into a session message or claim deployed stream equivalence;

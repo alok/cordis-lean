@@ -2530,6 +2530,13 @@ completed result exposes an exact assembly certificate and records the one-line 
 padding relation when the fixture adds it. This remains line-oriented local evidence, not
 blocked-read interruption, backpressure, cancellation, process trust, persistence, external
 effects, or deployed provider equivalence.
+`Cordis.DeepSeekCurlProviderAssemblyToolRound` consumes that terminal certificate directly in
+the existing dependent `FunctionCall` executor and session append path, keeping process,
+provider, execution, and session certificates separate. `Cordis.DeepSeekCurlProviderAssemblyToolPrefix`
+extends the same seam to stopped prefixes: fuel and cancellation retain the provider/tool state,
+while only the completed constructor carries an execution certificate. Neither module proves
+blocked-read interruption, backpressure, reconnect, process trust, persistence, external effects,
+or deployed Harness equivalence.
 `Cordis.DeepSeekCurlPrefixSession` consumes the completed branch of that result, applies the
 existing text/tool/mixed/multi terminal projections, and appends the retained assistant to the
 typed session runner with the existing next-sequence/next-call proofs. Fuel and cancellation are

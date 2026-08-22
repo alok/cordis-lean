@@ -57,6 +57,7 @@ import Cordis.DeepSeekProviderAssemblyPrefix
 import Cordis.DeepSeekCurlProviderAssemblyPrefix
 import Cordis.DeepSeekCurlProviderAssemblyIncremental
 import Cordis.DeepSeekCurlProviderAssemblyToolRound
+import Cordis.DeepSeekCurlProviderAssemblyToolPrefix
 import Cordis.DeepSeekAssemblerToolRound
 import Cordis.DeepSeekStreamToolRound
 import Cordis.DeepSeekProcessStreamToolRound

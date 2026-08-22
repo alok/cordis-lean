@@ -256,6 +256,13 @@ Current machine-checked evidence includes:
   mapped provider chunks, and source-shaped assembler state after every accepted process line;
   terminal assembly is exact, while blocked reads, backpressure, cancellation, process trust,
   and deployed equivalence remain outside;
+- `Cordis.DeepSeekCurlProviderAssemblyToolRound`, feeding that exact terminal assembly directly
+  into dependent tool execution and certified assistant/tool-result session append without
+  reparsing the completed body;
+- `Cordis.DeepSeekCurlProviderAssemblyToolPrefix`, retaining a typed provider/tool prefix on
+  synchronous fuel or cancellation and admitting dependent execution only on completion;
+  blocked-read interruption, backpressure, reconnects, process trust, persistence, external
+  effects, and deployed equivalence remain outside;
 - `Cordis.DeepSeekRequestMode`, indexing complete versus streaming request plans by a proof that
   the serialized `stream` flag matches the mode and restricting terminal execution to complete
   plans;

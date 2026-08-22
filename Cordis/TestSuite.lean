@@ -45,6 +45,7 @@ import Cordis.DeepSeekProviderAssemblyPrefix
 import Cordis.DeepSeekCurlProviderAssemblyPrefix
 import Cordis.DeepSeekCurlProviderAssemblyIncremental
 import Cordis.DeepSeekCurlProviderAssemblyToolRound
+import Cordis.DeepSeekCurlProviderAssemblyToolPrefix
 import Cordis.DeepSeekAssemblerToolRound
 import Cordis.DeepSeekStreamToolRound
 import Cordis.DeepSeekProcessStreamToolRound
@@ -3069,6 +3070,21 @@ private def testDeepSeekCurlProviderAssemblyToolRound : IO Unit := do
         session.messages.length 2
       assertEqual "incremental process dependent round advances sequence"
         session.nextSeq 2
+
+private def testDeepSeekCurlProviderAssemblyToolPrefix : IO Unit := do
+  assertEqual "process prefix retains a typed cancelled provider/tool prefix"
+    (← DeepSeekCurlProviderAssemblyToolPrefix.counterPendingSummary) true
+  match ← DeepSeekCurlProviderAssemblyToolPrefix.counterPendingRun with
+  | .error error =>
+      fail s!"process prefix cancelled round was rejected: {reprStr error}"
+  | .ok (.completed _) => fail "process prefix cancellation fabricated a completed round"
+  | .ok (.pending pendingPrefix) =>
+      assertEqual "process prefix cancellation stops at line four"
+        pendingPrefix.observed.state.line 4
+      assertEqual "process prefix cancellation retains three parsed raw chunks"
+        pendingPrefix.provider.raw.length 3
+  assertEqual "process prefix terminal branch reaches dependent tool session"
+    (← DeepSeekCurlProviderAssemblyToolPrefix.counterTerminalSummary) true
 
 private def testDeepSeekStreamToolRound : IO Unit := do
   assertEqual "wire-backed stream reaches dependent tool execution"
@@ -7922,6 +7938,7 @@ def run : IO Unit := do
   testDeepSeekCurlProviderAssemblyPrefix
   testDeepSeekCurlProviderAssemblyIncremental
   testDeepSeekCurlProviderAssemblyToolRound
+  testDeepSeekCurlProviderAssemblyToolPrefix
   testDeepSeekStreamToolRound
   testDeepSeekProcessStreamToolRound
   testDeepSeekSessionBridge

@@ -135,7 +135,9 @@ theorem appendRound_messages
       Session.Session.append]
   have toolMessages := appendToolResults_messages assistant turn step session.nextSeq
     round.execution assistantNext
-  change (appendToolResults assistant turn step session.nextSeq round.execution assistantNext).messages = _
+  change
+    (appendToolResults assistant turn step session.nextSeq
+      round.execution assistantNext).messages = _
   rw [toolMessages, assistantMessages]
 
 def counterProcess : ProcessConfig :=
