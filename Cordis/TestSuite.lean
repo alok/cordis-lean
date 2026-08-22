@@ -6228,6 +6228,8 @@ private def testGlobalPaperTraceConfluence : IO Unit := do
     Cordis.GlobalPaperTraceConfluence.boolLeftPath
     Cordis.GlobalPaperTraceConfluence.boolRightPath
   let _unique := Cordis.GlobalPaperTraceConfluence.bool_normal_forms_unique
+  let _authorityUnique :=
+    Cordis.GlobalPaperTraceConfluence.Example.empty_normalizer_unique
   assertEqual "conditional confluence witness has the expected normal endpoint"
     Cordis.GlobalPaperTraceConfluence.boolLeftNormal.endpoint (false, false)
 

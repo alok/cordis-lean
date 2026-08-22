@@ -1800,6 +1800,9 @@ namespace Cordis.GlobalPaperTraceConfluence
 #print axioms global_join
 #print axioms NormalForm.endpoint_eq
 #print axioms bool_normal_forms_unique
+#print axioms normalizeFuel_authorityLinked
+#print axioms normalize_results_unique
+#print axioms Example.empty_normalizer_unique
 end Cordis.GlobalPaperTraceConfluence
 namespace Cordis.GlobalPaperProgressReplay
 #print axioms ReplayedProgressRun

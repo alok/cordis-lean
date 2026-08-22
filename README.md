@@ -1044,10 +1044,12 @@ canonical form, or the paper's global normalization/confluence theorems.
 
 `Cordis.GlobalPaperTraceConfluence` now supplies the generic conditional metatheory that the
 normalizer can consume: a decreasing rewrite system with local joinability has a global join, and
-irreducible endpoints are unique. Its Boolean branch witness exercises two genuinely different
-reduction orders. This is a reusable Newman-style kernel, not a CORDIS-specific confluence proof:
-the current dynamics still do not provide the required local diamonds, decreasing measure, or
-canonical strategy, so the paper's Theorem 73 remains open.
+irreducible endpoints are unique. `AuthorityLinked` reconstructs the authority-selected path from
+the existing dependent `normalizeFuel` result, and `normalize_results_unique` applies the theorem
+to actual `TracePackage` endpoints under a `ConfluentAuthority`. Its Boolean branch witness
+exercises two genuinely different reduction orders. This is still conditional rather than a
+CORDIS-specific confluence proof: the current dynamics do not provide the required local joins,
+decreasing measure, or canonical strategy, so the paper's Theorem 73 remains open.
 
 `Cordis.GlobalRelations` supplies the two deliberately incomparable global observation candidates
 that the temporal layer had left abstract. Rule observation keeps the derived dependent context up
@@ -1417,7 +1419,7 @@ placeholders.
 | `Cordis.GlobalPaperTraceDeletion`                       | Relation-indexed positional keep/drop replay with assigned shadow traces and a safe orchestration deletion example.                                                                                                                                                                                                                                                                                 |
 | `Cordis.GlobalPaperTraceNormalization`                  | Finite connected composition of supplied adjacent-rewrite certificates, retaining assignments and proving terminal relation plus rule/actor permutations; includes one-link and connected two-link activation/orchestration witnesses with executable terminal ledgers; no automatic normal form or confluence.                                                                                     |
 | `Cordis.GlobalPaperTraceNormalizer`                     | A terminating dependent normalizer driven by an explicit normal-form predicate, rewrite authority, and decreasing Nat measure; it proves finite-chain endpoint relation plus rule/actor permutations while keeping strategy, canonical form, and global confluence as external obligations.                                                                                                         |
-| Cordis.GlobalPaperTraceConfluence                       | A generic decreasing/local-diamond Newman kernel proving global joins and unique irreducible endpoints, with a concrete two-branch Boolean witness; it consumes the required measure and local-join evidence rather than deriving it from CORDIS dynamics.                                                                                                                                          |
+| `Cordis.GlobalPaperTraceConfluence`                     | A generic decreasing/local-diamond Newman kernel proving global joins and unique irreducible endpoints; `AuthorityLinked` reconstructs selected `normalizeFuel` paths and `normalize_results_unique` proves equal final `TracePackage` endpoints under `ConfluentAuthority`.                                                                                                                        |
 | `Cordis.GlobalRelations`                                | Key-indexed rule observation, ambient/table effect observation, setoid and temporal-undo bridges, and incomparability examples.                                                                                                                                                                                                                                                                     |
 | `Cordis.GlobalRuleInvariance`                           | Dependent fiber-control transport, exact bidirectional orchestration matching, heterogeneous related tables, and an inertia countermodel.                                                                                                                                                                                                                                                           |
 | `Cordis.GlobalRuleObservations`                         | Provider/target/reliance/quiescence transport, dependent phase guards, active-table relations, and explicit relation-separation examples.                                                                                                                                                                                                                                                           |

@@ -212,9 +212,12 @@ global termination from CORDIS dynamics, Lemma 72, or confluence.
 
 `GlobalPaperTraceConfluence` supplies the reusable conditional confluence kernel above this
 surface. For any decreasing rewrite system with local joinability, its constructive Newman-style
-theorem produces a global join, and any two irreducible normal-form endpoints are equal. The
-Boolean two-branch witness exercises the theorem, but CORDIS still does not derive the required
-local diamonds, measure, or normal-form strategy; consequently this does not close Theorem 73.
+theorem produces a global join, and any two irreducible normal-form endpoints are equal.
+`AuthorityLinked` reconstructs the authority-selected path from `normalizeFuel`, while
+`ConfluentAuthority` and `normalize_results_unique` apply the result to actual `TracePackage`
+normalizer endpoints. The Boolean two-branch witness exercises the theorem, but CORDIS still does
+not derive the required local joins, measure, or normal-form strategy; consequently this does not
+close Theorem 73.
 
 The paper-relation layer then erases the allocator artifacts that the reference refinement added
 but the paper does not observe. Its full-domain relation compares active values plus exact
