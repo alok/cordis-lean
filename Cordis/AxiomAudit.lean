@@ -54,6 +54,7 @@ import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessEventText
 import Cordis.DeepSeekHarnessEventProcessOutcome
+import Cordis.LoaderHMR
 import Cordis.DeepSeekHarnessPayloadText
 import Cordis.DeepSeekHarnessPayloadPersistence
 import Cordis.DeepSeekHarnessErrors
@@ -851,6 +852,15 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessEventProcessOutcome.Example.bytes
 #print axioms Cordis.DeepSeekHarnessEventProcessOutcome.Example.stream
 #print axioms Cordis.DeepSeekHarnessEventProcessOutcome.Example.bytesStream
+#print axioms Cordis.LoaderHMR.changeKind
+#print axioms Cordis.LoaderHMR.reconcile_singleton_same
+#print axioms Cordis.LoaderHMR.classify
+#print axioms Cordis.LoaderHMR.dependencies
+#print axioms Cordis.LoaderHMR.phaseTrace_success
+#print axioms Cordis.LoaderHMR.rollback_exact
+#print axioms Cordis.LoaderHMR.Example.classification_fixed_point
+#print axioms Cordis.LoaderHMR.Example.stale_entry_detected
+#print axioms Cordis.LoaderHMR.Example.unresolved_cycle_defaults_declined
 #print axioms Cordis.DeepSeekHarnessPayloadText.restoreTextPayloadRunner
 #print axioms Cordis.DeepSeekHarnessPayloadText.restoreBytesPayloadRunner
 #print axioms Cordis.DeepSeekHarnessPayloadText.RestoredPayloadRunner.session_eq

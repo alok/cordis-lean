@@ -325,6 +325,14 @@ raw event archive, restored-session equality, and exact protocol projection toge
 still supplies the request source; provider/schema/credential authenticity, blocked-read
 cancellation, persistence, and deployed Harness equivalence remain outside.
 
+`Cordis.LoaderHMR` adds a source-grounded pure slice of the pinned loader/HMR boundary. It models
+Definition 74 entry fields, stable-ID keyed configuration reconciliation, Algorithm 8's
+accepted/declined/pending fixed-point classification (including unresolved-cycle fallback),
+Algorithm 9's declined-boundary stale-entry walk, and Algorithm 10's indexed transactional
+invalidate/import/dispose/install/commit or exact rollback sequence. Dynamic imports, filesystem
+watches, real fiber lifetimes, cache mutation, and deployed plugin-loader equivalence remain
+explicitly outside this finite model.
+
 The same module's `executeRestoredStreamConversation` and byte twin launch the existing
 fuel-bounded streamed tool conversation from that restored endpoint. The result retains the
 prepared first request, every typed streamed round, final runner/model, and explicit completion or
@@ -1198,6 +1206,7 @@ placeholders.
 | `Cordis.DeepSeekHarnessEventArchive`                    | Certificate-gated attachment of a lossless current-Harness event archive plus stateful semantic validation to `ConversationRunner`; opaque/extension events reject restoration, and the tool-message fixture rebuilds a typed request.                                                                                                                                                              |
 | `Cordis.DeepSeekHarnessEventText`                       | UTF-8/JSONL text and `ByteArray` ingress for the event-archive attachment, retaining exact source/decoded text and archive/session certificates before restoring a `ConversationRunner`; invalid UTF-8 and opaque/extension events fail closed.                                                                                                                                                     |
 | `Cordis.DeepSeekHarnessEventProcessOutcome`             | Carries restored text/byte event runners through complete-body rich outcomes and fuel-bounded streamed conversations, retaining prepared request, process/round, tool, endpoint, archive, session, projection, and completion/stop certificates; caller-supplied source and complete-body process boundaries remain explicit.                                                                       |
+| `Cordis.LoaderHMR`                                      | Definition 74 entry records, keyed configuration reconciliation, Algorithm 8 fixed-point accepted/declined classification with cycle fallback, declined-boundary stale detection, and Algorithm 10 indexed transactional reload with exact failure rollback; dynamic imports, filesystem watches, real fibers, and deployed loader equivalence remain external.                                     |
 | `Cordis.DeepSeekHarnessPayloadText`                     | Composes that text/byte restore with `SessionPayloadArchive.PayloadLog`, retaining exact per-event payload objects, block tags, usage, and tool-result metadata beside the same runner; provider-owned schemas remain raw.                                                                                                                                                                          |
 | `Cordis.DeepSeekHarnessPayloadPersistence`              | Carries the payload ledger through logical persisted JSONL, pure bytes, and memory/temporary-file reads while tying the expanded events, restored runner, and raw payloads by dependent indices; storage and provider-owned payload semantics remain separate.                                                                                                                                      |
 | `Cordis.DeepSeekHarnessOpaqueMetadata`                  | Lossless quarantine of tool-result `error`/`meta` alongside a sanitized `ConversationRunner`; exact metadata order, session equality, and request reconstruction are certified while provider/tool semantics remain uninterpreted.                                                                                                                                                                  |

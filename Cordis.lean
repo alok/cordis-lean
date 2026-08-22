@@ -59,6 +59,7 @@ import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessEventText
 import Cordis.DeepSeekHarnessEventProcessOutcome
+import Cordis.LoaderHMR
 import Cordis.DeepSeekHarnessPayloadText
 import Cordis.DeepSeekHarnessPayloadPersistence
 import Cordis.DeepSeekHarnessErrors

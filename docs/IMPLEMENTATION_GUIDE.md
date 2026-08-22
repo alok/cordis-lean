@@ -2358,7 +2358,10 @@ effect-context tower, the paper's literal total/quotient Theorem 42 beyond the f
 analogue, global trace metatheory,
 full preservation, full Theorem 61/Corollary 62 temporal recovery beyond the oracle-specific
 finite Definition 60-to-`PerStepCommutes` bridge, spatial composition, progress,
-confluence, loader reconciliation, and HMR. The active line now covers finite local coeffects (Definitions 22–26),
+confluence, and the full loader/HMR runtime. The active line now covers a bounded
+`Cordis.LoaderHMR` model of Definition 74 reconciliation and Algorithms 8–10, while the
+dynamic-import, filesystem-watch, fiber, cache, and deployed-HMR semantics remain external.
+It also covers finite local coeffects (Definitions 22–26),
 direct finite realization/isolation/interception models (27–31), finite
 unfoldings of 32, and the finite-context relation/reactive invariance of 33.
 It also covers Definition 34 and generator-level Lemma 35, Definitions 36–37,

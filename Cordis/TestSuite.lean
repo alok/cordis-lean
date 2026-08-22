@@ -56,6 +56,7 @@ import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessEventText
 import Cordis.DeepSeekHarnessEventProcessOutcome
+import Cordis.LoaderHMR
 import Cordis.DeepSeekHarnessPayloadText
 import Cordis.DeepSeekHarnessPayloadPersistence
 import Cordis.DeepSeekHarnessErrors
@@ -3623,6 +3624,32 @@ private def testDeepSeekHarnessEventProcessOutcome : IO Unit := do
       assertEqual "restored byte streamed conversation appends the tool result" nextSeq 10
       assertEqual "restored byte streamed conversation distinguishes fuel exhaustion" completed false
 
+private def testLoaderHMR : IO Unit := do
+  assertEqual "loader reconciliation dispatches config-only edits in place"
+    (LoaderHMR.changeKind LoaderHMR.Example.entry LoaderHMR.Example.updatedEntry)
+    .patchConfig
+  assertEqual "loader reconciliation keys a surviving entry by its stable id"
+    (LoaderHMR.reconcile [LoaderHMR.Example.entry] [LoaderHMR.Example.updatedEntry])
+    [.update LoaderHMR.Example.entry LoaderHMR.Example.updatedEntry .patchConfig]
+  assertEqual "HMR classification keeps the stashed module accepted"
+    LoaderHMR.Example.classified.accepted ["changed.js"]
+  assertEqual "HMR classification declines an unresolved cycle at the fuel boundary"
+    LoaderHMR.Example.cycleClassified.declined ["right.js", "left.js"]
+  assertEqual "stale-entry detection follows accepted transitive imports"
+    LoaderHMR.Example.staleEntries [LoaderHMR.Example.entry]
+  assertEqual "declined modules stop stale-entry dependency traversal"
+    LoaderHMR.Example.declinedBoundaryEntries []
+  assertEqual "transactional HMR success retains the exact ordered phase trace"
+    (LoaderHMR.ReloadResult.phaseTrace
+      (LoaderHMR.transactionalReload LoaderHMR.Example.loader LoaderHMR.Example.ready 8))
+    [.ready, .invalidated, .imported, .disposed, .installed, .committed]
+  match LoaderHMR.transactionalReload LoaderHMR.Example.badLoader LoaderHMR.Example.ready 8 with
+  | .failure error result =>
+      assertEqual "transactional HMR failure restores the old cache and fiber state"
+        result.state LoaderHMR.Example.ready
+      assertEqual "transactional HMR reports the import failure" error "syntax error"
+  | .success _ => fail "transactional HMR failure unexpectedly committed a replacement"
+
 private def testDeepSeekHarnessPayloadText : IO Unit := do
   match DeepSeekHarnessPayloadText.toolPayloadRestored with
   | .error error => fail s!"current payload text restoration failed: {reprStr error}"
@@ -5712,6 +5739,7 @@ def run : IO Unit := do
   testDeepSeekHarnessEventArchive
   testDeepSeekHarnessEventText
   testDeepSeekHarnessEventProcessOutcome
+  testLoaderHMR
   testDeepSeekHarnessPayloadText
   testDeepSeekHarnessPayloadPersistence
   testDeepSeekStreamHarness
