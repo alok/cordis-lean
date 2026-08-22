@@ -287,6 +287,13 @@ an explicit `fuelExhausted` stop; the test suite exercises both completion and e
 deterministic two-response loop.
 Persistence, credentials, scheduling, and deployed-Harness equivalence remain outside.
 
+`Cordis.DeepSeekHarnessExtensions` generalizes the request-construction boundary from
+`Session.noExtensions` to any indexed `ExtensionSchema`. Log-only custom events remain in the
+append-only session without entering the model request, while surface custom events contribute
+the schema-certified message. The fixture proves this separation and exact one-message request
+shape; extension JSON decoding, provider compatibility, persistence, transport, and deployed
+Harness equivalence remain outside.
+
 `Cordis.DeepSeekHarnessPersistence` now attaches that bounded runner to the logical JSONL
 persistence refinement. A successful archive restores a `ConversationRunner` with an exact
 equality to the archive's final session, and a proof-carrying request rebuilt from the restored

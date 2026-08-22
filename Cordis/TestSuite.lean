@@ -39,6 +39,7 @@ import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
+import Cordis.DeepSeekHarnessExtensions
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
 import Cordis.DeepSeekGenericBridge
@@ -3426,6 +3427,16 @@ private def testDeepSeekScopedRegistry : IO Unit := do
   assertEqual "unknown scoped names are rejected"
     DeepSeekScopedRegistry.Example.unknownRejected true
 
+private def testDeepSeekHarnessExtensions : IO Unit := do
+  have _logOnlyProof := DeepSeekHarnessExtensions.heartbeat_is_log_only
+  pure ()
+  assertEqual "generic extension session retains only its surface message"
+    DeepSeekHarnessExtensions.extensionSession.messages [.user "hello"]
+  assertEqual "generic extension request contains one model message"
+    DeepSeekHarnessExtensions.extensionMessageCount 1
+  assertEqual "generic extension request has the certified one-message shape"
+    DeepSeekHarnessExtensions.extensionRequestHasOneMessage true
+
 private def testDeepSeekSchemaStreamConversation : IO Unit := do
   match DeepSeekToolSchema.weatherToolCertificate,
       DeepSeekSchemaRegistry.Example.clockToolCertificate with
@@ -5787,6 +5798,7 @@ def run : IO Unit := do
   testDeepSeekHarnessMetadataArchive
   testDeepSeekToolSchema
   testDeepSeekScopedRegistry
+  testDeepSeekHarnessExtensions
   testDeepSeekSchemaStreamConversation
   testDeepSeekSchemaStreamPrefixConversation
   testDeepSeekSchemaStreamErrors

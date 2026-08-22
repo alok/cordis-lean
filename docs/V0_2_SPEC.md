@@ -47,6 +47,12 @@ tool/text continuation; the accepted cancellation result preserves its reason, u
 runner/model endpoint, and empty completed prefix. Blocked-read interruption and deployed async
 cancellation equivalence remain external.
 
+`Cordis.DeepSeekHarnessExtensions` generalizes request construction to every indexed
+`Session.ExtensionSchema`. Custom log-only events remain in the append-only session but do not
+enter the model request; custom surface events use the schema-provided message projection. The
+fixture proves the exact one-message request shape. Extension JSON decoding, provider
+compatibility, persistence, transport, and deployed Harness equivalence remain external.
+
 The slice closes two concrete gaps in the original objective:
 
 1. the runner becomes generic over a dependent tool catalog instead of importing the counter
@@ -183,6 +189,9 @@ Current machine-checked evidence includes:
   rich/session bridge and append-only runner while retaining wire and runner certificates;
 - `Cordis.DeepSeekHarnessProcess`, retaining the typed Harness request source, exact request plan,
   successful build equation, complete-body process response, and indexed runner append endpoint;
+- `Cordis.DeepSeekHarnessExtensions`, generalizing the pure request adapter to arbitrary indexed
+  `Session.ExtensionSchema`s and proving that custom log-only events stay out of the model surface
+  while custom surface events contribute their certified message;
 - `Cordis.DeepSeekHarnessProcessOutcome`, retaining a typed `stream: true` request plan through
   complete-body provider-failure or rich terminal classification, dependent tool execution, and
   the final `ConversationRunner` endpoint;

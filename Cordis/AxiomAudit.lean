@@ -37,6 +37,7 @@ import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
+import Cordis.DeepSeekHarnessExtensions
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
 import Cordis.DeepSeekGenericBridge
@@ -691,6 +692,13 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekApiSession.Runner.appendApi
 #print axioms Cordis.DeepSeekApiSession.Runner.appendApi_session_messages
 #print axioms Cordis.DeepSeekHarness.buildChatRequest
+#print axioms Cordis.DeepSeekHarnessExtensions.buildChatRequestFor
+#print axioms Cordis.DeepSeekHarnessExtensions.buildRequestPlanFor
+#print axioms Cordis.DeepSeekHarnessExtensions.buildTypedRequestPlanFor
+#print axioms Cordis.DeepSeekHarnessExtensions.extensionSession_messages
+#print axioms Cordis.DeepSeekHarnessExtensions.heartbeat_is_log_only
+#print axioms Cordis.DeepSeekHarnessExtensions.extensionRequest_surface_exact
+#print axioms Cordis.DeepSeekHarnessExtensions.extensionMessageCount_eq
 #print axioms Cordis.DeepSeekHarness.buildTypedCompleteRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan_source_stream
