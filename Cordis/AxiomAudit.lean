@@ -39,6 +39,7 @@ import Cordis.DeepSeekProviderAssembler
 import Cordis.DeepSeekProviderStreamAssembly
 import Cordis.DeepSeekAssemblerToolRound
 import Cordis.DeepSeekStreamToolRound
+import Cordis.DeepSeekProcessStreamToolRound
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
@@ -933,6 +934,11 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekStreamToolRound.appendRound_messages
 #print axioms Cordis.DeepSeekStreamToolRound.counterSummary
 #print axioms Cordis.DeepSeekStreamToolRound.counterSessionSummary
+#print axioms Cordis.DeepSeekProcessStreamToolRound.executeWith
+#print axioms Cordis.DeepSeekProcessStreamToolRound.ProcessedRound.source_exact
+#print axioms Cordis.DeepSeekProcessStreamToolRound.ProcessedRound.execution_exact
+#print axioms Cordis.DeepSeekProcessStreamToolRound.counterRun
+#print axioms Cordis.DeepSeekProcessStreamToolRound.counterSummary
 #print axioms Cordis.DeepSeekSessionBridge.finishAssistant
 #print axioms Cordis.DeepSeekSessionBridge.appendFinishedAssistant_messages
 #print axioms Cordis.DeepSeekSessionRunner.finishText

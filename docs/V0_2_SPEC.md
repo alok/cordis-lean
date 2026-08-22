@@ -246,6 +246,9 @@ Current machine-checked evidence includes:
   metadata and normalizing structured failure/abort causes;
 - `Cordis.DeepSeekStreamToolRound`, carrying the wire-backed result through dependent execution
   and certified assistant/tool-result session append, with a model-2-to-5 counter fixture;
+- `Cordis.DeepSeekProcessStreamToolRound`, placing a configured complete-body process adapter in
+  front of that exact round and retaining status/SSE evidence before provider/dependent/session
+  composition;
 - `Cordis.DeepSeekRequestMode`, indexing complete versus streaming request plans by a proof that
   the serialized `stream` flag matches the mode and restricting terminal execution to complete
   plans;
@@ -1494,6 +1497,12 @@ image/tool-result schemas, and deployed TypeScript equivalence remain outside.
 dependent execution and session append path. Its executable fixture reaches model `5` from `2`
 and proves the assistant/tool-result message pair and sequence advancement. Network/authentication,
 external effects, persistence, retries/cancellation, and deployed Harness equivalence remain outside.
+
+`Cordis.DeepSeekProcessStreamToolRound` places the configured complete-body process adapter in
+front of that composition. Its local process result retains the exact response status and strict
+SSE certificate before reusing provider assembly, dependent execution, and session append. This
+is deterministic process evidence rather than a claim of network reachability, credential
+validity, process trust, incremental delivery, cancellation, persistence, or deployed equivalence.
 
 `Cordis.SessionRefinement` covers a separate stateful subset of current `SessionEvent` JSON:
 turn/step boundaries, selected request/header snapshots, route context, whole-list todo snapshots,

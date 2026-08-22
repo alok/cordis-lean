@@ -43,6 +43,7 @@ import Cordis.DeepSeekProviderAssembler
 import Cordis.DeepSeekProviderStreamAssembly
 import Cordis.DeepSeekAssemblerToolRound
 import Cordis.DeepSeekStreamToolRound
+import Cordis.DeepSeekProcessStreamToolRound
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
@@ -3005,6 +3006,21 @@ private def testDeepSeekStreamToolRound : IO Unit := do
         round.execution.calls.length 1
       assertEqual "wire-backed dependent round retains one dependent reply"
         round.execution.executions.length 1
+
+private def testDeepSeekProcessStreamToolRound : IO Unit := do
+  match ← DeepSeekProcessStreamToolRound.counterRun with
+  | .error error => fail s!"process-backed stream round was rejected: {reprStr error}"
+  | .ok ⟨body, processed⟩ =>
+      assertEqual "process-backed stream returns the exact counter body"
+        body DeepSeekProviderStreamAssembly.counterBody
+      assertEqual "process-backed stream validates four SSE frames"
+        processed.wire.frames.length 4
+      assertEqual "process-backed stream reaches exact counter successor"
+        processed.round.execution.after 5
+      assertEqual "process-backed stream appends two session messages"
+        (DeepSeekStreamToolRound.appendRound
+          (Session.Session.empty Session.noExtensions) 1 0 processed.round []
+          (by simp) (by simp)).messages.length 2
 
 private def testDeepSeekSessionBridge : IO Unit := do
   match DeepSeekRichToolStream.validateToolStream
@@ -7825,6 +7841,7 @@ def run : IO Unit := do
   testDeepSeekAssemblerToolRound
   testDeepSeekProviderStreamAssembly
   testDeepSeekStreamToolRound
+  testDeepSeekProcessStreamToolRound
   testDeepSeekSessionBridge
   testDeepSeekSessionRunner
   testDeepSeekApiSession
