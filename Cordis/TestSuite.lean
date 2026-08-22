@@ -42,6 +42,7 @@ import Cordis.DeepSeekRichMultiStream
 import Cordis.DeepSeekProviderAssembler
 import Cordis.DeepSeekProviderStreamAssembly
 import Cordis.DeepSeekProviderAssemblyPrefix
+import Cordis.DeepSeekCurlProviderAssemblyPrefix
 import Cordis.DeepSeekAssemblerToolRound
 import Cordis.DeepSeekStreamToolRound
 import Cordis.DeepSeekProcessStreamToolRound
@@ -3008,6 +3009,21 @@ private def testDeepSeekProviderAssemblyPrefix : IO Unit := do
             certificate.result.blocks.length 1
           assertEqual "incremental provider prefix retains tool-call finish"
             certificate.result.finish .toolCalls
+
+private def testDeepSeekCurlProviderAssemblyPrefix : IO Unit := do
+  match ← DeepSeekCurlProviderAssemblyPrefix.counterRun with
+  | .error error => fail s!"process provider prefix was rejected: {reprStr error}"
+  | .ok processed =>
+      assertEqual "process provider prefix retains nine accepted lines"
+        processed.observed.state.line 9
+      assertEqual "process provider prefix retains four strict SSE frames"
+        processed.provider.source.wire.frames.length 4
+      assertEqual "process provider prefix retains one assembled tool block"
+        processed.provider.assembly.result.blocks.length 1
+      assertEqual "process provider prefix retains tool-call finish"
+        processed.provider.assembly.result.finish .toolCalls
+  assertEqual "process provider prefix reaches exact counter assembly"
+    (← DeepSeekCurlProviderAssemblyPrefix.counterSummary) true
 
 private def testDeepSeekStreamToolRound : IO Unit := do
   assertEqual "wire-backed stream reaches dependent tool execution"
@@ -7858,6 +7874,7 @@ def run : IO Unit := do
   testDeepSeekAssemblerToolRound
   testDeepSeekProviderStreamAssembly
   testDeepSeekProviderAssemblyPrefix
+  testDeepSeekCurlProviderAssemblyPrefix
   testDeepSeekStreamToolRound
   testDeepSeekProcessStreamToolRound
   testDeepSeekSessionBridge

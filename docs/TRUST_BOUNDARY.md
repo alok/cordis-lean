@@ -1032,7 +1032,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 2057
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 2062
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.
@@ -1562,6 +1562,10 @@ Without additional proofs or tests, do not state that:
   of that round: status/SSE evidence is retained before provider assembly and dependent execution.
   The fixture is deterministic and local; network reachability, process trust, incremental
   delivery, cancellation, persistence, external effects, and deployed equivalence remain outside;
+- `DeepSeekCurlProviderAssemblyPrefix` composes the line-oriented process prefix with the terminal
+  provider assembly certificate. It retains accepted-line/SSE evidence before the whole-body rich
+  provider fold; live provider-incremental semantics, backpressure, cancellation, persistence,
+  external effects, and deployed equivalence remain outside;
 - `DeepSeekTerminalOutcome` proves only the fixed-order complete-body classification over the
   provider-failure, text, one-tool, mixed, and finite multi-call certificates; it does not turn
   those certificates into a session message or claim deployed stream equivalence;

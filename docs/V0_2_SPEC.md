@@ -249,6 +249,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekProcessStreamToolRound`, placing a configured complete-body process adapter in
   front of that exact round and retaining status/SSE evidence before provider/dependent/session
   composition;
+- `Cordis.DeepSeekCurlProviderAssemblyPrefix`, composing the line-oriented process prefix with
+  the terminal provider assembly certificate while keeping fuel/cancellation outcomes typed;
+  live provider-incremental semantics and deployed equivalence remain outside;
 - `Cordis.DeepSeekRequestMode`, indexing complete versus streaming request plans by a proof that
   the serialized `stream` flag matches the mode and restricting terminal execution to complete
   plans;
