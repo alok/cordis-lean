@@ -37,6 +37,7 @@ import Cordis.DeepSeekRichMixedStream
 import Cordis.DeepSeekRichMultiStream
 import Cordis.DeepSeekProviderAssembler
 import Cordis.DeepSeekProviderStreamAssembly
+import Cordis.DeepSeekProviderAssemblyPrefix
 import Cordis.DeepSeekAssemblerToolRound
 import Cordis.DeepSeekStreamToolRound
 import Cordis.DeepSeekProcessStreamToolRound
@@ -928,6 +929,14 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekProviderStreamAssembly.ValidatedProviderAssembly.chunks_exact
 #print axioms Cordis.DeepSeekProviderStreamAssembly.ValidatedProviderAssembly.assembly_exact
 #print axioms Cordis.DeepSeekProviderStreamAssembly.counterAssemblySummary
+#print axioms Cordis.DeepSeekProviderAssemblyPrefix.mapRawChunks_append
+#print axioms Cordis.DeepSeekProviderAssemblyPrefix.pushRaw
+#print axioms Cordis.DeepSeekProviderAssemblyPrefix.pushAll
+#print axioms Cordis.DeepSeekProviderAssemblyPrefix.finish
+#print axioms Cordis.DeepSeekProviderAssemblyPrefix.PrefixState.chunks_exact
+#print axioms Cordis.DeepSeekProviderAssemblyPrefix.PrefixState.state_exact
+#print axioms Cordis.DeepSeekProviderAssemblyPrefix.finish_exact
+#print axioms Cordis.DeepSeekProviderAssemblyPrefix.counterPrefixSummary
 #print axioms Cordis.DeepSeekStreamToolRound.executeBodyTools
 #print axioms Cordis.DeepSeekStreamToolRound.ValidatedStreamToolRound.source_exact
 #print axioms Cordis.DeepSeekStreamToolRound.ValidatedStreamToolRound.execution_exact
