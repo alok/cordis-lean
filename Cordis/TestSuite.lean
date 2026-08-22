@@ -63,6 +63,7 @@ import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessEventIgnorableProjection
 import Cordis.DeepSeekHarnessEventIgnorableNormalization
 import Cordis.DeepSeekHarnessEventIgnorableRunner
+import Cordis.DeepSeekHarnessEventIgnorableTransport
 import Cordis.DeepSeekHarnessExtensionArchive
 import Cordis.DeepSeekHarnessExtensionRequest
 import Cordis.DeepSeekHarnessExtensionPersistence
@@ -4746,6 +4747,26 @@ private def testDeepSeekHarnessEventIgnorableRunner : IO Unit := do
           restored { model := "deepseek-reasoner", errorToolResults := .reject } certificate
       pure ()
 
+private def testDeepSeekHarnessEventIgnorableTransport : IO Unit := do
+  match ← DeepSeekHarnessEventIgnorableTransport.toolNormalizedTransport with
+  | .error error => fail s!"ignorable normalized transport failed: {reprStr error}"
+  | .ok ⟨restored, ⟨finalRunner, ⟨finalModel, run⟩⟩⟩ =>
+      assertEqual "ignorable normalized transport preserves the final model"
+        finalModel 0
+      assertEqual "ignorable normalized transport advances the normalized session"
+        finalRunner.session.nextSeq 9
+      assertEqual "ignorable normalized transport records one complete round"
+        (DeepSeekHarnessTransportConversation.TransportTrace.length run.run.trace) 1
+      assertEqual "ignorable normalized transport reaches a no-tool completion"
+        (DeepSeekHarnessTransportConversation.TransportStop.isCompleted run.run.stop) true
+      assertEqual "ignorable normalized transport retains the source session endpoint"
+        restored.runner.session.nextSeq 8
+      have _sessionCertificate :=
+        DeepSeekHarnessEventIgnorableTransport.RestoredTransportRun.session_certificate run
+      have _stepCertificate :=
+        DeepSeekHarnessEventIgnorableTransport.RestoredTransportRun.step_certificate run
+      pure ()
+
 private def testDeepSeekHarnessEventText : IO Unit := do
   match DeepSeekHarnessEventText.toolTextRestored with
   | .error error => fail s!"current event text restoration failed: {reprStr error}"
@@ -7295,6 +7316,7 @@ def run : IO Unit := do
   testDeepSeekHarnessEventIgnorableProjection
   testDeepSeekHarnessEventIgnorableNormalization
   testDeepSeekHarnessEventIgnorableRunner
+  testDeepSeekHarnessEventIgnorableTransport
   testDeepSeekHarnessEventText
   testDeepSeekHarnessEventPrefix
   testDeepSeekHarnessEventProcessPrefix

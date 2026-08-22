@@ -310,6 +310,9 @@ Current machine-checked evidence includes:
   certificates; the normalized tool-message fixture exercises the user/assistant/tool path, while
   opaque semantics, provider authenticity, persistence, transport, and deployed equivalence remain
   external;
+- `Cordis.DeepSeekHarnessEventIgnorableTransport`, carrying that dependent runner through the
+  existing process-backed complete-response conversation trace while retaining final runner/model/
+  stop evidence in a dependent certificate;
 - `Cordis.DeepSeekHarnessEventText`, lifting that certificate-gated event attachment to exact
   UTF-8/JSONL text and `ByteArray` ingress while retaining source/decoded text and rejecting
   invalid encoding or opaque/extension events;
@@ -933,7 +936,7 @@ relation whose union cycles, so the module requires `SupportOrder` directly. It 
 combined-edge well-founded recursion, proves uniqueness, and derives support-equals-active at
 quiescence under state-local provision totality, failure exclusion, and active-parent closure.
 
-The bounded algebra/context/global layer now has fifty-nine explicit pieces:
+The bounded algebra/context/global layer now has sixty explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -1299,6 +1302,12 @@ The bounded algebra/context/global layer now has fifty-nine explicit pieces:
     `ChatRequest` through a dependent request certificate. The executable tool fixture verifies the
     normalized user/assistant/tool messages; provider authenticity, transport, persistence, opaque
     payload semantics, and deployed-Harness equivalence remain external.
+60. `Cordis.DeepSeekHarnessEventIgnorableTransport` carries that restored runner through the existing
+    process-backed complete-response conversation trace. `RestoredTransportRun` retains the original
+    normalized session/step certificates beside the final runner, model, trace, and stop evidence;
+    the deterministic fixture exercises one no-tool completion. Injected transport, credentials,
+    provider authenticity, persistence, external effects, and deployed-Harness equivalence remain
+    external.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -1413,6 +1422,11 @@ deployed-Harness equivalence remain external.
 `ConversationRunner` session definitionally to the normalized final session, records the local step
 and tool-call-count witnesses, and rebuilds a typed request from that endpoint. This is a local
 request/session certificate, not provider execution or deployed-Harness equivalence.
+`Cordis.DeepSeekHarnessEventIgnorableTransport` then feeds that same dependent runner into the
+existing process-backed complete-response conversation loop. Its result retains final
+runner/model/stop evidence and the original normalized-session certificates; it does not infer
+credentials, provider authenticity, durable persistence, external effect correctness, or deployed
+Harness equivalence.
 
 `Cordis.DeepSeekHarnessEventText` is the direct text/byte ingress for this seam. Its text result
 retains the parsed source, archive lines, validated session, and restored runner; its byte result

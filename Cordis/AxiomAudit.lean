@@ -185,6 +185,7 @@ import Cordis.SessionEventArchive
 import Cordis.DeepSeekHarnessEventIgnorableProjection
 import Cordis.DeepSeekHarnessEventIgnorableNormalization
 import Cordis.DeepSeekHarnessEventIgnorableRunner
+import Cordis.DeepSeekHarnessEventIgnorableTransport
 import Cordis.SessionPayloadArchive
 import Cordis.SessionValidation
 import Cordis.SessionTheoremBridge
@@ -590,6 +591,8 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessEventIgnorableRunner.restoreRunner
 #print axioms Cordis.DeepSeekHarnessEventIgnorableRunner.buildRequestCertificate
 #print axioms Cordis.DeepSeekHarnessEventIgnorableRunner.RequestCertificate.build_eq_session
+#print axioms Cordis.DeepSeekHarnessEventIgnorableTransport.runRestoredTransport
+#print axioms Cordis.DeepSeekHarnessEventIgnorableTransport.RestoredTransportRun.session_certificate
 #print axioms Cordis.SessionPayloadArchive.PayloadLog.raw_exact
 #print axioms Cordis.SessionPayloadArchive.PayloadLog.length_exact
 #print axioms Cordis.SessionPayloadArchive.enrichEvent_raw

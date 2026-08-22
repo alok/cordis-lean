@@ -1927,6 +1927,11 @@ equivalence remain external.
 sets the `ConversationRunner` session to the validated final session, retains exact session/step and
 tool-call-count witnesses, and rebuilds a `ChatRequest` with a dependent request-build equality.
 Provider authenticity, transport, persistence, and deployed Harness equivalence remain external.
+`Cordis.DeepSeekHarnessEventIgnorableTransport` carries that same dependent runner through the
+existing process-backed complete-response conversation trace. Its `RestoredTransportRun` retains
+the normalized source session/step certificates beside final runner/model/trace/stop evidence;
+the deterministic fixture exercises one no-tool completion, while credentials, provider
+authenticity, durable persistence, and deployed Harness equivalence remain external.
 `Cordis.SessionPayloadArchive` is the next typed raw-payload boundary. It classifies the five
 current content-block tags plus unknown block extensions, preserves exact content arrays and
 message/chunk source objects, and retains assistant usage/tool-result `error`/`meta` as raw JSON.
