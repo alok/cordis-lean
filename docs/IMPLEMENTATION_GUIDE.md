@@ -2505,6 +2505,15 @@ checks three accepted frames, two scoped calls, and the assistant plus tool-resu
 network/authentication, process trust, incremental delivery, cancellation, persistence, external
 effects, and deployed Harness equivalence remain separate obligations.
 
+`Cordis.DeepSeekProcessScopedConversation` is the next composition when one process-backed scoped
+round is not enough. Supply a `Nat → ProcessConfig` family so the first process can return tool
+calls and the next can return a terminal body. `run` carries an indexed model and session through
+each `ProcessedScopedRound`, appends each exact round, and retains the complete dependent history.
+The stop index distinguishes a certified no-call terminal from explicit fuel exhaustion. The
+fixture checks both a two-round four-message endpoint and a one-round exhausted prefix; it remains
+complete-body local process evidence rather than a claim about retries, cancellation, persistence,
+external effects, or deployed Harness behavior.
+
 `Cordis.DeepSeekHarnessProcessSchema` is the provenance-preserving companion when the process
 boundary itself matters. It keeps the registry-certified streaming plan, processed body, schema
 step, and dependent runner endpoint in one dependent result. Use it for local executable evidence

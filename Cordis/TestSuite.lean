@@ -52,6 +52,7 @@ import Cordis.DeepSeekAssemblerToolRound
 import Cordis.DeepSeekStreamToolRound
 import Cordis.DeepSeekScopedStreamToolRound
 import Cordis.DeepSeekProcessScopedStreamToolRound
+import Cordis.DeepSeekProcessScopedConversation
 import Cordis.DeepSeekProcessStreamToolRound
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
@@ -3180,6 +3181,12 @@ private def testDeepSeekProcessScopedStreamToolRound : IO Unit := do
               (Session.Session.empty Session.noExtensions) 1 0 processed.round []
               (by simp) (by simp)).messages.length 3
   | _, _ => fail "process-backed scoped fixture certificates failed"
+
+private def testDeepSeekProcessScopedConversation : IO Unit := do
+  assertEqual "process-backed scoped conversation reaches terminal after a tool round"
+    (← DeepSeekProcessScopedConversation.Example.twoStepSummary) true
+  assertEqual "process-backed scoped conversation retains typed fuel exhaustion"
+    (← DeepSeekProcessScopedConversation.Example.oneStepFuelSummary) true
 
 private def testDeepSeekProcessStreamToolRound : IO Unit := do
   match ← DeepSeekProcessStreamToolRound.counterRun with
@@ -8149,6 +8156,7 @@ def run : IO Unit := do
   testDeepSeekStreamToolRound
   testDeepSeekScopedStreamToolRound
   testDeepSeekProcessScopedStreamToolRound
+  testDeepSeekProcessScopedConversation
   testDeepSeekProcessStreamToolRound
   testDeepSeekSessionBridge
   testDeepSeekSessionRunner

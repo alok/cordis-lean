@@ -255,6 +255,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekProcessScopedStreamToolRound`, carrying that process/status and strict-wire
   evidence through scoped approval, dependent execution, and certified session append for the
   deterministic dual-call fixture;
+- `Cordis.DeepSeekProcessScopedConversation`, lifting that process-backed scoped round to a finite
+  dependent conversation indexed by `Nat → ProcessConfig`, with retained round witnesses and
+  typed terminal versus fuel-exhaustion stops;
 - `Cordis.DeepSeekCurlProviderAssemblyPrefix`, composing the line-oriented process prefix with
   the terminal provider assembly certificate while keeping fuel/cancellation outcomes typed;
   live provider-incremental semantics and deployed equivalence remain outside;
@@ -463,6 +466,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekProcessScopedStreamToolRound`, placing the configured complete-body process
   adapter in front of that scoped composition and retaining status/SSE, approval, dependent
   execution, and exact session-append evidence for the dual-call fixture;
+- `Cordis.DeepSeekProcessScopedConversation`, carrying a process family through multiple scoped
+  rounds: each body is parsed and dispatched before the indexed model/session successor is
+  retained, while no-call completion and fuel exhaustion remain distinct typed stops;
 - `Cordis.DeepSeekSchemaConversation`, attaching registry-derived tool declarations to a typed
   complete-body transport request and validated response while retaining the exact plan, response,
   heterogeneous execution batch, and runner endpoint for one round;
@@ -1584,6 +1590,14 @@ approval, model-indexed dependent execution, and certified assistant/tool-result
 fixture validates three accepted frames, two calls, and the exact three-message endpoint. Network,
 authentication, process trust, incremental delivery, cancellation, persistence, external effects,
 and deployed Harness equivalence remain outside.
+
+`Cordis.DeepSeekProcessScopedConversation` lifts that complete-body process seam across a finite
+dependent conversation. Its process family is indexed by round number, so a tool-producing body
+can be followed by a distinct terminal body. Every accepted round retains its body, scoped
+execution, model successor, and exact session append; the result type distinguishes a no-call
+terminal from fuel exhaustion. The local fixture checks both a two-round four-message completion
+and a one-round exhausted prefix. Retries, cancellation, persistence, external effects, and
+deployed Harness equivalence remain outside.
 
 `Cordis.SessionRefinement` covers a separate stateful subset of current `SessionEvent` JSON:
 turn/step boundaries, selected request/header snapshots, route context, whole-list todo snapshots,
