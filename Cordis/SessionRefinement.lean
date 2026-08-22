@@ -1,6 +1,7 @@
 import Cordis.RuntimeRefinement
 import Cordis.SessionValidation
 import Lean.Data.Json.Printer
+import Std.Data.TreeMap.Raw.Lemmas
 
 /-!
 # Stateful current-Harness session refinement
@@ -314,7 +315,7 @@ structure WireEvent where
   payload : WirePayload
   deriving Repr
 
-private def jsonKind : Lean.Json → JsonKind
+def jsonKind : Lean.Json → JsonKind
   | .null => .null
   | .bool _ => .boolean
   | .num _ => .number
@@ -322,73 +323,153 @@ private def jsonKind : Lean.Json → JsonKind
   | .arr _ => .array
   | .obj _ => .object
 
-private def fieldPath (path : List PathSegment) (name : String) : List PathSegment :=
+def fieldPath (path : List PathSegment) (name : String) : List PathSegment :=
   path ++ [.field name]
 
-private def indexPath (path : List PathSegment) (index : Nat) : List PathSegment :=
+def indexPath (path : List PathSegment) (index : Nat) : List PathSegment :=
   path ++ [.index index]
 
-private def field? : Lean.Json → String → Option Lean.Json
+def objectField? : Lean.Json → String → Option Lean.Json
   | .obj fields, name => fields.get? name
   | _, _ => none
 
-private def requireField (json : Lean.Json) (path : List PathSegment)
+def field? : Lean.Json → String → Option Lean.Json := objectField?
+
+theorem objectField_mkObj_mem {fields : List (String × Lean.Json)} {name : String}
+    {value : Lean.Json} (distinct : List.Pairwise (fun a b =>
+      ¬compare a.1 b.1 = Ordering.eq) fields) (mem : (name, value) ∈ fields) :
+    objectField? (Lean.Json.mkObj fields) name = some value := by
+  change (Std.TreeMap.Raw.ofList fields compare)[name]? = some value
+  apply Std.TreeMap.Raw.getElem?_ofList_of_mem (k := name) (k' := name) (v := value)
+  · simp
+  · exact distinct
+  · exact mem
+
+theorem objectField_mkObj_none {fields : List (String × Lean.Json)} {name : String}
+    (absent : (fields.map Prod.fst).contains name = false) :
+    objectField? (Lean.Json.mkObj fields) name = none := by
+  change (Std.TreeMap.Raw.ofList fields compare)[name]? = none
+  apply Std.TreeMap.Raw.getElem?_ofList_of_contains_eq_false
+  exact absent
+
+theorem objectField_raw_mem {fields : List (String × Lean.Json)} {name : String}
+    {value : Lean.Json} (distinct : List.Pairwise (fun a b =>
+      ¬compare a.1 b.1 = Ordering.eq) fields) (mem : (name, value) ∈ fields) :
+    objectField? (.obj (Std.TreeMap.Raw.ofList fields compare)) name = some value := by
+  change (Std.TreeMap.Raw.ofList fields compare)[name]? = some value
+  apply Std.TreeMap.Raw.getElem?_ofList_of_mem (k := name) (k' := name) (v := value)
+  · simp
+  · exact distinct
+  · exact mem
+
+theorem objectField_raw_none {fields : List (String × Lean.Json)} {name : String}
+    (absent : (fields.map Prod.fst).contains name = false) :
+    objectField? (.obj (Std.TreeMap.Raw.ofList fields compare)) name = none := by
+  change (Std.TreeMap.Raw.ofList fields compare)[name]? = none
+  apply Std.TreeMap.Raw.getElem?_ofList_of_contains_eq_false
+  exact absent
+
+attribute [simp] objectField_mkObj_mem objectField_mkObj_none
+
+attribute [simp] objectField_raw_mem objectField_raw_none
+
+theorem objectField_insert_self {name : String} {value : Lean.Json} :
+    objectField? (.obj ((∅ : Std.TreeMap.Raw String Lean.Json compare).insert name value)) name =
+      some value := by
+  change ((∅ : Std.TreeMap.Raw String Lean.Json compare).insert name value)[name]? = some value
+  exact Std.TreeMap.Raw.getElem?_insert_self (α := String) (β := Lean.Json) (cmp := compare)
+    (Std.TreeMap.Raw.WF.empty (cmp := compare))
+
+attribute [simp] objectField_insert_self
+
+private theorem field_mkObj_mem {fields : List (String × Lean.Json)} {name : String}
+    {value : Lean.Json} (distinct : List.Pairwise (fun a b =>
+      ¬compare a.1 b.1 = Ordering.eq) fields) (mem : (name, value) ∈ fields) :
+    field? (Lean.Json.mkObj fields) name = some value := by
+  exact objectField_mkObj_mem distinct mem
+
+private theorem field_mkObj_none {fields : List (String × Lean.Json)} {name : String}
+    (absent : (fields.map Prod.fst).contains name = false) :
+    field? (Lean.Json.mkObj fields) name = none := by
+  exact objectField_mkObj_none absent
+
+private theorem field_raw_mem {fields : List (String × Lean.Json)} {name : String}
+    {value : Lean.Json} (distinct : List.Pairwise (fun a b =>
+      ¬compare a.1 b.1 = Ordering.eq) fields) (mem : (name, value) ∈ fields) :
+    field? (.obj (Std.TreeMap.Raw.ofList fields compare)) name = some value := by
+  exact objectField_raw_mem distinct mem
+
+private theorem field_raw_none {fields : List (String × Lean.Json)} {name : String}
+    (absent : (fields.map Prod.fst).contains name = false) :
+    field? (.obj (Std.TreeMap.Raw.ofList fields compare)) name = none := by
+  exact objectField_raw_none absent
+
+attribute [simp] field_mkObj_mem field_mkObj_none
+attribute [simp] field_raw_mem field_raw_none
+
+def requireField (json : Lean.Json) (path : List PathSegment)
     (name : String) : Except DecodeError Lean.Json :=
   match field? json name with
   | some value => .ok value
   | none => .error (.missingField path name)
 
-private def rejectPresent (json : Lean.Json) (path : List PathSegment)
+def rejectPresent (json : Lean.Json) (path : List PathSegment)
     (name : String) : Except DecodeError Unit :=
   if (field? json name).isSome then
     .error (.unsupportedField path name)
   else
     .ok ()
 
-private def decodeString (path : List PathSegment) : Lean.Json → Except DecodeError String
+def decodeString (path : List PathSegment) : Lean.Json → Except DecodeError String
   | .str value => .ok value
   | json => .error (.typeMismatch path "string" (jsonKind json))
 
-private def decodeBool (path : List PathSegment) : Lean.Json → Except DecodeError Bool
+def decodeBool (path : List PathSegment) : Lean.Json → Except DecodeError Bool
   | .bool value => .ok value
   | json => .error (.typeMismatch path "boolean" (jsonKind json))
 
-private def decodeSafeNat (path : List PathSegment) : Lean.Json → Except DecodeError SafeNat
-  | .num ⟨Int.ofNat value, 0⟩ =>
-      if safe : value ≤ RuntimeRefinement.maxSafeInteger then
-        .ok { value, safe }
+def decodeSafeNat (path : List PathSegment) : Lean.Json → Except DecodeError SafeNat
+  | .num number =>
+      if number.exponent = 0 then
+        match number.mantissa with
+        | Int.ofNat value =>
+            if safe : value ≤ RuntimeRefinement.maxSafeInteger then
+              .ok { value, safe }
+            else
+              .error (.unsafeInteger path value)
+        | _ => .error (.typeMismatch path "nonnegative safe integer" .number)
       else
-        .error (.unsafeInteger path value)
+        .error (.typeMismatch path "nonnegative safe integer" .number)
   | json => .error (.typeMismatch path "nonnegative safe integer" (jsonKind json))
 
-private def decodeRequiredString (json : Lean.Json) (path : List PathSegment)
+def decodeRequiredString (json : Lean.Json) (path : List PathSegment)
     (name : String) : Except DecodeError String := do
   decodeString (fieldPath path name) (← requireField json path name)
 
-private def decodeRequiredNat (json : Lean.Json) (path : List PathSegment)
+def decodeRequiredNat (json : Lean.Json) (path : List PathSegment)
     (name : String) : Except DecodeError SafeNat := do
   decodeSafeNat (fieldPath path name) (← requireField json path name)
 
-private def decodeOptionalNat (json : Lean.Json) (path : List PathSegment)
+def decodeOptionalNat (json : Lean.Json) (path : List PathSegment)
     (name : String) : Except DecodeError (Option SafeNat) :=
   match field? json name with
   | none => .ok none
   | some value => some <$> decodeSafeNat (fieldPath path name) value
 
-private def decodeOptionalString (json : Lean.Json) (path : List PathSegment)
+def decodeOptionalString (json : Lean.Json) (path : List PathSegment)
     (name : String) : Except DecodeError (Option String) :=
   match field? json name with
   | none => .ok none
   | some .null => .ok none
   | some value => some <$> decodeString (fieldPath path name) value
 
-private def decodeOptionalBool (json : Lean.Json) (path : List PathSegment)
+def decodeOptionalBool (json : Lean.Json) (path : List PathSegment)
     (name : String) : Except DecodeError (Option Bool) :=
   match field? json name with
   | none => .ok none
   | some value => return some (← decodeBool (fieldPath path name) value)
 
-private def decodeSafeNatList (path : List PathSegment) : Lean.Json →
+def decodeSafeNatList (path : List PathSegment) : Lean.Json →
     Except DecodeError (List SafeNat)
   | .arr values =>
       let rec loop : Nat → List Lean.Json → Except DecodeError (List SafeNat)
@@ -400,7 +481,7 @@ private def decodeSafeNatList (path : List PathSegment) : Lean.Json →
       loop 0 values.toList
   | json => .error (.typeMismatch path "array" (jsonKind json))
 
-private def decodeSingleton (path : List PathSegment) : Lean.Json →
+def decodeSingleton (path : List PathSegment) : Lean.Json →
     Except DecodeError Lean.Json
   | .arr values =>
       match values.toList with
@@ -408,19 +489,19 @@ private def decodeSingleton (path : List PathSegment) : Lean.Json →
       | values => .error (.invalidLength path 1 values.length)
   | json => .error (.typeMismatch path "array" (jsonKind json))
 
-private def expectTag (path : List PathSegment) (expected actual : String) :
+def expectTag (path : List PathSegment) (expected actual : String) :
     Except DecodeError Unit :=
   if actual = expected then
     .ok ()
   else
     .error (.unsupportedTag path actual)
 
-private def rejectSurfaceMetadata (json : Lean.Json) (path : List PathSegment) :
+def rejectSurfaceMetadata (json : Lean.Json) (path : List PathSegment) :
     Except DecodeError Unit := do
   rejectPresent json path "surfaceOp"
   rejectPresent json path "sourceEventSeqs"
 
-private def decodeWireFailure (path : List PathSegment) (json : Lean.Json) :
+def decodeWireFailure (path : List PathSegment) (json : Lean.Json) :
     Except DecodeError WireFailure :=
   match json with
   | .obj _ => do
@@ -433,7 +514,7 @@ private def decodeWireFailure (path : List PathSegment) (json : Lean.Json) :
       }
   | value => .error (.typeMismatch path "object" (jsonKind value))
 
-private def decodeWireCancelCause (path : List PathSegment) (json : Lean.Json) :
+def decodeWireCancelCause (path : List PathSegment) (json : Lean.Json) :
     Except DecodeError WireCancelCause :=
   match json with
   | .obj _ => do
@@ -447,7 +528,7 @@ private def decodeWireCancelCause (path : List PathSegment) (json : Lean.Json) :
       | kind => .error (.unsupportedTag (fieldPath path "kind") kind)
   | value => .error (.typeMismatch path "object" (jsonKind value))
 
-private def decodeTurnEndReason (path : List PathSegment) : Lean.Json →
+def decodeTurnEndReason (path : List PathSegment) : Lean.Json →
     Except DecodeError WireTurnEndReason
   | json@(.obj _) => do
       let kind ← decodeRequiredString json path "kind"
@@ -467,13 +548,13 @@ private def decodeTurnEndReason (path : List PathSegment) : Lean.Json →
       | kind => .error (.unsupportedTag (fieldPath path "kind") kind)
   | json => .error (.typeMismatch path "object" (jsonKind json))
 
-private def decodeTextBlock (path : List PathSegment) : Lean.Json → Except DecodeError String
+def decodeTextBlock (path : List PathSegment) : Lean.Json → Except DecodeError String
   | json@(.obj _) => do
       expectTag (fieldPath path "type") "text" (← decodeRequiredString json path "type")
       decodeRequiredString json path "text"
   | json => .error (.typeMismatch path "object" (jsonKind json))
 
-private def decodeTextBlocks (path : List PathSegment) : Lean.Json →
+def decodeTextBlocks (path : List PathSegment) : Lean.Json →
     Except DecodeError (List WireTextBlock)
   | .arr values =>
       let rec loop : Nat → List Lean.Json → Except DecodeError (List WireTextBlock)
@@ -485,7 +566,7 @@ private def decodeTextBlocks (path : List PathSegment) : Lean.Json →
       loop 0 values.toList
   | json => .error (.typeMismatch path "array" (jsonKind json))
 
-private def decodeAssistantBlock (path : List PathSegment) : Lean.Json →
+def decodeAssistantBlock (path : List PathSegment) : Lean.Json →
     Except DecodeError WireAssistantBlock
   | json@(.obj _) => do
       let kind ← decodeRequiredString json path "type"
@@ -500,7 +581,7 @@ private def decodeAssistantBlock (path : List PathSegment) : Lean.Json →
       | tag => .error (.unsupportedTag (fieldPath path "type") tag)
   | json => .error (.typeMismatch path "object" (jsonKind json))
 
-private def decodeAssistantBlocks (path : List PathSegment) : Lean.Json →
+def decodeAssistantBlocks (path : List PathSegment) : Lean.Json →
     Except DecodeError (List WireAssistantBlock)
   | .arr values =>
       let rec loop : Nat → List Lean.Json → Except DecodeError (List WireAssistantBlock)
@@ -512,7 +593,7 @@ private def decodeAssistantBlocks (path : List PathSegment) : Lean.Json →
       loop 0 values.toList
   | json => .error (.typeMismatch path "array" (jsonKind json))
 
-private def decodeWireUsage (path : List PathSegment) : Lean.Json →
+def decodeWireUsage (path : List PathSegment) : Lean.Json →
     Except DecodeError WireUsage
   | json@(.obj _) => do
       .ok {
@@ -524,13 +605,13 @@ private def decodeWireUsage (path : List PathSegment) : Lean.Json →
       }
   | json => .error (.typeMismatch path "object" (jsonKind json))
 
-private def decodeOptionalWireUsage (json : Lean.Json) (path : List PathSegment) :
+def decodeOptionalWireUsage (json : Lean.Json) (path : List PathSegment) :
     Except DecodeError (Option WireUsage) :=
   match field? json "usage" with
   | none | some .null => .ok none
   | some value => some <$> decodeWireUsage (fieldPath path "usage") value
 
-private def decodeUserMessage (path : List PathSegment) (json : Lean.Json) :
+def decodeUserMessage (path : List PathSegment) (json : Lean.Json) :
     Except DecodeError WireUserMessage := do
   let id ← decodeRequiredString json path "id"
   expectTag (fieldPath path "role") "user"
@@ -546,7 +627,7 @@ private def decodeUserMessage (path : List PathSegment) (json : Lean.Json) :
     (← requireField json path "content")
   .ok { id, content }
 
-private def decodeAssistantMessage (path : List PathSegment) (json : Lean.Json) :
+def decodeAssistantMessage (path : List PathSegment) (json : Lean.Json) :
     Except DecodeError WireAssistantMessage := do
   let id ← decodeRequiredString json path "id"
   expectTag (fieldPath path "role") "assistant"
@@ -570,7 +651,7 @@ private structure DecodedSurfaceMetadata where
   surfaceOp : WireSurfaceOp
   sourceEventSeqs : Option (List SafeNat)
 
-private def decodeSurfaceMetadata (event : Lean.Json) (path : List PathSegment) :
+def decodeSurfaceMetadata (event : Lean.Json) (path : List PathSegment) :
     Except DecodeError DecodedSurfaceMetadata := do
   let surfaceOpJson ← requireField event path "surfaceOp"
   let surfaceOpPath := fieldPath path "surfaceOp"
@@ -588,7 +669,7 @@ private def decodeSurfaceMetadata (event : Lean.Json) (path : List PathSegment) 
     | some value => some <$> decodeSafeNatList (fieldPath path "sourceEventSeqs") value
   .ok { surfaceOp, sourceEventSeqs }
 
-private def decodeUserMessageData (event : Lean.Json) (eventPath : List PathSegment)
+def decodeUserMessageData (event : Lean.Json) (eventPath : List PathSegment)
     (data : Lean.Json) (dataPath : List PathSegment) :
     Except DecodeError WireSurfaceAppend := do
   let message ← decodeUserMessage dataPath data
@@ -599,7 +680,7 @@ private def decodeUserMessageData (event : Lean.Json) (eventPath : List PathSegm
     surfaceOp := metadata.surfaceOp
   }
 
-private def decodeAssistantMessageData (event : Lean.Json) (eventPath : List PathSegment)
+def decodeAssistantMessageData (event : Lean.Json) (eventPath : List PathSegment)
     (data : Lean.Json) (dataPath : List PathSegment) :
     Except DecodeError (SafeNat × SafeNat × WireSurfaceAppend) := do
   let turn ← decodeRequiredNat data dataPath "turn"
@@ -618,7 +699,7 @@ private def decodeAssistantMessageData (event : Lean.Json) (eventPath : List Pat
     surfaceOp := metadata.surfaceOp
   })
 
-private def decodeWireRequestToolSchema (path : List PathSegment) (json : Lean.Json) :
+def decodeWireRequestToolSchema (path : List PathSegment) (json : Lean.Json) :
     Except DecodeError WireRequestToolSchema :=
   match json with
   | .obj _ => do
@@ -632,7 +713,7 @@ private def decodeWireRequestToolSchema (path : List PathSegment) (json : Lean.J
       | value => .error (.typeMismatch (fieldPath path "parameters") "object" (jsonKind value))
   | value => .error (.typeMismatch path "object" (jsonKind value))
 
-private def decodeWireRequestToolSchemas (path : List PathSegment) (json : Lean.Json) :
+def decodeWireRequestToolSchemas (path : List PathSegment) (json : Lean.Json) :
     Except DecodeError (List WireRequestToolSchema) :=
   match json with
   | .arr values =>
@@ -645,7 +726,7 @@ private def decodeWireRequestToolSchemas (path : List PathSegment) (json : Lean.
       loop 0 values.toList
   | value => .error (.typeMismatch path "array" (jsonKind value))
 
-private def decodeWireRequestHeaderReason (path : List PathSegment) : Lean.Json →
+def decodeWireRequestHeaderReason (path : List PathSegment) : Lean.Json →
     Except DecodeError WireRequestHeaderReason
   | .str "initial" => .ok .initial
   | .str "resume" => .ok .resume
@@ -653,7 +734,7 @@ private def decodeWireRequestHeaderReason (path : List PathSegment) : Lean.Json 
   | .str reason => .error (.unsupportedTag path reason)
   | value => .error (.typeMismatch path "string" (jsonKind value))
 
-private def decodeWireTodoStatus (path : List PathSegment) : Lean.Json →
+def decodeWireTodoStatus (path : List PathSegment) : Lean.Json →
     Except DecodeError WireTodoStatus
   | .str "pending" => .ok .pending
   | .str "in_progress" => .ok .inProgress
@@ -661,7 +742,7 @@ private def decodeWireTodoStatus (path : List PathSegment) : Lean.Json →
   | .str status => .error (.unsupportedTag path status)
   | value => .error (.typeMismatch path "string" (jsonKind value))
 
-private def decodeWireTodoItem (path : List PathSegment) (json : Lean.Json) :
+def decodeWireTodoItem (path : List PathSegment) (json : Lean.Json) :
     Except DecodeError WireTodoItem :=
   match json with
   | .obj _ => do
@@ -671,7 +752,7 @@ private def decodeWireTodoItem (path : List PathSegment) (json : Lean.Json) :
       .ok { content, status }
   | value => .error (.typeMismatch path "object" (jsonKind value))
 
-private def decodeWireTodoItems (path : List PathSegment) (json : Lean.Json) :
+def decodeWireTodoItems (path : List PathSegment) (json : Lean.Json) :
     Except DecodeError (List WireTodoItem) :=
   match json with
   | .arr values =>
@@ -684,14 +765,14 @@ private def decodeWireTodoItems (path : List PathSegment) (json : Lean.Json) :
       loop 0 values.toList
   | value => .error (.typeMismatch path "array" (jsonKind value))
 
-private def decodeWireTodoWriteData (event : Lean.Json) (eventPath : List PathSegment)
+def decodeWireTodoWriteData (event : Lean.Json) (eventPath : List PathSegment)
     (data : Lean.Json) (dataPath : List PathSegment) : Except DecodeError WireTodoWrite := do
   rejectSurfaceMetadata event eventPath
   let todos ← decodeWireTodoItems (fieldPath dataPath "todos")
     (← requireField data dataPath "todos")
   .ok { todos }
 
-private def decodeWireRequestContextData (event : Lean.Json) (eventPath : List PathSegment)
+def decodeWireRequestContextData (event : Lean.Json) (eventPath : List PathSegment)
     (data : Lean.Json) (dataPath : List PathSegment) :
     Except DecodeError WireRequestContext := do
   rejectSurfaceMetadata event eventPath
@@ -700,7 +781,7 @@ private def decodeWireRequestContextData (event : Lean.Json) (eventPath : List P
   let contextWindow ← decodeOptionalNat data dataPath "contextWindow"
   .ok { provider, model, contextWindow }
 
-private def decodeWireSessionEndSeedData (event : Lean.Json) (eventPath : List PathSegment)
+def decodeWireSessionEndSeedData (event : Lean.Json) (eventPath : List PathSegment)
     (data : Lean.Json) (dataPath : List PathSegment) :
     Except DecodeError Unit :=
   match data with
@@ -714,7 +795,7 @@ private def decodeWireSessionEndSeedData (event : Lean.Json) (eventPath : List P
           .error (.unsupportedField dataPath name)
   | value => .error (.typeMismatch dataPath "object" (jsonKind value))
 
-private def decodeWireRequestHeaderData (event : Lean.Json) (eventPath : List PathSegment)
+def decodeWireRequestHeaderData (event : Lean.Json) (eventPath : List PathSegment)
     (data : Lean.Json) (dataPath : List PathSegment) :
     Except DecodeError WireRequestHeader := do
   rejectSurfaceMetadata event eventPath
@@ -743,7 +824,7 @@ private def decodeWireRequestHeaderData (event : Lean.Json) (eventPath : List Pa
     (← requireField data dataPath "reason")
   .ok { provider, model, system, tools, reason }
 
-private def decodeWireAssistantChunkData (event : Lean.Json) (eventPath : List PathSegment)
+def decodeWireAssistantChunkData (event : Lean.Json) (eventPath : List PathSegment)
     (data : Lean.Json) (dataPath : List PathSegment) :
     Except DecodeError WireAssistantChunk := do
   rejectSurfaceMetadata event eventPath
@@ -762,7 +843,7 @@ private def decodeWireAssistantChunkData (event : Lean.Json) (eventPath : List P
   else
     .error (.unsupportedTag (fieldPath chunkPath "index") (toString index.value))
 
-private def decodeWireReasoningChunkData (event : Lean.Json) (eventPath : List PathSegment)
+def decodeWireReasoningChunkData (event : Lean.Json) (eventPath : List PathSegment)
     (data : Lean.Json) (dataPath : List PathSegment) :
     Except DecodeError WireReasoningChunk := do
   rejectSurfaceMetadata event eventPath
@@ -799,7 +880,7 @@ private def decodeToolResultBlock (path : List PathSegment) : Lean.Json →
       .ok { callId, content, isError := isError.getD false }
   | json => .error (.typeMismatch path "object" (jsonKind json))
 
-private def decodeToolResultData (event : Lean.Json) (eventPath : List PathSegment)
+def decodeToolResultData (event : Lean.Json) (eventPath : List PathSegment)
     (data : Lean.Json) (dataPath : List PathSegment) : Except DecodeError WireToolResult := do
   rejectPresent data dataPath "error"
   rejectPresent data dataPath "meta"
@@ -838,7 +919,7 @@ private def decodeToolResultData (event : Lean.Json) (eventPath : List PathSegme
       }
   | json => .error (.typeMismatch messagePath "object" (jsonKind json))
 
-private def decodePayload (event : Lean.Json) (path : List PathSegment)
+def decodePayload (event : Lean.Json) (path : List PathSegment)
     (tag : String) (data : Lean.Json) : Except DecodeError WirePayload :=
   match data with
   | .obj _ =>
@@ -899,7 +980,7 @@ private def decodePayload (event : Lean.Json) (path : List PathSegment)
       | tag => .error (.unsupportedTag (fieldPath path "type") tag)
   | json => .error (.typeMismatch (fieldPath path "data") "object" (jsonKind json))
 
-private def decodeEventAt (path : List PathSegment) : Lean.Json → Except DecodeError WireEvent
+def decodeEventAt (path : List PathSegment) : Lean.Json → Except DecodeError WireEvent
   | event@(.obj _) => do
       rejectPresent event path "ignorable"
       let tag ← decodeRequiredString event path "type"
@@ -913,6 +994,307 @@ private def decodeEventAt (path : List PathSegment) : Lean.Json → Except Decod
 /-- Decode one current upstream session-event JSON AST in the supported subset. -/
 def decodeEvent (json : Lean.Json) : Except DecodeError WireEvent :=
   decodeEventAt [] json
+
+/-! ## Public canonical AST lemmas
+
+The decoder helpers above are private because callers should use `decodeEvent` rather than depend
+on path plumbing.  A canonical encoder still needs a proof-facing seam, however: imported modules
+cannot unfold a private decoder definition to establish round trips.  These constructors expose
+only the stable AST shapes and exact dependent results; they do not expose the decoder's internal
+error paths. -/
+
+namespace Canonical
+
+def safeNatJson (value : SafeNat) : Lean.Json :=
+  .num (Lean.JsonNumber.fromNat value.value)
+
+def rawObj (fields : List (String × Lean.Json)) : Lean.Json :=
+  .obj (Std.TreeMap.Raw.ofList fields compare)
+
+def envelope (seq time : SafeNat) (tag : String) (data : Lean.Json) : Lean.Json :=
+  .obj (Std.TreeMap.Raw.ofList [
+    ("type", .str tag),
+    ("seq", safeNatJson seq),
+    ("time", safeNatJson time),
+    ("data", data)] compare)
+
+def turnStart (seq time turn : SafeNat) : Lean.Json :=
+  envelope seq time "turn/start"
+    (.obj (Std.TreeMap.Raw.ofList [("turn", safeNatJson turn)] compare))
+
+def stepStart (seq time turn step : SafeNat) : Lean.Json :=
+  envelope seq time "step/start"
+    (.obj (Std.TreeMap.Raw.ofList [
+      ("turn", safeNatJson turn), ("step", safeNatJson step)] compare))
+
+def stepEnd (seq time turn step : SafeNat) : Lean.Json :=
+  envelope seq time "step/end"
+    (.obj (Std.TreeMap.Raw.ofList [
+      ("turn", safeNatJson turn), ("step", safeNatJson step)] compare))
+
+def sessionEndSeed (seq time : SafeNat) : Lean.Json :=
+  envelope seq time "session/end-seed" (.obj (Std.TreeMap.Raw.ofList [] compare))
+
+def assistantChunk (seq time : SafeNat) (chunk : WireAssistantChunk) : Lean.Json :=
+  envelope seq time "assistant/chunk"
+    (.obj (Std.TreeMap.Raw.ofList [
+      ("turn", safeNatJson chunk.turn),
+      ("step", safeNatJson chunk.step),
+      ("chunk", .obj (Std.TreeMap.Raw.ofList [
+        ("type", .str "text-delta"),
+        ("index", .num (Lean.JsonNumber.fromNat 0)),
+        ("text", .str chunk.text)] compare))] compare))
+
+def assistantReasoningChunk (seq time : SafeNat) (chunk : WireReasoningChunk) : Lean.Json :=
+  envelope seq time "assistant/chunk"
+    (.obj (Std.TreeMap.Raw.ofList [
+      ("turn", safeNatJson chunk.turn),
+      ("step", safeNatJson chunk.step),
+      ("chunk", .obj (Std.TreeMap.Raw.ofList [
+        ("type", .str "reasoning-delta"),
+        ("index", .num (Lean.JsonNumber.fromNat 0)),
+        ("text", .str chunk.text)] compare))] compare))
+
+def toolCall (seq time turn step : SafeNat) (callId name arguments : String) : Lean.Json :=
+  envelope seq time "tool/call"
+    (.obj (Std.TreeMap.Raw.ofList [
+      ("turn", safeNatJson turn), ("step", safeNatJson step),
+      ("callId", .str callId), ("name", .str name), ("arguments", .str arguments)] compare))
+
+theorem decodeSafeNat_safeNat (path : List PathSegment) (value : SafeNat) :
+    decodeSafeNat path (safeNatJson value) = .ok value := by
+  cases value with
+  | mk n safe =>
+      simp [decodeSafeNat, safeNatJson, Lean.JsonNumber.fromNat, safe]
+
+theorem envelope_type (seq time : SafeNat) (tag : String) (data : Lean.Json) :
+    objectField? (envelope seq time tag data) "type" = some (.str tag) := by
+  unfold envelope
+  apply objectField_raw_mem
+  · simp [List.pairwise_cons]
+  · simp
+
+theorem envelope_seq (seq time : SafeNat) (tag : String) (data : Lean.Json) :
+    objectField? (envelope seq time tag data) "seq" = some (safeNatJson seq) := by
+  unfold envelope
+  apply objectField_raw_mem
+  · simp [List.pairwise_cons]
+  · simp
+
+theorem envelope_time (seq time : SafeNat) (tag : String) (data : Lean.Json) :
+    objectField? (envelope seq time tag data) "time" = some (safeNatJson time) := by
+  unfold envelope
+  apply objectField_raw_mem
+  · simp [List.pairwise_cons]
+  · simp
+
+theorem envelope_data (seq time : SafeNat) (tag : String) (data : Lean.Json) :
+    objectField? (envelope seq time tag data) "data" = some data := by
+  unfold envelope
+  apply objectField_raw_mem
+  · simp [List.pairwise_cons]
+  · simp
+
+theorem turnStart_turn (_seq _time turn : SafeNat) :
+    objectField? (.obj (Std.TreeMap.Raw.ofList [("turn", safeNatJson turn)] compare)) "turn" =
+      some (safeNatJson turn) := by
+  apply objectField_raw_mem
+  · simp [List.pairwise_cons]
+  · simp
+
+theorem turnStep_turn (turn step : SafeNat) :
+    objectField? (.obj (Std.TreeMap.Raw.ofList [
+      ("turn", safeNatJson turn), ("step", safeNatJson step)] compare)) "turn" =
+      some (safeNatJson turn) := by
+  apply objectField_raw_mem
+  · simp [List.pairwise_cons]
+  · simp
+
+theorem turnStep_step (turn step : SafeNat) :
+    objectField? (.obj (Std.TreeMap.Raw.ofList [
+      ("turn", safeNatJson turn), ("step", safeNatJson step)] compare)) "step" =
+      some (safeNatJson step) := by
+  apply objectField_raw_mem
+  · simp [List.pairwise_cons]
+  · simp
+
+theorem assistantChunk_turn (chunk : WireAssistantChunk) :
+    objectField? (.obj (Std.TreeMap.Raw.ofList [
+      ("turn", safeNatJson chunk.turn), ("step", safeNatJson chunk.step),
+      ("chunk", .obj (Std.TreeMap.Raw.ofList [
+        ("type", .str "text-delta"), ("index", .num (Lean.JsonNumber.fromNat 0)),
+        ("text", .str chunk.text)] compare))] compare)) "turn" =
+      some (safeNatJson chunk.turn) := by
+  apply objectField_raw_mem
+  · simp [List.pairwise_cons]
+  · simp
+
+theorem assistantChunk_step (chunk : WireAssistantChunk) :
+    objectField? (.obj (Std.TreeMap.Raw.ofList [
+      ("turn", safeNatJson chunk.turn), ("step", safeNatJson chunk.step),
+      ("chunk", .obj (Std.TreeMap.Raw.ofList [
+        ("type", .str "text-delta"), ("index", .num (Lean.JsonNumber.fromNat 0)),
+        ("text", .str chunk.text)] compare))] compare)) "step" =
+      some (safeNatJson chunk.step) := by
+  apply objectField_raw_mem
+  · simp [List.pairwise_cons]
+  · simp
+
+theorem assistantChunk_chunk (chunk : WireAssistantChunk) :
+    objectField? (.obj (Std.TreeMap.Raw.ofList [
+      ("turn", safeNatJson chunk.turn), ("step", safeNatJson chunk.step),
+      ("chunk", .obj (Std.TreeMap.Raw.ofList [
+        ("type", .str "text-delta"), ("index", .num (Lean.JsonNumber.fromNat 0)),
+        ("text", .str chunk.text)] compare))] compare)) "chunk" =
+      some (.obj (Std.TreeMap.Raw.ofList [
+        ("type", .str "text-delta"), ("index", .num (Lean.JsonNumber.fromNat 0)),
+        ("text", .str chunk.text)] compare)) := by
+  apply objectField_raw_mem
+  · simp [List.pairwise_cons]
+  · simp
+
+theorem chunk_type (text : String) :
+    objectField? (.obj (Std.TreeMap.Raw.ofList [
+      ("type", .str "text-delta"), ("index", .num (Lean.JsonNumber.fromNat 0)),
+      ("text", .str text)] compare)) "type" = some (.str "text-delta") := by
+  apply objectField_raw_mem
+  · simp [List.pairwise_cons]
+  · simp
+
+theorem chunk_index (text : String) :
+    objectField? (.obj (Std.TreeMap.Raw.ofList [
+      ("type", .str "text-delta"), ("index", .num (Lean.JsonNumber.fromNat 0)),
+      ("text", .str text)] compare)) "index" =
+      some (.num (Lean.JsonNumber.fromNat 0)) := by
+  apply objectField_raw_mem
+  · simp [List.pairwise_cons]
+  · simp
+
+theorem chunk_text (text : String) :
+    objectField? (.obj (Std.TreeMap.Raw.ofList [
+      ("type", .str "text-delta"), ("index", .num (Lean.JsonNumber.fromNat 0)),
+      ("text", .str text)] compare)) "text" = some (.str text) := by
+  apply objectField_raw_mem
+  · simp [List.pairwise_cons]
+  · simp
+
+theorem toolCall_turn (turn step : SafeNat) (callId name arguments : String) :
+    objectField? (.obj (Std.TreeMap.Raw.ofList [
+      ("turn", safeNatJson turn), ("step", safeNatJson step), ("callId", .str callId),
+      ("name", .str name), ("arguments", .str arguments)] compare)) "turn" =
+      some (safeNatJson turn) := by
+  apply objectField_raw_mem
+  · simp [List.pairwise_cons]
+  · simp
+
+theorem toolCall_step (turn step : SafeNat) (callId name arguments : String) :
+    objectField? (.obj (Std.TreeMap.Raw.ofList [
+      ("turn", safeNatJson turn), ("step", safeNatJson step), ("callId", .str callId),
+      ("name", .str name), ("arguments", .str arguments)] compare)) "step" =
+      some (safeNatJson step) := by
+  apply objectField_raw_mem
+  · simp [List.pairwise_cons]
+  · simp
+
+theorem toolCall_callId (turn step : SafeNat) (callId name arguments : String) :
+    objectField? (.obj (Std.TreeMap.Raw.ofList [
+      ("turn", safeNatJson turn), ("step", safeNatJson step), ("callId", .str callId),
+      ("name", .str name), ("arguments", .str arguments)] compare)) "callId" =
+      some (.str callId) := by
+  apply objectField_raw_mem
+  · simp [List.pairwise_cons]
+  · simp
+
+theorem toolCall_name (turn step : SafeNat) (callId name arguments : String) :
+    objectField? (.obj (Std.TreeMap.Raw.ofList [
+      ("turn", safeNatJson turn), ("step", safeNatJson step), ("callId", .str callId),
+      ("name", .str name), ("arguments", .str arguments)] compare)) "name" =
+      some (.str name) := by
+  apply objectField_raw_mem
+  · simp [List.pairwise_cons]
+  · simp
+
+theorem toolCall_arguments (turn step : SafeNat) (callId name arguments : String) :
+    objectField? (.obj (Std.TreeMap.Raw.ofList [
+      ("turn", safeNatJson turn), ("step", safeNatJson step), ("callId", .str callId),
+      ("name", .str name), ("arguments", .str arguments)] compare)) "arguments" =
+      some (.str arguments) := by
+  apply objectField_raw_mem
+  · simp [List.pairwise_cons]
+  · simp
+
+theorem decode_turnStart (seq time turn : SafeNat) :
+    decodeEvent (turnStart seq time turn) = .ok {
+      seq, time, payload := .turnStart turn } := by
+  simp only [turnStart, envelope, decodeEvent]
+  unfold decodeEventAt
+  dsimp [Except.bind]
+  simp_all [Bind.bind, Except.bind, decodePayload, decodeRequiredNat, requireField, rejectPresent,
+    rejectSurfaceMetadata, decodeRequiredString, decodeString, field?, fieldPath,
+    decodeSafeNat_safeNat] <;> rfl
+
+theorem decode_stepStart (seq time turn step : SafeNat) :
+    decodeEvent (stepStart seq time turn step) = .ok {
+      seq, time, payload := .stepStart turn step } := by
+  simp only [stepStart, envelope, decodeEvent]
+  unfold decodeEventAt
+  dsimp [Except.bind]
+  simp_all [Bind.bind, Except.bind, decodePayload, decodeRequiredNat, requireField, rejectPresent,
+    rejectSurfaceMetadata, decodeRequiredString, decodeString, field?, fieldPath,
+    decodeSafeNat_safeNat] <;> rfl
+
+theorem decode_stepEnd (seq time turn step : SafeNat) :
+    decodeEvent (stepEnd seq time turn step) = .ok {
+      seq, time, payload := .stepEnd turn step } := by
+  simp only [stepEnd, envelope, decodeEvent]
+  unfold decodeEventAt
+  dsimp [Except.bind]
+  simp_all [Bind.bind, Except.bind, decodePayload, decodeRequiredNat, requireField, rejectPresent,
+    rejectSurfaceMetadata, decodeRequiredString, decodeString, field?, fieldPath,
+    decodeSafeNat_safeNat] <;> rfl
+
+theorem decode_sessionEndSeed (seq time : SafeNat) :
+    decodeEvent (sessionEndSeed seq time) = .ok {
+      seq, time, payload := .sessionEndSeed } := by
+  simp only [sessionEndSeed, envelope, decodeEvent]
+  unfold decodeEventAt
+  dsimp [Except.bind]
+  simp_all [Bind.bind, Except.bind, decodePayload, decodeWireSessionEndSeedData,
+    requireField, rejectPresent, rejectSurfaceMetadata, decodeRequiredString, decodeString,
+    decodeRequiredNat, field?, fieldPath, decodeSafeNat_safeNat] <;> rfl
+
+theorem decode_assistantChunk (seq time : SafeNat) (chunk : WireAssistantChunk) :
+    decodeEvent (assistantChunk seq time chunk) = .ok {
+      seq, time, payload := .assistantChunk chunk } := by
+  simp only [assistantChunk, envelope, decodeEvent]
+  unfold decodeEventAt
+  dsimp [Except.bind]
+  simp_all [Bind.bind, Except.bind, decodePayload, decodeWireAssistantChunkData,
+    decodeRequiredNat, requireField, rejectPresent, rejectSurfaceMetadata, decodeRequiredString,
+    decodeString, expectTag, field?, fieldPath, decodeSafeNat_safeNat] <;> rfl
+
+theorem decode_assistantReasoningChunk (seq time : SafeNat) (chunk : WireReasoningChunk) :
+    decodeEvent (assistantReasoningChunk seq time chunk) = .ok {
+      seq, time, payload := .assistantReasoningChunk chunk } := by
+  simp only [assistantReasoningChunk, envelope, decodeEvent]
+  unfold decodeEventAt
+  dsimp [Except.bind]
+  simp_all [Bind.bind, Except.bind, decodePayload, decodeWireReasoningChunkData,
+    decodeRequiredNat, requireField, rejectPresent, rejectSurfaceMetadata, decodeRequiredString,
+    decodeString, expectTag, field?, fieldPath, decodeSafeNat_safeNat] <;> rfl
+
+theorem decode_toolCall (seq time turn step : SafeNat)
+    (callId name arguments : String) :
+    decodeEvent (toolCall seq time turn step callId name arguments) = .ok {
+      seq, time, payload := .toolCall turn step callId name arguments } := by
+  simp only [toolCall, envelope, decodeEvent]
+  unfold decodeEventAt
+  dsimp [Except.bind]
+  simp_all [Bind.bind, Except.bind, decodePayload, decodeRequiredNat, requireField, rejectPresent,
+    rejectSurfaceMetadata, decodeRequiredString, decodeString, field?, fieldPath,
+    decodeSafeNat_safeNat] <;> rfl
+
+end Canonical
 
 private def decodeEventsAt : Nat → List Lean.Json → Except DecodeError (List WireEvent)
   | _, [] => .ok []
@@ -2024,7 +2406,8 @@ def surfaceAssistantBlocks {input : List Lean.Json} :
 def surfaceAssistantBlockTags {input : List Lean.Json} :
     Except (DecodeError ⊕ RefinementError) (ValidatedJsonLog input) → Option (List String)
   | .error _ => none
-  | .ok validated => some (assistantBlockTags (wireSurfaceAssistantBlocks validated.final.wireSurface))
+  | .ok validated =>
+      some (assistantBlockTags (wireSurfaceAssistantBlocks validated.final.wireSurface))
 
 /-- Proof-erased observation used only to state executable example outcomes compactly. -/
 structure ValidationSummary where

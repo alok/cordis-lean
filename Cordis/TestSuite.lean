@@ -185,6 +185,7 @@ import Cordis.RuntimeOutcomeSession
 import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
+import Cordis.SessionRefinementCodec
 import Cordis.SessionExtensionRefinement
 import Cordis.SessionExtensionArchive
 import Cordis.SessionOpaqueMetadata
@@ -6407,6 +6408,23 @@ private def testSessionRefinement : IO Unit := do
   | .error (.unsupportedField _ "temperature") => pure ()
   | result => fail s!"unsupported request-header field was not rejected: {reprStr result}"
 
+private def testSessionRefinementCodec : IO Unit := do
+  match SessionRefinement.Codec.mixedFixtureJson.mapM SessionRefinement.decodeEvent with
+  | .error error => fail s!"canonical codec fixture failed to decode: {reprStr error}"
+  | .ok events =>
+      assertEqual "canonical codec fixture decodes four events" events.length 4
+      let tags := events.map fun event =>
+        match event.payload with
+        | .turnStart _ => "turn/start"
+        | .stepStart _ _ => "step/start"
+        | .stepEnd _ _ => "step/end"
+        | .assistantChunk _ => "assistant/chunk"
+        | .toolCall _ _ _ _ _ => "tool/call"
+        | _ => "other"
+      assertEqual "canonical codec fixture retains event tags" tags
+        ["turn/start", "step/start", "assistant/chunk", "tool/call"]
+  pure ()
+
 private def testSessionOpaqueMetadata : IO Unit := do
   match SessionOpaqueMetadata.decodeEventRetainingMetadata
       (List.getD SessionOpaqueMetadata.metadataExampleJson 5 .null) with
@@ -7404,6 +7422,7 @@ def run : IO Unit := do
   testCoeffectQuotientLift
   testOperationalEquivalence
   testSessionRefinement
+  testSessionRefinementCodec
   testSessionOpaqueMetadata
   testSessionArchive
   testSessionEventArchive
