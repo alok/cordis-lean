@@ -453,6 +453,13 @@ growth. This is local process/server evidence, not durable-file recovery, provid
 authenticity, blocked-read interruption, arbitrary cleanup, external effects, or deployed Harness
 equivalence.
 
+`DeepSeekHarnessEventFileProcessSchema` carries the same temporary-file current-event endpoint
+into the heterogeneous weather/clock schema process. The dependent result retains source/read
+bytes, archive/session equality, the registry-derived streaming plan, complete body, schema step,
+and the executable `8 -> 11` endpoint. This is local process evidence, not provider obedience,
+credential authenticity, durable storage, byte framing, cancellation, external effects, or
+deployed Harness equivalence.
+
 `DeepSeekHarnessPersistenceStreamBytePrefixTimeout` is the bounded persistence-plus-byte-prefix
 composition. A memory archive restores the exact runner session; the fuel fixture accepts one
 streamed tool round and returns a typed nonterminal stop at `nextSeq = 10` from archive `nextSeq = 8`, while its companion switches to terminal text after the first tool result and completes at

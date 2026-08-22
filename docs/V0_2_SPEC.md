@@ -1389,6 +1389,11 @@ The bounded algebra/context/global layer now has sixty-seven explicit pieces:
     provenance certificates, one typed 503 per round, distinct rebuilt bodies, and exact
     `8 -> 10` session growth. File durability, provider authenticity, blocked-read interruption,
     external effects, and deployed Harness equivalence remain open.
+    `Cordis.DeepSeekHarnessEventFileProcessSchema` reuses the same temporary-file event endpoint
+    for the heterogeneous weather/clock schema process. Its dependent result retains source/read
+    bytes, archive/session equality, the registry-derived streaming plan, complete body, schema
+    step, and the executable `8 -> 11` endpoint. Provider obedience, credential authenticity,
+    durable storage, cancellation, external effects, and deployed Harness equivalence remain open.
 50. `Cordis.DeepSeekHarnessPersistenceStreamBytePrefixTimeout` composes the memory-backed
     validated archive reader with the timed byte-prefix process adapter. Its fuel fixture restores
     archive `nextSeq = 8`, accepts one streamed tool round, then stops at `nextSeq = 10`; the

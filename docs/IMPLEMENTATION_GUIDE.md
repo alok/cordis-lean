@@ -2220,6 +2220,12 @@ The first request is tied to the validated event session, the second to the firs
 session, and both request/body equations plus the `8 -> 10` endpoint are retained. Keep the
 loopback and temporary-file evidence separate from durability, provider authenticity, blocked
 reads, cleanup, external effects, and deployed Harness equivalence.
+`Cordis.DeepSeekHarnessEventFileProcessSchema` is the next file-backed schema composition. It
+reuses the temporary-file event endpoint, builds the heterogeneous weather/clock registry plan
+from that runner, and calls `executeRestoredSchemaRound`. Package the source/read bytes,
+archive/session equality, complete body, schema step, and dependent `8 -> 11` endpoint together.
+Keep provider obedience, credential authenticity, durable storage, byte framing, cancellation,
+external effects, and deployed Harness equivalence as later obligations.
 `Cordis.DeepSeekHarnessPersistenceStreamBytePrefixTimeout` is a deliberately small composition
 after the persistence and timed byte-prefix seams. Start from
 `DeepSeekHarnessPersistenceIO.fixtureMemory` and pass its restored `ConversationRunner` to

@@ -187,6 +187,7 @@ import Cordis.DeepSeekHarnessPersistenceFileStreamRetryCancellation
 import Cordis.DeepSeekHarnessPersistenceStreamBytePrefixTimeout
 import Cordis.DeepSeekHarnessEventFileStreamRetryCancellation
 import Cordis.DeepSeekHarnessEventFileLocalSseRetryConversation
+import Cordis.DeepSeekHarnessEventFileProcessSchema
 import Cordis.DeepSeekHarnessTransportConversation
 import Cordis.DeepSeekHarnessTransportRetry
 import Cordis.DeepSeekHarnessTransportRetryConversation
@@ -5900,6 +5901,47 @@ private def testDeepSeekHarnessEventFileLocalSseRetryConversation : IO Unit := d
         DeepSeekHarnessEventFileLocalSseRetryConversation.final_session_advance run
       pure ()
 
+private def testDeepSeekHarnessEventFileProcessSchema : IO Unit := do
+  match ← DeepSeekHarnessEventFileProcessSchema.runFixture with
+  | .error error => fail s!"current-event file schema fixture failed: {reprStr error}"
+  | .ok ⟨_, ⟨_, run⟩⟩ =>
+      let summary := DeepSeekHarnessEventFileProcessSchema.summaryForRun run
+      let expected := DeepSeekHarnessEventFileProcessSchema.expectedSummary
+      assertEqual "current-event file schema read preserves source bytes"
+        summary.readBytes summary.sourceBytes
+      assertEqual "current-event file schema restore starts at the event endpoint"
+        summary.initialNextSeq expected.initialNextSeq
+      assertEqual "current-event file schema reaches the dependent endpoint"
+        summary.finalNextSeq expected.finalNextSeq
+      assertEqual "current-event file schema dispatches both certified tools"
+        (summary.toolCount, summary.registryTools)
+        (expected.toolCount, expected.registryTools)
+      assertEqual "current-event file schema retains streaming mode"
+        summary.streaming expected.streaming
+      assertEqual "current-event file schema retains the dependent model"
+        summary.finalModel expected.finalModel
+      assertEqual "current-event file schema takes the tool branch"
+        summary.toolStep expected.toolStep
+      assertEqual "current-event file schema executable projection agrees"
+        (DeepSeekHarnessEventFileProcessSchema.summaryMatches summary) true
+      let _bytesCertificate :=
+        DeepSeekHarnessEventFileProcessSchema.file_bytes_eq_source run
+      let _sessionCertificate :=
+        DeepSeekHarnessEventFileProcessSchema.restored_session_eq_event_archive run
+      let _planCertificate :=
+        DeepSeekHarnessEventFileProcessSchema.plan_source_stream run
+      let _bodyCertificate :=
+        DeepSeekHarnessEventFileProcessSchema.plan_body_eq_source run
+      let _requestCertificate :=
+        DeepSeekHarnessEventFileProcessSchema.request_build_eq_validated_session run
+      let _processedCertificate :=
+        DeepSeekHarnessEventFileProcessSchema.processed_exact run
+      let _archiveCertificate :=
+        DeepSeekHarnessEventFileProcessSchema.archive_raw_eq_source run
+      let _projectionCertificate :=
+        DeepSeekHarnessEventFileProcessSchema.source_projection_exact run
+      pure ()
+
 private def testLoaderHMR : IO Unit := do
   assertEqual "loader reconciliation dispatches config-only edits in place"
     (LoaderHMR.changeKind LoaderHMR.Example.entry LoaderHMR.Example.updatedEntry)
@@ -8337,6 +8379,7 @@ def run : IO Unit := do
   testDeepSeekHarnessEventProcessSchema
   testDeepSeekHarnessEventFileStreamRetryCancellation
   testDeepSeekHarnessEventFileLocalSseRetryConversation
+  testDeepSeekHarnessEventFileProcessSchema
   testDeepSeekHarnessPersistenceStreamBytePrefixTimeout
   testLoaderHMR
   testDeepSeekHarnessPayloadText
