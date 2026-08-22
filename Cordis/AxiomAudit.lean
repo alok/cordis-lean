@@ -35,6 +35,7 @@ import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekRichMixedStream
 import Cordis.DeepSeekRichMultiStream
+import Cordis.DeepSeekProviderAssembler
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
@@ -893,6 +894,17 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekRichMultiStream.project_multi_chunks_exact
 #print axioms Cordis.DeepSeekRichMultiStream.reject_mismatched_call_id
 #print axioms Cordis.DeepSeekRichMultiStream.reject_multiple_choices
+#print axioms Cordis.DeepSeekProviderAssembler.push
+#print axioms Cordis.DeepSeekProviderAssembler.assemble
+#print axioms Cordis.DeepSeekProviderAssembler.validate
+#print axioms Cordis.DeepSeekProviderAssembler.Certificate.fold_exact
+#print axioms Cordis.DeepSeekProviderAssembler.Certificate.assembly_exact
+#print axioms Cordis.DeepSeekProviderAssembler.Example.multiTool_result_exact
+#print axioms Cordis.DeepSeekProviderAssembler.Example.first_close_wins
+#print axioms Cordis.DeepSeekProviderAssembler.Example.max_tokens_drops_tools
+#print axioms Cordis.DeepSeekProviderAssembler.Example.metadata_last_wins
+#print axioms Cordis.DeepSeekProviderAssembler.Example.unknown_open_is_rejected
+#print axioms Cordis.DeepSeekProviderAssembler.Example.executable_summaries
 #print axioms Cordis.DeepSeekSessionBridge.finishAssistant
 #print axioms Cordis.DeepSeekSessionBridge.appendFinishedAssistant_messages
 #print axioms Cordis.DeepSeekSessionRunner.finishText

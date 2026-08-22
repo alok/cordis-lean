@@ -39,6 +39,7 @@ import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekRichMixedStream
 import Cordis.DeepSeekRichMultiStream
+import Cordis.DeepSeekProviderAssembler
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
@@ -2945,6 +2946,17 @@ private def testDeepSeekRichMultiStream : IO Unit := do
       [DeepSeekRichMultiStream.multiChoiceChunk] with
   | .error (.multipleChoices 2) => pure ()
   | result => fail s!"DeepSeek multi projection accepted multiple choices: {reprStr result}"
+
+private def testDeepSeekProviderAssembler : IO Unit := do
+  assertEqual "provider assembler retains source-shaped multi-tool output"
+    DeepSeekProviderAssembler.Example.multiToolSummary true
+  assertEqual "provider assembler prunes tool calls on max-tokens"
+    DeepSeekProviderAssembler.Example.maxTokensSummary true
+  assertEqual "provider assembler keeps last usage, finish, and replay metadata"
+    DeepSeekProviderAssembler.Example.metadataSummary true
+  match DeepSeekProviderAssembler.validate DeepSeekProviderAssembler.Example.unknownOpenChunks with
+  | .error (.unknownBlockType 4 "image") => pure ()
+  | _ => fail "provider assembler accepted an unknown open block"
 
 private def testDeepSeekSessionBridge : IO Unit := do
   match DeepSeekRichToolStream.validateToolStream
@@ -7761,6 +7773,7 @@ def run : IO Unit := do
   testDeepSeekRichToolStream
   testDeepSeekRichMixedStream
   testDeepSeekRichMultiStream
+  testDeepSeekProviderAssembler
   testDeepSeekSessionBridge
   testDeepSeekSessionRunner
   testDeepSeekApiSession

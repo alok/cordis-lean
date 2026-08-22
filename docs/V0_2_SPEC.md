@@ -236,6 +236,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekRichMultiStream`, projecting one strict SSE choice with any finite list of
   indexed function calls, first-seen contiguous local block indices, per-call metadata and raw
   argument accumulation, exact block closure, and typed negative witnesses;
+- `Cordis.DeepSeekProviderAssembler`, folding the canonical post-decoder chunk vocabulary with
+  source-shaped first-seen order, open-block fallback, first-close-wins, latest tool metadata,
+  last usage/finish/replay metadata, max-token tool pruning, and typed unknown-block errors;
 - `Cordis.DeepSeekRequestMode`, indexing complete versus streaming request plans by a proof that
   the serialized `stream` flag matches the mode and restricting terminal execution to complete
   plans;
@@ -1458,6 +1461,14 @@ cross-kind ordering rule is unchanged: a frame cannot carry content/reasoning an
 together. The validator still accepts one choice only, successful terminal usage/finish, and no
 replay metadata or live transport. `DeepSeekSessionRunner.appendMulti` composes the resulting
 terminal view with the same local numeric-ID assignment proof used by the smaller validators.
+
+`Cordis.DeepSeekProviderAssembler` is the adjacent source-shaped post-decoder layer. Its pure
+fold retains first-seen order, accepts open text/reasoning/tool-call blocks, applies first-close-
+wins and latest tool id/name updates, keeps the last usage/finish/replay metadata, defaults a
+missing finish to `stop`, and prunes tool calls for `max-tokens`. Successful folds carry exact
+state and assembly equations; unknown open block types fail with a typed error. Wire decoding,
+image/tool-result block schemas, opaque replay JSON, transport, and deployed TypeScript
+equivalence remain outside.
 
 `Cordis.SessionRefinement` covers a separate stateful subset of current `SessionEvent` JSON:
 turn/step boundaries, selected request/header snapshots, route context, whole-list todo snapshots,
