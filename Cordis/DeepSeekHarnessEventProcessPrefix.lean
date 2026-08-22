@@ -36,6 +36,7 @@ structure ProcessPrefixResult (policy : EntryPolicy) where
   cursor : Cursor
   lines : List String
   consumed : Nat
+  consumed_eq_entries : cursor.entries.length = consumed
   stop : PrefixStop policy
   exitCode : Option UInt32
   stderr : String
@@ -54,7 +55,20 @@ def isFuelExhausted {policy : EntryPolicy} (result : ProcessPrefixResult policy)
 def isCancelled {policy : EntryPolicy} (result : ProcessPrefixResult policy) : Bool :=
   result.stop.isCancelled
 
+theorem entries_eq_consumed {policy : EntryPolicy} (result : ProcessPrefixResult policy) :
+    result.entries = result.consumed :=
+  result.consumed_eq_entries
+
 end ProcessPrefixResult
+
+theorem Cursor.push_entries_eq {cursor : Cursor} {raw : Lean.Json} {next : Cursor}
+    (pushed : Cursor.push cursor raw = .ok next) :
+    next.entries.length = cursor.entries.length + 1 := by
+  unfold Cursor.push at pushed
+  split at pushed <;> try contradiction
+  split at pushed <;> try contradiction
+  cases pushed
+  simp [Cursor.pushDecoded]
 
 private def stripLineEnding (line : String) : String :=
   if line.endsWith "\n" then (line.dropEnd 1).toString else line
@@ -81,6 +95,7 @@ private def finish
     (cursor : Cursor)
     (linesRev : List String)
     (consumed : Nat)
+    (consumed_eq_entries : cursor.entries.length = consumed)
     (stderr : String)
     (exitCode : UInt32) : Except ProcessPrefixError (ProcessPrefixResult policy) :=
   if exitCode == 0 then
@@ -88,6 +103,7 @@ private def finish
       cursor
       lines := linesRev.reverse
       consumed
+      consumed_eq_entries
       stop := .completed
       exitCode := some exitCode
       stderr
@@ -104,7 +120,9 @@ private def loop
     (stdout : IO.FS.Stream)
     (cursor : Cursor)
     (linesRev : List String)
-    (consumed : Nat) : IO (Except ProcessPrefixError (ProcessPrefixResult policy)) := do
+    (consumed : Nat)
+    (consumed_eq_entries : cursor.entries.length = consumed) :
+    IO (Except ProcessPrefixError (ProcessPrefixResult policy)) := do
   match fuel with
   | 0 =>
       cleanup child stderrTask
@@ -112,6 +130,7 @@ private def loop
         cursor
         lines := linesRev.reverse
         consumed
+        consumed_eq_entries
         stop := .fuelExhausted
         exitCode := none
         stderr := ""
@@ -123,6 +142,7 @@ private def loop
           cursor
           lines := linesRev.reverse
           consumed
+          consumed_eq_entries
           stop := .cancelled consumed (policy.reason consumed) decided
           exitCode := none
           stderr := ""
@@ -133,7 +153,7 @@ private def loop
           if line.isEmpty then
             let exitCode ← child.wait
             let stderr ← IO.ofExcept stderrTask.get
-            pure <| finish policy cursor linesRev consumed stderr exitCode
+            pure <| finish policy cursor linesRev consumed consumed_eq_entries stderr exitCode
           else
             let line := stripLineEnding line
             match Lean.Json.parse line.trimAscii.toString with
@@ -141,13 +161,18 @@ private def loop
                 cleanup child stderrTask
                 pure (.error (.line consumed message))
             | .ok raw =>
-                match Cursor.push cursor raw with
+                match pushed : Cursor.push cursor raw with
                 | .error error =>
                     cleanup child stderrTask
                     pure (.error (.event consumed error))
                 | .ok next =>
+                    have next_eq_entries : next.entries.length = consumed + 1 := by
+                      calc
+                        next.entries.length = cursor.entries.length + 1 :=
+                          Cursor.push_entries_eq pushed
+                        _ = consumed + 1 := by rw [consumed_eq_entries]
                     loop policy fuel child stderrTask stdout next (line :: linesRev)
-                      (consumed + 1)
+                      (consumed + 1) next_eq_entries
         catch error =>
           cleanup child stderrTask
           pure (.error (.io (toString error)))
@@ -168,7 +193,7 @@ def execute
     }
     let stderrTask ← IO.asTask child.stderr.readToEnd Task.Priority.dedicated
     loop policy maxReads child stderrTask (IO.FS.Stream.ofHandle child.stdout)
-      Cursor.initial [] 0
+      Cursor.initial [] 0 (by rfl)
   catch error =>
     pure (.error (.spawn (toString error)))
 
@@ -187,6 +212,10 @@ def toolProcessRun :
     IO (Except ProcessPrefixError (ProcessPrefixResult EntryPolicy.never)) :=
   execute EntryPolicy.never 32 toolEventProcess
 
+def fuelProcessRun :
+    IO (Except ProcessPrefixError (ProcessPrefixResult EntryPolicy.never)) :=
+  execute EntryPolicy.never 2 toolEventProcess
+
 def cancellationProcess : EventProcessConfig where
   command := "sh"
   args := #[
@@ -200,6 +229,22 @@ def cancellationProcessRun :
     IO (Except ProcessPrefixError
       (ProcessPrefixResult (EntryPolicy.atEntry 0 "process-prefix-cancelled"))) :=
   execute (EntryPolicy.atEntry 0 "process-prefix-cancelled") 32 cancellationProcess
+
+def malformedProcess : EventProcessConfig where
+  command := "sh"
+  args := #["-c", "printf '%s\\n' '{not-json}'", "cordis-event-prefix-malformed"]
+
+def malformedProcessRun :
+    IO (Except ProcessPrefixError (ProcessPrefixResult EntryPolicy.never)) :=
+  execute EntryPolicy.never 32 malformedProcess
+
+def nonzeroProcess : EventProcessConfig where
+  command := "sh"
+  args := #["-c", "printf '%s\\n' 'fixture-stderr' >&2; exit 7", "cordis-event-prefix-nonzero"]
+
+def nonzeroProcessRun :
+    IO (Except ProcessPrefixError (ProcessPrefixResult EntryPolicy.never)) :=
+  execute EntryPolicy.never 32 nonzeroProcess
 
 theorem processResult_endpoint_sequence {policy : EntryPolicy}
     (result : ProcessPrefixResult policy) :

@@ -4573,6 +4573,8 @@ private def testDeepSeekHarnessEventProcessPrefix : IO Unit := do
         result.lines.length 8
       assertEqual "current event process prefix reaches the session endpoint"
         result.cursor.final.session.nextSeq 8
+      assertEqual "current event process prefix ledger count is proof-carrying"
+        result.entries result.consumed
       assertEqual "current event process prefix exits successfully"
         result.exitCode (some (0 : UInt32))
       assertEqual "current event process prefix reports completion"
@@ -4593,6 +4595,27 @@ private def testDeepSeekHarnessEventProcessPrefix : IO Unit := do
             reason "process-prefix-cancelled"
       | .completed | .fuelExhausted =>
           fail "current event process prefix returned the wrong process stop reason"
+  match ← DeepSeekHarnessEventProcessPrefix.fuelProcessRun with
+  | .error error => fail s!"current event process prefix fuel run failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "current event process prefix fuel stop consumes its budget"
+        result.consumed 2
+      assertEqual "current event process prefix fuel stop keeps ledger count"
+        result.entries result.consumed
+      assertEqual "current event process prefix fuel stop has no exit code"
+        result.exitCode none
+      assertEqual "current event process prefix reports fuel exhaustion"
+        result.stop.isFuelExhausted true
+  match ← DeepSeekHarnessEventProcessPrefix.malformedProcessRun with
+  | .error (.line line _) => assertEqual "current event process prefix malformed line index" line 0
+  | .error error => fail s!"current event process prefix malformed error mismatch: {reprStr error}"
+  | .ok _ => fail "current event process prefix accepted malformed JSON"
+  match ← DeepSeekHarnessEventProcessPrefix.nonzeroProcessRun with
+  | .error (.exited code stderr) =>
+      assertEqual "current event process prefix nonzero exit code" code 7
+      assertEqual "current event process prefix nonzero stderr" stderr "fixture-stderr\n"
+  | .error error => fail s!"current event process prefix exit error mismatch: {reprStr error}"
+  | .ok _ => fail "current event process prefix accepted a nonzero process"
 
 private def testDeepSeekHarnessEventProcessOutcome : IO Unit := do
   match ← DeepSeekHarnessEventProcessOutcome.Example.text with

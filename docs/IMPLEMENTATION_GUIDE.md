@@ -2117,9 +2117,10 @@ as separate later contracts; this module is deliberately IO-free.
 `Cordis.DeepSeekHarnessEventProcessPrefix` is the first executable reader for that target. It
 spawns a caller-configured local process, reads complete stdout lines, parses each line as one JSON
 object, and feeds `Cursor.push` before the next read. The result retains the raw line ledger,
-endpoint, consumed count, exit status, and typed stop. Cleanup is explicitly exercised on fuel and
-policy stops, but byte framing, blocked reads, executable/provider authenticity, durability, and
-deployed equivalence stay separate.
+endpoint, consumed count, exit status, and typed stop, with a proof that consumed equals the
+dependent cursor-entry count. Cleanup is explicitly exercised on fuel and policy stops, while
+malformed lines and nonzero exits remain typed failures. Byte framing, blocked reads,
+executable/provider authenticity, durability, and deployed equivalence stay separate.
 `Cordis.DeepSeekHarnessEventProcessOutcome` then carries the restored runner through the
 complete process-backed rich-outcome adapter. Its dependent result keeps the prepared streaming
 request, response and dependent-tool certificate, final runner endpoint, raw event archive,

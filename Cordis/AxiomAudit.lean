@@ -1129,6 +1129,7 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessEventPrefix.run_cancelled_before_first
 #print axioms Cordis.DeepSeekHarnessEventPrefix.toolPrefixRun
 #print axioms Cordis.DeepSeekHarnessEventProcessPrefix.ProcessPrefixResult.entries
+#print axioms Cordis.DeepSeekHarnessEventProcessPrefix.ProcessPrefixResult.entries_eq_consumed
 #print axioms Cordis.DeepSeekHarnessEventProcessPrefix.ProcessPrefixResult.isCompleted
 #print axioms Cordis.DeepSeekHarnessEventProcessPrefix.ProcessPrefixResult.isFuelExhausted
 #print axioms Cordis.DeepSeekHarnessEventProcessPrefix.ProcessPrefixResult.isCancelled
@@ -1136,8 +1137,13 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessEventProcessPrefix.toolEventProcessArgs
 #print axioms Cordis.DeepSeekHarnessEventProcessPrefix.toolEventProcess
 #print axioms Cordis.DeepSeekHarnessEventProcessPrefix.toolProcessRun
+#print axioms Cordis.DeepSeekHarnessEventProcessPrefix.fuelProcessRun
 #print axioms Cordis.DeepSeekHarnessEventProcessPrefix.cancellationProcess
 #print axioms Cordis.DeepSeekHarnessEventProcessPrefix.cancellationProcessRun
+#print axioms Cordis.DeepSeekHarnessEventProcessPrefix.malformedProcess
+#print axioms Cordis.DeepSeekHarnessEventProcessPrefix.malformedProcessRun
+#print axioms Cordis.DeepSeekHarnessEventProcessPrefix.nonzeroProcess
+#print axioms Cordis.DeepSeekHarnessEventProcessPrefix.nonzeroProcessRun
 #print axioms Cordis.DeepSeekHarnessEventProcessPrefix.processResult_endpoint_sequence
 #print axioms Cordis.DeepSeekHarnessEventProcessOutcome.EventProcessRound.process_exact
 #print axioms Cordis.DeepSeekHarnessEventProcessOutcome.EventProcessRound.endpoint_exact

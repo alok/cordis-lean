@@ -502,10 +502,11 @@ Harness equivalence.
 
 `Cordis.DeepSeekHarnessEventProcessPrefix` feeds that cursor from a configured local process one
 complete stdout line at a time. The result retains every observed line, the exact cursor endpoint,
-exit status, and typed completion/fuel/cancellation stop; fuel and policy stops kill and wait for
-the child before returning. This is still line-oriented local process evidence, not byte framing,
-blocked-read interruption, executable/provider authenticity, crash durability, or deployed
-Harness equivalence.
+exit status, and typed completion/fuel/cancellation stop, with a proof that the consumed count
+equals the dependent cursor-entry count. Fuel and policy stops kill and wait for the child before
+returning; malformed lines and nonzero exits remain typed failures. This is still line-oriented
+local process evidence, not byte framing, blocked-read interruption, executable/provider
+authenticity, crash durability, or deployed Harness equivalence.
 
 `Cordis.DeepSeekHarnessEventProcessOutcome` carries that restored runner through the existing
 complete process-backed rich-outcome adapter. Its dependent result keeps the prepared streaming
