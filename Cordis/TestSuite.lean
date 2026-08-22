@@ -5369,6 +5369,14 @@ private def testGlobalPaperTraceNormalization : IO Unit := do
   let _actors := GlobalPaperTraceNormalization.Example.empty_chain_actors
   assertEqual "finite rewrite-chain surface has an executable empty-chain witness"
     GlobalPaperTraceNormalization.Example.executableLinkCount 0
+  assertEqual "finite rewrite-chain surface executes one activation/orchestration link"
+    GlobalPaperTraceNormalization.Example.ActivationOrchestration.executableLinkCount 1
+  assertEqual "nonempty rewrite-chain witness exposes the rewritten rule ledger"
+    GlobalPaperTraceNormalization.Example.ActivationOrchestration.executableTerminalRules
+    [GlobalCalculus.Rule.oInsert, GlobalCalculus.Rule.oInsert, GlobalCalculus.Rule.lBegin]
+  assertEqual "nonempty rewrite-chain witness exposes the rewritten actor ledger"
+    GlobalPaperTraceNormalization.Example.ActivationOrchestration.executableTerminalActors
+    [0, 1, 0]
 
 private def testGlobalProgress : IO Unit := do
   assertEqual "conditional progress constructs the expected concrete Begin rule"

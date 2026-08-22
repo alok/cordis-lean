@@ -1533,6 +1533,20 @@ namespace Cordis.GlobalPaperTraceNormalization
 #print axioms Example.empty_chain_related
 #print axioms Example.empty_chain_rules
 #print axioms Example.empty_chain_actors
+#print axioms detailedRule_eq_insert_of_rule_eq
+#print axioms detailedRule_eq_begin_of_rule_eq
+#print axioms Example.ActivationOrchestration.final_wellFormed
+#print axioms Example.ActivationOrchestration.swap
+#print axioms Example.ActivationOrchestration.suffixReplay
+#print axioms Example.ActivationOrchestration.witness
+#print axioms Example.ActivationOrchestration.chain
+#print axioms Example.ActivationOrchestration.chain_links_length
+#print axioms Example.ActivationOrchestration.executableLinkCount_eq
+#print axioms Example.ActivationOrchestration.terminal_eq_target
+#print axioms Example.ActivationOrchestration.terminal_final_related
+#print axioms Example.ActivationOrchestration.terminal_rules_perm
+#print axioms Example.ActivationOrchestration.terminal_actors_perm
+#print axioms Example.ActivationOrchestration.terminal_projection
 end Cordis.GlobalPaperTraceNormalization
 #print axioms Cordis.GlobalRelations.contextRelated_domain
 #print axioms Cordis.GlobalRelations.ruleSetoid

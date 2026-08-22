@@ -228,6 +228,36 @@ theorem chain_actors_perm
       chain.source.trace.actors :=
   chain_actors_perm_aux dynamics inertia initial chain.source chain.links chain.connected
 
+theorem detailedRule_eq_insert_of_rule_eq
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {before after : State catalog Ambient}
+    {step : Step dynamics inertia before after}
+    (rule_eq : step.rule = .oInsert) :
+    detailedRule step = .orchestration .insert := by
+  cases step with
+  | orchestration step =>
+      cases step <;> simp_all [detailedRule, GlobalVestigial.orchestrationKind,
+        GlobalNameLifecycle.globalRuleOfOrchestrationKind]
+  | lifecycle transition =>
+      cases transition <;> simp_all [Transition.rule,
+        GlobalNameLifecycle.globalRuleOfLifecycleRule]
+
+theorem detailedRule_eq_begin_of_rule_eq
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {before after : State catalog Ambient}
+    {step : Step dynamics inertia before after}
+    (rule_eq : step.rule = .lBegin) :
+    detailedRule step = .lifecycle .begin := by
+  cases step with
+  | orchestration step =>
+      cases step <;> simp_all [GlobalVestigial.orchestrationKind,
+        GlobalNameLifecycle.globalRuleOfOrchestrationKind]
+  | lifecycle transition =>
+      cases transition <;> simp_all [detailedRule, Transition.rule,
+        GlobalNameLifecycle.globalRuleOfLifecycleRule]
+
 namespace Example
 
 open Cordis.GlobalDeletion.Positive
@@ -266,6 +296,146 @@ theorem empty_chain_rules :
 theorem empty_chain_actors :
     emptyTerminal.trace.actors.Perm emptyChain.source.trace.actors :=
   chain_actors_perm dynamics inertia initial emptyChain
+
+/-! ## A nonempty executable activation/orchestration link -/
+
+namespace ActivationOrchestration
+
+open Cordis.GlobalActivationOrchestrationTransposition.LiteralPaperGap
+
+abbrev values :=
+  Cordis.GlobalActivationOrchestrationTransposition.LiteralPaperGap.exactValues
+abbrev dynamics := Cordis.GlobalTraceRewrite.Example.ActivationOrchestration.dynamics
+abbrev inertia := Cordis.GlobalTraceRewrite.Example.ActivationOrchestration.inertia
+abbrev initial := Cordis.GlobalTraceRewrite.Example.ActivationOrchestration.initial
+abbrev final :=
+  Cordis.GlobalActivationOrchestrationTransposition.BeginInsert.final
+abbrev sourceTrace := Cordis.GlobalTraceRewrite.Example.ActivationOrchestration.sourceTrace
+abbrev sourceAssignment :=
+  Cordis.GlobalTraceRewrite.Example.ActivationOrchestration.sourceAssignment
+abbrev occurrence := Cordis.GlobalTraceRewrite.Example.ActivationOrchestration.occurrence
+abbrev assigned := Cordis.GlobalTraceRewrite.Example.ActivationOrchestration.assignedOccurrence
+
+theorem final_wellFormed : WellFormed final := by
+  apply (Cordis.GlobalActivationOrchestrationTransposition.BeginInsert.normal).preservesWellFormed
+  rw [Cordis.GlobalActivationOrchestrationTransposition.BeginInsert.activation_after]
+  exact Cordis.GlobalLifecycle.Example.beginState_wellFormed
+
+noncomputable def exactSwap :
+    AssignedAdjacentSwap occurrence.pair :=
+  Cordis.GlobalTraceRewrite.Example.ActivationOrchestration.ledgerAssignedSwap
+
+noncomputable def swap : RelatedAssignedAdjacentSwap values occurrence.pair :=
+  RelatedAssignedAdjacentSwap.ofExact exactSwap
+    (by
+      exact detailedRule_eq_insert_of_rule_eq (by
+        calc
+          exactSwap.swapped.first.rule = occurrence.pair.second.rule :=
+            exactSwap.first_rule
+          _ = .oInsert := rfl))
+    (by
+      exact detailedRule_eq_begin_of_rule_eq (by
+        calc
+          exactSwap.swapped.second.rule = occurrence.pair.first.rule :=
+            exactSwap.second_rule
+          _ = .lBegin := rfl))
+
+noncomputable def suffixReplay :
+    ForwardPaperTraceReplay values occurrence.afterTrace swap.swappedAfter where
+  result := {
+    shadowAfter := final
+    shadow := .nil final
+    certificate := .nil (birthErasedRuleRelated_refl values final)
+  }
+  sourceAfter_wellFormed := final_wellFormed
+  shadowAfter_wellFormed := final_wellFormed
+  detailedRules_eq := by rfl
+
+noncomputable def rewrite : RelatedAdjacentRewrite values occurrence swap where
+  suffixReplay := suffixReplay
+
+noncomputable def witness : AnyRewriteWitness values dynamics inertia initial where
+  source := {
+    final := final
+    trace := sourceTrace
+    assignment := sourceAssignment
+  }
+  occurrence := occurrence
+  assigned := assigned
+  assigned_eq := rfl
+  swap := swap
+  result := rewrite
+
+noncomputable def chain : RewriteChain values dynamics inertia initial :=
+  RewriteChain.single dynamics inertia initial witness
+
+def executableLinkCount : Nat := 1
+
+theorem chain_links_length : chain.links.length = 1 := by
+  rfl
+
+theorem executableLinkCount_eq : executableLinkCount = chain.links.length := by
+  rw [chain_links_length]
+  rfl
+
+noncomputable def terminal : TracePackage values dynamics inertia initial :=
+  RewriteChain.terminal dynamics inertia initial chain.source chain.links
+
+theorem terminal_eq_target :
+    terminal = AnyRewriteWitness.target dynamics inertia initial witness := by
+  unfold terminal chain
+  exact RewriteChain.single_terminal dynamics inertia initial witness
+
+theorem terminal_rules :
+    terminal.trace.rules = [.oInsert, .oInsert, .lBegin] := by
+  rw [terminal_eq_target]
+  change rewrite.trace.rules = _
+  rw [RelatedAdjacentRewrite.trace, GlobalTraceRewrite.Trace.rules_append]
+  simp only [GlobalCalculus.Trace.rules]
+  rw [swap.first_rule, swap.second_rule]
+  rfl
+
+theorem terminal_actors :
+    terminal.trace.actors = [.fiber 0, .fiber 1, .fiber 0] := by
+  rw [terminal_eq_target]
+  change rewrite.trace.actors = _
+  rw [RelatedAdjacentRewrite.trace, GlobalTraceRewrite.Trace.actors_append]
+  simp only [GlobalCalculus.Trace.actors]
+  rw [swap.first_actor, swap.second_actor]
+  rfl
+
+theorem terminal_final_related :
+    BirthErasedRuleRelated values chain.source.final terminal.final :=
+  chain_final_related dynamics inertia initial chain
+
+theorem terminal_rules_perm :
+    terminal.trace.rules.Perm chain.source.trace.rules :=
+  chain_rules_perm dynamics inertia initial chain
+
+theorem terminal_actors_perm :
+    terminal.trace.actors.Perm chain.source.trace.actors :=
+  chain_actors_perm dynamics inertia initial chain
+
+def executableProjection : List Cordis.GlobalCalculus.Rule × List Nat :=
+  ([.oInsert, .oInsert, .lBegin], [0, 1, 0])
+
+theorem terminal_projection :
+    (terminal.trace.rules, terminal.trace.actors.map (fun actor ↦ match actor with
+      | .fiber name => name)) = executableProjection := by
+  rw [terminal_rules, terminal_actors]
+  rfl
+
+def executableTerminalRules : List Cordis.GlobalCalculus.Rule :=
+  [.oInsert, .oInsert, .lBegin]
+
+def executableTerminalActors : List Nat := [0, 1, 0]
+
+theorem executableTerminalRules_eq :
+    executableTerminalRules = [.oInsert, .oInsert, .lBegin] := rfl
+
+theorem executableTerminalActors_eq : executableTerminalActors = [0, 1, 0] := rfl
+
+end ActivationOrchestration
 
 end Example
 
