@@ -315,6 +315,12 @@ typed request from that same indexed endpoint. This is a schema-owned in-memory 
 does not claim mixed current-Harness replay, provider compatibility, transport, durable storage,
 or deployed Harness equivalence.
 
+`Cordis.DeepSeekHarnessExtensionRequest` adds the request-side tool-schema certificate to that
+bridge. `buildCertifiedRequest` requires a validated, duplicate-free `RequestSource` before it
+returns the request/build equation tied to the restored indexed session; the fixture proves both
+the positive path and duplicate-tool rejection. Provider-side obedience, credentials, transport,
+and deployed Harness equivalence remain external.
+
 `Cordis.DeepSeekHarnessPersistence` now attaches that bounded runner to the logical JSONL
 persistence refinement. A successful archive restores a `ConversationRunner` with an exact
 equality to the archive's final session, and a proof-carrying request rebuilt from the restored

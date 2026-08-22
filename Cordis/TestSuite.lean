@@ -57,6 +57,7 @@ import Cordis.DeepSeekSchemaStreamErrors
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessExtensionArchive
+import Cordis.DeepSeekHarnessExtensionRequest
 import Cordis.DeepSeekHarnessEventText
 import Cordis.DeepSeekHarnessEventProcessOutcome
 import Cordis.LoaderHMR
@@ -3558,6 +3559,25 @@ private def testSessionExtensionRefinement : IO Unit := do
         request.model "deepseek-chat"
       assertEqual "schema extension request keeps the surface extension message"
         request.messages.toList [DeepSeekApi.ChatMessage.user "extension:ready"]
+  match DeepSeekHarnessExtensionArchive.Example.restoredExample with
+  | .error error => fail s!"certified extension request archive failed: {error}"
+  | .ok restored =>
+      match DeepSeekHarnessExtensionRequest.Example.certifiedExampleRequest restored with
+      | .error error => fail s!"certified extension request failed: {reprStr error}"
+      | .ok certificate =>
+          assertEqual "certified extension request retains the source model"
+            certificate.request.model "deepseek-chat"
+          have _namesProof := certificate.tools.names_nodup
+          let _archiveRequest :=
+            DeepSeekHarnessExtensionRequest.CertifiedRequest.build_eq_archive certificate
+          pure ()
+  match DeepSeekHarnessExtensionArchive.Example.restoredExample with
+  | .error error => fail s!"duplicate-tool archive setup failed: {error}"
+  | .ok restored =>
+      match DeepSeekHarnessExtensionRequest.Example.duplicateExampleRequest restored with
+      | .error (.inl (.duplicateToolName "get_weather")) => pure ()
+      | .error error => fail s!"duplicate tool source returned the wrong error: {reprStr error}"
+      | .ok _ => fail "duplicate tool source was accepted"
 
 private def testDeepSeekSchemaStreamConversation : IO Unit := do
   match DeepSeekToolSchema.weatherToolCertificate,

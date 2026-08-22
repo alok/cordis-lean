@@ -55,6 +55,7 @@ import Cordis.DeepSeekSchemaStreamErrors
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessExtensionArchive
+import Cordis.DeepSeekHarnessExtensionRequest
 import Cordis.DeepSeekHarnessEventText
 import Cordis.DeepSeekHarnessEventProcessOutcome
 import Cordis.LoaderHMR
@@ -748,6 +749,11 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessExtensionArchive.buildRequest_session_eq_archive
 #print axioms Cordis.DeepSeekHarnessExtensionArchive.Example.restored_example_summary
 #print axioms Cordis.DeepSeekHarnessExtensionArchive.Example.restored_example_request
+#print axioms Cordis.DeepSeekHarnessExtensionRequest.buildCertifiedRequest
+#print axioms Cordis.DeepSeekHarnessExtensionRequest.CertifiedRequest.build_eq_archive
+#print axioms Cordis.DeepSeekHarnessExtensionRequest.CertifiedRequest.tool_names_nodup
+#print axioms Cordis.DeepSeekHarnessExtensionRequest.Example.certified_example_request_shape
+#print axioms Cordis.DeepSeekHarnessExtensionRequest.Example.duplicate_example_rejected
 #print axioms Cordis.DeepSeekHarness.buildTypedCompleteRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan_source_stream

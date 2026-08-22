@@ -2136,6 +2136,11 @@ count, and exposes exact runner/session equality plus a request certificate buil
 indexed session. Keep the codec, request source, and extension schema explicit; this slice does
 not supply mixed-log replay, provider/transport semantics, or durable/deployed equivalence.
 
+`Cordis.DeepSeekHarnessExtensionRequest` is the request-side companion. Require
+`DeepSeekToolSchema.CertifiedRequestSource` before constructing the request certificate, so tool
+schema validation and duplicate-name rejection are part of the type-level handoff from the
+restored extension runner. Keep provider obedience and transport as separate external contracts.
+
 `Cordis.DeepSeekToolSchema` is the next request-side type boundary. It validates the bounded
 schema vocabulary actually represented by the local DeepSeek API: an object parameter root,
 primitive property `type` tags, optional property descriptions, a duplicate-free `required`

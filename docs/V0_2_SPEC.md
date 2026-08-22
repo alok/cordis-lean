@@ -75,6 +75,11 @@ archive's final session, while `RequestCertificate` rebuilds a typed request fro
 endpoint. It remains a caller-owned extension/schema certificate; mixed current-Harness replay,
 provider compatibility, transport, durable persistence, and deployed equivalence are unclaimed.
 
+`Cordis.DeepSeekHarnessExtensionRequest` composes that endpoint with the request-side tool-schema
+certificate. `buildCertifiedRequest` accepts only a validated, duplicate-free tool source and
+retains both its dependent proof and the exact request equation from the restored indexed session.
+This does not prove provider-side tool obedience or any live transport/deployed equivalence.
+
 The slice closes two concrete gaps in the original objective:
 
 1. the runner becomes generic over a dependent tool catalog instead of importing the counter

@@ -111,6 +111,12 @@ runner/session equality; `RequestCertificate` rebuilds the request from that sam
 attachment is schema-owned and in memory: mixed current-Harness replay, provider compatibility,
 transport, durable storage, and deployed Harness equivalence remain external.
 
+`Cordis.DeepSeekHarnessExtensionRequest` tightens the request edge by requiring
+`DeepSeekToolSchema.CertifiedRequestSource` before rebuilding a request from that runner. The
+result retains the validated tool-list/name proof and exact builder equation, while duplicate
+tool names fail closed. Provider obedience, credentials, transport, and deployed equivalence are
+not inferred.
+
 The local protocol has both typed erasure and witness-reconstructing validation:
 
 ```text
