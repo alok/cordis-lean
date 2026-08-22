@@ -5377,6 +5377,16 @@ private def testGlobalPaperTraceNormalization : IO Unit := do
   assertEqual "nonempty rewrite-chain witness exposes the rewritten actor ledger"
     GlobalPaperTraceNormalization.Example.ActivationOrchestration.executableTerminalActors
     [0, 1, 0]
+  assertEqual "rewrite-chain surface also executes a connected reverse link"
+    GlobalPaperTraceNormalization.Example.ActivationOrchestration.executableTwoLinkCount 2
+  let _twoRelated :=
+    GlobalPaperTraceNormalization.Example.ActivationOrchestration.twoChain_terminal_final_related
+  assertEqual "two-link rewrite chain returns the original rule ledger"
+    GlobalPaperTraceNormalization.Example.ActivationOrchestration.executableTwoLinkTerminalRules
+    [GlobalCalculus.Rule.oInsert, GlobalCalculus.Rule.lBegin, GlobalCalculus.Rule.oInsert]
+  assertEqual "two-link rewrite chain returns the original actor ledger"
+    GlobalPaperTraceNormalization.Example.ActivationOrchestration.executableTwoLinkTerminalActors
+    [0, 0, 1]
 
 private def testGlobalProgress : IO Unit := do
   assertEqual "conditional progress constructs the expected concrete Begin rule"

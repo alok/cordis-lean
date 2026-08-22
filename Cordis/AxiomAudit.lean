@@ -1547,6 +1547,18 @@ namespace Cordis.GlobalPaperTraceNormalization
 #print axioms Example.ActivationOrchestration.terminal_rules_perm
 #print axioms Example.ActivationOrchestration.terminal_actors_perm
 #print axioms Example.ActivationOrchestration.terminal_projection
+#print axioms Example.ActivationOrchestration.reverseExact
+#print axioms Example.ActivationOrchestration.targetAssigned_eq
+#print axioms Example.ActivationOrchestration.reverseSwap
+#print axioms Example.ActivationOrchestration.reverseWitness
+#print axioms Example.ActivationOrchestration.twoChain
+#print axioms Example.ActivationOrchestration.executableTwoLinkCount_eq
+#print axioms Example.ActivationOrchestration.twoChain_terminal_eq_source
+#print axioms Example.ActivationOrchestration.twoChain_terminal_final_related
+#print axioms Example.ActivationOrchestration.twoChain_terminal_rules_perm
+#print axioms Example.ActivationOrchestration.twoChain_terminal_actors_perm
+#print axioms Example.ActivationOrchestration.executableTwoLinkTerminalRules_eq
+#print axioms Example.ActivationOrchestration.executableTwoLinkTerminalActors_eq
 end Cordis.GlobalPaperTraceNormalization
 #print axioms Cordis.GlobalRelations.contextRelated_domain
 #print axioms Cordis.GlobalRelations.ruleSetoid

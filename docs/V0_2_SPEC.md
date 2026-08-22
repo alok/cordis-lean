@@ -1010,8 +1010,9 @@ The bounded algebra/context/global layer now has thirty-seven explicit pieces:
     `RelatedAdjacentRewrite` certificates. The dependent-safe chain representation connects each
     link to the next rewritten trace package, retains each transported `TraceProgramAssignment`,
     and proves final `BirthErasedRuleRelated` plus `List.Perm` facts for trace rules and actors.
-    The empty-chain executable witness exercises the surface. This is not a strategy,
-    canonical-form, termination, confluence, Lemma 72, or Theorem 73 proof.
+    Its executable examples include a one-link activation/orchestration rewrite and a connected
+    two-link reverse cycle. This is not a strategy, canonical-form, termination, confluence,
+    Lemma 72, or Theorem 73 proof.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a

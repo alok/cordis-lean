@@ -435,6 +435,165 @@ theorem executableTerminalRules_eq :
 
 theorem executableTerminalActors_eq : executableTerminalActors = [0, 1, 0] := rfl
 
+/-! ## A connected two-link cycle
+
+The first link above is deliberately non-reflexive: it moves the Begin occurrence across the
+following orchestration step.  The reverse link is reconstructed from the moved pair and its
+transported assignment ledger.  This gives a small but genuinely recursive chain witness: the
+second link consumes the first link's target package, rather than merely repeating the empty-chain
+or one-link surface.
+-/
+
+noncomputable def targetTrace :
+    GlobalCalculus.Trace dynamics inertia initial final :=
+  witness.result.trace
+
+noncomputable def targetOccurrence : AdjacentOccurrence targetTrace where
+  windowStart := occurrence.windowStart
+  windowEnd := occurrence.windowEnd
+  beforeTrace := occurrence.beforeTrace
+  pair := swap.swapped
+  afterTrace := .nil final
+  decomposition := by
+    rfl
+
+noncomputable def reverseExact : AssignedAdjacentSwap targetOccurrence.pair where
+  toExactAdjacentSwap := {
+    swapped := occurrence.pair
+    first_rule := (RelatedAssignedAdjacentSwap.second_rule swap).symm
+    second_rule := (RelatedAssignedAdjacentSwap.first_rule swap).symm
+    first_actor := swap.second_actor.symm
+    second_actor := swap.first_actor.symm
+  }
+  swappedFirstAssignment := assigned.firstAssignment
+  swappedSecondAssignment := assigned.secondAssignment
+
+noncomputable def targetAssigned : AssignedAdjacentOccurrence targetOccurrence where
+  beforeAssignment := assigned.beforeAssignment
+  firstAssignment := swap.swappedFirstAssignment
+  secondAssignment := swap.swappedSecondAssignment
+  afterAssignment := .nil final
+
+theorem targetAssigned_eq :
+    targetAssigned.sourceAssignment = witness.result.assignment assigned := by
+  rfl
+
+noncomputable def reverseSwap :
+    RelatedAssignedAdjacentSwap values targetOccurrence.pair := by
+  let targetSecondDetailed : detailedRule targetOccurrence.pair.second =
+      .lifecycle .begin := detailedRule_eq_begin_of_rule_eq (by
+        calc
+          targetOccurrence.pair.second.rule = occurrence.pair.first.rule :=
+            RelatedAssignedAdjacentSwap.second_rule swap
+          _ = .lBegin := rfl)
+  let targetFirstDetailed : detailedRule targetOccurrence.pair.first =
+      .orchestration .insert := detailedRule_eq_insert_of_rule_eq (by
+        calc
+          targetOccurrence.pair.first.rule = occurrence.pair.second.rule :=
+            RelatedAssignedAdjacentSwap.first_rule swap
+          _ = .oInsert := rfl)
+  exact RelatedAssignedAdjacentSwap.ofExact reverseExact
+    ((detailedRule_eq_begin_of_rule_eq (by
+      calc
+        reverseExact.toExactAdjacentSwap.swapped.first.rule =
+            targetOccurrence.pair.second.rule := reverseExact.first_rule
+        _ = occurrence.pair.first.rule := RelatedAssignedAdjacentSwap.second_rule swap
+        _ = .lBegin := rfl)).trans targetSecondDetailed.symm)
+    ((detailedRule_eq_insert_of_rule_eq (by
+      calc
+        reverseExact.toExactAdjacentSwap.swapped.second.rule =
+            targetOccurrence.pair.first.rule := reverseExact.second_rule
+        _ = occurrence.pair.second.rule := RelatedAssignedAdjacentSwap.first_rule swap
+        _ = .oInsert := rfl)).trans targetFirstDetailed.symm)
+
+noncomputable def reverseSuffixReplay :
+    ForwardPaperTraceReplay values targetOccurrence.afterTrace reverseSwap.swappedAfter where
+  result := {
+    shadowAfter := final
+    shadow := .nil final
+    certificate := .nil (birthErasedRuleRelated_refl values final)
+  }
+  sourceAfter_wellFormed := final_wellFormed
+  shadowAfter_wellFormed := final_wellFormed
+  detailedRules_eq := by rfl
+
+noncomputable def reverseRewrite :
+    RelatedAdjacentRewrite values targetOccurrence reverseSwap where
+  suffixReplay := reverseSuffixReplay
+
+noncomputable def reverseWitness :
+    AnyRewriteWitness values dynamics inertia initial where
+  source := witness.target dynamics inertia initial
+  occurrence := targetOccurrence
+  assigned := targetAssigned
+  assigned_eq := targetAssigned_eq
+  swap := reverseSwap
+  result := reverseRewrite
+
+noncomputable def twoChain : RewriteChain values dynamics inertia initial where
+  source := witness.source
+  links := [witness, reverseWitness]
+  connected := by
+    constructor
+    · rfl
+    · constructor
+      · rfl
+      · trivial
+
+def executableTwoLinkCount : Nat := 2
+
+theorem executableTwoLinkCount_eq : executableTwoLinkCount = twoChain.links.length := by
+  rfl
+
+noncomputable def twoChainTerminal : TracePackage values dynamics inertia initial :=
+  RewriteChain.terminal dynamics inertia initial twoChain.source twoChain.links
+
+theorem twoChain_terminal_eq_source : twoChainTerminal = witness.source := by
+  unfold twoChainTerminal twoChain
+  rfl
+
+theorem twoChain_terminal_rules :
+    twoChainTerminal.trace.rules = [.oInsert, .lBegin, .oInsert] := by
+  rw [twoChain_terminal_eq_source]
+  rfl
+
+theorem twoChain_terminal_actors :
+    twoChainTerminal.trace.actors = [.fiber 0, .fiber 0, .fiber 1] := by
+  rw [twoChain_terminal_eq_source]
+  rfl
+
+theorem twoChain_terminal_final_related :
+    BirthErasedRuleRelated values twoChain.source.final twoChainTerminal.final := by
+  exact chain_final_related dynamics inertia initial twoChain
+
+theorem twoChain_terminal_rules_perm :
+    twoChainTerminal.trace.rules.Perm twoChain.source.trace.rules := by
+  exact chain_rules_perm dynamics inertia initial twoChain
+
+theorem twoChain_terminal_actors_perm :
+    twoChainTerminal.trace.actors.Perm twoChain.source.trace.actors := by
+  exact chain_actors_perm dynamics inertia initial twoChain
+
+/-! These projections keep the executable test surface independent of the
+noncomputable proof-carrying terminal package above. -/
+
+def executableTwoLinkTerminalRules : List GlobalCalculus.Rule :=
+  [.oInsert, .lBegin, .oInsert]
+
+def executableTwoLinkTerminalActors : List Nat := [0, 0, 1]
+
+theorem executableTwoLinkTerminalRules_eq :
+    executableTwoLinkTerminalRules = twoChainTerminal.trace.rules := by
+  rw [twoChain_terminal_rules]
+  rfl
+
+theorem executableTwoLinkTerminalActors_eq :
+    executableTwoLinkTerminalActors =
+      twoChainTerminal.trace.actors.map (fun actor => match actor with
+        | .fiber name => name) := by
+  rw [twoChain_terminal_actors]
+  rfl
+
 end ActivationOrchestration
 
 end Example
