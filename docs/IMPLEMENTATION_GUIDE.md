@@ -2537,6 +2537,11 @@ extends the same seam to stopped prefixes: fuel and cancellation retain the prov
 while only the completed constructor carries an execution certificate. Neither module proves
 blocked-read interruption, backpressure, reconnect, process trust, persistence, external effects,
 or deployed Harness equivalence.
+`Cordis.DeepSeekCurlBytePrefixProviderAssemblyTool` is the byte-framed counterpart. It reuses the
+timer-driven byte reader, projects the retained typed prefix into the provider assembler, and
+admits dependent execution/session append only after `[DONE]` completion. Timeout, fuel, and
+cancellation remain pending provider states rather than response errors; deployed transport,
+backpressure, reconnect, persistence, and provider equivalence remain separate obligations.
 `Cordis.DeepSeekCurlProviderAssemblyToolConversation` lifts the completed round into a bounded
 `ConversationRunner`: the next request is indexed by the previous model, local call IDs advance
 from the runner state, certified tool results are appended, and the run stops on a no-tool round

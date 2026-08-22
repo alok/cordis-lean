@@ -47,6 +47,7 @@ import Cordis.DeepSeekCurlProviderAssemblyIncremental
 import Cordis.DeepSeekCurlProviderAssemblyToolRound
 import Cordis.DeepSeekCurlProviderAssemblyToolPrefix
 import Cordis.DeepSeekCurlProviderAssemblyToolConversation
+import Cordis.DeepSeekCurlBytePrefixProviderAssemblyTool
 import Cordis.DeepSeekAssemblerToolRound
 import Cordis.DeepSeekStreamToolRound
 import Cordis.DeepSeekProcessStreamToolRound
@@ -3105,6 +3106,29 @@ private def testDeepSeekCurlProviderAssemblyToolConversation : IO Unit := do
         result.runner.session.nextSeq 4
       assertEqual "incremental process tool conversation allocates two call IDs"
         result.runner.nextCall 2
+
+private def testDeepSeekCurlBytePrefixProviderAssemblyTool : IO Unit := do
+  assertEqual "byte-prefix provider assembly reaches dependent tool session"
+    (← DeepSeekCurlBytePrefixProviderAssemblyTool.counterTerminalSummary) true
+  match ← DeepSeekCurlBytePrefixProviderAssemblyTool.counterTerminalRun with
+  | .error _ => fail "byte-prefix provider assembly terminal round was rejected"
+  | .ok (.pending _) => fail "byte-prefix provider assembly terminal round remained pending"
+  | .ok (.completed round) =>
+      assertEqual "byte-prefix provider assembly validates eight complete lines"
+        round.observed.state.typed.line 8
+      assertEqual "byte-prefix provider assembly reaches exact counter successor"
+        round.execution.after 5
+      assertEqual "byte-prefix provider assembly appends two session messages"
+        (DeepSeekCurlBytePrefixProviderAssemblyTool.appendCompleted
+          (Session.Session.empty Session.noExtensions) 1 0 round [] (by simp) (by simp)).messages.length 2
+  match ← DeepSeekCurlBytePrefixProviderAssemblyTool.timeoutRun with
+  | .error _ => fail "byte-prefix provider assembly timeout was rejected"
+  | .ok (.completed _) => fail "byte-prefix provider assembly timeout fabricated completion"
+  | .ok (.pending pending) =>
+      assertEqual "byte-prefix provider assembly timeout retains timed-out stop"
+        pending.observed.isTimedOut true
+      assertEqual "byte-prefix provider assembly timeout retains empty prefix"
+        pending.provider.raw.length 0
 
 private def testDeepSeekStreamToolRound : IO Unit := do
   assertEqual "wire-backed stream reaches dependent tool execution"
@@ -7986,6 +8010,7 @@ def run : IO Unit := do
   testDeepSeekCurlProviderAssemblyToolRound
   testDeepSeekCurlProviderAssemblyToolPrefix
   testDeepSeekCurlProviderAssemblyToolConversation
+  testDeepSeekCurlBytePrefixProviderAssemblyTool
   testDeepSeekStreamToolRound
   testDeepSeekProcessStreamToolRound
   testDeepSeekSessionBridge

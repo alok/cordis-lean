@@ -263,6 +263,9 @@ Current machine-checked evidence includes:
   synchronous fuel or cancellation and admitting dependent execution only on completion;
   blocked-read interruption, backpressure, reconnects, process trust, persistence, external
   effects, and deployed equivalence remain outside;
+- `Cordis.DeepSeekCurlBytePrefixProviderAssemblyTool`, composing arbitrary byte chunks and the
+  timer-driven reader with provider assembly and dependent execution; completed streams retain
+  exact append certificates, while fuel, cancellation, and timeout remain typed pending prefixes;
 - `Cordis.DeepSeekCurlProviderAssemblyToolConversation`, lifting those certificates into a
   bounded `ConversationRunner` whose rounds preserve the prior-model index, allocate fresh
   local call IDs, append certified tool results, and stop either on no-tool completion or

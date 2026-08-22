@@ -283,6 +283,12 @@ prefix on synchronous fuel or cancellation and admits dependent execution only
 on the completed branch; blocked-read interruption, backpressure, reconnects,
 credentials, process trust, persistence, external effects, and deployed
 equivalence remain external.
+`Cordis.DeepSeekCurlBytePrefixProviderAssemblyTool` composes the same dependent
+round with arbitrary byte chunks and the timer-driven reader: completion carries
+the provider, assembly, execution, and session certificates, while fuel,
+cancellation, and timeout retain a typed provider prefix instead of fabricating
+a terminal response. Byte-level backpressure, reconnects, process/authenticity,
+persistence, and deployed equivalence remain external.
 `Cordis.DeepSeekCurlProviderAssemblyToolConversation` lifts those certificates
 into a bounded `ConversationRunner`: each round is indexed by its prior model,
 allocates fresh local call IDs, appends certified tool results, and either stops

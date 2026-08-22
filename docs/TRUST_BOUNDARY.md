@@ -1578,6 +1578,11 @@ Without additional proofs or tests, do not state that:
   provider/tool prefix on synchronous fuel or cancellation and admits execution only on completion;
   blocked-read interruption, backpressure, reconnects, process trust, persistence, external effects,
   and deployed equivalence remain outside;
+- `DeepSeekCurlBytePrefixProviderAssemblyTool` composes arbitrary byte chunks and the timer-driven
+  reader with provider assembly and dependent execution. Completion carries provider, assembly,
+  execution, and session-append certificates; fuel, cancellation, and timeout retain a pending
+  provider prefix. Byte backpressure, reconnects, persistence, process authenticity, and deployed
+  Harness equivalence remain outside;
 - `DeepSeekCurlProviderAssemblyToolConversation` lifts those round certificates into a bounded
   `ConversationRunner`. Each round preserves the prior-model index, allocates fresh local call IDs,
   appends certified tool results, and ends on a no-tool response or explicit fuel exhaustion. The
