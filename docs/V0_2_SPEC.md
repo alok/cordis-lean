@@ -274,6 +274,10 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekHarnessProcessOutcome`, retaining a typed `stream: true` request plan through
   complete-body provider-failure or rich terminal classification, dependent tool execution, and
   the final `ConversationRunner` endpoint;
+- `Cordis.DeepSeekHarnessLiveProbe`, loading a caller-named environment credential without
+  logging it, retaining a complete-mode request plan beside a bounded conversation result, and
+  exercising the same API with an injected two-response fixture; credential validity, network
+  reachability, process trust, provider behavior, and deployed equivalence remain external;
 - `Cordis.DeepSeekStreamHarness`, composing complete-body terminal rich tool streams with the
   generic conversation runner, dependent tool execution, and certified typed-result append;
   streamed rounds use a request source/body certificate proving `stream: true`, and an executable
@@ -936,7 +940,7 @@ relation whose union cycles, so the module requires `SupportOrder` directly. It 
 combined-edge well-founded recursion, proves uniqueness, and derives support-equals-active at
 quiescence under state-local provision totality, failure exclusion, and active-parent closure.
 
-The bounded algebra/context/global layer now has sixty-two explicit pieces:
+The bounded algebra/context/global layer now has sixty-three explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -1320,6 +1324,13 @@ The bounded algebra/context/global layer now has sixty-two explicit pieces:
     the deterministic fixture exercises one no-tool completion. Injected transport, credentials,
     provider authenticity, persistence, external effects, and deployed-Harness equivalence remain
     external.
+63. `Cordis.DeepSeekHarnessLiveProbe` makes the credential/runtime handoff explicit without
+    confusing it with provider proof. `parseApiKey` and `readApiKey` reject missing or empty
+    environment values; `PreparedRequest` retains the exact complete-mode request equation; and
+    `runFromEnvironment` feeds the existing curl adapter into the bounded conversation runner.
+    `Example.run` exercises the same high-level path with two injected responses, while network
+    reachability, credential validity, provider obedience, process trust, backoff, idempotency,
+    and deployed Harness equivalence remain external.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a

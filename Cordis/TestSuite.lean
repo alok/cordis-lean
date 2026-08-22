@@ -43,6 +43,7 @@ import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
+import Cordis.DeepSeekHarnessLiveProbe
 import Cordis.DeepSeekHarnessExtensions
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
@@ -3315,6 +3316,33 @@ private def testDeepSeekHarness : IO Unit := do
       let exhaustedBodiesSnapshot ← exhaustedBodies.get
       assertEqual "fuel exhaustion does not issue an unbudgeted second request"
         exhaustedBodiesSnapshot.length 1
+
+private def testDeepSeekHarnessLiveProbe : IO Unit := do
+  match DeepSeekHarnessLiveProbe.Example.parseCredentialSummary with
+  | [.error (.missing "KEY"), .error (.empty "KEY"), .ok key] =>
+      assertEqual "live probe credential parser retains the nonempty key"
+        key.value "fixture-key"
+  | _ =>
+      fail "live probe credential parser returned an unexpected classification"
+  match DeepSeekHarnessLiveProbe.Example.invalidRequest with
+  | .error .emptyMessages => pure ()
+  | .error error => fail s!"live probe request rejection was not typed as emptyMessages: {reprStr error}"
+  | .ok _ => fail "live probe accepted a request with neither messages nor a system prompt"
+  match ← DeepSeekHarnessLiveProbe.Example.run with
+  | .error error => fail s!"live probe fixture failed: {reprStr error}"
+  | .ok summary =>
+      assertEqual "live probe fixture uses complete request mode"
+        summary.completeRequest DeepSeekHarnessLiveProbe.Example.expectedSummary.completeRequest
+      assertEqual "live probe fixture retains both conversation rounds"
+        summary.rounds DeepSeekHarnessLiveProbe.Example.expectedSummary.rounds
+      assertEqual "live probe fixture starts from the exact session endpoint"
+        summary.initialNextSeq DeepSeekHarnessLiveProbe.Example.expectedSummary.initialNextSeq
+      assertEqual "live probe fixture reaches the exact final session endpoint"
+        summary.finalNextSeq DeepSeekHarnessLiveProbe.Example.expectedSummary.finalNextSeq
+      assertEqual "live probe fixture preserves the model successor"
+        summary.finalModel DeepSeekHarnessLiveProbe.Example.expectedSummary.finalModel
+      assertEqual "live probe fixture reports typed completion"
+        summary.completed DeepSeekHarnessLiveProbe.Example.expectedSummary.completed
 
 private def testDeepSeekHarnessPersistence : IO Unit := do
   match DeepSeekHarnessPersistence.persistedToolArchive with
@@ -7448,6 +7476,7 @@ def run : IO Unit := do
   testDeepSeekSessionRunner
   testDeepSeekApiSession
   testDeepSeekHarness
+  testDeepSeekHarnessLiveProbe
   testDeepSeekHarnessPersistence
   testDeepSeekHarnessPersistenceIO
   testDeepSeekHarnessOpaqueMetadata
