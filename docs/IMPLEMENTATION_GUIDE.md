@@ -1923,6 +1923,10 @@ and validates the rewritten JSON as a local session. Duplicate physical sequence
 references, malformed rewrites, and semantic failures reject. The nine-row archive fixture and its
 middle-row normalization witness are executable; opaque payload semantics and deployed Harness
 equivalence remain external.
+`Cordis.DeepSeekHarnessEventIgnorableRunner` is the pure attachment above that normalized endpoint: it
+sets the `ConversationRunner` session to the validated final session, retains exact session/step and
+tool-call-count witnesses, and rebuilds a `ChatRequest` with a dependent request-build equality.
+Provider authenticity, transport, persistence, and deployed Harness equivalence remain external.
 `Cordis.SessionPayloadArchive` is the next typed raw-payload boundary. It classifies the five
 current content-block tags plus unknown block extensions, preserves exact content arrays and
 message/chunk source objects, and retains assistant usage/tool-result `error`/`meta` as raw JSON.

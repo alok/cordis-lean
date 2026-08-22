@@ -184,6 +184,7 @@ import Cordis.SessionArchive
 import Cordis.SessionEventArchive
 import Cordis.DeepSeekHarnessEventIgnorableProjection
 import Cordis.DeepSeekHarnessEventIgnorableNormalization
+import Cordis.DeepSeekHarnessEventIgnorableRunner
 import Cordis.SessionPayloadArchive
 import Cordis.SessionValidation
 import Cordis.SessionTheoremBridge
@@ -586,6 +587,9 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessEventIgnorableNormalization.normalize
 #print axioms Cordis.DeepSeekHarnessEventIgnorableNormalization.ignorable_middle_summary
 #print axioms Cordis.DeepSeekHarnessEventIgnorableNormalization.ignorable_middle_source_positions
+#print axioms Cordis.DeepSeekHarnessEventIgnorableRunner.restoreRunner
+#print axioms Cordis.DeepSeekHarnessEventIgnorableRunner.buildRequestCertificate
+#print axioms Cordis.DeepSeekHarnessEventIgnorableRunner.RequestCertificate.build_eq_session
 #print axioms Cordis.SessionPayloadArchive.PayloadLog.raw_exact
 #print axioms Cordis.SessionPayloadArchive.PayloadLog.length_exact
 #print axioms Cordis.SessionPayloadArchive.enrichEvent_raw

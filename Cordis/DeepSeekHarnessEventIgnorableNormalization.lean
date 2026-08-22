@@ -192,6 +192,10 @@ def ignorableMiddleJson : Lean.Json := Lean.Json.mkObj [
   ("type", .str "vendor/telemetry"), ("seq", .num 1), ("time", .num 450),
   ("data", Lean.Json.mkObj [("sample", .num 7)]), ("ignorable", .bool true)]
 
+def ignorableMiddleToolJson : Lean.Json := Lean.Json.mkObj [
+  ("type", .str "vendor/telemetry"), ("seq", .num 2), ("time", .num 450),
+  ("data", Lean.Json.mkObj [("sample", .num 7)]), ("ignorable", .bool true)]
+
 def ignorableMiddleFixtureJson : List Lean.Json :=
   match SessionRefinement.headerChunkExampleJson with
   | first :: tail => first :: ignorableMiddleJson :: shiftTailSeq 2 tail
@@ -227,5 +231,37 @@ theorem ignorable_middle_source_positions :
     | .ok normalized => normalized.occurrences.map NormalizedOccurrence.sourcePosition =
         [0, 2, 3, 4, 5, 6] := by
   rfl
+
+def ignorableMiddleToolFixtureJson : List Lean.Json :=
+  match SessionRefinement.toolMessageExampleJson with
+  | first :: second :: tail =>
+      first :: second :: ignorableMiddleToolJson :: shiftTailSeq 3 tail
+  | _ => []
+
+def ignorableMiddleToolArchive :
+    Except SessionEventArchive.ArchiveError
+      (ArchivedLog ignorableMiddleToolFixtureJson) :=
+  archive ignorableMiddleToolFixtureJson
+
+def ignorableMiddleToolNormalized :
+    Except NormalizationError (NormalizedLog ignorableMiddleToolFixtureJson) :=
+  match ignorableMiddleToolArchive with
+  | .error error => .error (.archive error)
+  | .ok archive => normalize archive
+
+def ignorableMiddleToolSummary : Option (Nat × Nat × Nat × Nat) :=
+  match ignorableMiddleToolNormalized with
+  | .error _ => none
+  | .ok normalized =>
+      some (normalized.projection.projection.decisions.length,
+        normalized.occurrences.length,
+        normalized.validated.final.session.nextSeq,
+        normalized.occurrences.head?.map (·.event.seq.value) |>.getD 99)
+
+def ignorableMiddleToolSourcePositions : Option (List Nat) :=
+  match ignorableMiddleToolNormalized with
+  | .error _ => none
+  | .ok normalized =>
+      some (normalized.occurrences.map NormalizedOccurrence.sourcePosition)
 
 end Cordis.DeepSeekHarnessEventIgnorableNormalization

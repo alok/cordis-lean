@@ -188,6 +188,7 @@ import Cordis.SessionArchive
 import Cordis.SessionEventArchive
 import Cordis.DeepSeekHarnessEventIgnorableProjection
 import Cordis.DeepSeekHarnessEventIgnorableNormalization
+import Cordis.DeepSeekHarnessEventIgnorableRunner
 import Cordis.SessionPayloadArchive
 import Cordis.SessionValidation
 import Cordis.SessionTheoremBridge

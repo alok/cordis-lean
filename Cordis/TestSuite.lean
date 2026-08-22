@@ -62,6 +62,7 @@ import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessEventIgnorableProjection
 import Cordis.DeepSeekHarnessEventIgnorableNormalization
+import Cordis.DeepSeekHarnessEventIgnorableRunner
 import Cordis.DeepSeekHarnessExtensionArchive
 import Cordis.DeepSeekHarnessExtensionRequest
 import Cordis.DeepSeekHarnessExtensionPersistence
@@ -4697,6 +4698,53 @@ private def testDeepSeekHarnessEventIgnorableNormalization : IO Unit := do
       let _rawCertificate := normalized.normalizedInput_eq
       let _validationCertificate := normalized.validated_eq
       pure ()
+  assertEqual "ignorable normalization remaps a tool-message archive with source references"
+    DeepSeekHarnessEventIgnorableNormalization.ignorableMiddleToolSummary
+    (some (9, 8, 8, 0))
+  assertEqual "ignorable normalization preserves the tool archive source positions"
+    DeepSeekHarnessEventIgnorableNormalization.ignorableMiddleToolSourcePositions
+    (some [0, 1, 3, 4, 5, 6, 7, 8])
+  match DeepSeekHarnessEventIgnorableNormalization.ignorableMiddleToolNormalized with
+  | .error error => fail s!"ignorable tool normalization failed: {reprStr error}"
+  | .ok normalized =>
+      assertEqual "ignorable normalization preserves remapped tool session messages"
+        normalized.validated.final.session.messages [
+          .user "look up lean",
+          .assistant "I will look it up." [{
+            id := { value := 0 }
+            name := "lookup"
+            arguments := "{\"q\":\"lean\"}"
+          }],
+          .toolResult { value := 0 } "result" false
+        ]
+      pure ()
+
+private def testDeepSeekHarnessEventIgnorableRunner : IO Unit := do
+  match DeepSeekHarnessEventIgnorableRunner.toolNormalizedRequest with
+  | .error error => fail s!"ignorable normalized runner/request failed: {reprStr error}"
+  | .ok ⟨restored, certificate⟩ =>
+      assertEqual "ignorable normalized runner retains the validated step endpoint"
+        restored.runner.step 8
+      assertEqual "ignorable normalized runner retains the allocated tool-call count"
+        restored.runner.nextCall 1
+      assertEqual "ignorable normalized runner rebuilds the DeepSeek request model"
+        certificate.request.model "deepseek-reasoner"
+      assertEqual "ignorable normalized runner rebuilds the typed tool request messages"
+        certificate.request.messages.toList [
+          .user "look up lean",
+          .assistant (some "I will look it up.") none [{
+            id := "0"
+            name := "lookup"
+            arguments := "{\"q\":\"lean\"}"
+          }],
+          .tool "0" "result"
+        ]
+      let _sessionCertificate :=
+        DeepSeekHarnessEventIgnorableRunner.RestoredRunner.session_eq_final_cert restored
+      let _requestCertificate :=
+        DeepSeekHarnessEventIgnorableRunner.RequestCertificate.build_eq_session
+          restored { model := "deepseek-reasoner", errorToolResults := .reject } certificate
+      pure ()
 
 private def testDeepSeekHarnessEventText : IO Unit := do
   match DeepSeekHarnessEventText.toolTextRestored with
@@ -7246,6 +7294,7 @@ def run : IO Unit := do
   testDeepSeekHarnessEventArchive
   testDeepSeekHarnessEventIgnorableProjection
   testDeepSeekHarnessEventIgnorableNormalization
+  testDeepSeekHarnessEventIgnorableRunner
   testDeepSeekHarnessEventText
   testDeepSeekHarnessEventPrefix
   testDeepSeekHarnessEventProcessPrefix

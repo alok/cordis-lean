@@ -305,6 +305,11 @@ Current machine-checked evidence includes:
   `sourceEventSeqs`/`surfaceOp` references, and validating the normalized local session; duplicate
   physical sequences, missing references, malformed rewrites, required opaque rows, and semantic
   failures reject, while opaque payload semantics and deployed Harness equivalence remain open;
+- `Cordis.DeepSeekHarnessEventIgnorableRunner`, attaching that normalized endpoint to a typed
+  `ConversationRunner` and rebuilding a `ChatRequest` with exact session/step and request-build
+  certificates; the normalized tool-message fixture exercises the user/assistant/tool path, while
+  opaque semantics, provider authenticity, persistence, transport, and deployed equivalence remain
+  external;
 - `Cordis.DeepSeekHarnessEventText`, lifting that certificate-gated event attachment to exact
   UTF-8/JSONL text and `ByteArray` ingress while retaining source/decoded text and rejecting
   invalid encoding or opaque/extension events;
@@ -928,7 +933,7 @@ relation whose union cycles, so the module requires `SupportOrder` directly. It 
 combined-edge well-founded recursion, proves uniqueness, and derives support-equals-active at
 quiescence under state-local provision totality, failure exclusion, and active-parent closure.
 
-The bounded algebra/context/global layer now has fifty-eight explicit pieces:
+The bounded algebra/context/global layer now has fifty-nine explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -1289,6 +1294,11 @@ The bounded algebra/context/global layer now has fifty-eight explicit pieces:
     exact local session endpoint. Duplicate physical sequences, missing references, malformed
     rewrites, and semantic failures reject; this remains a bounded source-honest slice rather than
     complete opaque-payload or deployed-Harness equivalence.
+59. `Cordis.DeepSeekHarnessEventIgnorableRunner` attaches the normalized validated endpoint to the
+    pure `ConversationRunner`, preserves exact session/step equalities, and rebuilds a typed
+    `ChatRequest` through a dependent request certificate. The executable tool fixture verifies the
+    normalized user/assistant/tool messages; provider authenticity, transport, persistence, opaque
+    payload semantics, and deployed-Harness equivalence remain external.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -1398,6 +1408,11 @@ supported subset: it rewrites retained sequence numbers and supported source ref
 calling `SessionRefinement.validateJsonLog`, with typed rejection for duplicate physical sequences,
 missing references, malformed rewrites, and semantic failures. Opaque payload semantics and
 deployed-Harness equivalence remain external.
+
+`Cordis.DeepSeekHarnessEventIgnorableRunner` is the next pure attachment: it sets the
+`ConversationRunner` session definitionally to the normalized final session, records the local step
+and tool-call-count witnesses, and rebuilds a typed request from that endpoint. This is a local
+request/session certificate, not provider execution or deployed-Harness equivalence.
 
 `Cordis.DeepSeekHarnessEventText` is the direct text/byte ingress for this seam. Its text result
 retains the parsed source, archive lines, validated session, and restored runner; its byte result
