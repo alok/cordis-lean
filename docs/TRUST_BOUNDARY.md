@@ -357,6 +357,14 @@ to the restored `ConversationRunner` and to its request certificate; invalid UTF
 structured text error. This still does not turn backend acknowledgement into fsync, stable-media,
 locking, authenticity, or crash-recovery evidence.
 
+`DeepSeekHarnessPersistenceTransportRound` carries that exact restored runner through a complete
+typed request and injected transport. Its `PersistedRound` retains the single response decoder,
+`acceptValidated` equality, archive/session equality, typed tool executions, and final
+assistant-plus-tool-result runner; `plan_build_archive` reconnects request construction to the
+validated archive endpoint. The memory fixture is executable local evidence only. It does not
+prove live network reachability, credentials, provider obedience, durable writes, retries,
+cancellation, external effects, or deployed Harness equivalence.
+
 `HarnessPersistenceBytes` is the pure immutable-`ByteArray` companion. Its dependent certificate
 retains the original bytes, decoded UTF-8 text, parsed JSONL rows, packed-row expansion, and the
 composed Session/Protocol projection. Runtime fixtures cover accepted, malformed, empty, and
@@ -829,7 +837,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1109
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1654
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.

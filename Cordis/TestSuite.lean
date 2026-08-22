@@ -124,6 +124,7 @@ import Cordis.HarnessPersistenceBytes
 import Cordis.HarnessPersistenceArchive
 import Cordis.HarnessPersistenceIO
 import Cordis.DeepSeekHarnessPersistenceIO
+import Cordis.DeepSeekHarnessPersistenceTransportRound
 import Cordis.DeepSeekHarnessOpaqueMetadata
 import Cordis.DeepSeekHarnessMetadataArchive
 import Cordis.Lifecycle
@@ -3743,6 +3744,66 @@ private def testDeepSeekHarnessTransportToolRound : IO Unit := do
   | .error error => fail s!"transport tool-round status error changed: {reprStr error}"
   | .ok _ => fail "transport tool round accepted a 503 response"
 
+private def testDeepSeekHarnessPersistenceTransportRound : IO Unit := do
+  match ← DeepSeekHarnessPersistenceIO.fixtureMemory with
+  | .error error => fail s!"persistence transport restore failed: {reprStr error}"
+  | .ok restored =>
+      let transport : DeepSeekApi.Transport :=
+        DeepSeekCurlTransport.fixtureTransport DeepSeekHarness.counterResponseBody
+      let result ← (DeepSeekHarnessPersistenceTransportRound.executeRestored
+          (Model := Nat) (Capability := Capability) transport
+          "https://fixture.invalid" { value := "fixture-key" } restored
+          DeepSeekHarnessPersistence.persistedToolSource Cordis.Harness.counterConfig 0
+          (sourceEventSeqs := []) (sourcesNodup := by simp) (sourcesEarlier := by simp) :
+        IO (Except DeepSeekHarnessPersistenceTransportRound.RoundError
+          (Sigma fun plan : DeepSeekApi.TypedRequestPlan .complete =>
+            Sigma fun body : String =>
+              DeepSeekHarnessPersistenceTransportRound.PersistedRound restored
+                "https://fixture.invalid" { value := "fixture-key" }
+                DeepSeekHarnessPersistence.persistedToolSource restored.restored.runner plan
+                (sourceEventSeqs := []) (sourcesNodup := by simp)
+                (sourcesEarlier := by simp) body Cordis.Harness.counterConfig 0)))
+      let option : Option
+          (Sigma fun plan : DeepSeekApi.TypedRequestPlan .complete =>
+            Sigma fun body : String =>
+              DeepSeekHarnessPersistenceTransportRound.PersistedRound restored
+                "https://fixture.invalid" { value := "fixture-key" }
+                DeepSeekHarnessPersistence.persistedToolSource restored.restored.runner plan
+                (sourceEventSeqs := []) (sourcesNodup := by simp)
+                (sourcesEarlier := by simp) body Cordis.Harness.counterConfig 0) :=
+        result.toOption
+      match option with
+      | none => fail "persistence transport round failed"
+      | some ⟨plan, ⟨body, round⟩⟩ =>
+          assertEqual "persistence transport round preserves the response body"
+            body DeepSeekHarness.counterResponseBody
+          assertEqual "persistence transport round starts from the byte-backed archive"
+            round.round.response.status 200
+          assertEqual "persistence transport round executes the retained tool call"
+            round.round.executions.length 1
+          assertEqual "persistence transport round preserves the tool successor"
+            round.round.finalModel 0
+          assertEqual "persistence transport round advances archive plus assistant plus tool"
+            round.round.finalRunner.session.nextSeq 10
+          assertEqual "persistence transport round advances the local call allocator"
+            round.round.finalRunner.nextCall 2
+          have _read :=
+            DeepSeekHarnessPersistenceTransportRound.PersistedRound.read_session restored
+              "https://fixture.invalid" { value := "fixture-key" }
+              DeepSeekHarnessPersistence.persistedToolSource restored.restored.runner plan
+              (cfg := Cordis.Harness.counterConfig) (before := 0) round
+          have _plan :=
+            DeepSeekHarnessPersistenceTransportRound.PersistedRound.plan_build_archive restored
+              "https://fixture.invalid" { value := "fixture-key" }
+              DeepSeekHarnessPersistence.persistedToolSource restored.restored.runner plan
+              (cfg := Cordis.Harness.counterConfig) (before := 0) round
+          have _request :=
+            DeepSeekHarnessPersistenceTransportRound.ConversationTransportToolRound.request_body_eq
+              "https://fixture.invalid" { value := "fixture-key" }
+              DeepSeekHarnessPersistence.persistedToolSource restored.restored.runner plan
+              (cfg := Cordis.Harness.counterConfig) (before := 0) round.round
+          pure ()
+
 private def testDeepSeekSchemaStreamConversation : IO Unit := do
   match DeepSeekToolSchema.weatherToolCertificate,
       DeepSeekSchemaRegistry.Example.clockToolCertificate with
@@ -6112,6 +6173,7 @@ def run : IO Unit := do
   testDeepSeekHarnessMixedReplay
   testDeepSeekHarnessTransportContract
   testDeepSeekHarnessTransportToolRound
+  testDeepSeekHarnessPersistenceTransportRound
   testDeepSeekSchemaStreamConversation
   testDeepSeekSchemaStreamPrefixConversation
   testDeepSeekSchemaStreamErrors

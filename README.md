@@ -388,6 +388,15 @@ or a validated append, it re-enters the read certificate and returns the updated
 The append fixture grows a header into a validated packed-text session; it does not imply atomic
 commit, locking, or crash durability.
 
+`Cordis.DeepSeekHarnessPersistenceTransportRound` is the high-level persistence-to-execution
+bridge above these two adapters. `executeRestored` builds a complete typed request from the
+restored runner, sends it through an injected transport, validates the response exactly once,
+passes that same dependent response to `acceptValidated`, executes its admitted tool calls, and
+returns a `PersistedRound` carrying the archive/session equality, request-plan certificate,
+assistant endpoint, typed executions, and final runner. The memory archive plus local counter
+transport exercise this path; live providers, durable commits, retries, cancellation, external
+effects, and deployed Harness equivalence remain outside.
+
 `Cordis.DeepSeekHarnessEventArchive` attaches the broader current-Harness event vocabulary to
 the same runner only when both certificates are present: `SessionEventArchive` must preserve
 every envelope exactly and `SessionRefinement` must validate every event semantically. Known
@@ -1326,6 +1335,7 @@ placeholders.
 | `Cordis.DeepSeekHarnessOpaqueMetadata`                  | Lossless quarantine of tool-result `error`/`meta` alongside a sanitized `ConversationRunner`; exact metadata order, session equality, and request reconstruction are certified while provider/tool semantics remain uninterpreted.                                                                                                                                                                  |
 | `Cordis.DeepSeekHarnessMetadataArchive`                 | Composes the full current-event envelope archive with the sanitized opaque-metadata runner seam, retaining raw envelopes, one known opaque event, exact metadata order, and a sanitized request projection without dropping the record.                                                                                                                                                             |
 | `Cordis.DeepSeekHarnessPersistenceIO`                   | Byte-backed UTF-8/JSONL read certificates attach memory- and temporary-file-backed persistence to a DeepSeek `ConversationRunner`, preserving exact session/request equalities and structured invalid-encoding failures without claiming fsync or crash durability.                                                                                                                                 |
+| `Cordis.DeepSeekHarnessPersistenceTransportRound`       | Composes a byte-backed restored runner with a complete typed request, one injected response decoder, `acceptValidated`, typed tool execution, and an exact final `ConversationRunner`; the executable fixture proves archive/session/request/assistant/tool endpoint alignment without claiming live or durable deployed behavior.                                                                  |
 | `Cordis.DeepSeekToolSchema`                             | Bounded proof-carrying function-tool admission: object parameters, primitive property types, required-name and duplicate-name checks, proof-carrying argument objects, exact source JSON retention, and certified request construction.                                                                                                                                                             |
 | `Cordis.DeepSeekToolAdmission`                          | Ties a raw provider `FunctionCall` to one certified tool name and carries its `ValidatedArguments` proof before generic capability execution; provider obedience, call-ID authenticity, and capability correspondence remain external.                                                                                                                                                              |
 | `Cordis.DeepSeekGenericBridge`                          | Composes provider-schema admission with an explicit named `SchemaToolBinding` and generic dependent `Config.validate`, returning both certificates and an existentially indexed local call; schema semantic equivalence and execution remain external.                                                                                                                                              |

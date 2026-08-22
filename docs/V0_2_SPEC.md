@@ -1357,6 +1357,16 @@ not claim stable media, fsync, locking, torn-tail repair, authenticity, or deplo
 replacement or validated append, so the updated runner is never returned without a fresh logical
 read/validation boundary.
 
+`Cordis.DeepSeekHarnessPersistenceTransportRound` composes that restored runner with the
+execution boundary. `executeRestored` carries the archive/session equality into a complete typed
+request plan, sends the plan through an injected transport, validates the response once, admits
+the same `ValidatedResponse`, executes the admitted function calls, and returns the exact
+assistant-plus-tool-result endpoint. `PersistedRound.plan_build_archive` proves that the request
+plan can be rebuilt from the persisted archive endpoint, while the executable memory fixture
+checks the archive, response, tool, sequence, and allocator projections. This is still a local
+certificate: it does not establish filesystem durability, live provider behavior, retries,
+cancellation, external effect correctness, or deployed Harness equivalence.
+
 `Cordis.SessionPayloadArchive` moves one layer inward without inventing provider semantics. It
 classifies the five current content-block tags plus unknown block extensions, retains exact message
 content arrays and source objects, preserves assistant-chunk objects and raw usage, and retains

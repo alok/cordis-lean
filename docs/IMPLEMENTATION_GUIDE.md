@@ -2190,6 +2190,19 @@ and tool-result sequence/tool-count equations in the result type. Keep the trans
 the fixture process-backed but local; do not infer external tool effects, provider obedience,
 retry/persistence semantics, or deployed-Harness equivalence.
 
+`Cordis.DeepSeekHarnessPersistenceTransportRound` is the next composition step. Start from
+`DeepSeekHarnessPersistenceIO.RestoredRunner`, build the complete typed request from its exact
+`ConversationRunner`, and retain the `buildTypedCompleteRequestPlan` equation. Send that plan
+through the injected `DeepSeekApi.Transport`; on a successful status, call `validateResponse`
+once and pass the resulting dependent value directly to `acceptValidated`. Construct the
+assistant runner with `ConversationRunner.appendAcceptedApi`, execute the certified function
+calls through the supplied generic configuration, and append the typed results. The returned
+`PersistedRound` must retain the archive/session equality, the response/acceptance equations,
+the exact assistant and final endpoints, and the theorem reconnecting request construction to
+the persisted archive session. Test this with the memory archive and deterministic counter
+transport, while keeping durability, live-provider behavior, retries, cancellation, external
+effects, and deployed equivalence as explicit nonclaims.
+
 `Cordis.DeepSeekToolSchema` is the next request-side type boundary. It validates the bounded
 schema vocabulary actually represented by the local DeepSeek API: an object parameter root,
 primitive property `type` tags, optional property descriptions, a duplicate-free `required`
