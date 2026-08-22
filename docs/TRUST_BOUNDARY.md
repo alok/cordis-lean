@@ -362,7 +362,9 @@ runner into two real loopback retry rounds. Its dependent result retains the `Re
 archive/session equality, one typed 503 per round, distinct rebuilt request bodies, and the
 executable `8 -> 10` endpoint. The file is scoped to `withTempFile`; fsync, stable media, crash
 recovery, provider authenticity, external effects, and deployed Harness equivalence remain
-outside.
+outside. `RequestProvenance` also proves that the first plan rebuilds from the validated archive
+session, the second from the first appended session, and both serialized bodies match their typed
+request sources.
 
 `DeepSeekHarnessPersistenceTransportRound` carries that exact restored runner through a complete
 typed request and injected transport. Its `PersistedRound` retains the single response decoder,

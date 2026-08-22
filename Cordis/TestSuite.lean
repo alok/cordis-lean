@@ -2039,6 +2039,8 @@ private def testDeepSeekHarnessPersistenceFileLocalSseRetryConversation : IO Uni
         (expected.firstCompleted, expected.secondCompleted)
       assertEqual "file-backed retry conversation executable projection agrees"
         (DeepSeekHarnessPersistenceFileLocalSseRetryConversation.summaryMatches summary) true
+      let _requestProvenance :=
+        DeepSeekHarnessPersistenceFileLocalSseRetryConversation.requestProvenance run
       let _sessionCertificate :=
         DeepSeekHarnessPersistenceFileLocalSseRetryConversation.restored_session_eq_file_archive run
       let _advanceCertificate :=

@@ -24,6 +24,7 @@ namespace Cordis.DeepSeekHarnessPersistenceFileLocalSseRetryConversation
 open Cordis
 open Cordis.DeepSeekApi
 open Cordis.DeepSeekHarness
+open Cordis.DeepSeekHarnessLocalSse
 open Cordis.DeepSeekHarnessLocalSseRetryConversation
 open Cordis.DeepSeekHarnessPersistenceIO
 open Cordis.DeepSeekRichStream
@@ -60,6 +61,34 @@ theorem final_session_advance (run : FileRetryConversationRun) :
     run.conversation.second.after.session.nextSeq =
       run.restored.restored.runner.session.nextSeq + 2 :=
   RetryConversationResult.session_advance_twice run.conversation
+
+structure RequestProvenance (run : FileRetryConversationRun) where
+  first_archive_build :
+    buildTypedStreamingRequestPlan (localBaseUrl run.conversation.first.port)
+        run.conversation.first.prepared.key Source
+        run.restored.read.validated.validated.final.session =
+      .ok run.conversation.first.prepared.plan
+  second_dependent_build :
+    buildTypedStreamingRequestPlan (localBaseUrl run.conversation.second.port)
+        run.conversation.second.prepared.key Source
+        run.conversation.first.after.session =
+      .ok run.conversation.second.prepared.plan
+  first_body_eq_source :
+    run.conversation.first.prepared.plan.request.body =
+      Lean.Json.compress run.conversation.first.prepared.plan.source.toJson
+  second_body_eq_source :
+    run.conversation.second.prepared.plan.request.body =
+      Lean.Json.compress run.conversation.second.prepared.plan.source.toJson
+
+theorem requestProvenance (run : FileRetryConversationRun) : RequestProvenance run :=
+  {
+    first_archive_build := by
+      rw [← RestoredRunner.session_eq_read run.restored]
+      exact run.conversation.first.prepared.build_eq
+    second_dependent_build := run.conversation.second.prepared.build_eq
+    first_body_eq_source := run.conversation.first.prepared.plan.body_eq
+    second_body_eq_source := run.conversation.second.prepared.plan.body_eq
+  }
 
 structure Summary where
   storage : String

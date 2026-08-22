@@ -238,7 +238,9 @@ rounds with a real temporary-file archive read. The returned result keeps the `R
 beside the restored runner, retains the exact archive/session equality, and checks the executable
 `8 -> 10` progression, one typed 503 per round, and distinct rebuilt request bodies. The file is
 removed by `withTempFile`; fsync, stable media, crash recovery, provider authenticity, external
-effects, and deployed Harness equivalence remain outside.
+effects, and deployed Harness equivalence remain outside. `RequestProvenance` additionally proves
+that the first plan rebuilds from the validated archive session, the second from the first
+appended session, and both serialized bodies equal their typed request sources.
 `Cordis.DeepSeekHarnessLocalSseTimeout` closes the adjacent in-flight boundary: a loopback server
 flushes two valid SSE lines and then stalls, while a real asynchronous timer races the blocking curl
 read and retains the exact typed prefix after cleanup. A fast fixture follows the same path to a
