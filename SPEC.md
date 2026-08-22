@@ -254,6 +254,13 @@ quiescence theorem are preserved. The fixed program, root, oracle, and reachabil
 explicit authority fields; raw transitions do not imply them, so full Definition 60/66 provenance
 and maximal-execution claims remain open.
 
+`Cordis.GlobalPaperProgressReplay` composes that assigned finite runner with a caller-supplied
+`ForwardAssignedStepSimulation`. `replayRun` replays the runner's exact intrinsic trace from a
+birth-erased-related well-formed peer, retaining the source endpoint, length, stop certificate,
+transported assignment, and exact rule/actor projections while proving the peer endpoint
+well-formed and related. The simulator and lifecycle provenance remain explicit inputs; this is
+not a derived lifecycle bisimulation, maximal execution, or unrestricted Theorem 66 bridge.
+
 The support layer exposes another printed-proof gap. A reachable, well-formed two-insert registry
 can have well-founded provider precedence and an acyclic parent relation while their union cycles,
 making Definition 67 support nonunique. The corrected API therefore requires a well-founded

@@ -113,6 +113,7 @@ import Cordis.GlobalProgress
 import Cordis.GlobalProgressTermination
 import Cordis.GlobalProgressRun
 import Cordis.GlobalProgressAssignment
+import Cordis.GlobalPaperProgressReplay
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
@@ -1792,6 +1793,19 @@ namespace Cordis.GlobalPaperTraceNormalizer
 #print axioms Result.actors_perm
 #print axioms Example.empty_normalizes
 end Cordis.GlobalPaperTraceNormalizer
+namespace Cordis.GlobalPaperProgressReplay
+#print axioms ReplayedProgressRun
+#print axioms replayRun
+#print axioms ReplayedProgressRun.source_endpoint_wellFormed
+#print axioms ReplayedProgressRun.source_length_le
+#print axioms ReplayedProgressRun.source_stop
+#print axioms ReplayedProgressRun.shadow_endpoint_wellFormed
+#print axioms ReplayedProgressRun.final_related
+#print axioms ReplayedProgressRun.assignment_transport_exact
+#print axioms ReplayedProgressRun.detailed_rules_eq
+#print axioms ReplayedProgressRun.rules_eq
+#print axioms ReplayedProgressRun.actors_eq
+end Cordis.GlobalPaperProgressReplay
 #print axioms Cordis.GlobalRelations.contextRelated_domain
 #print axioms Cordis.GlobalRelations.ruleSetoid
 #print axioms Cordis.GlobalRelations.ruleRelated_registry_domain

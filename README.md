@@ -945,6 +945,12 @@ every runner trace, while preserving the runner's endpoint and quiescence proofs
 roots, oracles, and reachability remain supplied evidence rather than consequences of a raw
 transition.
 
+`Cordis.GlobalPaperProgressReplay` composes an assigned finite progress run with a caller-supplied
+`ForwardAssignedStepSimulation`. `replayRun` replays the exact source trace from a related
+well-formed peer and preserves source endpoint/length/stop evidence, transported assignment, and
+exact rule/actor projections. The simulator and lifecycle provenance are still supplied; no
+automatic lifecycle bisimulation, maximal execution, or unrestricted Theorem 66 is claimed.
+
 `Cordis.GlobalSupport` then kernel-refutes the printed Lemma 68 inference. A legal `FromEmpty`
 two-O-Insert trace has well-founded provider precedence and an acyclic birth-ranked parent relation,
 yet their union contains a two-cycle; the Definition 67 equations admit both the empty and
@@ -1386,6 +1392,7 @@ placeholders.
 | `Cordis.GlobalProgressTermination`                      | A supplied strict natural-valued lifecycle potential, exact trace budget/telescoping inequalities, conditional `K + 4` length and cycle bounds, and an executable descending witness; it does not derive the potential or full Theorem 66.                                                                                                                                                          |
 | `Cordis.GlobalProgressRun`                              | A supplied progress authority and strict potential drive an exact dependent finite lifecycle runner with retained endpoint `WellFormed` proofs, intrinsic traces, quiescent/full-fuel stop certificates, and initial-potential quiescence; it does not derive the authorities or maximal Theorem 66.                                                                                                |
 | `Cordis.GlobalProgressAssignment`                       | An explicit lifecycle-step assignment authority recursively reconstructs a dependent `TraceProgramAssignment` for every finite progress-run trace and preserves the runner's endpoint/stop certificates; it does not infer fixed programs, roots, oracles, or reachability.                                                                                                                         |
+| `Cordis.GlobalPaperProgressReplay`                      | Composes an assigned finite progress run with a caller-supplied birth-erased forward trace simulator, retaining source endpoint/stop/length evidence, exact transported assignment, rule/actor projections, and peer relatedness; it does not derive the simulator or maximal Theorem 66.                                                                                                           |
 | `Cordis.GlobalSupport`                                  | Reachable mixed-order/nonunique-support countermodels, combined-order recursion and uniqueness, state-local provision/failure/parent laws, corrected support-equals-active theorem, and necessity/positive examples.                                                                                                                                                                                |
 | `Cordis.GlobalTraceRewrite`                             | Exact indexed adjacent trace windows, occurrence/program assignment, assignment-preserving activation and orchestration adapters, rule/actor permutations, and a nonempty-context executable rewrite.                                                                                                                                                                                               |
 | `Cordis.GlobalDeletion`                                 | Intrinsic relation-indexed keep/drop replay, assignment reconstruction, multi-vestigial exact orchestration suffixes, positional templates, semantic redraw detection, and parent/allocator countermodels.                                                                                                                                                                                          |

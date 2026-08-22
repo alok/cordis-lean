@@ -113,6 +113,7 @@ import Cordis.GlobalProgress
 import Cordis.GlobalProgressTermination
 import Cordis.GlobalProgressRun
 import Cordis.GlobalProgressAssignment
+import Cordis.GlobalPaperProgressReplay
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
@@ -6200,6 +6201,14 @@ private def testGlobalPaperTraceNormalizer : IO Unit := do
   assertEqual "conditional trace normalizer consumes the executable zero-fuel authority"
     Cordis.GlobalPaperTraceNormalizer.Example.executableFuel 0
 
+private def testGlobalPaperProgressReplay : IO Unit := do
+  let _stop := Cordis.GlobalPaperProgressReplay.Example.executable_stop
+  let _related := Cordis.GlobalPaperProgressReplay.Example.executable_replay_related
+  let _assignment := Cordis.GlobalPaperProgressReplay.Example.executable_assignment
+  assertEqual "assigned progress replay keeps its zero-fuel source"
+    (GlobalProgressRun.progressTraceLength
+      GlobalPaperProgressReplay.Example.assignedZero.base.trace) 0
+
 private def testGlobalProgress : IO Unit := do
   assertEqual "conditional progress constructs the expected concrete Begin rule"
     GlobalProgress.BeginExample.executableRule .begin
@@ -6674,6 +6683,7 @@ def run : IO Unit := do
   testGlobalPaperTraceDeletion
   testGlobalPaperTraceNormalization
   testGlobalPaperTraceNormalizer
+  testGlobalPaperProgressReplay
   testGlobalProgress
   testGlobalProgressTermination
   testGlobalProgressRun
