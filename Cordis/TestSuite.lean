@@ -2149,6 +2149,29 @@ private def testDeepSeekAsyncStreamRetryCancellation : IO Unit := do
       | .error _ =>
           fail "async retry-aware cancellation returned a typed error"
   | .waiting => fail "async retry-aware cancellation returned no winning result"
+  let successRace ← DeepSeekAsyncStreamRetryCancellation.exampleSuccessRace
+  assertEqual "async retry-aware success-first race returns an accepted result"
+    successRace.successful true
+  assertEqual "async retry-aware success-first race is not marked cancelled"
+    successRace.cancelled false
+  assertEqual "async retry-aware success-first race reaches a terminal phase"
+    successRace.phase.isTerminal true
+  match successRace with
+  | .left _ result | .right _ result =>
+      match result.result with
+      | .ok ⟨finalRunner, ⟨finalModel, run⟩⟩ =>
+          assertEqual "async retry-aware success-first retains accepted rounds"
+            run.trace.length 2
+          assertEqual "async retry-aware success-first retains the final model"
+            finalModel 0
+          assertEqual "async retry-aware success-first retains the final runner"
+            finalRunner.session.nextSeq 5
+          assertEqual "async retry-aware success-first finishes normally"
+            (DeepSeekStreamHarnessRetryCancellation.RetryCancellableStop.cancelledRound run.stop)
+            none
+      | .error _ =>
+          fail "async retry-aware success-first returned a typed error"
+  | .waiting => fail "async retry-aware success-first returned no winning result"
 
 private def testDeepSeekStream : IO Unit := do
   match DeepSeekStream.validateSse DeepSeekStream.exampleStreamBody with

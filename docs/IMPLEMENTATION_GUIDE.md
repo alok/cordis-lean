@@ -2420,7 +2420,8 @@ fairness, cleanup, or deployed async cancellation equivalence.
 `Cordis.DeepSeekAsyncStreamRetryCancellation` repeats that adapter shape for retry-aware jobs. Its
 `JobResult` keeps the retry policy in the error type and the final runner/model indices in the
 success type; `RaceResult` records which dependent child won. The cancellation-first fixture
-checks the exact round/reason stop and empty accepted trace, without claiming interruption,
+checks the exact round/reason stop and empty accepted trace, while a delayed-child success-first
+fixture checks the complementary two-round terminal path. Neither fixture claims interruption,
 fairness, cleanup, reconnect, or deployed retry/cancellation equivalence.
 `Cordis.DeepSeekStream` supplies the next wire boundary: strict in-memory
 `data:` / `[DONE]` SSE framing, typed delta choices, retained raw-frame

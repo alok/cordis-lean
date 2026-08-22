@@ -1917,3 +1917,4 @@ end Cordis.GlobalPaperTraceNormalization
 #print axioms Cordis.DeepSeekAsyncStreamRetryCancellation.RaceResult.phase_pending_iff_waiting
 #print axioms Cordis.DeepSeekAsyncStreamRetryCancellation.RaceResult.result
 #print axioms Cordis.DeepSeekAsyncStreamRetryCancellation.exampleCancellationRace
+#print axioms Cordis.DeepSeekAsyncStreamRetryCancellation.exampleSuccessRace

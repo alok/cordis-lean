@@ -294,4 +294,45 @@ def successJob : RetryProcessJob Cordis.Harness.counterConfig where
 def exampleCancellationRace : IO (RaceResult Cordis.Harness.counterConfig) :=
   executeRace cancellationJob successJob
 
+/-! A complementary fixture puts the successful child first and delays its successful sibling.
+This exercises the same cooperative boundary from the opposite winner branch without claiming
+that the process scheduler is fair or that cancellation interrupts a blocked read. -/
+
+def successFirstJob : RetryProcessJob Cordis.Harness.counterConfig where
+  id := 2
+  cancellationPolicy := CancellationPolicy.never .user
+  retryPolicy := RetryPolicy.default
+  fuel := 2
+  config := DeepSeekAsyncStreamHarness.streamLoopFixtureProcessWithDelay "0"
+  baseUrl := "https://fixture.invalid"
+  apiKey := { value := "fixture-key" }
+  source := DeepSeekHarness.counterRequestSource
+  before := 0
+  runner := DeepSeekAsyncStreamHarness.counterInitialRunner
+  sourceEventSeqs := []
+  sourcesNodup := by simp
+  sourcesEarlier := by
+    intro current source sourceMem
+    cases sourceMem
+
+def delayedSuccessJob : RetryProcessJob Cordis.Harness.counterConfig where
+  id := 3
+  cancellationPolicy := CancellationPolicy.never .user
+  retryPolicy := RetryPolicy.default
+  fuel := 2
+  config := DeepSeekAsyncStreamHarness.streamLoopFixtureProcessWithDelay "0.30"
+  baseUrl := "https://fixture.invalid"
+  apiKey := { value := "fixture-key" }
+  source := DeepSeekHarness.counterRequestSource
+  before := 0
+  runner := DeepSeekAsyncStreamHarness.counterInitialRunner
+  sourceEventSeqs := []
+  sourcesNodup := by simp
+  sourcesEarlier := by
+    intro current source sourceMem
+    cases sourceMem
+
+def exampleSuccessRace : IO (RaceResult Cordis.Harness.counterConfig) :=
+  executeRace successFirstJob delayedSuccessJob
+
 end Cordis.DeepSeekAsyncStreamRetryCancellation
