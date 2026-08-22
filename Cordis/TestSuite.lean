@@ -47,6 +47,7 @@ import Cordis.DeepSeekHarnessLiveProbe
 import Cordis.DeepSeekHarnessLocalHttp
 import Cordis.DeepSeekHarnessLocalSse
 import Cordis.DeepSeekHarnessLocalSseRetry
+import Cordis.DeepSeekHarnessLocalSseTimeout
 import Cordis.DeepSeekHarnessExtensions
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
@@ -3453,6 +3454,43 @@ private def testDeepSeekHarnessLocalSseRetry : IO Unit := do
           assertEqual "local SSE retry retains the transient HTTP status" status 503
           assertEqual "local SSE retry retains the transient response body" body "busy\n"
       | failures => fail s!"unexpected local SSE retry failure history: {reprStr failures}"
+
+private def testDeepSeekHarnessLocalSseTimeout : IO Unit := do
+  match ← DeepSeekHarnessLocalSseTimeout.Example.timeoutRun with
+  | .error error => fail s!"local SSE timeout fixture failed: {reprStr error}"
+  | .ok (.completed _) => fail "local SSE timeout fixture fabricated a completion"
+  | .ok (.timedOut pfx) =>
+      let summary := DeepSeekHarnessLocalSseTimeout.Example.summarize (.timedOut pfx)
+      assertEqual "local SSE timeout retains a typed timeout outcome"
+        summary.timedOut DeepSeekHarnessLocalSseTimeout.Example.expectedTimeout.timedOut
+      assertEqual "local SSE timeout retains the two flushed prefix lines"
+        summary.acceptedLines DeepSeekHarnessLocalSseTimeout.Example.expectedTimeout.acceptedLines
+      assertEqual "local SSE timeout leaves the runner endpoint unchanged"
+        summary.nextSeq DeepSeekHarnessLocalSseTimeout.Example.expectedTimeout.nextSeq
+      assertEqual "local SSE timeout observes one validated request"
+        summary.requests DeepSeekHarnessLocalSseTimeout.Example.expectedTimeout.requests
+      assertEqual "local SSE timeout observes one valid request"
+        summary.validRequests DeepSeekHarnessLocalSseTimeout.Example.expectedTimeout.validRequests
+      assertEqual "local SSE timeout prefix has no terminal done frame" pfx.state.done false
+      assertEqual "local SSE timeout retains the actual streaming request"
+        pfx.prepared.plan.source.stream true
+  match ← DeepSeekHarnessLocalSseTimeout.Example.fastRun with
+  | .error error => fail s!"local SSE fast fixture failed: {reprStr error}"
+  | .ok (.timedOut _) => fail "local SSE fast fixture timed out"
+  | .ok (.completed result) =>
+      let summary := DeepSeekHarnessLocalSseTimeout.Example.summarize (.completed result)
+      assertEqual "local SSE fast fixture completes"
+        summary.timedOut DeepSeekHarnessLocalSseTimeout.Example.expectedFast.timedOut
+      assertEqual "local SSE fast fixture delivers every line"
+        summary.acceptedLines DeepSeekHarnessLocalSseTimeout.Example.expectedFast.acceptedLines
+      assertEqual "local SSE fast fixture appends one assistant"
+        summary.nextSeq DeepSeekHarnessLocalSseTimeout.Example.expectedFast.nextSeq
+      assertEqual "local SSE fast fixture observes one request"
+        summary.requests DeepSeekHarnessLocalSseTimeout.Example.expectedFast.requests
+      assertEqual "local SSE fast fixture validates one request"
+        summary.validRequests DeepSeekHarnessLocalSseTimeout.Example.expectedFast.validRequests
+      assertEqual "local SSE fast result retains stream mode"
+        result.prepared.plan.source.stream true
 
 private def testDeepSeekHarnessPersistence : IO Unit := do
   match DeepSeekHarnessPersistence.persistedToolArchive with
@@ -7590,6 +7628,7 @@ def run : IO Unit := do
   testDeepSeekHarnessLocalHttp
   testDeepSeekHarnessLocalSse
   testDeepSeekHarnessLocalSseRetry
+  testDeepSeekHarnessLocalSseTimeout
   testDeepSeekHarnessPersistence
   testDeepSeekHarnessPersistenceIO
   testDeepSeekHarnessOpaqueMetadata

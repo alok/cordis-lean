@@ -291,6 +291,12 @@ Current machine-checked evidence includes:
   SSE body; the retry history, reused streaming plan, accepted wire/body certificate, and single
   appended runner endpoint remain linked; provider backoff, tool idempotency, arbitrary retry
   policy, blocked-read cancellation, and deployed retry equivalence remain external;
+- `Cordis.DeepSeekHarnessLocalSseTimeout`, starting a loopback SSE fixture that flushes two valid
+  lines and then stalls, racing a real asynchronous timer against the blocking curl read and
+  retaining the dependent prefix after cleanup; a zero-delay sibling reaches strict completion and
+  one runner append. Arbitrary cleanup, fairness, backpressure, credential/TLS authenticity,
+  provider-complete assembly, reconnect semantics, and deployed cancellation equivalence remain
+  external;
 - `Cordis.DeepSeekStreamHarness`, composing complete-body terminal rich tool streams with the
   generic conversation runner, dependent tool execution, and certified typed-result append;
   streamed rounds use a request source/body certificate proving `stream: true`, and an executable
@@ -953,7 +959,7 @@ relation whose union cycles, so the module requires `SupportOrder` directly. It 
 combined-edge well-founded recursion, proves uniqueness, and derives support-equals-active at
 quiescence under state-local provision totality, failure exclusion, and active-parent closure.
 
-The bounded algebra/context/global layer now has sixty-six explicit pieces:
+The bounded algebra/context/global layer now has sixty-seven explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -1362,6 +1368,12 @@ The bounded algebra/context/global layer now has sixty-six explicit pieces:
     the accepted terminal body advances the dependent runner. Provider backoff, tool idempotency,
     arbitrary retry policy, blocked-read cancellation, credentials/TLS, and deployed retry
     equivalence remain external.
+67. `Cordis.DeepSeekHarnessLocalSseTimeout` composes that local streaming boundary with a real
+    per-read timer. A delayed fixture flushes two valid lines, times out before the third, kills
+    and waits the configured curl child, and retains the exact unfinished prefix; a zero-delay
+    fixture completes through strict wire validation and appends one assistant. Arbitrary cleanup,
+    fairness, backpressure, credential/TLS authenticity, provider-complete assembly, reconnect
+    semantics, and deployed cancellation equivalence remain external.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
