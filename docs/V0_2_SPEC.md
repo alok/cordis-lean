@@ -773,7 +773,7 @@ relation whose union cycles, so the module requires `SupportOrder` directly. It 
 combined-edge well-founded recursion, proves uniqueness, and derives support-equals-active at
 quiescence under state-local provision totality, failure exclusion, and active-parent closure.
 
-The bounded algebra/context/global layer now has thirty-seven explicit pieces:
+The bounded algebra/context/global layer now has thirty-nine explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -999,7 +999,13 @@ The bounded algebra/context/global layer now has thirty-seven explicit pieces:
     argument proves state-local no-deadlock for every lifecycle phase. The module stops before the
     quantitative `(K + 4)` bound, target-turn finiteness, maximal termination, fairness, or
     trace-wide program assignment.
-37. `Cordis.GlobalSupport` proves the printed Lemma 68 inference false with a reachable
+37. `Cordis.GlobalProgressTermination` supplies the quantitative bridge only as an explicit
+    certificate: a strict natural-valued potential over exact dependent lifecycle edges yields
+    telescoping trace budgets, a conditional `K + 4` length bound, and a no-nonempty-cycle theorem.
+    The potential, strict-decrease law, and initial bound are not derived from `GlobalProgress`;
+    target-turn finiteness, maximal termination, fairness, trace-wide assignment, support,
+    deletion, and confluence remain unproved.
+38. `Cordis.GlobalSupport` proves the printed Lemma 68 inference false with a reachable
     `FromEmpty` mixed parent/provider cycle and two distinct Definition 67 solutions.
     `SupportOrder` therefore stores well-foundedness of the combined relation itself; `supported`
     uses edge-indexed well-founded recursion and is the unique solution. `TotalOnProvisionAt`,
@@ -1008,7 +1014,7 @@ The bounded algebra/context/global layer now has thirty-seven explicit pieces:
     closure assumption necessary, while a root-only positive state exercises the corrected theorem.
     The module does not derive combined order or parent provenance from `FromEmpty`, does not prove
     component-wide Definition 69 or printed Lemma 70, and stops before deletion/confluence.
-38. `Cordis.GlobalPaperTraceNormalization` packages a finite list of supplied
+39. `Cordis.GlobalPaperTraceNormalization` packages a finite list of supplied
     `RelatedAdjacentRewrite` certificates. The dependent-safe chain representation connects each
     link to the next rewritten trace package, retains each transported `TraceProgramAssignment`,
     and proves final `BirthErasedRuleRelated` plus `List.Perm` facts for trace rules and actors.

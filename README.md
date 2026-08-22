@@ -768,6 +768,13 @@ relied-provider case. It proves only that some exact lifecycle rule applies. The
 `(K + 4)` bound, target-turn finiteness, maximal-execution termination, trace-wide program
 assignment, and fairness remain unproved.
 
+`Cordis.GlobalProgressTermination` adds the narrow quantitative bridge without hiding that gap. A
+supplied strict natural-valued potential gives a telescoping budget for every exact dependent
+lifecycle trace; an initial bound of `K + 4` therefore yields a trace-length bound and rules out
+nonempty cycles. The potential is an explicit authority, not something derived from
+`lifecycle_progress`, so target-turn finiteness, maximal termination, fairness, support, and
+trace-wide program assignment remain unclaimed.
+
 `Cordis.GlobalSupport` then kernel-refutes the printed Lemma 68 inference. A legal `FromEmpty`
 two-O-Insert trace has well-founded provider precedence and an acyclic birth-ranked parent relation,
 yet their union contains a two-cycle; the Definition 67 equations admit both the empty and
@@ -1198,6 +1205,7 @@ placeholders.
 | `Cordis.GlobalActivationTransposition`                  | Fixed-program Begin/Iter/Finish activations, positive-target framing, endpoint/rule determinism, all-nine exact lifecycle diamonds, an actual-second-step transposition wrapper, and root/same-owner necessity witnesses.                                                                                                                                                                           |
 | `Cordis.GlobalActivationOrchestrationTransposition`     | Literal-clause parent/birth countermodels, occurrence-minimal orchestration framing, corrected exact activation/orchestration exchange, frame-necessity models, and representative structural/ordinary/registering examples.                                                                                                                                                                        |
 | `Cordis.GlobalProgress`                                 | Fixed-oracle and freshness-exhaustion deadlocks, finite provider precedence/rank, exact landing-or-raise and recovery authorities, maximal-unloading reasoning, conditional state-local no-deadlock, and executable examples.                                                                                                                                                                       |
+| `Cordis.GlobalProgressTermination`                      | A supplied strict natural-valued lifecycle potential, exact trace budget/telescoping inequalities, conditional `K + 4` length and cycle bounds, and an executable descending witness; it does not derive the potential or full Theorem 66.                                                                                                                                                |
 | `Cordis.GlobalSupport`                                  | Reachable mixed-order/nonunique-support countermodels, combined-order recursion and uniqueness, state-local provision/failure/parent laws, corrected support-equals-active theorem, and necessity/positive examples.                                                                                                                                                                                |
 | `Cordis.GlobalTraceRewrite`                             | Exact indexed adjacent trace windows, occurrence/program assignment, assignment-preserving activation and orchestration adapters, rule/actor permutations, and a nonempty-context executable rewrite.                                                                                                                                                                                               |
 | `Cordis.GlobalDeletion`                                 | Intrinsic relation-indexed keep/drop replay, assignment reconstruction, multi-vestigial exact orchestration suffixes, positional templates, semantic redraw detection, and parent/allocator countermodels.                                                                                                                                                                                          |

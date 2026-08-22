@@ -97,6 +97,7 @@ import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalProgress
+import Cordis.GlobalProgressTermination
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
@@ -5407,6 +5408,16 @@ private def testGlobalProgress : IO Unit := do
   assertEqual "the concrete progress source is inactive rather than already installed"
     GlobalProgress.BeginExample.executableSourcePhase true
 
+private def testGlobalProgressTermination : IO Unit := do
+  assertEqual "quantitative progress example has two exact edges"
+    GlobalProgressTermination.Example.executableLength 2
+  assertEqual "quantitative progress starts with potential two"
+    (GlobalProgressTermination.Example.potential.value
+      GlobalProgressTermination.Example.State.start) 2
+  assertEqual "quantitative progress ends with potential zero"
+    (GlobalProgressTermination.Example.potential.value
+      GlobalProgressTermination.Example.State.done) 0
+
 private def testGlobalSupport : IO Unit := do
   assertEqual "separate acyclic relations can form one cyclic support dependency"
     GlobalSupport.MixedCycle.cycleProjection (true, true, true)
@@ -5830,6 +5841,7 @@ def run : IO Unit := do
   testGlobalPaperTraceDeletion
   testGlobalPaperTraceNormalization
   testGlobalProgress
+  testGlobalProgressTermination
   testGlobalSupport
   testGlobalRelations
   testGlobalSpatial

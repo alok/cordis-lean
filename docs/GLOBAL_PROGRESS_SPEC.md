@@ -473,6 +473,25 @@ until the repository has:
 to arbitrary lifecycle records. Existing `Trace` values are finite by
 construction and cannot state that every maximal execution terminates.
 
+## 13.5. Conditional quantitative certificate
+
+`Cordis.GlobalProgressTermination` implements the narrow arithmetic bridge that
+the preceding section says is safe to add without changing the paper claim. It
+defines an explicit strict natural-valued potential over exact dependent
+lifecycle edges. The generic telescoping theorem proves, for every finite trace,
+
+```text
+trace.length + potential(final) <= potential(initial)
+```
+
+and `KPlusFourCertificate.trace_length_le_k_plus_four` derives a `K + 4`
+trace-length bound from an explicit initial bound. The same potential rules out
+nonempty exact cycles. This is a supplied certificate layer, not a derivation
+from `lifecycle_progress`; it still does not provide target-turn accounting,
+trace-wide assignment, maximal/infinite execution semantics, fairness, support,
+or confluence. The executable three-state witness checks the arithmetic without
+claiming to model the paper's global name universe.
+
 ## 14. Explicit non-claims
 
 This slice does not prove:
@@ -485,7 +504,8 @@ This slice does not prove:
   totality;
 - that `RecoveryAdmission` always exists;
 - full Theorem 63 provider/provision soundness;
-- the quantitative `(K + 4)` bound;
+- the paper's `(K + 4)` bound from its printed assumptions (the separate
+  `GlobalProgressTermination` certificate requires an explicit potential);
 - target-turn finiteness;
 - termination of maximal executions;
 - scheduler fairness;
@@ -516,6 +536,7 @@ and library-level `#eval` commands.
 Before claiming the slice complete:
 
 1. import it through `Cordis.lean`;
+1. import `Cordis.GlobalProgressTermination` through `Cordis.lean` and the test/audit modules;
 1. add representative runtime projections to `Cordis.TestSuite`;
 1. add a guarded fixed-program or fresh-admission rejection to
    `Cordis.NegativeTests`;

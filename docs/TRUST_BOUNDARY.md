@@ -981,6 +981,13 @@ fiber, and recovery readiness at each current unrelied unloading fiber. A maxima
 argument proves state-local no-deadlock without aborting inertia. The module does not prove the
 quantitative bound, target-turn finiteness, maximal termination, or fairness.
 
+`GlobalProgressTermination` is the deliberately separate quantitative bridge. A supplied strict
+natural-valued potential telescopes over exact dependent lifecycle traces, so an initial `K + 4`
+bound proves the corresponding trace-length bound and excludes nonempty cycles. Neither the
+potential nor its strict-decrease law is derived from `GlobalProgress`; target-turn finiteness,
+maximal-execution termination, fairness, trace-wide assignment, support, deletion, and confluence
+remain outside the claim.
+
 `GlobalSupport` records the next paper-level correction. A reachable two-insert state has
 well-founded provider precedence and acyclic parent pointers but a cyclic union, so Definition 67
 has distinct empty and present-name solutions. `SupportOrder` therefore supplies combined

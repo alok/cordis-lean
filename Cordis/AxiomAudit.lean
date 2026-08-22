@@ -97,6 +97,7 @@ import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalProgress
+import Cordis.GlobalProgressTermination
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
@@ -1275,6 +1276,19 @@ namespace Cordis.GlobalProgress
 #print axioms OracleExample.origin_ready
 #print axioms OracleExample.concrete_landing
 end Cordis.GlobalProgress
+namespace Cordis.GlobalProgressTermination
+#print axioms FiniteTrace.budget
+#print axioms FiniteTrace.length_le
+#print axioms FiniteTrace.endpoint_strict_of_nonempty
+#print axioms FiniteTrace.no_nonempty_cycle
+#print axioms KPlusFourCertificate.trace_budget
+#print axioms KPlusFourCertificate.trace_length_le_k_plus_four
+#print axioms KPlusFourCertificate.final_wellFormed
+#print axioms Example.executableLength_eq
+#print axioms Example.executableBudget
+#print axioms Example.executableBound
+#print axioms Example.executableEndpoint
+end Cordis.GlobalProgressTermination
 namespace Cordis.GlobalSupport
 #print axioms MixedCycle.final_wellFormed
 #print axioms MixedCycle.precedence_wellFounded

@@ -596,6 +596,8 @@ exact safe multi-vestigial orchestration suffix theorem, followed by
 observation and actual orchestration simulation, followed by
 [`Cordis/GlobalProgress.lean`](../Cordis/GlobalProgress.lean)'s conditional state-local
 no-deadlock theorem and progress countermodels, followed by
+[`Cordis/GlobalProgressTermination.lean`](../Cordis/GlobalProgressTermination.lean)'s supplied
+strict-potential budget and conditional `K + 4` trace bound, followed by
 [`Cordis/GlobalSupport.lean`](../Cordis/GlobalSupport.lean)'s combined-order recursion,
 support/active theorem, and mixed-cycle/parent countermodels,
 [`Cordis/GlobalRelations.lean`](../Cordis/GlobalRelations.lean)'s explicit observation candidates,
