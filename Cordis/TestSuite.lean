@@ -60,6 +60,7 @@ import Cordis.DeepSeekHarnessErrors
 import Cordis.DeepSeekHarnessRetry
 import Cordis.DeepSeekHarnessCancellation
 import Cordis.DeepSeekStreamHarness
+import Cordis.DeepSeekStreamHarnessByte
 import Cordis.DeepSeekStreamHarnessCancellation
 import Cordis.DeepSeekStreamHarnessPrefix
 import Cordis.DeepSeekStreamHarnessErrors
@@ -3775,6 +3776,70 @@ private def testDeepSeekStreamHarness : IO Unit := do
       assertEqual "DeepSeek streamed loop exhaustion is distinct from completion"
         (DeepSeekStreamHarness.StreamConversationStop.isCompleted result.stop) false
 
+private def testDeepSeekStreamHarnessByte : IO Unit := do
+  let process := DeepSeekStreamHarness.streamFlagFixtureProcess
+    DeepSeekStreamHarness.counterToolStreamBody
+  let initialRunner : DeepSeekHarness.ConversationRunner := {
+    session := DeepSeekHarness.counterSession
+    turn := 1
+    step := 0
+    nextCall := 0
+    toolCallCount_eq_nextCall := by rfl
+  }
+  let roundResult ← DeepSeekStreamHarnessByte.executeConversationByteStreamRound
+    DeepSeekSessionRunner.finishTool 4096 2 process "https://fixture.invalid"
+    { value := "fixture-key" } DeepSeekHarness.counterRequestSource
+    Cordis.Harness.counterConfig 0 initialRunner [] (by simp) (by simp)
+  match roundResult with
+  | .error _ => fail "byte-backed streamed Harness round failed"
+  | .ok ⟨body, result⟩ =>
+      assertEqual "byte-backed Harness preserves the decoded SSE body"
+        body DeepSeekStreamHarness.counterToolStreamBody
+      assertEqual "byte-backed Harness retains multiple stdout chunks"
+        (decide (result.observed.chunks.length > 1)) true
+      assertEqual "byte-backed Harness retains the exact framed body"
+        result.observed.framed.text body
+      let _rawChunks := result.observed.raw_chunks_eq
+      let _bodyChunks := result.observed.body_chunks_eq
+      let _wireExact := DeepSeekCurlByteFraming.ByteChunkResponse.validateSseBytes_exact
+        result.observed
+      assertEqual "byte-backed Harness executes the streamed dependent call"
+        result.round.finalModel 0
+      assertEqual "byte-backed Harness appends the certified tool result"
+        result.round.runner.session.nextSeq 3
+
+  let loopProcess : Cordis.DeepSeekCurlTransport.ProcessConfig := {
+    command := "sh"
+    args := fun _ => #[
+      "-c",
+      "body=$(cat); case \"$body\" in " ++
+        "*tool_calls*) printf '%s\\n__CORDIS_HTTP_STATUS__200\\n' \"$2\" ;; " ++
+        "*) printf '%s\\n__CORDIS_HTTP_STATUS__200\\n' \"$1\" ;; esac",
+      "cordis-byte-stream-loop-fixture",
+      DeepSeekStreamHarness.counterMultiToolStreamBody,
+      DeepSeekRichStream.exampleTextStreamBody
+    ]
+  }
+  let loopResult :
+      Except DeepSeekStreamHarnessByte.ByteStreamConversationError
+        (DeepSeekStreamHarnessByte.ByteStreamConversationRunResult
+          (Model := Nat) (Capability := Cordis.Examples.Counter.Capability)
+          Cordis.Harness.counterConfig) ←
+    DeepSeekStreamHarnessByte.runConversationMultiByteStream 2 4096 3 loopProcess
+    "https://fixture.invalid" { value := "fixture-key" }
+    DeepSeekHarness.counterRequestSource [] (by simp) (by
+      intro current source sourceMem
+      cases sourceMem) 0 initialRunner
+  match loopResult with
+  | .error _ => fail "byte-backed streamed Harness loop failed"
+  | .ok result =>
+      assertEqual "byte-backed Harness loop retains both round witnesses"
+        result.rounds.length 2
+      assertEqual "byte-backed Harness loop preserves the final model"
+        result.finalModel 0
+      assertEqual "byte-backed Harness loop reports completion"
+        (DeepSeekStreamHarnessByte.ByteStreamConversationStop.isCompleted result.stop) true
+
 private def testDeepSeekStreamHarnessCancellation : IO Unit := do
   let streamLoopProcess : Cordis.DeepSeekCurlTransport.ProcessConfig := {
     command := "sh"
@@ -5519,6 +5584,7 @@ def run : IO Unit := do
   testDeepSeekHarnessPayloadText
   testDeepSeekHarnessPayloadPersistence
   testDeepSeekStreamHarness
+  testDeepSeekStreamHarnessByte
   testDeepSeekStreamHarnessCancellation
   testDeepSeekStreamHarnessPrefix
   testDeepSeekHarnessErrors

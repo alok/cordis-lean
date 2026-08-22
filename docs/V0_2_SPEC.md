@@ -304,6 +304,11 @@ Current machine-checked evidence includes:
   certificate are retained, with typed process/status/read-limit failures; network, credentials,
   executable trust, blocked-read interruption, backpressure, cancellation, reconnect, and deployed
   semantics remain external;
+- `Cordis.DeepSeekStreamHarnessByte`, carrying that dependent byte/framing/status witness through a
+  complete streamed Harness round and fuel-bounded loop into the existing rich/tool/session runner;
+  tool execution, certified result append, and text-terminal completion are exercised, while
+  byte-level cancellation, blocked-read interruption, backpressure, reconnect, and deployed
+  semantics remain external;
 - `Cordis.DeepSeekCurlIncremental`, delivering complete response lines through a process callback
   under an explicit read budget before strict validation of the reconstructed SSE body; byte-level
   and cancellation semantics remain external;

@@ -1974,6 +1974,12 @@ observed body at the parsed byte boundary, and feeds those same body chunks to
 chunk list, body-chunk equality, and validated SSE certificate. Keep network, credential,
 executable-trust, blocked-read, backpressure, cancellation, reconnect, and deployed claims
 outside this finite fixture.
+`Cordis.DeepSeekStreamHarnessByte` is the next composition layer: it consumes that dependent
+byte witness, dispatches the decoded body through the existing rich/tool/session continuation, and
+retains the witness beside the assistant/tool runner endpoint. Its round and fuel-bounded loop
+are executable with the same deterministic tool and text fixtures as `DeepSeekStreamHarness`;
+byte-level cancellation, blocked-read interruption, backpressure, reconnect, and deployed
+Harness semantics remain explicit runtime obligations.
 `Cordis.DeepSeekCurlSession` takes the terminal text subset one step further: it retains the
 process-backed wire certificate, runs the accepted rich/session projection, and returns the
 proof-carrying append-only runner. Source-event evidence, numeric local-ID assignment, and all

@@ -882,6 +882,11 @@ retains the observed `ByteArray` chunks, raw UTF-8 output, private status/body p
 the exact body-chunk framing certificate before strict SSE validation. This is finite process
 evidence only: network, credential, executable-trust, blocked-read, backpressure, cancellation,
 reconnect, provider-complete assembly, and deployed stream equivalence remain external.
+`Cordis.DeepSeekStreamHarnessByte` carries that dependent byte witness through the complete-body
+streamed Harness continuation. Its one-round and fuel-bounded fixtures retain the raw/framed/status
+certificate while dispatching the decoded body through rich tool execution, certified result append,
+and text-terminal completion. Byte-level cancellation, blocked-read interruption, backpressure,
+reconnect, and deployed Harness equivalence remain outside.
 
 [paper-tree]: https://github.com/cordiverse/paper/tree/948a07b369c62adb3b12e102458be5c18dfb69b9
 [paper-pdf]: https://raw.githubusercontent.com/cordiverse/paper/948a07b369c62adb3b12e102458be5c18dfb69b9/paper.pdf

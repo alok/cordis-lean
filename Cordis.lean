@@ -63,6 +63,7 @@ import Cordis.DeepSeekHarnessErrors
 import Cordis.DeepSeekHarnessRetry
 import Cordis.DeepSeekHarnessCancellation
 import Cordis.DeepSeekStreamHarness
+import Cordis.DeepSeekStreamHarnessByte
 import Cordis.DeepSeekStreamHarnessCancellation
 import Cordis.DeepSeekStreamHarnessPrefix
 import Cordis.DeepSeekStreamHarnessErrors

@@ -111,6 +111,11 @@ fed unchanged through the byte-framed validator. This is finite process
 evidence, not a proof of network reachability, credential validity, executable
 trust, blocked-read interruption, backpressure, cancellation, reconnects, or
 deployed Harness equivalence.
+`Cordis.DeepSeekStreamHarnessByte` carries that byte witness through a complete streamed Harness
+round and fuel-bounded loop: the decoded body reaches the same rich/tool/session continuation,
+while raw chunks, status, framing, and exact runner/tool-result evidence remain indexed together.
+It does not claim byte-level cancellation, blocked-read interruption, backpressure, reconnects, or
+deployed Harness equivalence.
 `Cordis.DeepSeekStreamFailure` preserves the two provider terminal-failure tags
 currently decoded by the wire layer (`content_filter` and
 `insufficient_system_resource`) as a raw, typed failure certificate. It does
@@ -455,6 +460,12 @@ process read or claim deployed cancellation semantics.
 process-prefix adapter. It returns either a completed multi-call tool round or the exact parsed
 prefix with a typed line-cancellation/read-budget stop; byte framing, blocked-read interruption,
 and deployed stream semantics remain external.
+
+`Cordis.DeepSeekStreamHarnessByte` is the complete-body byte-backed companion: bounded stdout
+chunks are framed and status-checked before the decoded body enters the same dependent streamed
+tool/session continuation. Its round and fuel-bounded loop retain the byte/framing witness beside
+the runner endpoint; byte-level cancellation, blocked-read interruption, backpressure, reconnect,
+and deployed semantics remain external.
 
 `Cordis.DeepSeekStreamHarnessErrors` lifts the explicit recoverable provider-failure policy over
 the complete-body streamed round. A failed streamed call retains its parsed/admission/policy/
