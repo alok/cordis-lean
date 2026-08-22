@@ -68,6 +68,7 @@ import Cordis.DeepSeekHarnessMixedReplay
 import Cordis.DeepSeekHarnessEventText
 import Cordis.DeepSeekHarnessEventPrefix
 import Cordis.DeepSeekHarnessEventProcessPrefix
+import Cordis.DeepSeekHarnessEventProcessTimeout
 import Cordis.DeepSeekHarnessEventProcessOutcome
 import Cordis.LoaderHMR
 import Cordis.DeepSeekHarnessPayloadText
@@ -4617,6 +4618,51 @@ private def testDeepSeekHarnessEventProcessPrefix : IO Unit := do
   | .error error => fail s!"current event process prefix exit error mismatch: {reprStr error}"
   | .ok _ => fail "current event process prefix accepted a nonzero process"
 
+private def testDeepSeekHarnessEventProcessTimeout : IO Unit := do
+  match ← DeepSeekHarnessEventProcessTimeout.blockedReadProcessRun with
+  | .error error => fail s!"blocked-read timeout fixture failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "blocked-read timeout reports a typed timeout"
+        result.stop.isTimedOut true
+      assertEqual "blocked-read timeout retains an empty prefix"
+        result.consumed 0
+      assertEqual "blocked-read timeout retains no lines"
+        result.lines.length 0
+      assertEqual "blocked-read timeout retains a child exit code"
+        result.exitCode.isSome true
+      match stop : result.stop with
+      | .timedOut entry timeoutMs =>
+          assertEqual "blocked-read timeout entry index" entry 0
+          assertEqual "blocked-read timeout duration" timeoutMs 100
+          let _stopCertificate :=
+            DeepSeekHarnessEventProcessTimeout.TimedProcessPrefixResult.timeout_entry_eq_consumed
+              result stop
+          assertEqual "blocked-read timeout proof ties stop to prefix"
+            entry result.consumed
+      | .completed | .fuelExhausted | .cancelled .. =>
+          fail "blocked-read timeout returned the wrong stop constructor"
+  match ← DeepSeekHarnessEventProcessTimeout.delayedToolProcessRun with
+  | .error error => fail s!"delayed blocked-read timeout fixture failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "delayed blocked-read timeout retains the parsed prefix"
+        result.consumed 1
+      assertEqual "delayed blocked-read timeout retains the observed line"
+        result.lines.length 1
+      assertEqual "delayed blocked-read timeout retains stderr"
+        result.stderr "timeout-stderr\n"
+      assertEqual "delayed blocked-read timeout is typed"
+        result.stop.isTimedOut true
+      let _endpointCertificate :=
+        DeepSeekHarnessEventProcessTimeout.processResult_endpoint_sequence result
+  match ← DeepSeekHarnessEventProcessTimeout.fastProcessRun with
+  | .error error => fail s!"timeout completion fixture failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "timeout completion fixture consumes every event" result.consumed 8
+      assertEqual "timeout completion fixture reaches completion"
+        result.stop.isCompleted true
+      assertEqual "timeout completion fixture exits successfully"
+        result.exitCode (some (0 : UInt32))
+
 private def testDeepSeekHarnessEventProcessOutcome : IO Unit := do
   match ← DeepSeekHarnessEventProcessOutcome.Example.text with
   | .error error => fail s!"current event process outcome failed: {reprStr error}"
@@ -6978,6 +7024,7 @@ def run : IO Unit := do
   testDeepSeekHarnessEventText
   testDeepSeekHarnessEventPrefix
   testDeepSeekHarnessEventProcessPrefix
+  testDeepSeekHarnessEventProcessTimeout
   testDeepSeekHarnessEventProcessOutcome
   testDeepSeekHarnessEventFileStreamRetryCancellation
   testLoaderHMR

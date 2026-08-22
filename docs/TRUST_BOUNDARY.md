@@ -516,6 +516,14 @@ cursor-entry count. Fuel/policy stops kill and wait for the child; malformed lin
 remain typed failures. It does not claim byte framing, blocked-read interruption,
 executable/provider authenticity, crash durability, or deployed Harness equivalence.
 
+`DeepSeekHarnessEventProcessTimeout` adds a per-read timer race below that line-oriented
+adapter. `Std.Async.Sleep` competes with the blocking `stdout.getLine`; a timer win kills and
+waits for the configured child, and `TimedProcessPrefixResult` retains the exact accepted cursor
+prefix, line ledger, exit code, stderr, and timeout index. Executable completion and blocked-read
+fixtures cover both branches. This is local configured-child interruption evidence, not arbitrary
+descendant cleanup, fairness, backpressure, provider/executable authenticity, crash durability,
+or deployed asynchronous Harness equivalence.
+
 `DeepSeekHarnessEventProcessOutcome` is the next local composition seam: it carries a restored
 event runner through a caller-supplied streaming request source and the complete process-backed
 rich-outcome adapter. The result retains the restored-session/raw-archive certificates and the
@@ -954,7 +962,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1855
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1897
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.

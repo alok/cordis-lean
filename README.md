@@ -508,6 +508,14 @@ returning; malformed lines and nonzero exits remain typed failures. This is stil
 local process evidence, not byte framing, blocked-read interruption, executable/provider
 authenticity, crash durability, or deployed Harness equivalence.
 
+`Cordis.DeepSeekHarnessEventProcessTimeout` adds a real per-read deadline to that executable
+cursor adapter. A Lean `Std.Async.Sleep` races each blocking `stdout.getLine`; when the deadline
+wins, the child is killed and waited, and the typed result retains the exact accepted prefix,
+observed lines, exit code, stderr, and timeout index. Completion and timeout fixtures exercise both
+branches. This proves local timer-driven blocked-read interruption for the configured child only;
+it does not prove arbitrary descendant cleanup, fairness, backpressure, provider or executable
+authenticity, crash durability, or deployed asynchronous Harness equivalence.
+
 `Cordis.DeepSeekHarnessEventProcessOutcome` carries that restored runner through the existing
 complete process-backed rich-outcome adapter. Its dependent result keeps the prepared streaming
 request, process/response certificate, optional dependent tool execution, final runner endpoint,

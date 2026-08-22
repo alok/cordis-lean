@@ -309,6 +309,11 @@ Current machine-checked evidence includes:
   completion/fuel/cancellation stops, plus a proof that consumed count equals cursor-entry count;
   malformed lines and nonzero exits stay typed failures, while byte framing, blocked-read
   interruption, executable/provider authenticity, durability, and deployed equivalence remain open;
+- `Cordis.DeepSeekHarnessEventProcessTimeout`, adding a per-read `Std.Async.Sleep` race that kills
+  and waits for a blocked configured child, retaining the exact accepted cursor prefix, observed
+  lines, exit code, stderr, and timeout index; completion and timeout fixtures cover both branches,
+  while arbitrary descendant cleanup, fairness, backpressure, authenticity, durability, and
+  deployed asynchronous equivalence remain open;
 - `Cordis.DeepSeekHarnessPayloadText`, composing the same text/byte restore with the raw
   `SessionPayloadArchive.PayloadLog` so block tags, usage, and tool-result metadata remain aligned
   with the runner without inventing provider-owned semantics;
@@ -1238,6 +1243,11 @@ The bounded algebra/context/global layer now has forty-five explicit pieces:
     count. Fuel and policy stops kill and wait for the child; malformed lines and nonzero exits are
     typed failures. Byte framing, blocked-read interruption, executable/provider authenticity, crash
     durability, and deployed Harness equivalence remain open.
+52. `Cordis.DeepSeekHarnessEventProcessTimeout` races each blocking stdout-line read against a real
+    `Std.Async.Sleep`; a timeout kills and waits for the configured child, and the dependent result
+    retains the accepted prefix, observed lines, exit code, stderr, and timeout index. This is a
+    local configured-child interruption fixture, not arbitrary descendant cleanup, fairness,
+    backpressure, authenticity, crash durability, or deployed asynchronous equivalence.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a

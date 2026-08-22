@@ -2121,6 +2121,13 @@ endpoint, consumed count, exit status, and typed stop, with a proof that consume
 dependent cursor-entry count. Cleanup is explicitly exercised on fuel and policy stops, while
 malformed lines and nonzero exits remain typed failures. Byte framing, blocked reads,
 executable/provider authenticity, durability, and deployed equivalence stay separate.
+`Cordis.DeepSeekHarnessEventProcessTimeout` is the first checked interruption seam below that
+reader. It uses `Std.Async.Sleep` to race each blocking `stdout.getLine`; a timeout kills and
+waits for the configured child, and `TimedProcessPrefixResult` retains the exact accepted cursor
+prefix, line ledger, exit code, stderr, and timeout index. The completion and delayed-child
+fixtures are executable. The contract is intentionally local: arbitrary descendant cleanup,
+fairness, backpressure, provider/executable authenticity, crash durability, and deployed
+asynchronous equivalence remain separate obligations.
 `Cordis.DeepSeekHarnessEventProcessOutcome` then carries the restored runner through the
 complete process-backed rich-outcome adapter. Its dependent result keeps the prepared streaming
 request, response and dependent-tool certificate, final runner endpoint, raw event archive,
