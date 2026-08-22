@@ -1375,6 +1375,14 @@ deterministic two-response fixture exercises both branches. It remains a bounded
 transport model, not a live-provider, retry, cancellation, durability, external-effect, or
 deployed-Harness equivalence theorem.
 
+`Cordis.DeepSeekHarnessTransportRetry` adds the next bounded boundary without adding a second
+decoder. It builds one complete request plan, records retryable transport/transient-HTTP failures
+in `RetryHistory`, validates the successful body exactly once, and sends that same dependent
+response through `acceptValidated` and typed tool execution. The executable fixture covers a
+503-to-200 retry and the exact assistant/tool endpoint. Provider backoff, idempotency,
+cancellation, persistence, external effects, live-provider behavior, and deployed Harness
+equivalence remain outside this immediate injected-transport model.
+
 `Cordis.SessionPayloadArchive` moves one layer inward without inventing provider semantics. It
 classifies the five current content-block tags plus unknown block extensions, retains exact message
 content arrays and source objects, preserves assistant-chunk objects and raw usage, and retains

@@ -126,6 +126,7 @@ import Cordis.HarnessPersistenceIO
 import Cordis.DeepSeekHarnessPersistenceIO
 import Cordis.DeepSeekHarnessPersistenceTransportRound
 import Cordis.DeepSeekHarnessTransportConversation
+import Cordis.DeepSeekHarnessTransportRetry
 import Cordis.DeepSeekHarnessOpaqueMetadata
 import Cordis.DeepSeekHarnessMetadataArchive
 import Cordis.Lifecycle
@@ -3890,6 +3891,33 @@ private def testDeepSeekHarnessTransportConversation : IO Unit := do
       assertEqual "single-decoder exhaustion reports its bounded stop"
         (DeepSeekHarnessTransportConversation.TransportStop.isFuelExhausted run.stop) true
 
+private def testDeepSeekHarnessTransportRetry : IO Unit := do
+  let result ← DeepSeekHarnessTransportRetry.Example.retryRound
+  match result.toOption with
+  | none => fail "single-decoder retry transport fixture failed"
+  | some ⟨_plan, ⟨body, round⟩⟩ =>
+      assertEqual "single-decoder retry preserves the validated body"
+        body DeepSeekHarness.counterResponseBody
+      assertEqual "single-decoder retry retains one transient HTTP failure"
+        round.retryHistory.failures.length 1
+      assertEqual "single-decoder retry performs the initial attempt plus one retry"
+        round.retryHistory.attemptCount 2
+      assertEqual "single-decoder retry reaches the successful HTTP endpoint"
+        round.round.response.status 200
+      assertEqual "single-decoder retry executes the accepted tool call"
+        round.round.executions.length 1
+      assertEqual "single-decoder retry preserves the typed tool successor"
+        round.round.finalModel 0
+      assertEqual "single-decoder retry advances the session by assistant and tool result"
+        round.round.finalRunner.session.nextSeq 2
+      assertEqual "single-decoder retry advances the local call allocator"
+        round.round.finalRunner.nextCall 1
+      have _attemptBound :=
+        DeepSeekHarnessTransportRetry.RetriedTransportRound.attemptCount_le_maxAttempts round
+      have _finalEndpoint :=
+        DeepSeekHarnessTransportRetry.RetriedTransportRound.final_endpoint round
+      pure ()
+
 private def testDeepSeekSchemaStreamConversation : IO Unit := do
   match DeepSeekToolSchema.weatherToolCertificate,
       DeepSeekSchemaRegistry.Example.clockToolCertificate with
@@ -6261,6 +6289,7 @@ def run : IO Unit := do
   testDeepSeekHarnessTransportToolRound
   testDeepSeekHarnessPersistenceTransportRound
   testDeepSeekHarnessTransportConversation
+  testDeepSeekHarnessTransportRetry
   testDeepSeekSchemaStreamConversation
   testDeepSeekSchemaStreamPrefixConversation
   testDeepSeekSchemaStreamErrors

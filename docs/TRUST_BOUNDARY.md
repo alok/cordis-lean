@@ -372,6 +372,14 @@ previous runner/model endpoint; `TransportStop.completed` carries the final no-t
 the model still has no live-provider, retry/cancellation, durability, external-effect, or
 deployed-Harness equivalence claim.
 
+`DeepSeekHarnessTransportRetry` keeps retry within the same typed transport boundary. One
+complete request plan is reused across bounded attempts; retryable transport/transient-HTTP
+failures remain in `RetryHistory`, the successful body is validated once, and the dependent
+response is passed to `acceptValidated` and typed tool execution. The 503-to-200 fixture checks
+the retry history, attempt bound, and exact assistant/tool endpoint. Backoff, idempotency,
+cancellation, persistence, external effects, live-provider behavior, and deployed Harness
+equivalence remain outside this immediate injected-transport certificate.
+
 `HarnessPersistenceBytes` is the pure immutable-`ByteArray` companion. Its dependent certificate
 retains the original bytes, decoded UTF-8 text, parsed JSONL rows, packed-row expansion, and the
 composed Session/Protocol projection. Runtime fixtures cover accepted, malformed, empty, and
@@ -844,7 +852,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1661
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1668
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.

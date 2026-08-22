@@ -2214,6 +2214,15 @@ fixture should assert the two-round endpoint and both stop branches. Keep transp
 all live-provider, retry, cancellation, durability, external-effect, and deployed-equivalence
 boundaries explicit.
 
+`Cordis.DeepSeekHarnessTransportRetry` is the bounded retry seam immediately below that
+continuation. Build the complete request plan once, send that same request through the injected
+transport on each attempt, retain retryable transport/transient-HTTP failures in `RetryHistory`,
+and validate the first successful body exactly once. Feed that accepted dependent response into
+`acceptValidated` and typed tool execution without reparsing. The fixture should assert the
+503-to-200 history, attempt bound, and exact assistant/tool endpoint; do not infer provider
+backoff, idempotency, cancellation, persistence, external effects, live-provider behavior, or
+deployed Harness equivalence.
+
 `Cordis.DeepSeekToolSchema` is the next request-side type boundary. It validates the bounded
 schema vocabulary actually represented by the local DeepSeek API: an object parameter root,
 primitive property `type` tags, optional property descriptions, a duplicate-free `required`

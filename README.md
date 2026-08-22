@@ -404,6 +404,14 @@ or preserves an exact trace prefix at fuel exhaustion. The two-response counter 
 both completion and exhaustion; this remains injected-transport evidence, not live-provider,
 durability, retry, cancellation, external-effect, or deployed-Harness equivalence evidence.
 
+`Cordis.DeepSeekHarnessTransportRetry` closes the adjacent bounded-retry seam without introducing
+a second decoder. It builds one complete request plan, retains retryable transport/transient-HTTP
+failures in `RetryHistory`, validates the successful body once, and feeds that same dependent
+response through `acceptValidated` and typed tool execution. The fixture performs a 503-to-200
+retry and checks the exact assistant/tool endpoint plus the retry bound. Backoff, idempotency,
+cancellation, persistence, external effects, live-provider behavior, and deployed Harness
+equivalence remain outside this immediate injected-transport slice.
+
 `Cordis.DeepSeekHarnessEventArchive` attaches the broader current-Harness event vocabulary to
 the same runner only when both certificates are present: `SessionEventArchive` must preserve
 every envelope exactly and `SessionRefinement` must validate every event semantically. Known
