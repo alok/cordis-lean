@@ -288,11 +288,11 @@ deterministic two-response loop.
 Persistence, credentials, scheduling, and deployed-Harness equivalence remain outside.
 
 `Cordis.DeepSeekHarnessExtensions` generalizes the request-construction boundary from
-`Session.noExtensions` to any indexed `ExtensionSchema`. Log-only custom events remain in the
-append-only session without entering the model request, while surface custom events contribute
-the schema-certified message. The fixture proves this separation and exact one-message request
-shape; extension JSON decoding, provider compatibility, persistence, transport, and deployed
-Harness equivalence remain outside.
+`Session.noExtensions` to any indexed `ExtensionSchema`, for both complete and streaming request
+modes. Log-only custom events remain in the append-only session without entering the model
+request, while surface custom events contribute the schema-certified message. A generic assistant
+append preserves that schema and proves the exact surface result. Extension JSON decoding,
+provider compatibility, persistence, transport, and deployed Harness equivalence remain outside.
 
 `Cordis.DeepSeekHarnessPersistence` now attaches that bounded runner to the logical JSONL
 persistence refinement. A successful archive restores a `ConversationRunner` with an exact

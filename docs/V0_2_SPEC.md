@@ -47,11 +47,12 @@ tool/text continuation; the accepted cancellation result preserves its reason, u
 runner/model endpoint, and empty completed prefix. Blocked-read interruption and deployed async
 cancellation equivalence remain external.
 
-`Cordis.DeepSeekHarnessExtensions` generalizes request construction to every indexed
-`Session.ExtensionSchema`. Custom log-only events remain in the append-only session but do not
-enter the model request; custom surface events use the schema-provided message projection. The
-fixture proves the exact one-message request shape. Extension JSON decoding, provider
-compatibility, persistence, transport, and deployed Harness equivalence remain external.
+`Cordis.DeepSeekHarnessExtensions` generalizes complete and streaming request construction to
+every indexed `Session.ExtensionSchema`, and appends an accepted assistant view without changing
+that schema. Custom log-only events remain in the append-only session but do not enter the model
+request; custom surface events use the schema-provided message projection. The fixture proves the
+exact one-message request shape and schema-preserving assistant append. Extension JSON decoding,
+provider compatibility, persistence, transport, and deployed Harness equivalence remain external.
 
 The slice closes two concrete gaps in the original objective:
 
@@ -191,7 +192,8 @@ Current machine-checked evidence includes:
   successful build equation, complete-body process response, and indexed runner append endpoint;
 - `Cordis.DeepSeekHarnessExtensions`, generalizing the pure request adapter to arbitrary indexed
   `Session.ExtensionSchema`s and proving that custom log-only events stay out of the model surface
-  while custom surface events contribute their certified message;
+  while custom surface events contribute their certified message; complete/streaming mode
+  certificates and a schema-preserving assistant append are included;
 - `Cordis.DeepSeekHarnessProcessOutcome`, retaining a typed `stream: true` request plan through
   complete-body provider-failure or rich terminal classification, dependent tool execution, and
   the final `ConversationRunner` endpoint;

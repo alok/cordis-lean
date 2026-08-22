@@ -3436,6 +3436,19 @@ private def testDeepSeekHarnessExtensions : IO Unit := do
     DeepSeekHarnessExtensions.extensionMessageCount 1
   assertEqual "generic extension request has the certified one-message shape"
     DeepSeekHarnessExtensions.extensionRequestHasOneMessage true
+  match DeepSeekHarnessExtensions.extensionStreamingRequest with
+  | .error error => fail s!"generic extension streaming request failed: {reprStr error}"
+  | .ok plan =>
+      assertEqual "generic extension streaming request carries stream=true"
+        plan.source.stream true
+  match DeepSeekHarnessExtensions.extensionTypedStreamingRequest with
+  | .error error => fail s!"generic typed extension streaming request failed: {reprStr error}"
+  | .ok plan =>
+      assertEqual "generic typed extension request carries stream=true"
+        plan.source.stream true
+  assertEqual "schema-preserving assistant append keeps the extension session surface"
+    DeepSeekHarnessExtensions.extensionWithAssistant.messages
+    [.user "hello", .assistant "assistant" []]
 
 private def testDeepSeekSchemaStreamConversation : IO Unit := do
   match DeepSeekToolSchema.weatherToolCertificate,
