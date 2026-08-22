@@ -189,6 +189,7 @@ import Cordis.DeepSeekHarnessEventFileStreamRetryCancellation
 import Cordis.DeepSeekHarnessEventFileLocalSseRetryConversation
 import Cordis.DeepSeekHarnessEventFileProcessSchema
 import Cordis.DeepSeekHarnessEventFileLocalSseSchema
+import Cordis.DeepSeekHarnessEventFileLocalSseSchemaErrors
 import Cordis.DeepSeekHarnessTransportConversation
 import Cordis.DeepSeekHarnessTransportRetry
 import Cordis.DeepSeekHarnessTransportRetryConversation
@@ -5981,6 +5982,45 @@ private def testDeepSeekHarnessEventFileLocalSseSchema : IO Unit := do
         DeepSeekHarnessEventFileLocalSseSchema.successful_outcome run
       pure ()
 
+private def testDeepSeekHarnessEventFileLocalSseSchemaErrors : IO Unit := do
+  match ← DeepSeekHarnessEventFileLocalSseSchemaErrors.runFixture with
+  | .error _ => fail "current-event file local SSE schema failure fixture failed"
+  | .ok ⟨_, ⟨_, run⟩⟩ =>
+      let summary := DeepSeekHarnessEventFileLocalSseSchemaErrors.summaryForRun run
+      let expected := DeepSeekHarnessEventFileLocalSseSchemaErrors.expectedSummary
+      assertEqual "current-event failure schema reads source bytes"
+        (summary.readBytes, summary.sourceBytes)
+        (expected.readBytes, expected.sourceBytes)
+      assertEqual "current-event failure schema starts at restored session"
+        summary.initialNextSeq expected.initialNextSeq
+      assertEqual "current-event failure schema appends terminal after two errors"
+        summary.finalNextSeq expected.finalNextSeq
+      assertEqual "current-event failure schema validates both requests"
+        (summary.requests, summary.validRequests)
+        (expected.requests, expected.validRequests)
+      assertEqual "current-event failure schema retains two rounds"
+        (summary.rounds, summary.firstAttempts)
+        (expected.rounds, expected.firstAttempts)
+      assertEqual "current-event failure schema preserves both provider error messages"
+        summary.firstFailureMessages expected.firstFailureMessages
+      assertEqual "current-event failure schema retains only provider failures first"
+        summary.firstAllProviderFailed expected.firstAllProviderFailed
+      assertEqual "current-event failure schema reaches terminal model"
+        summary.finalModel expected.finalModel
+      assertEqual "current-event failure schema completes after recovery"
+        summary.completed expected.completed
+      assertEqual "current-event failure schema executable projection agrees"
+        (DeepSeekHarnessEventFileLocalSseSchemaErrors.summaryMatches summary) true
+      let _bytesCertificate :=
+        DeepSeekHarnessEventFileLocalSseSchemaErrors.file_bytes_eq_source run
+      let _sessionCertificate :=
+        DeepSeekHarnessEventFileLocalSseSchemaErrors.restored_session_eq_event_archive run
+      let _serverCertificate :=
+        DeepSeekHarnessEventFileLocalSseSchemaErrors.server_exited_successfully run
+      let _outcomeCertificate :=
+        DeepSeekHarnessEventFileLocalSseSchemaErrors.successful_outcome run
+      pure ()
+
 private def testLoaderHMR : IO Unit := do
   assertEqual "loader reconciliation dispatches config-only edits in place"
     (LoaderHMR.changeKind LoaderHMR.Example.entry LoaderHMR.Example.updatedEntry)
@@ -8420,6 +8460,7 @@ def run : IO Unit := do
   testDeepSeekHarnessEventFileLocalSseRetryConversation
   testDeepSeekHarnessEventFileProcessSchema
   testDeepSeekHarnessEventFileLocalSseSchema
+  testDeepSeekHarnessEventFileLocalSseSchemaErrors
   testDeepSeekHarnessPersistenceStreamBytePrefixTimeout
   testLoaderHMR
   testDeepSeekHarnessPayloadText

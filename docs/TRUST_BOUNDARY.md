@@ -467,6 +467,13 @@ endpoint are retained together. The deterministic fixture model, local server, s
 temporary-file lifetime, provider obedience, credentials, durable storage, blocked-read cancellation,
 external effects, and deployed Harness equivalence remain outside this certificate.
 
+`DeepSeekHarnessEventFileLocalSseSchemaErrors` carries the same restored endpoint through the typed
+failure path. Both scoped weather/clock providers fail with certified messages; their `isError` tool
+results are appended before a terminal text round, with two validated requests, two attempts, and
+the exact `8 -> 12` endpoint retained. This is still only local fixture evidence: provider obedience,
+credential authenticity, durable storage, blocked-read cancellation, external effects, and deployed
+Harness equivalence remain outside.
+
 `DeepSeekHarnessPersistenceStreamBytePrefixTimeout` is the bounded persistence-plus-byte-prefix
 composition. A memory archive restores the exact runner session; the fuel fixture accepts one
 streamed tool round and returns a typed nonterminal stop at `nextSeq = 10` from archive `nextSeq = 8`, while its companion switches to terminal text after the first tool result and completes at

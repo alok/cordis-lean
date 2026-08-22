@@ -680,6 +680,14 @@ temporary file, model choice, and scoped approval policy are fixture evidence, n
 obedience, credential authenticity, durable storage, blocked-read cancellation, external effects,
 or deployed Harness equivalence.
 
+`Cordis.DeepSeekHarnessEventFileLocalSseSchemaErrors` keeps that file restore and loopback shape but
+opts into typed provider-failure results: the weather and clock providers both fail with their exact
+messages, the certified `isError` tool results become the next model-visible request, and a terminal
+text round completes the same restored session at `8 -> 12`. The two requests, two failed attempts,
+failure messages, and completed stop are executable local evidence; provider obedience, credential
+authenticity, durable storage, blocked-read cancellation, external effects, and deployed Harness
+equivalence remain outside.
+
 `Cordis.DeepSeekHarnessPersistenceStreamBytePrefixTimeout` composes the memory-backed archive
 reader with the timed byte-prefix streamed tool round. Its fuel fixture restores archive
 `nextSeq = 8`, accepts one real streamed tool round, then stops on caller fuel at final `nextSeq = 10`; its companion process switches to terminal text after the first tool result and completes at

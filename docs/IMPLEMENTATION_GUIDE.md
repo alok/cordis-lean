@@ -2234,6 +2234,13 @@ distinct rebuilt request bodies, the dependent two-tool round, and terminal comp
 This is a local HTTP/process fixture: the model override, server behavior, scoped approval, file
 lifetime, blocked-read cancellation, provider obedience, credentials, external effects, and deployed
 Harness equivalence remain explicit later obligations.
+`Cordis.DeepSeekHarnessEventFileLocalSseSchemaErrors` is the failure-path companion. Restore the
+current event archive from the temporary file, run the two loopback rounds, let both scoped
+weather/clock providers return typed failures, and append those failures as certified `isError`
+tool results before the terminal text response. Keep the exact failure messages, two valid requests,
+two attempts, and `8 -> 12` endpoint together. This remains a deterministic local model/server
+fixture; provider obedience, credential authenticity, durable storage, blocked-read cancellation,
+external effects, and deployed Harness equivalence are not inferred.
 `Cordis.DeepSeekHarnessPersistenceStreamBytePrefixTimeout` is a deliberately small composition
 after the persistence and timed byte-prefix seams. Start from
 `DeepSeekHarnessPersistenceIO.fixtureMemory` and pass its restored `ConversationRunner` to

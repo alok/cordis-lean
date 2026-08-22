@@ -1400,6 +1400,12 @@ The bounded algebra/context/global layer now has sixty-seven explicit pieces:
     exact `8 -> 12` growth. The deterministic fixture model, server, scoped approval, provider
     obedience, credentials, durable storage, blocked-read cancellation, external effects, and
     deployed Harness equivalence remain open.
+    `Cordis.DeepSeekHarnessEventFileLocalSseSchemaErrors` is the paired failure-path fixture. It
+    restores the same archive, drives two loopback rounds, turns typed weather/clock failures into
+    certified `isError` tool results, and then reaches terminal text at exact `8 -> 12`. It keeps
+    both request validations, two failed attempts, exact failure messages, and the completed stop;
+    provider obedience, credentials, durable storage, blocked-read cancellation, external effects,
+    and deployed Harness equivalence remain open.
 50. `Cordis.DeepSeekHarnessPersistenceStreamBytePrefixTimeout` composes the memory-backed
     validated archive reader with the timed byte-prefix process adapter. Its fuel fixture restores
     archive `nextSeq = 8`, accepts one streamed tool round, then stops at `nextSeq = 10`; the
