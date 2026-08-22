@@ -2204,14 +2204,15 @@ session equality and archive/raw-line equality; expose the request-body, process
 projection theorems from the dependent wrapper. The text fixture and byte entry point use the same
 restored event source, while provider obedience, credentials, byte framing, persistence,
 cancellation, external effects, and deployed equivalence remain separate obligations.
-`Cordis.DeepSeekHarnessEventFileStreamRetryCancellation` is the next concrete composition seam.
+`Cordis.DeepSeekHarnessEventFileStreamRetryCancellation` is now a concrete composition seam.
 It writes the supported current-event JSONL fixture to a temporary file, reads it back as bytes,
-checks exact source/read equality before restoring the event archive/session, and feeds the
-restored runner to the existing process-backed streamed cancellation trace. The executable
-summary retains source/read byte equality, the `8 -> 11` prefix, one round, two first-round calls,
-timeout cancellation, and model `0`. Keep temporary-file cleanup separate from fsync, stable
-media, crash recovery, blocked-read interruption, process cleanup, provider authenticity,
-external effects, and deployed Harness equivalence.
+checks exact source/read equality before restoring the event archive/session, rebuilds a dependent
+streaming request plan from that endpoint with exact plan/body equations, and feeds the restored
+runner to the existing process-backed streamed cancellation trace. The executable summary retains
+source/read byte equality, the `8 -> 11` prefix, one round, two first-round calls, timeout
+cancellation, and model `0`. Keep temporary-file cleanup separate from fsync, stable media, crash
+recovery, blocked-read interruption, process cleanup, provider authenticity, external effects, and
+deployed Harness equivalence.
 `Cordis.DeepSeekHarnessPersistenceStreamBytePrefixTimeout` is a deliberately small composition
 after the persistence and timed byte-prefix seams. Start from
 `DeepSeekHarnessPersistenceIO.fixtureMemory` and pass its restored `ConversationRunner` to

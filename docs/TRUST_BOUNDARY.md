@@ -438,9 +438,12 @@ supported current-Harness event JSONL surface. It writes and reads the event byt
 source/read equality before restoring the event archive/session, and then feeds the restored
 runner to the process-backed streamed cancellation trace. The result retains the byte witness,
 archive/session equality, `8 -> 11` prefix, one round, two first-round calls, timeout reason, and
-model `0`. `withTempFile` cleanup is scoped; fsync, stable media, crash recovery, blocked-read
-interruption, process cleanup, provider authenticity, external effects, and deployed Harness
-equivalence remain outside.
+model `0`. It also retains a dependent streaming request plan rebuilt from the restored session,
+with exact plan-build and serialized-body equations. This is request reconstruction evidence, not
+an assertion that the process adapter exposes or authenticates its internally consumed request.
+`withTempFile` cleanup is scoped; fsync, stable media, crash recovery, blocked-read interruption,
+process cleanup, provider authenticity, external effects, and deployed Harness equivalence remain
+outside.
 
 `DeepSeekHarnessPersistenceStreamBytePrefixTimeout` is the bounded persistence-plus-byte-prefix
 composition. A memory archive restores the exact runner session; the fuel fixture accepts one

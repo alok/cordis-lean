@@ -12,10 +12,13 @@ read back as bytes, checked for byte equality, decoded through
 runner for the existing process-backed streamed cancellation trace.
 
 The returned dependent value keeps the file-read bytes, their equality to the
-source fixture, the restored event archive/session, and the exact cancellation
-prefix together.  The temporary file is removed when `withTempFile` returns;
-this remains an executable local boundary, not a theorem about fsync, stable
-media, crash recovery, blocked-read interruption, process cleanup, provider
+source fixture, the restored event archive/session, a streaming request plan
+rebuilt from that session, and the exact cancellation prefix together.  The
+request plan has exact build/body equations; it is a reconstruction certificate,
+not a claim that the process adapter exposes or authenticates the same request
+internally.  The temporary file is removed when `withTempFile` returns; this
+remains an executable local boundary, not a theorem about fsync, stable media,
+crash recovery, blocked-read interruption, process cleanup, provider
 authenticity, or deployed Harness equivalence.
 -/
 
@@ -81,10 +84,15 @@ def restoreFile : IO (Except FileReadError FileRestored) :=
 
 inductive EndToEndError where
   | file (error : FileReadError)
+  | request (error : RequestError)
   | retry (error : ConversationError FixtureRetry)
 
 structure FileEventCancellationRun where
   file : FileRestored
+  request : TypedRequestPlan .streaming
+  request_build_eq :
+    buildTypedStreamingRequestPlan FixtureBaseUrl FixtureApiKey FixtureSource
+      file.restored.restored.restored.runner.session = .ok request
   finalRunner : ConversationRunner
   finalModel : Nat
   cancellation : RetryCancellableRunResult FixtureCancellation (retryPolicy := FixtureRetry)
@@ -111,10 +119,21 @@ def runFixture : IO (Except EndToEndError FileEventCancellationRun) := do
   match ← restoreFile with
   | .error error => pure (.error (.file error))
   | .ok file =>
-      match ← runRestored file with
-      | .error error => pure (.error (.retry error))
-      | .ok ⟨finalRunner, ⟨finalModel, cancellation⟩⟩ =>
-          pure (.ok { file, finalRunner, finalModel, cancellation })
+      match built : buildTypedStreamingRequestPlan FixtureBaseUrl FixtureApiKey FixtureSource
+          file.restored.restored.restored.runner.session with
+      | .error error => pure (.error (.request error))
+      | .ok request =>
+          match ← runRestored file with
+          | .error error => pure (.error (.retry error))
+          | .ok ⟨finalRunner, ⟨finalModel, cancellation⟩⟩ =>
+              pure (.ok {
+                file
+                request
+                request_build_eq := built
+                finalRunner
+                finalModel
+                cancellation
+              })
 
 theorem file_bytes_eq_source (run : FileEventCancellationRun) :
     run.file.bytes = SourceBytes :=
@@ -124,6 +143,15 @@ theorem restored_session_eq_event_archive (run : FileEventCancellationRun) :
     run.file.restored.restored.restored.runner.session =
       run.file.restored.restored.validated.validated.final.session :=
   RestoredTextRunner.session_eq run.file.restored.restored
+
+theorem request_build (run : FileEventCancellationRun) :
+    buildTypedStreamingRequestPlan FixtureBaseUrl FixtureApiKey FixtureSource
+        run.file.restored.restored.restored.runner.session = .ok run.request :=
+  run.request_build_eq
+
+theorem request_body_eq_source (run : FileEventCancellationRun) :
+    run.request.request.body = Lean.Json.compress run.request.source.toJson :=
+  run.request.body_eq
 
 def firstToolCalls
     {runner finalRunner : ConversationRunner} {before finalModel : Nat} :

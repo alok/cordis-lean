@@ -650,6 +650,9 @@ current-event JSONL fixture to a temporary file, reads the bytes back, proves by
 the source before restoring the event archive/session, and then runs the restored runner through
 the existing streamed cancellation path. Its executable summary checks source/read byte equality,
 `8 -> 11`, one retained round, two first-round calls, timeout cancellation, and model `0`.
+The dependent result also retains a streaming request plan rebuilt from that restored session,
+with exact plan-build and serialized-body equations. This is request reconstruction evidence, not
+an assertion that the process adapter exposes or authenticates its internally consumed request.
 `withTempFile` cleanup is scoped; fsync, stable media, crash recovery, blocked-read interruption,
 process cleanup, provider authenticity, external effects, and deployed Harness equivalence remain
 outside.

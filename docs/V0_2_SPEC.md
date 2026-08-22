@@ -1377,7 +1377,8 @@ The bounded algebra/context/global layer now has sixty-seven explicit pieces:
     cleanup, external effects, and deployed Harness equivalence remain open.
 49. `Cordis.DeepSeekHarnessEventFileStreamRetryCancellation` writes the supported current-Harness
     event JSONL fixture to a temporary file, reads it back as bytes, proves byte equality before
-    restoring the event archive/session, and feeds that restored runner to the existing
+    restoring the event archive/session, rebuilds a dependent streaming request plan from that
+    endpoint with exact plan/body equations, and feeds the restored runner to the existing
     process-backed streamed cancellation trace. Its executable projection checks source/read byte
     equality, `8 -> 11`, one retained round, two first-round calls, timeout cancellation, and model
     `0`. Scoped cleanup is real; fsync, stable media, crash recovery, blocked-read interruption,

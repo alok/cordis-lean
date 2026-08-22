@@ -5858,6 +5858,10 @@ private def testDeepSeekHarnessEventFileStreamRetryCancellation : IO Unit := do
         DeepSeekHarnessEventFileStreamRetryCancellation.file_bytes_eq_source run
       let _sessionCertificate :=
         DeepSeekHarnessEventFileStreamRetryCancellation.restored_session_eq_event_archive run
+      let _requestBuildCertificate :=
+        DeepSeekHarnessEventFileStreamRetryCancellation.request_build run
+      let _requestBodyCertificate :=
+        DeepSeekHarnessEventFileStreamRetryCancellation.request_body_eq_source run
       pure ()
 
 private def testLoaderHMR : IO Unit := do
