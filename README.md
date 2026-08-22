@@ -214,6 +214,11 @@ chunks, and the real curl process feeds those lines through `DeepSeekCurlIncreme
 result keeps the prepared streaming plan, delivered lines, reconstructed body, strict wire proof,
 finished text projection, and appended runner endpoint together; backpressure, blocked-read
 cancellation, reconnects, and deployed stream equivalence remain outside.
+`Cordis.DeepSeekHarnessLocalSseRetry` adds a real two-attempt loopback reconnect: the first valid
+request receives a typed transient HTTP 503, the second receives the flushed SSE body, and the
+result retains the failure history while appending only the accepted terminal response. Provider
+backoff, tool idempotency, arbitrary retry policy, blocked-read cancellation, and deployed retry
+equivalence remain outside.
 `Cordis.DeepSeekHarnessProcessSchema` carries the registry-derived certificate through the
 same process/SSE boundary: the exact streaming plan, validated body, heterogeneous schema step,
 and final dependent runner endpoint remain linked, with process, request, and registry-execution

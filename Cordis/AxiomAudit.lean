@@ -42,6 +42,7 @@ import Cordis.DeepSeekHarness
 import Cordis.DeepSeekHarnessLiveProbe
 import Cordis.DeepSeekHarnessLocalHttp
 import Cordis.DeepSeekHarnessLocalSse
+import Cordis.DeepSeekHarnessLocalSseRetry
 import Cordis.DeepSeekHarnessExtensions
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
@@ -586,6 +587,10 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessLocalSse.PreparedStreamingRequest.body_eq_source
 #print axioms Cordis.DeepSeekHarnessLocalSse.LocalSseResult.nextSeq
 #print axioms Cordis.DeepSeekHarnessLocalSse.Example.expectedSummary_complete
+#print axioms Cordis.DeepSeekHarnessLocalSseRetry.LocalSseRetryResult.retry_count
+#print axioms Cordis.DeepSeekHarnessLocalSseRetry.LocalSseRetryResult.accepted_streaming
+#print axioms Cordis.DeepSeekHarnessLocalSseRetry.LocalSseRetryResult.nextSeq
+#print axioms Cordis.DeepSeekHarnessLocalSseRetry.Example.expectedSummary_complete
 #print axioms Cordis.SessionOpaqueMetadata.decodeEventRetainingMetadata
 #print axioms Cordis.SessionOpaqueMetadata.validateLogRetainingMetadata
 #print axioms Cordis.SessionOpaqueMetadata.metadata_example_valid

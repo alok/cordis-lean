@@ -46,6 +46,7 @@ import Cordis.DeepSeekHarness
 import Cordis.DeepSeekHarnessLiveProbe
 import Cordis.DeepSeekHarnessLocalHttp
 import Cordis.DeepSeekHarnessLocalSse
+import Cordis.DeepSeekHarnessLocalSseRetry
 import Cordis.DeepSeekHarnessExtensions
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
@@ -3419,6 +3420,39 @@ private def testDeepSeekHarnessLocalSse : IO Unit := do
       assertEqual "local SSE result retains the actual loopback request URL"
         result.prepared.plan.request.url
         (DeepSeekHarnessLocalSse.localBaseUrl result.port ++ "/chat/completions")
+
+private def testDeepSeekHarnessLocalSseRetry : IO Unit := do
+  match ← DeepSeekHarnessLocalSseRetry.runWithRetry DeepSeekHarness.counterRequestSource
+      DeepSeekHarnessLocalSseRetry.Example.runner { value := "fixture-key" }
+      DeepSeekHarnessLocalSseRetry.Example.body 0 with
+  | .error (.retryExhausted failures) =>
+      assertEqual "SSE retry exhaustion retains the first transient failure"
+        failures.length 1
+  | .error error => fail s!"SSE retry exhaustion returned {reprStr error}"
+  | .ok _ => fail "SSE retry exhaustion unexpectedly completed"
+  match ← DeepSeekHarnessLocalSseRetry.Example.run with
+  | .error error => fail s!"local SSE retry round-trip failed: {reprStr error}"
+  | .ok result =>
+      let summary := DeepSeekHarnessLocalSseRetry.Example.summarize result
+      assertEqual "local SSE retry fixture receives both attempts"
+        summary.requests DeepSeekHarnessLocalSseRetry.Example.expectedSummary.requests
+      assertEqual "local SSE retry fixture validates both requests"
+        summary.validRequests DeepSeekHarnessLocalSseRetry.Example.expectedSummary.validRequests
+      assertEqual "local SSE retry fixture retains one typed transient failure"
+        summary.failedAttempts DeepSeekHarnessLocalSseRetry.Example.expectedSummary.failedAttempts
+      assertEqual "local SSE retry fixture delivers the accepted stream lines"
+        summary.deliveredLines DeepSeekHarnessLocalSseRetry.Example.expectedSummary.deliveredLines
+      assertEqual "local SSE retry fixture appends only the accepted terminal response"
+        summary.finalNextSeq DeepSeekHarnessLocalSseRetry.Example.expectedSummary.finalNextSeq
+      assertEqual "local SSE retry fixture reports a terminal done frame"
+        summary.completed DeepSeekHarnessLocalSseRetry.Example.expectedSummary.completed
+      assertEqual "local SSE retry result retains streaming mode"
+        result.prepared.plan.source.stream true
+      match result.failures with
+      | [.httpStatus status body] =>
+          assertEqual "local SSE retry retains the transient HTTP status" status 503
+          assertEqual "local SSE retry retains the transient response body" body "busy\n"
+      | failures => fail s!"unexpected local SSE retry failure history: {reprStr failures}"
 
 private def testDeepSeekHarnessPersistence : IO Unit := do
   match DeepSeekHarnessPersistence.persistedToolArchive with
@@ -7555,6 +7589,7 @@ def run : IO Unit := do
   testDeepSeekHarnessLiveProbe
   testDeepSeekHarnessLocalHttp
   testDeepSeekHarnessLocalSse
+  testDeepSeekHarnessLocalSseRetry
   testDeepSeekHarnessPersistence
   testDeepSeekHarnessPersistenceIO
   testDeepSeekHarnessOpaqueMetadata

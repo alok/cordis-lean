@@ -286,6 +286,11 @@ Current machine-checked evidence includes:
   `stream: true` request through the real curl/incremental-reader path, with delivered lines,
   reconstructed body, strict wire proof, and appended runner endpoint retained; byte framing,
   backpressure, blocked-read cancellation, reconnects, and deployed equivalence remain external;
+- `Cordis.DeepSeekHarnessLocalSseRetry`, starting a two-attempt loopback SSE fixture whose first
+  valid request returns a typed transient HTTP 503 and whose second request returns the flushed
+  SSE body; the retry history, reused streaming plan, accepted wire/body certificate, and single
+  appended runner endpoint remain linked; provider backoff, tool idempotency, arbitrary retry
+  policy, blocked-read cancellation, and deployed retry equivalence remain external;
 - `Cordis.DeepSeekStreamHarness`, composing complete-body terminal rich tool streams with the
   generic conversation runner, dependent tool execution, and certified typed-result append;
   streamed rounds use a request source/body certificate proving `stream: true`, and an executable
@@ -948,7 +953,7 @@ relation whose union cycles, so the module requires `SupportOrder` directly. It 
 combined-edge well-founded recursion, proves uniqueness, and derives support-equals-active at
 quiescence under state-local provision totality, failure exclusion, and active-parent closure.
 
-The bounded algebra/context/global layer now has sixty-five explicit pieces:
+The bounded algebra/context/global layer now has sixty-six explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -1351,6 +1356,12 @@ The bounded algebra/context/global layer now has sixty-five explicit pieces:
     request, delivered lines, reconstructed body, strict wire certificate, finished text, and
     appended runner endpoint. Byte framing, backpressure, blocked-read cancellation, reconnects,
     provider authenticity, and deployed Harness equivalence remain external.
+66. `Cordis.DeepSeekHarnessLocalSseRetry` composes that local streaming boundary with one
+    transient HTTP retry. The fixture validates both requests, retains the first 503 as a typed
+    failure, reuses the exact streaming plan for the second curl attempt, and proves that only
+    the accepted terminal body advances the dependent runner. Provider backoff, tool idempotency,
+    arbitrary retry policy, blocked-read cancellation, credentials/TLS, and deployed retry
+    equivalence remain external.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
