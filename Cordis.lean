@@ -52,6 +52,7 @@ import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekRichMixedStream
 import Cordis.DeepSeekRichMultiStream
 import Cordis.DeepSeekProviderAssembler
+import Cordis.DeepSeekAssemblerToolRound
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession

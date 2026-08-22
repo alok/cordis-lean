@@ -40,6 +40,7 @@ import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekRichMixedStream
 import Cordis.DeepSeekRichMultiStream
 import Cordis.DeepSeekProviderAssembler
+import Cordis.DeepSeekAssemblerToolRound
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
@@ -2960,6 +2961,21 @@ private def testDeepSeekProviderAssembler : IO Unit := do
   match DeepSeekProviderAssembler.validate DeepSeekProviderAssembler.Example.unknownOpenChunks with
   | .error (.unknownBlockType 4 "image") => pure ()
   | _ => fail "provider assembler accepted an unknown open block"
+
+private def testDeepSeekAssemblerToolRound : IO Unit := do
+  match DeepSeekAssemblerToolRound.Example.counterExecution with
+  | .error error => fail s!"assembled tool call was rejected with {reprStr error}"
+  | .ok execution =>
+      assertEqual "assembled tool execution reaches the exact counter successor"
+        execution.after 5
+      assertEqual "assembled tool execution retains one provider call"
+        execution.calls.length 1
+      assertEqual "assembled tool execution retains one dependent reply"
+        execution.executions.length 1
+  assertEqual "assembled tool round appends the assistant and tool-result messages"
+    DeepSeekAssemblerToolRound.Example.counterFinalSummary true
+  assertEqual "assembled tool round advances the session sequence twice"
+    DeepSeekAssemblerToolRound.Example.counterFinalSession.isSome true
 
 private def testDeepSeekSessionBridge : IO Unit := do
   match DeepSeekRichToolStream.validateToolStream
@@ -7777,6 +7793,7 @@ def run : IO Unit := do
   testDeepSeekRichMixedStream
   testDeepSeekRichMultiStream
   testDeepSeekProviderAssembler
+  testDeepSeekAssemblerToolRound
   testDeepSeekSessionBridge
   testDeepSeekSessionRunner
   testDeepSeekApiSession

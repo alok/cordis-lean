@@ -239,6 +239,8 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekProviderAssembler`, folding the canonical post-decoder chunk vocabulary with
   source-shaped first-seen order, open-block fallback, first-close-wins, latest tool metadata,
   last usage/finish/replay metadata, max-token tool pruning, and typed unknown-block errors;
+- `Cordis.DeepSeekAssemblerToolRound`, converting a successful assembly into local function calls,
+  dependent execution, and certified assistant/tool-result session append messages;
 - `Cordis.DeepSeekRequestMode`, indexing complete versus streaming request plans by a proof that
   the serialized `stream` flag matches the mode and restricting terminal execution to complete
   plans;
@@ -1469,6 +1471,13 @@ missing finish to `stop`, and prunes tool calls for `max-tokens`. Successful fol
 state and assembly equations; unknown open block types fail with a typed error. Wire decoding,
 image/tool-result block schemas, opaque replay JSON, transport, and deployed TypeScript
 equivalence remain outside.
+
+`Cordis.DeepSeekAssemblerToolRound` is the next local seam. It projects the assembled blocks into
+the existing `FunctionCall` vocabulary, executes the resulting list through a concrete dependent
+counter configuration, and appends both the assistant message and certified tool-result messages.
+The executable witness starts at model `2` and reaches model `5`. This is post-decoder local
+composition: provider-ID authenticity, external effects, transport, persistence, and deployed
+Harness equivalence remain outside.
 
 `Cordis.SessionRefinement` covers a separate stateful subset of current `SessionEvent` JSON:
 turn/step boundaries, selected request/header snapshots, route context, whole-list todo snapshots,

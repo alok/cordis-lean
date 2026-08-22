@@ -36,6 +36,7 @@ import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekRichMixedStream
 import Cordis.DeepSeekRichMultiStream
 import Cordis.DeepSeekProviderAssembler
+import Cordis.DeepSeekAssemblerToolRound
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
@@ -910,6 +911,13 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekProviderAssembler.Example.metadata_last_wins
 #print axioms Cordis.DeepSeekProviderAssembler.Example.unknown_open_is_rejected
 #print axioms Cordis.DeepSeekProviderAssembler.Example.executable_summaries
+#print axioms Cordis.DeepSeekAssemblerToolRound.toRichBlock
+#print axioms Cordis.DeepSeekAssemblerToolRound.toAssistantView
+#print axioms Cordis.DeepSeekAssemblerToolRound.toFunctionCalls
+#print axioms Cordis.DeepSeekAssemblerToolRound.executeAssembledTools
+#print axioms Cordis.DeepSeekAssemblerToolRound.appendAssistant_messages
+#print axioms Cordis.DeepSeekAssemblerToolRound.appendToolResults_messages
+#print axioms Cordis.DeepSeekAssemblerToolRound.Example.counter_session_messages
 #print axioms Cordis.DeepSeekSessionBridge.finishAssistant
 #print axioms Cordis.DeepSeekSessionBridge.appendFinishedAssistant_messages
 #print axioms Cordis.DeepSeekSessionRunner.finishText
