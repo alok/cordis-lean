@@ -214,7 +214,9 @@ returns the weather/clock tool body followed by a terminal body, and the retaine
 prepared plan, one dependent tool round, terminal witness, final model/runner endpoint, request
 counts, and server exit. This is local process evidence only; remote reachability, TLS, credential
 authenticity, provider obedience, process trust, retries, cancellation, persistence, external
-effects, and deployed Harness equivalence remain outside.
+effects, and deployed Harness equivalence remain outside. The fixture checks the exact
+`get_weather`/`get_time` declaration order and `tool_choice: "auto"`; a wrong bearer key is
+retained as a typed HTTP-status rejection rather than being accepted as a conversation result.
 `Cordis.DeepSeekHarnessLocalSse` crosses the corresponding streaming boundary: a one-shot Python
 standard-library server validates a typed `stream: true` request, emits the real SSE body in line
 chunks, and the real curl process feeds those lines through `DeepSeekCurlIncremental`. The retained

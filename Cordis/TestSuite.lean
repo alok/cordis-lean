@@ -4433,6 +4433,12 @@ private def testDeepSeekSchemaLocalHttp : IO Unit := do
       | .error .emptyResponses => pure ()
       | .error error => fail s!"empty schema loopback responses returned {reprStr error}"
       | .ok _ => fail "empty schema loopback response list was accepted"
+      match ← DeepSeekSchemaLocalHttp.runWithKey request 1
+          [DeepSeekHarness.counterFinalResponseBody] 0
+          DeepSeekSchemaHarness.Example.counterRunner { value := "wrong-key" } with
+      | .error (.conversation (.client (.httpStatus 400 _))) => pure ()
+      | .error error => fail s!"wrong schema loopback key returned {reprStr error}"
+      | .ok _ => fail "wrong schema loopback key was accepted"
       match ← DeepSeekSchemaLocalHttp.Example.run weatherCertificate clockCertificate with
       | .error error => fail s!"schema loopback curl round-trip failed: {reprStr error}"
       | .ok result =>

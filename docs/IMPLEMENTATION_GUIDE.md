@@ -2442,7 +2442,9 @@ the prepared request, dependent tool-round and terminal witnesses, request count
 and final runner/model endpoint. This is local process/HTTP evidence for the typed loop only;
 remote reachability, TLS and credential authenticity, provider obedience, process trust,
 retries, cancellation, persistence, external effects, and deployed Harness equivalence remain
-outside the proof.
+outside the proof. The fixture checks the exact `get_weather`/`get_time` order and automatic tool
+choice, while an incorrect bearer key must produce a typed HTTP-status failure before any result
+is admitted.
 
 `Cordis.DeepSeekSchemaTransportRetryCancellation` is the composed schema-aware retry/cancellation
 slice. Build the registry-derived complete plan once, call `executeValidatedRetry`, and branch on

@@ -56,10 +56,12 @@ private def serverScript : String :=
   "    try:\n" ++
   "      request=json.loads(raw.decode())\n" ++
   "      tools=request.get('tools',[])\n" ++
+  "      names=[tool.get('function',{}).get('name') for tool in tools]\n" ++
   "      good=self.path=='/chat/completions' and self.command=='POST' and " ++
   "self.headers.get('Authorization')=='Bearer fixture-key' and " ++
   "request.get('model')=='deepseek-reasoner' and request.get('stream') is False and " ++
-  "len(tools)==2 and request.get('messages')\n" ++
+  "names==['get_weather','get_time'] and request.get('tool_choice')=='auto' and " ++
+  "request.get('messages')\n" ++
   "    except Exception:\n" ++
   "      good=False\n" ++
   "    if good and H.count < len(responses):\n" ++
