@@ -483,6 +483,8 @@ set_option format.width 200
 #print axioms Cordis.SessionRefinement.validate_example
 #print axioms Cordis.SessionRefinement.example_turnEndStep_isDerived
 #print axioms Cordis.SessionRefinement.validate_message_example
+#print axioms Cordis.SessionRefinement.validate_message_example_retains_reasoning
+#print axioms Cordis.SessionRefinement.accept_assistantReasoningBlock
 #print axioms Cordis.SessionRefinement.validate_tool_message_example
 #print axioms Cordis.SessionRefinement.validate_replacement_message_example
 #print axioms Cordis.SessionRefinement.validate_header_chunk_example
@@ -516,7 +518,7 @@ set_option format.width 200
 #print axioms Cordis.SessionArchive.archive_example_raw_preserved
 #print axioms Cordis.SessionEventArchive.all_known_tags_covered
 #print axioms Cordis.SessionEventArchive.all_known_raw_preserved
-#print axioms Cordis.SessionEventArchive.reasoning_surface_is_known_opaque
+#print axioms Cordis.SessionEventArchive.reasoning_surface_is_known
 #print axioms Cordis.SessionEventArchive.tool_result_meta_is_known_opaque
 #print axioms Cordis.SessionEventArchive.reject_log_only_surface_metadata
 #print axioms Cordis.SessionEventArchive.reject_known_nonobject_data

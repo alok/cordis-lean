@@ -12,7 +12,8 @@ log-only tags, delegates the supported subset to `SessionRefinement`, and keeps 
 known payload as a typed opaque record with its exact source AST.
 
 The result is a wire/tag coverage certificate, not a full event-payload decoder.  In particular,
-assistant message blocks, provider usage/failure objects, tool-result `error`/`meta`, future
+assistant message blocks outside the admitted text/reasoning/tool-call subset, provider usage/failure
+objects, tool-result `error`/`meta`, future
 request configuration, extension records, replay behavior, timestamps, persistence durability,
 and whole-session equivalence remain outside this layer.
 -/
@@ -376,7 +377,7 @@ theorem all_known_raw_preserved :
     | .ok log => log.events.map ArchivedEvent.raw) = allKnownEventJson := by
   rfl
 
-def unsupportedReasoningSurfaceJson : Lean.Json :=
+def reasoningSurfaceJson : Lean.Json :=
   surfaceEventJson "assistant/message" 0 (Lean.Json.mkObj [
     ("turn", .num 0),
     ("step", .num 0),
@@ -402,14 +403,14 @@ def requiredExtensionJson : Lean.Json :=
 def ignorableExtensionJson : Lean.Json :=
   SessionArchive.ignorableExtensionJson
 
-theorem reasoning_surface_is_known_opaque :
-    (match archive [unsupportedReasoningSurfaceJson] with
+theorem reasoning_surface_is_known :
+    (match archive [reasoningSurfaceJson] with
     | .error _ => none
     | .ok log =>
         match log.events with
         | [event] => some (event.isOpaque, event.tag?)
         | _ => none) =
-      some (true, some .assistantMessage) := by
+      some (false, some .assistantMessage) := by
   rfl
 
 theorem tool_result_meta_is_known_opaque :

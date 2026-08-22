@@ -4754,6 +4754,10 @@ private def testSessionRefinement : IO Unit := do
           .stepEnd 1 0,
           .turnEnd 1 1
         ]
+  assertEqual "assistant reasoning surface blocks remain in the wire witness"
+    (SessionRefinement.surfaceAssistantBlocks
+      (SessionRefinement.validateJsonLog SessionRefinement.messageExampleJson))
+    (some [.reasoning "hidden", .text "hi"])
   match SessionRefinement.surfaceValidationSummary
       (SessionRefinement.validateJsonLog SessionRefinement.toolMessageExampleJson) with
   | none => fail "assistant tool-call surface example failed to validate"
@@ -4948,12 +4952,12 @@ private def testSessionEventArchive : IO Unit := do
       assertEqual "full event-tag archive recognizes every record as a known core event"
         (log.events.map SessionEventArchive.ArchivedEvent.isKnown)
         (List.replicate 13 true)
-  match SessionEventArchive.archive [SessionEventArchive.unsupportedReasoningSurfaceJson] with
+  match SessionEventArchive.archive [SessionEventArchive.reasoningSurfaceJson] with
   | .ok log =>
       match log.events with
       | [event] =>
-          assertEqual "unsupported reasoning surface payload stays opaque but tagged"
-            (event.isOpaque, event.tag?) (true, some .assistantMessage)
+          assertEqual "reasoning surface payload is semantically recognized and tagged"
+            (event.isOpaque, event.tag?) (false, some .assistantMessage)
       | _ => fail "reasoning fixture did not produce one archived event"
   | .error error => fail s!"reasoning payload was not archived: {reprStr error}"
   match SessionEventArchive.archive [SessionEventArchive.unsupportedToolResultMetaJson] with
