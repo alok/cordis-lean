@@ -137,6 +137,7 @@ import Cordis.DeepSeekHarnessPersistenceIO
 import Cordis.DeepSeekHarnessPersistenceTransportRound
 import Cordis.DeepSeekHarnessEndToEnd
 import Cordis.DeepSeekHarnessPersistenceProcessOutcome
+import Cordis.DeepSeekHarnessPersistenceStreamRetry
 import Cordis.DeepSeekHarnessTransportConversation
 import Cordis.DeepSeekHarnessTransportRetry
 import Cordis.DeepSeekHarnessTransportRetryConversation
@@ -1854,6 +1855,34 @@ private def testDeepSeekHarnessPersistenceProcessOutcome : IO Unit := do
         DeepSeekHarnessPersistenceProcessOutcome.stream_plan_true run
       let _endpointCertificate :=
         DeepSeekHarnessPersistenceProcessOutcome.process_endpoint run
+      pure ()
+
+private def testDeepSeekHarnessPersistenceStreamRetry : IO Unit := do
+  match ← DeepSeekHarnessPersistenceStreamRetry.runFixture with
+  | .error _ => fail "persisted process stream-retry fixture failed"
+  | .ok run =>
+      let summary := DeepSeekHarnessPersistenceStreamRetry.summary run
+      assertEqual "persisted process stream-retry restores the archive endpoint"
+        summary.initialNextSeq
+        DeepSeekHarnessPersistenceStreamRetry.executableInitialNextSeq
+      assertEqual "persisted process stream-retry reaches the second endpoint"
+        summary.finalNextSeq DeepSeekHarnessPersistenceStreamRetry.executableFinalNextSeq
+      assertEqual "persisted process stream-retry retains both typed rounds"
+        summary.traceLength DeepSeekHarnessPersistenceStreamRetry.executableTraceLength
+      assertEqual "persisted process stream-retry executes the first two tool calls"
+        summary.firstToolCalls DeepSeekHarnessPersistenceStreamRetry.executableFirstToolCalls
+      assertEqual "persisted process stream-retry has no transient failures"
+        summary.firstRetryFailures DeepSeekHarnessPersistenceStreamRetry.executableFirstRetryFailures
+      assertEqual "persisted process stream-retry uses one first-round attempt"
+        summary.firstAttemptCount DeepSeekHarnessPersistenceStreamRetry.executableFirstAttemptCount
+      assertEqual "persisted process stream-retry preserves the model"
+        summary.finalModel DeepSeekHarnessPersistenceStreamRetry.executableFinalModel
+      assertEqual "persisted process stream-retry reaches a typed completed stop"
+        summary.completed DeepSeekHarnessPersistenceStreamRetry.executableCompleted
+      assertEqual "persisted process stream-retry executable projection agrees"
+        (DeepSeekHarnessPersistenceStreamRetry.summaryMatchesFixture summary) true
+      let _sessionCertificate :=
+        DeepSeekHarnessPersistenceStreamRetry.restored_session_eq_archive run
       pure ()
 
 private def testDeepSeekHarnessProcessSchema : IO Unit := do
@@ -6670,6 +6699,7 @@ def run : IO Unit := do
   testDeepSeekHarnessProcess
   testDeepSeekHarnessProcessOutcome
   testDeepSeekHarnessPersistenceProcessOutcome
+  testDeepSeekHarnessPersistenceStreamRetry
   testDeepSeekHarnessProcessSchema
   testDeepSeekHarnessProcessSchemaPrefix
   testDeepSeekHarnessProcessSchemaPrefixConversation

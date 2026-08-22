@@ -402,6 +402,14 @@ projects archive `nextSeq = 8`, endpoint `nextSeq = 10`, and body length `523`. 
 process boundary only: process/credential trust, incremental delivery, blocked-read cancellation,
 durability, external effects, and deployed Harness equivalence remain outside.
 
+`DeepSeekHarnessPersistenceStreamRetry` extends that process boundary to a dependent two-round
+continuation from the restored runner. Its shell fixture emits the two-call counter stream, runs
+the typed tool executions, and emits terminal text after the first tool result is serialized into
+the next request; the executable projection checks `8 -> 12`, two rounds, two first-round calls,
+one attempt, model `0`, and typed completion. This proves a deterministic local process trace only:
+provider/process authenticity, durable recovery, backoff/idempotency, blocked-read cancellation,
+external effects, and deployed Harness equivalence remain external.
+
 `DeepSeekHarnessTransportRetryCancellation` composes that trace with a caller-controlled
 pre-round cancellation policy. Its cancellation fixture proves that no request is issued before
 round zero and retains the unchanged endpoint and typed reason; its success fixture retains the
@@ -913,7 +921,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1731
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1815
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.

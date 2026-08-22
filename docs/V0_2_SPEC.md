@@ -1193,6 +1193,12 @@ The bounded algebra/context/global layer now has forty-five explicit pieces:
     runner endpoint; its shell fixture checks archive `nextSeq = 8`, endpoint `nextSeq = 10`, and
     body length `523`. Process/credential trust, incremental delivery, blocked-read cancellation,
     durability, external effects, and deployed Harness equivalence remain open.
+46. `Cordis.DeepSeekHarnessPersistenceStreamRetry` extends the byte-backed restore through a real
+    process-backed two-round streamed continuation. The first shell response emits two counter
+    tool calls; the next request contains their certified `[true,0]` results and therefore receives
+    terminal text. The dependent fixture checks `8 -> 12`, two rounds, two first-round calls, one
+    attempt, model `0`, and a typed completed stop. Provider/process trust, durability,
+    cancellation, external effects, and deployed Harness equivalence remain open.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -1511,6 +1517,14 @@ streaming request-plan proof, process/body certificate, rich outcome classificat
 execution, and exact endpoint, and its deterministic shell fixture reaches `8 -> 10` with a body
 of length `523`. This is an executable local process boundary, not provider authenticity,
 incremental-stream, blocked-read, durability, external-effect, or deployed-Harness evidence.
+
+`Cordis.DeepSeekHarnessPersistenceStreamRetry` composes that actual process outcome with the
+fuel-bounded streamed conversation loop. The restored runner remains the initial trace index; the
+fixture emits two counter calls, executes them through the dependent generic configuration, then
+returns terminal text when the next serialized request contains `[true,0]`. It reaches `8 -> 12`
+with two typed rounds and a completed stop. This remains deterministic local process evidence,
+not provider authenticity, durable recovery, cancellation, external-effect, or deployed-Harness
+equivalence evidence.
 
 `Cordis.DeepSeekHarnessTransportRetryCancellation` composes that trace with a caller-controlled
 pre-round cancellation decision. The cancellation fixture stops before issuing a request and
