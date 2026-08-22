@@ -45,6 +45,7 @@ import Cordis.DeepSeekSchemaHarness
 import Cordis.DeepSeekSchemaRound
 import Cordis.DeepSeekSchemaMultiRound
 import Cordis.DeepSeekSchemaRegistry
+import Cordis.DeepSeekScopedRegistry
 import Cordis.DeepSeekSchemaConversation
 import Cordis.DeepSeekSchemaConversationLoop
 import Cordis.DeepSeekSchemaStreamConversation
@@ -808,6 +809,14 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekSchemaRegistry.SchemaRegistryRoundResult.finalRunner_nextSeq
 #print axioms Cordis.DeepSeekSchemaRegistry.Example.dualRoundAccepted
 #print axioms Cordis.DeepSeekSchemaRegistry.Example.unknownToolRejected
+#print axioms Cordis.DeepSeekScopedRegistry.resolveScopedTool_sound
+#print axioms Cordis.DeepSeekScopedRegistry.ScopedExecutedCall.provider_execution_exact
+#print axioms Cordis.DeepSeekScopedRegistry.dispatchScopedCall
+#print axioms Cordis.DeepSeekScopedRegistry.Example.shadowedWeather
+#print axioms Cordis.DeepSeekScopedRegistry.Example.restrictedWeather
+#print axioms Cordis.DeepSeekScopedRegistry.Example.globalClock
+#print axioms Cordis.DeepSeekScopedRegistry.Example.approvalRejected
+#print axioms Cordis.DeepSeekScopedRegistry.Example.unknownRejected
 #print axioms Cordis.DeepSeekSchemaConversation.registryToolDefinitions
 #print axioms Cordis.DeepSeekSchemaConversation.executeSchemaRegistryConversationRound
 #print axioms Cordis.DeepSeekSchemaConversation.SchemaRegistryConversationResult.finalRunner_nextSeq

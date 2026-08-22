@@ -47,6 +47,7 @@ import Cordis.DeepSeekSchemaHarness
 import Cordis.DeepSeekSchemaRound
 import Cordis.DeepSeekSchemaMultiRound
 import Cordis.DeepSeekSchemaRegistry
+import Cordis.DeepSeekScopedRegistry
 import Cordis.DeepSeekSchemaConversation
 import Cordis.DeepSeekSchemaConversationLoop
 import Cordis.DeepSeekSchemaStreamConversation
@@ -3412,6 +3413,18 @@ private def testDeepSeekToolSchema : IO Unit := do
   | .error error => fail s!"duplicate tool names returned the wrong error: {reprStr error}"
   | .ok _ => fail "duplicate tool names were accepted"
 
+private def testDeepSeekScopedRegistry : IO Unit := do
+  assertEqual "nearest scope shadows the global weather declaration"
+    DeepSeekScopedRegistry.Example.shadowedWeather true
+  assertEqual "a restricted nearest declaration blocks fallback"
+    DeepSeekScopedRegistry.Example.restrictedWeather true
+  assertEqual "global clock dispatch selects the review route"
+    DeepSeekScopedRegistry.Example.globalClock true
+  assertEqual "approval rejection happens before provider execution"
+    DeepSeekScopedRegistry.Example.approvalRejected true
+  assertEqual "unknown scoped names are rejected"
+    DeepSeekScopedRegistry.Example.unknownRejected true
+
 private def testDeepSeekSchemaStreamConversation : IO Unit := do
   match DeepSeekToolSchema.weatherToolCertificate,
       DeepSeekSchemaRegistry.Example.clockToolCertificate with
@@ -5762,6 +5775,7 @@ def run : IO Unit := do
   testDeepSeekHarnessOpaqueMetadata
   testDeepSeekHarnessMetadataArchive
   testDeepSeekToolSchema
+  testDeepSeekScopedRegistry
   testDeepSeekSchemaStreamConversation
   testDeepSeekSchemaStreamPrefixConversation
   testDeepSeekSchemaStreamErrors

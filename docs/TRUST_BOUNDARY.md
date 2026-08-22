@@ -523,6 +523,13 @@ external execution, or TypeScript/deployed Harness equivalence.
 
 ## What is checked but not proved
 
+`Cordis.DeepSeekScopedRegistry` is a pure local routing certificate: nearest-first scopes select
+dependent entries, restrictions fail closed at the matching scope, and an approval ticket is
+retained before the generic provider view executes. Its fixtures cover automatic/review routes
+plus restricted, unknown, and approval-rejected calls. Scope construction, authenticated approval,
+asynchronous policy waterfalls, persistence, external effects, and deployed Harness equivalence
+remain outside.
+
 Executable rejection is valuable, but it is not a refinement theorem.
 
 | Boundary                                                                                                                                                                                                  | Check performed                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Missing theorem or guarantee                                                                                                                                                                                                                                                                                                                           |

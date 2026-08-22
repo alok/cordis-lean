@@ -244,6 +244,8 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekSchemaRegistry`, lifting the same boundary to a finite heterogeneous registry
   whose dependent name lookup selects entry-specific schema/generic bindings, with mixed-operation
   execution, exact runner accounting, and typed unknown-name rejection;
+- `Cordis.DeepSeekScopedRegistry`, adding nearest-first lexical scopes, terminal shadowing
+  restrictions, and typed automatic/review approval tickets before dependent provider execution;
 - `Cordis.DeepSeekSchemaConversation`, attaching registry-derived tool declarations to a typed
   complete-body transport request and validated response while retaining the exact plan, response,
   heterogeneous execution batch, and runner endpoint for one round;
@@ -1199,6 +1201,13 @@ model through a mixed call list. `executeSchemaRegistryRound` appends the assist
 certified results to the existing runner; the fixture covers weather followed by clock and a
 later unknown-name rejection. This is not a provider-complete registry, live transport, call-ID
 authenticator, persistence layer, or deployed Harness-equivalence theorem.
+
+`Cordis.DeepSeekScopedRegistry` is a pure routing layer above that registry boundary. It orders
+finite scopes nearest-first, makes a matching restriction terminal rather than falling through,
+and retains an automatic/review approval ticket before the dependent provider `View` executes.
+The fixture proves shadowing, restricted and unknown-name rejection, review routing, and approval
+rejection. Scope construction, authenticated approval, asynchronous policy waterfalls, persistence,
+external effects, and deployed Harness equivalence remain outside.
 
 `Cordis.DeepSeekSchemaConversation` closes the adjacent one-round transport seam by deriving the
 typed request's tool list from that registry, executing an explicit complete-body `Transport`, and

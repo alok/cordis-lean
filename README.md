@@ -406,6 +406,13 @@ clock fixture proves sequential execution, runner accounting, and typed unknown-
 This remains a pure registry/runner boundary: live transport, provider obedience, call-ID
 authenticity, persistence, and deployed Harness equivalence remain outside.
 
+`Cordis.DeepSeekScopedRegistry` adds the next local routing seam: nearest-first lexical scopes,
+same-name shadowing, fail-closed restrictions that do not fall through to a farther declaration,
+and an approval ticket retained before the dependent provider view executes. Its weather/clock
+fixture exercises automatic versus review routing, restricted and unknown-name rejection, and an
+approval rejection with no provider execution. Scope construction, authenticated approval,
+provider discovery, persistence, and deployed Harness equivalence remain outside.
+
 `Cordis.DeepSeekSchemaConversation` attaches that heterogeneous registry to the typed complete-body
 DeepSeek transport seam, retaining the request plan, validated response, accepted calls, and
 runner endpoint for one round. `Cordis.DeepSeekSchemaConversationLoop` then distinguishes a
@@ -1229,6 +1236,7 @@ placeholders.
 | `Cordis.DeepSeekSchemaRound`                            | Bounded complete-body round for one accepted singleton assistant tool call: exact response/tool-call extraction, schema-certified dispatch, typed rejection of zero/multiple calls, and certified runner endpoint.                                                                                                                                                                                  |
 | `Cordis.DeepSeekSchemaMultiRound`                       | Bounded complete-body round for a nonempty homogeneous list of calls under one explicit schema/generic binding: sequential dependent execution, exact execution-list length, typed later-call failures, and certified multi-result runner endpoint. Heterogeneous registries and deployed semantics remain external.                                                                                |
 | `Cordis.DeepSeekSchemaRegistry`                         | Bounded heterogeneous registry: dependent name lookup selects an entry-specific schema binding, sequential calls may target different generic operations, and the runner endpoint retains exact execution length/sequence evidence. Live transport and deployed semantics remain external.                                                                                                          |
+| `Cordis.DeepSeekScopedRegistry`                         | Nearest-first scoped registry with dependent entries, terminal shadowing restrictions, typed resolve/approval failures, and an approval ticket retained before provider execution; automatic/review/rejection fixtures are executable, while scope construction and deployed Harness semantics remain external.                                                                                     |
 | `Cordis.DeepSeekSchemaConversation`                     | Connects registry-derived tool declarations to a typed complete-body transport request and validated response, retaining the wire plan, response certificate, heterogeneous execution batch, and runner endpoint for one round.                                                                                                                                                                     |
 | `Cordis.DeepSeekSchemaConversationLoop`                 | Fuel-bounded heterogeneous transport loop with an explicit terminal no-tool response, dependent round history, model/runner endpoint, and distinct exhaustion stop; retries, cancellation, persistence, and deployed semantics remain external.                                                                                                                                                     |
 | `Cordis.DeepSeekSchemaStreamConversation`               | Complete-body SSE/rich-stream/session continuation for the heterogeneous registry: a certified `stream: true` request, terminal streamed-body validation, mixed registry dispatch, and a caller-fueled history with distinct completion/exhaustion stops; incremental delivery and deployed semantics remain external.                                                                              |
