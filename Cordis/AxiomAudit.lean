@@ -73,6 +73,7 @@ import Cordis.DeepSeekSchemaRegistry
 import Cordis.DeepSeekScopedRegistry
 import Cordis.DeepSeekSchemaConversation
 import Cordis.DeepSeekSchemaConversationLoop
+import Cordis.DeepSeekSchemaLocalHttp
 import Cordis.DeepSeekSchemaStreamConversation
 import Cordis.DeepSeekSchemaStreamPrefixConversation
 import Cordis.DeepSeekSchemaStreamErrors
@@ -2153,6 +2154,13 @@ namespace Cordis.GlobalPaperTraceNormalization
 #print axioms Example.ActivationOrchestration.executableTwoLinkTerminalRules_eq
 #print axioms Example.ActivationOrchestration.executableTwoLinkTerminalActors_eq
 end Cordis.GlobalPaperTraceNormalization
+namespace Cordis.DeepSeekSchemaLocalHttp
+#print axioms PreparedRequest.complete_mode
+#print axioms PreparedRequest.body_eq_source
+#print axioms LocalSchemaHttpResult.complete_mode
+#print axioms LocalSchemaHttpResult.server_exited_successfully
+#print axioms Example.expectedSummary_complete
+end Cordis.DeepSeekSchemaLocalHttp
 namespace Cordis.GlobalPaperTraceNormalizer
 #print axioms normalizeFuel_some_of_measure_le
 #print axioms normalize_some

@@ -316,6 +316,10 @@ Current machine-checked evidence includes:
   actual complete request through curl, with request method/route/authorization/model/stream-mode
   checks and server request-count evidence retained beside the typed conversation result; remote
   reachability, TLS, provider authenticity, and deployed equivalence remain external;
+- `Cordis.DeepSeekSchemaLocalHttp`, sending a heterogeneous two-tool schema conversation through
+  the same real curl/HTTP boundary and retaining the prepared plan, dependent tool round,
+  terminal witness, final model/runner endpoint, request counts, and server exit; remote/provider,
+  retry/cancellation, persistence, external effects, and deployed semantics remain external;
 - `Cordis.DeepSeekHarnessLocalSse`, starting a one-shot loopback SSE fixture and sending a typed
   `stream: true` request through the real curl/incremental-reader path, with delivered lines,
   reconstructed body, strict wire proof, and appended runner endpoint retained; byte framing,
@@ -1460,6 +1464,12 @@ The bounded algebra/context/global layer now has sixty-seven explicit pieces:
     witness through real curl one-byte chunks. The loopback request, byte-prefix body, provider
     assembly, dependent execution, request counts, and server exit remain linked; timeout, fuel,
     cancellation, provider authenticity, and deployed equivalence remain external.
+73. `Cordis.DeepSeekSchemaLocalHttp` instantiates the heterogeneous schema conversation at the real
+    local process/HTTP boundary. The fixture validates two declared tools and complete mode, sends
+    the weather/clock tool response and terminal response through curl, and retains the prepared
+    plan, one dependent tool round, terminal witness, final model/runner endpoint, request counts,
+    and server exit. Remote reachability, TLS, credential/provider authenticity, retries,
+    cancellation, persistence, external effects, and deployed Harness equivalence remain external.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a

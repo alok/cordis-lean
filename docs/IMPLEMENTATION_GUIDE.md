@@ -2435,6 +2435,15 @@ Implement this as a finite loop over the existing registry theorem, not as an un
 claim about remote model/tool behavior. Retries, cancellation, persistence, and external effects
 remain separate authorities.
 
+`Cordis.DeepSeekSchemaLocalHttp` is the next executable seam: it starts a one-shot local HTTP
+fixture, checks the complete heterogeneous request at the route/auth/model/tool boundary, sends
+the weather/clock tool response followed by a terminal response through real curl, and retains
+the prepared request, dependent tool-round and terminal witnesses, request counts, server exit,
+and final runner/model endpoint. This is local process/HTTP evidence for the typed loop only;
+remote reachability, TLS and credential authenticity, provider obedience, process trust,
+retries, cancellation, persistence, external effects, and deployed Harness equivalence remain
+outside the proof.
+
 `Cordis.DeepSeekSchemaTransportRetryCancellation` is the composed schema-aware retry/cancellation
 slice. Build the registry-derived complete plan once, call `executeValidatedRetry`, and branch on
 the same successful `ValidatedResponse`: terminal admission appends the assistant, while the

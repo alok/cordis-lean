@@ -89,6 +89,7 @@ import Cordis.DeepSeekSchemaRegistry
 import Cordis.DeepSeekScopedRegistry
 import Cordis.DeepSeekSchemaConversation
 import Cordis.DeepSeekSchemaConversationLoop
+import Cordis.DeepSeekSchemaLocalHttp
 import Cordis.DeepSeekSchemaStreamConversation
 import Cordis.DeepSeekHarnessProcessSchema
 import Cordis.DeepSeekHarnessProcessSchemaPrefix

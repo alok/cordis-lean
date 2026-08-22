@@ -77,6 +77,7 @@ import Cordis.DeepSeekSchemaRegistry
 import Cordis.DeepSeekScopedRegistry
 import Cordis.DeepSeekSchemaConversation
 import Cordis.DeepSeekSchemaConversationLoop
+import Cordis.DeepSeekSchemaLocalHttp
 import Cordis.DeepSeekSchemaStreamConversation
 import Cordis.DeepSeekSchemaStreamPrefixConversation
 import Cordis.DeepSeekSchemaStreamErrors
@@ -4413,6 +4414,44 @@ private def testDeepSeekToolSchema : IO Unit := do
   | .error error => fail s!"duplicate tool names returned the wrong error: {reprStr error}"
   | .ok _ => fail "duplicate tool names were accepted"
 
+private def testDeepSeekSchemaLocalHttp : IO Unit := do
+  assertEqual "schema loopback port parser accepts a decimal port"
+    (DeepSeekSchemaLocalHttp.parsePort "61703\n") (some 61703)
+  assertEqual "schema loopback report parser retains request validity counts"
+    (DeepSeekSchemaLocalHttp.parseReport "requests:2:valid:2\n") (some (2, 2))
+  assertEqual "schema loopback report parser rejects malformed evidence"
+    (DeepSeekSchemaLocalHttp.parseReport "requests:two:valid:2\n") none
+  match DeepSeekToolSchema.weatherToolCertificate,
+      DeepSeekSchemaRegistry.Example.clockToolCertificate with
+  | .error error, _ => fail s!"schema loopback weather schema failed: {reprStr error}"
+  | _, .error error => fail s!"schema loopback clock schema failed: {reprStr error}"
+  | .ok weatherCertificate, .ok clockCertificate =>
+      let request := DeepSeekSchemaConversation.Example.dualRequestSource
+        weatherCertificate clockCertificate
+      match ← DeepSeekSchemaLocalHttp.runWithKey request 1 [] 0
+          DeepSeekSchemaHarness.Example.counterRunner { value := "fixture-key" } with
+      | .error .emptyResponses => pure ()
+      | .error error => fail s!"empty schema loopback responses returned {reprStr error}"
+      | .ok _ => fail "empty schema loopback response list was accepted"
+      match ← DeepSeekSchemaLocalHttp.Example.run weatherCertificate clockCertificate with
+      | .error error => fail s!"schema loopback curl round-trip failed: {reprStr error}"
+      | .ok result =>
+          let summary := DeepSeekSchemaLocalHttp.Example.summarize result
+          assertEqual "schema loopback receives both heterogeneous requests"
+            summary.requests DeepSeekSchemaLocalHttp.Example.expectedSummary.requests
+          assertEqual "schema loopback validates auth, model, mode, and tools"
+            summary.validRequests DeepSeekSchemaLocalHttp.Example.expectedSummary.validRequests
+          assertEqual "schema loopback retains one certified heterogeneous tool round"
+            summary.toolRounds DeepSeekSchemaLocalHttp.Example.expectedSummary.toolRounds
+          assertEqual "schema loopback reaches the exact final session endpoint"
+            summary.finalNextSeq DeepSeekSchemaLocalHttp.Example.expectedSummary.finalNextSeq
+          assertEqual "schema loopback preserves the dependent model endpoint"
+            summary.finalModel DeepSeekSchemaLocalHttp.Example.expectedSummary.finalModel
+          assertEqual "schema loopback reports terminal completion"
+            summary.completed DeepSeekSchemaLocalHttp.Example.expectedSummary.completed
+          assertEqual "schema loopback retains complete request mode"
+            result.prepared.plan.source.stream false
+
 private def testDeepSeekScopedRegistry : IO Unit := do
   assertEqual "nearest scope shadows the global weather declaration"
     DeepSeekScopedRegistry.Example.shadowedWeather true
@@ -8048,6 +8087,7 @@ def run : IO Unit := do
   testDeepSeekHarnessOpaqueMetadata
   testDeepSeekHarnessMetadataArchive
   testDeepSeekToolSchema
+  testDeepSeekSchemaLocalHttp
   testDeepSeekScopedRegistry
   testDeepSeekHarnessExtensions
   testSessionExtensionRefinement
