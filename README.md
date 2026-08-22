@@ -952,10 +952,12 @@ exact rule/actor projections. The simulator and lifecycle provenance are still s
 automatic lifecycle bisimulation, maximal execution, or unrestricted Theorem 66 is claimed.
 
 `Cordis.EffectContext` now covers the paper's function-level effect-context tower through
-Definitions 1–3, 6, and 8–12 and Theorems 4–5, 7, and 10–15. It carries a state-indexed inverse
-inside `WitnessedEffect`, proves twisted tracking/recovery and effect composition, and exposes the
-exact next-level lifted-inverse formula. It remains a finite exact slice; arbitrary interleaving,
-quotient independence, and deployed Harness equivalence remain explicit boundaries.
+Definitions 1–3, 6, and 8–12 and Theorems 4–5, 7, and 10–16. It carries a state-indexed inverse
+inside `WitnessedEffect`, proves twisted tracking/recovery and effect composition, exposes the
+exact next-level lifted-inverse formula, and gives an indexed finite `Run` whose selected
+inverses recover the initial raw context in reverse order. It remains a finite exact slice;
+arbitrary interleaving, quotient independence, and deployed Harness equivalence remain explicit
+boundaries.
 
 `Cordis.GlobalSupport` then kernel-refutes the printed Lemma 68 inference. A legal `FromEmpty`
 two-O-Insert trace has well-founded provider precedence and an acyclic birth-ranked parent relation,
@@ -1337,7 +1339,7 @@ placeholders.
 | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `Cordis.Api`                                            | Dependent signatures, providers, registries, restricted committed views, authorized calls, and call-indexed replies.                                                                                                                                                                                                                                                                                |
 | `Cordis.Effect`                                         | Exact and observational reversible effects, LIFO composition, accumulators, and indexed undo stacks.                                                                                                                                                                                                                                                                                                |
-| `Cordis.EffectContext`                                  | Paper effect-context Definitions 1–3, 6, 8–12 and Theorems 4–5, 7, 10–15: tracking, recovery, composition, and lifting.                                                                                                                                                                                                                                                                             |
+| `Cordis.EffectContext`                                  | Paper effect-context Definitions 1–3, 6, 8–12 and Theorems 4–5, 7, 10–16: tracking, recovery, composition, lifting, and finite indexed reverse-order recovery.                                                                                                                                                                                                                                      |
 | `Cordis.Codec`                                          | Proof-carrying `Lean.Json` AST codecs with structured nested decode errors.                                                                                                                                                                                                                                                                                                                         |
 | `Cordis.Tool`                                           | Request-indexed tool contracts, capabilities, certified outcomes, catalogs, and policy decisions.                                                                                                                                                                                                                                                                                                   |
 | `Cordis.ToolWire`                                       | Raw-call admission plus request-dependent success/failure result codecs and certified-result encoding.                                                                                                                                                                                                                                                                                              |

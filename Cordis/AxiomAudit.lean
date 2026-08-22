@@ -1816,8 +1816,13 @@ namespace Cordis.EffectContext
 #print axioms Theorems.effectLift_comp
 #print axioms Theorems.effectLift_inverse_value
 #print axioms Theorems.effectLift_isWitnessed_iff
+#print axioms Theorems.applyEffect_recovery
+#print axioms Theorems.inverseAt_application_context
+#print axioms Theorems.Run.recovery_eq
+#print axioms Theorems.Run.reverseContext_eq
 #print axioms Example.add_witnessed
 #print axioms Example.add_lift_recovery
+#print axioms Example.run_reverse
 end Cordis.EffectContext
 #print axioms Cordis.GlobalRelations.contextRelated_domain
 #print axioms Cordis.GlobalRelations.ruleSetoid

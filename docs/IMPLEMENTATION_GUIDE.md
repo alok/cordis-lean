@@ -2522,7 +2522,7 @@ Lean's parser and the external logger remain explicit boundaries.
 ### 19.6 Mechanize more of the paper
 
 Use [`PAPER_MAP.md`](PAPER_MAP.md) as a backlog. Major missing areas include the
-effect-context tower beyond the finite `Cordis.EffectContext` lift, the paper's literal total/quotient Theorem 42 beyond the finite partial
+effect-context tower beyond the finite indexed `Cordis.EffectContext.Theorems.Run`, the paper's literal total/quotient Theorem 42 beyond the finite partial
 analogue, global trace metatheory,
 full preservation, full Theorem 61/Corollary 62 temporal recovery beyond the oracle-specific
 finite Definition 60-to-`PerStepCommutes` bridge, spatial composition, progress,

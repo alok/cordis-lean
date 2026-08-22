@@ -282,6 +282,9 @@ private def testEffectContext : IO Unit := do
     (Cordis.EffectContext.effectComp
       (Cordis.EffectContext.Example.add 3)
       (Cordis.EffectContext.Example.add 2) 10).1 15
+  let run := Cordis.EffectContext.Example.run
+  assertEqual "effect-context finite run has two applications" run.length 2
+  assertEqual "effect-context finite run reverses its raw context" run.reverseContext 0
   let _uniform : Cordis.EffectContext.Theorems.UniformInverse effect :=
     Cordis.EffectContext.Example.add_uniform_inverse 3
   pure ()

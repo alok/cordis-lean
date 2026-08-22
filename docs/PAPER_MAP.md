@@ -108,7 +108,8 @@ Local source: [`Cordis/EffectContext.lean`](../Cordis/EffectContext.lean).
 | `twistedComp`, `twistedIdentity` | **Proved:** forward maps compose in application order while candidate inverses compose in the opposite order; identity and associativity are extensional. | Definition 1 and the twisted composition monoid `𝔗Γ`. | Function-level context maps only; no quotient or external-effect interpretation. |
 | `EffectContext`, `track`, `recover`, `track_projection`, `track_comp`, `recover_track` | **Proved:** `∂Γ = Γ × (Γ → Γ)` carries the current context and inverse accumulator; tracking projects to the forward map, is a twisted-monoid homomorphism, and preserves the recovery result under the stated one-sided inverse premise. | Definitions 2–3, 6 and Theorems 4–5, 7. | The inverse law is supplied per pair/application; no global invertibility is inferred. |
 | `EffectFunction`, `WitnessedEffect`, `effectComp`, `WitnessedEffect.effectComp` | **Proved:** state-indexed effects return their selected inverse, effect composition has unit/associativity, and witnessed effects form a submonoid. | Definitions 8–9 and Theorems 10–11. | This is exact representative equality, not the later observational quotient or independence theorem. |
-| `effectLift`, `effectLift_comp`, `effectLift_projection`, `effectLift_inverse_value`, `effectLift_isWitnessed_iff` | **Proved:** the next effect-context level preserves composition/projections; the lifted inverse has the exact accumulator formula and preserves recovery, with a precise uniform-inverse criterion for full witnessing. | Definition 12 and Theorems 13–15. | Theorem 16's finite sequence statement remains represented by the separate indexed `UndoStack`; arbitrary interleaving and Definition 19 remain separate claims. |
+| `effectLift`, `effectLift_comp`, `effectLift_projection`, `effectLift_inverse_value`, `effectLift_isWitnessed_iff` | **Proved:** the next effect-context level preserves composition/projections; the lifted inverse has the exact accumulator formula and preserves recovery, with a precise uniform-inverse criterion for full witnessing. | Definition 12 and Theorems 13–15. | The finite lift is exact, but arbitrary interleaving and Definition 19 remain separate claims. |
+| `Theorems.applyEffect`, `Theorems.inverseAt`, `Theorems.Run`, `Theorems.Run.recovery_eq`, `Theorems.Run.reverseContext_eq` | **Proved:** an indexed finite sequence of witnessed lifted effects preserves its recovery target, and applying the selected inverses in reverse order recovers the initial raw context exactly. | Theorem 16's finite reverse-order application and soundness fragment. | This is an indexed finite run, not a theorem about arbitrary interleavings, quotient independence, or the later transformation-monoid claims. |
 
 ### `Cordis.Effect`
 
@@ -772,11 +773,11 @@ deployed provider behavior.
 
 The following are intentionally not presented as completed formalization work.
 
-1. **Effect-context tower beyond the finite lift:** `Cordis.EffectContext` now represents
-   Definitions 1–3, 6, and 8–12 and proves Theorems 4–5, 7, and 10–15, including the exact
-   lifted-inverse/recovery formula. Theorem 16's indexed finite LIFO behavior is covered by
-   `Cordis.Effect`/`UndoStack`, but no theorem here turns that into arbitrary interleaving or
-   the later transformation-monoid independence claims.
+1. **Effect-context tower beyond the finite indexed run:** `Cordis.EffectContext` now represents
+   Definitions 1–3, 6, and 8–12 and proves Theorems 4–5, 7, and 10–16, including the exact
+   lifted-inverse/recovery formula and finite reverse-order context recovery. No theorem here
+   turns that indexed run into arbitrary interleaving or the later transformation-monoid
+   independence claims.
 2. **Beyond finite exact removal:** Definitions 17–19, Theorem 20, and Corollary 21 are now
    mechanized for finite exact pairwise-independent effects. Their observational-quotient,
    infinite, asynchronous, and external-effect interpretations are not. The separate Schedule

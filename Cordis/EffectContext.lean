@@ -2,7 +2,7 @@
 # The paper's effect-context tower
 
 This module implements the pinned CORDIS paper's Definitions 1--12 and Theorems 4--5,
-7, 10--15.  The names are kept in a namespace because `Cordis.Effect` is the repository's
+7, 10--16.  The names are kept in a namespace because `Cordis.Effect` is the repository's
 state-indexed one-step API, while this file formalizes the paper's function-level tower.
 
 The central types are deliberately proof-carrying:
@@ -11,9 +11,10 @@ The central types are deliberately proof-carrying:
 * `EffectFunction Γ` returns both its successor and the inverse chosen at that application;
 * `WitnessedEffect Γ` carries the one-sided inverse law at every input.
 
-The later paper claims about arbitrary interleavings and transformation-monoid independence
-are separate modules.  This file stops at the finite effect-context lift and its exact recovery
-law, so it does not smuggle those stronger hypotheses into the tower itself.
+The finite indexed `Run` below makes the reverse-order context recovery part of Theorem 16
+explicit.  The later paper claims about arbitrary interleavings and transformation-monoid
+independence are separate modules, so this file does not smuggle those stronger hypotheses
+into the tower itself.
 -/
 
 set_option autoImplicit false
@@ -221,6 +222,71 @@ theorem effectLift_isWitnessed_iff
       simp [effectLift, track, Function.comp_def]
       exact congrArg accumulator (uniform_inverse context input)
 
+/-- The forward endpoint of one witnessed effect at a lifted context. -/
+def applyEffect (effect : WitnessedEffect Γ) (state : EffectContext Γ) :
+    EffectContext Γ :=
+  (effectLift effect.run state).1
+
+/-- The inverse selected by one lifted effect application. -/
+def inverseAt
+    (effect : WitnessedEffect Γ) (state : EffectContext Γ) :
+    EffectContext Γ → EffectContext Γ :=
+  (effectLift effect.run state).2
+
+/-- A lifted application preserves the context targeted by `recover`. -/
+theorem applyEffect_recovery
+    (effect : WitnessedEffect Γ) (state : EffectContext Γ) :
+    recover (applyEffect effect state) = recover state := by
+  rcases state with ⟨context, accumulator⟩
+  simp [applyEffect, effectLift, recover, Function.comp_def, effect.inverse_ok]
+
+/-- The selected lifted inverse recovers the original context projection. -/
+theorem inverseAt_application_context
+    (effect : WitnessedEffect Γ) (state : EffectContext Γ) :
+    (inverseAt effect state (applyEffect effect state)).1 = state.1 := by
+  rcases state with ⟨context, accumulator⟩
+  simp [inverseAt, applyEffect, effectLift, track, Function.comp_def, effect.inverse_ok]
+
+/-- A finite indexed sequence of witnessed lifted effects. -/
+inductive Run (Γ : Type u) : EffectContext Γ → EffectContext Γ → Type u where
+  | nil (state : EffectContext Γ) : Run Γ state state
+  | cons {before final : EffectContext Γ}
+      (effect : WitnessedEffect Γ)
+      (tail : Run Γ (applyEffect effect before) final) : Run Γ before final
+
+namespace Run
+
+/-- The number of effect applications in a finite run. -/
+def length {before after : EffectContext Γ} : Run Γ before after → Nat
+  | .nil _ => 0
+  | .cons _ tail => tail.length + 1
+
+/-- Every finite run preserves the recovery target. -/
+theorem recovery_eq {before after : EffectContext Γ} (run : Run Γ before after) :
+    recover after = recover before := by
+  induction run with
+  | nil => rfl
+  | cons effect tail ih =>
+      exact ih.trans (applyEffect_recovery effect _)
+
+/-- Apply the selected inverses in reverse order to the raw context projection. -/
+def reverseContext {before after : EffectContext Γ} : Run Γ before after → Γ
+  | .nil state => state.1
+  | .cons (before := before) effect tail =>
+      (effect.run before.1).2 (tail.reverseContext)
+
+/-- Reverse-order inverse application recovers the initial raw context exactly. -/
+theorem reverseContext_eq {before after : EffectContext Γ} (run : Run Γ before after) :
+    run.reverseContext = before.1 := by
+  induction run with
+  | nil => rfl
+  | cons effect tail ih =>
+      dsimp [reverseContext]
+      rw [ih]
+      exact effect.inverse_ok _
+
+end Run
+
 end Theorems
 
 /-!
@@ -265,6 +331,21 @@ theorem add_uniform_inverse (amount : Int) :
     Theorems.UniformInverse (add amount) := by
   intro state input
   simp [add]
+
+/-- A concrete two-step indexed run used by the executable test suite. -/
+def run : Theorems.Run Int (0, id) (Theorems.applyEffect (add_witnessed 2)
+    (Theorems.applyEffect (add_witnessed 3) (0, id))) :=
+  .cons (add_witnessed 3) (.cons (add_witnessed 2) (.nil _))
+
+/-- The concrete run's reverse-order inverses recover its initial context. -/
+theorem run_reverse : run.reverseContext = 0 := by
+  exact Theorems.Run.reverseContext_eq run
+
+/-- The concrete run preserves its recovery target. -/
+theorem run_recovery :
+    recover ((Theorems.applyEffect (add_witnessed 2)
+      (Theorems.applyEffect (add_witnessed 3) (0, id)))) = recover (0, id) := by
+  exact Theorems.Run.recovery_eq run
 
 end Example
 
