@@ -45,6 +45,7 @@ import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
 import Cordis.DeepSeekHarnessLiveProbe
 import Cordis.DeepSeekHarnessLocalHttp
+import Cordis.DeepSeekHarnessLocalSse
 import Cordis.DeepSeekHarnessExtensions
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
@@ -3376,6 +3377,48 @@ private def testDeepSeekHarnessLocalHttp : IO Unit := do
         result.config.baseUrl (DeepSeekHarnessLocalHttp.localBaseUrl result.port)
       assertEqual "local HTTP result retains the complete-mode certificate"
         result.prepared.plan.source.stream false
+
+private def testDeepSeekHarnessLocalSse : IO Unit := do
+  assertEqual "local SSE port parser accepts a decimal port"
+    (DeepSeekHarnessLocalSse.parsePort "61702\n") (some 61702)
+  assertEqual "local SSE report parser retains request validity counts"
+    (DeepSeekHarnessLocalSse.parseReport "requests:1:valid:1\n") (some (1, 1))
+  assertEqual "local SSE report parser rejects malformed evidence"
+    (DeepSeekHarnessLocalSse.parseReport "requests:one:valid:1\n") none
+  match ← DeepSeekHarnessLocalSse.runWithKey DeepSeekHarness.counterRequestSource
+      DeepSeekHarnessLocalSse.Example.runner { value := "fixture-key" } "" 64 with
+  | .error .emptyBody => pure ()
+  | .error error => fail s!"empty local SSE body returned {reprStr error}"
+  | .ok _ => fail "empty local SSE body was accepted"
+  match ← DeepSeekHarnessLocalSse.runWithKey DeepSeekHarness.counterRequestSource
+      DeepSeekHarnessLocalSse.Example.runner { value := "fixture-key" }
+      DeepSeekHarnessLocalSse.Example.body 1 with
+  | .error (.stream (.lineLimit _)) => pure ()
+  | .error error => fail s!"bounded local SSE read returned {reprStr error}"
+  | .ok _ => fail "bounded local SSE read was accepted as a complete stream"
+  match ← DeepSeekHarnessLocalSse.Example.run with
+  | .error error => fail s!"local SSE curl round-trip failed: {reprStr error}"
+  | .ok result =>
+      let summary := DeepSeekHarnessLocalSse.Example.summarize result
+      assertEqual "local SSE fixture receives one streamed request"
+        summary.requests DeepSeekHarnessLocalSse.Example.expectedSummary.requests
+      assertEqual "local SSE fixture validates stream authorization and body shape"
+        summary.validRequests DeepSeekHarnessLocalSse.Example.expectedSummary.validRequests
+      assertEqual "local SSE fixture delivers every complete body line"
+        summary.deliveredLines DeepSeekHarnessLocalSse.Example.expectedSummary.deliveredLines
+      assertEqual "local SSE fixture retains the exact reconstructed body length"
+        summary.bodyLength DeepSeekHarnessLocalSse.Example.expectedSummary.bodyLength
+      assertEqual "local SSE fixture starts at the indexed session endpoint"
+        summary.initialNextSeq DeepSeekHarnessLocalSse.Example.expectedSummary.initialNextSeq
+      assertEqual "local SSE fixture appends the certified assistant endpoint"
+        summary.finalNextSeq DeepSeekHarnessLocalSse.Example.expectedSummary.finalNextSeq
+      assertEqual "local SSE fixture reports a terminal done frame"
+        summary.completed DeepSeekHarnessLocalSse.Example.expectedSummary.completed
+      assertEqual "local SSE result retains the streaming request certificate"
+        result.prepared.plan.source.stream true
+      assertEqual "local SSE result retains the actual loopback request URL"
+        result.prepared.plan.request.url
+        (DeepSeekHarnessLocalSse.localBaseUrl result.port ++ "/chat/completions")
 
 private def testDeepSeekHarnessPersistence : IO Unit := do
   match DeepSeekHarnessPersistence.persistedToolArchive with
@@ -7511,6 +7554,7 @@ def run : IO Unit := do
   testDeepSeekHarness
   testDeepSeekHarnessLiveProbe
   testDeepSeekHarnessLocalHttp
+  testDeepSeekHarnessLocalSse
   testDeepSeekHarnessPersistence
   testDeepSeekHarnessPersistenceIO
   testDeepSeekHarnessOpaqueMetadata

@@ -282,6 +282,10 @@ Current machine-checked evidence includes:
   actual complete request through curl, with request method/route/authorization/model/stream-mode
   checks and server request-count evidence retained beside the typed conversation result; remote
   reachability, TLS, provider authenticity, and deployed equivalence remain external;
+- `Cordis.DeepSeekHarnessLocalSse`, starting a one-shot loopback SSE fixture and sending a typed
+  `stream: true` request through the real curl/incremental-reader path, with delivered lines,
+  reconstructed body, strict wire proof, and appended runner endpoint retained; byte framing,
+  backpressure, blocked-read cancellation, reconnects, and deployed equivalence remain external;
 - `Cordis.DeepSeekStreamHarness`, composing complete-body terminal rich tool streams with the
   generic conversation runner, dependent tool execution, and certified typed-result append;
   streamed rounds use a request source/body certificate proving `stream: true`, and an executable
@@ -944,7 +948,7 @@ relation whose union cycles, so the module requires `SupportOrder` directly. It 
 combined-edge well-founded recursion, proves uniqueness, and derives support-equals-active at
 quiescence under state-local provision totality, failure exclusion, and active-parent closure.
 
-The bounded algebra/context/global layer now has sixty-four explicit pieces:
+The bounded algebra/context/global layer now has sixty-five explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -1341,6 +1345,12 @@ The bounded algebra/context/global layer now has sixty-four explicit pieces:
     counter responses; `LocalProbeResult` retains the port, request/validity counts, server exit,
     prepared request, and final conversation endpoint. Remote reachability, TLS, provider
     authenticity, executable trust, retries, and deployed Harness equivalence remain external.
+65. `Cordis.DeepSeekHarnessLocalSse` crosses the local streaming process/HTTP boundary with a
+    one-shot standard-library server and the real curl incremental reader. The fixture validates
+    `stream: true`, emits each SSE body line, and `LocalSseResult` retains the typed streaming
+    request, delivered lines, reconstructed body, strict wire certificate, finished text, and
+    appended runner endpoint. Byte framing, backpressure, blocked-read cancellation, reconnects,
+    provider authenticity, and deployed Harness equivalence remain external.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
