@@ -146,6 +146,7 @@ import Cordis.DeepSeekHarnessPersistenceProcessOutcome
 import Cordis.DeepSeekHarnessPersistenceStreamRetry
 import Cordis.DeepSeekHarnessPersistenceStreamRetryCancellation
 import Cordis.DeepSeekHarnessPersistenceFileStreamRetryCancellation
+import Cordis.DeepSeekHarnessPersistenceStreamBytePrefixTimeout
 import Cordis.DeepSeekHarnessEventFileStreamRetryCancellation
 import Cordis.DeepSeekHarnessTransportConversation
 import Cordis.DeepSeekHarnessTransportRetry
@@ -1967,6 +1968,32 @@ private def testDeepSeekHarnessPersistenceFileStreamRetryCancellation : IO Unit 
         (DeepSeekHarnessPersistenceFileStreamRetryCancellation.summaryMatchesFixture summary) true
       let _sessionCertificate :=
         DeepSeekHarnessPersistenceFileStreamRetryCancellation.restored_session_eq_file_archive run
+      pure ()
+
+private def testDeepSeekHarnessPersistenceStreamBytePrefixTimeout : IO Unit := do
+  match ← DeepSeekHarnessPersistenceStreamBytePrefixTimeout.runFixture with
+  | .error _ => fail "persisted timed byte-prefix fixture failed"
+  | .ok run =>
+      let summary := DeepSeekHarnessPersistenceStreamBytePrefixTimeout.summary run
+      assertEqual "persisted timed byte-prefix restores the archive endpoint"
+        summary.initialNextSeq
+        DeepSeekHarnessPersistenceStreamBytePrefixTimeout.executableInitialNextSeq
+      assertEqual "persisted timed byte-prefix retains the tool-round endpoint"
+        summary.finalNextSeq
+        DeepSeekHarnessPersistenceStreamBytePrefixTimeout.executableFinalNextSeq
+      assertEqual "persisted timed byte-prefix retains one accepted round"
+        summary.roundCount
+        DeepSeekHarnessPersistenceStreamBytePrefixTimeout.executableRoundCount
+      assertEqual "persisted timed byte-prefix reports nonterminal fuel exhaustion"
+        summary.fuelExhausted
+        DeepSeekHarnessPersistenceStreamBytePrefixTimeout.executableFuelExhausted
+      assertEqual "persisted timed byte-prefix preserves the local model"
+        summary.finalModel
+        DeepSeekHarnessPersistenceStreamBytePrefixTimeout.executableFinalModel
+      assertEqual "persisted timed byte-prefix executable projection agrees"
+        (DeepSeekHarnessPersistenceStreamBytePrefixTimeout.summaryMatchesFixture summary) true
+      let _sessionCertificate :=
+        DeepSeekHarnessPersistenceStreamBytePrefixTimeout.restored_session_eq_archive run
       pure ()
 
 private def testDeepSeekHarnessProcessSchema : IO Unit := do
@@ -7157,6 +7184,7 @@ def run : IO Unit := do
   testDeepSeekHarnessEventProcessTimeout
   testDeepSeekHarnessEventProcessOutcome
   testDeepSeekHarnessEventFileStreamRetryCancellation
+  testDeepSeekHarnessPersistenceStreamBytePrefixTimeout
   testLoaderHMR
   testDeepSeekHarnessPayloadText
   testDeepSeekHarnessPayloadPersistence

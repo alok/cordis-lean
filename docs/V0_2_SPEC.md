@@ -1232,34 +1232,40 @@ The bounded algebra/context/global layer now has forty-five explicit pieces:
     `0`. Scoped cleanup is real; fsync, stable media, crash recovery, blocked-read interruption,
     process cleanup, provider authenticity, external effects, and deployed Harness equivalence
     remain open.
-50. `Cordis.DeepSeekHarnessEventPrefix` exposes the stateful pure target beneath that text seam.
+50. `Cordis.DeepSeekHarnessPersistenceStreamBytePrefixTimeout` composes the memory-backed
+    validated archive reader with the timed byte-prefix process adapter. Its executable fixture
+    restores archive `nextSeq = 8`, accepts one streamed tool round, then stops on caller fuel at
+    final `nextSeq = 10`, retaining model `0`, the round witness, and restored-session equality.
+    Durable media, crash recovery, blocked-read interruption, provider/process authenticity,
+    cleanup, external effects, and deployed Harness equivalence remain open.
+51. `Cordis.DeepSeekHarnessEventPrefix` exposes the stateful pure target beneath that text seam.
     `Cursor.push` decodes and refines one JSON object at a time, while `PrefixSequence` retains
     the exact snoc protocol trace, raw entries, and endpoint state. `run` adds explicit fuel and
     cooperative entry cancellation, preserving the unread suffix; JSONL framing, blocked-read
     interruption, crash durability, and deployed Harness equivalence remain open.
-51. `Cordis.DeepSeekHarnessEventProcessPrefix` feeds the cursor from one configured local process
+52. `Cordis.DeepSeekHarnessEventProcessPrefix` feeds the cursor from one configured local process
     stdout line at a time. Its result retains the observed line ledger, endpoint, exit status, and
     typed completion/fuel/cancellation stop, with a proof that consumed count equals the cursor-entry
     count. Fuel and policy stops kill and wait for the child; malformed lines and nonzero exits are
     typed failures. Byte framing, blocked-read interruption, executable/provider authenticity, crash
     durability, and deployed Harness equivalence remain open.
-52. `Cordis.DeepSeekHarnessEventProcessTimeout` races each blocking stdout-line read against a real
+53. `Cordis.DeepSeekHarnessEventProcessTimeout` races each blocking stdout-line read against a real
     `Std.Async.Sleep`; a timeout kills and waits for the configured child, and the dependent result
     retains the accepted prefix, observed lines, exit code, stderr, and timeout index. This is a
     local configured-child interruption fixture, not arbitrary descendant cleanup, fairness,
     backpressure, authenticity, crash durability, or deployed asynchronous equivalence.
-53. `Cordis.DeepSeekHarnessEventProcessTimeoutRefinement` transports the timed cursor's existing
+54. `Cordis.DeepSeekHarnessEventProcessTimeoutRefinement` transports the timed cursor's existing
     per-entry refinement proofs into an intrinsic `SessionRefinement.ValidatedSequence`, retaining
     the exact entries, final state, and protocol projection without reparsing. This is
     noncomputable proof packaging above the executable timeout module; raw `decodeEvents` equality,
     byte framing, authenticity, persistence, and deployed Harness refinement remain external.
-54. `Cordis.DeepSeekCurlBytePrefixTimeout` races each blocking process-byte read against a real
+55. `Cordis.DeepSeekCurlBytePrefixTimeout` races each blocking process-byte read against a real
     `Std.Async.Sleep`. A configured-child timer winner returns a typed timeout retaining the accepted
     byte-prefix state, raw chunks, pending fragment, stderr, exit observation, and timeout line;
     blocked, delayed-prefix, and fast-completion fixtures are executable. Arbitrary descendant
     cleanup, fairness, backpressure, authenticity, durability, reconnects, and deployed semantics
     remain external.
-55. `Cordis.DeepSeekStreamHarnessBytePrefixTimeout` composes completed timed byte prefixes with
+56. `Cordis.DeepSeekStreamHarnessBytePrefixTimeout` composes completed timed byte prefixes with
     the existing dependent streamed conversation runner and a fuel-bounded multi-round trace.
     Finish, assistant/tool append, and session indexing occur only for `.completed`; timeout, fuel,
     and cancellation stops are explicit nonterminal prefix errors. In-flight provider behavior,

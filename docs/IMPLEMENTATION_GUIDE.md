@@ -2166,6 +2166,15 @@ summary retains source/read byte equality, the `8 -> 11` prefix, one round, two 
 timeout cancellation, and model `0`. Keep temporary-file cleanup separate from fsync, stable
 media, crash recovery, blocked-read interruption, process cleanup, provider authenticity,
 external effects, and deployed Harness equivalence.
+`Cordis.DeepSeekHarnessPersistenceStreamBytePrefixTimeout` is a deliberately small composition
+after the persistence and timed byte-prefix seams. Start from
+`DeepSeekHarnessPersistenceIO.fixtureMemory` and pass its restored `ConversationRunner` to
+`runConversationMultiTimedBytePrefix`, using the existing configured local process and
+byte-prefix stream body. The fixture should expose the archive/session equality, one accepted
+tool round, final `nextSeq = 10` from archive `8`, model `0`, and an explicit fuel-exhaustion stop.
+Keep the evidence local: do not turn a memory backend into durable recovery, or a configured
+process into provider/executable authenticity; blocked-read interruption, cleanup, external
+effects, and deployed Harness equivalence remain later contracts.
 `Cordis.DeepSeekHarnessPayloadText` composes that result with
 `SessionPayloadArchive.PayloadLog`. The dependent payload index is aligned to the same parsed
 JSONL lines, retaining raw content-block tags, assistant usage, tool-result `error`/`meta`, and

@@ -433,6 +433,13 @@ model `0`. `withTempFile` cleanup is scoped; fsync, stable media, crash recovery
 interruption, process cleanup, provider authenticity, external effects, and deployed Harness
 equivalence remain outside.
 
+`DeepSeekHarnessPersistenceStreamBytePrefixTimeout` is the bounded persistence-plus-byte-prefix
+composition. A memory archive restores the exact runner session, a configured local process
+accepts one streamed tool round, and caller fuel then returns a typed nonterminal stop at
+`nextSeq = 10` from archive `nextSeq = 8`, with model `0` and one retained round. This is a local
+fixture only: stable media, crash recovery, blocked-read interruption, cleanup, provider/process
+authenticity, external effects, and deployed Harness equivalence remain separate obligations.
+
 `DeepSeekHarnessTransportRetryCancellation` composes that trace with a caller-controlled
 pre-round cancellation policy. Its cancellation fixture proves that no request is issued before
 round zero and retains the unchanged endpoint and typed reason; its success fixture retains the
