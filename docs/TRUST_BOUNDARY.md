@@ -395,6 +395,13 @@ projects archive `nextSeq = 8`, final `nextSeq = 11`, two rounds, one transient 
 provider reachability, backoff/idempotency, cancellation, external effects, or deployed Harness
 equivalence.
 
+`DeepSeekHarnessPersistenceProcessOutcome` attaches the same byte-restored runner to the actual
+`IO.Process` outcome adapter. `PersistedProcessRound` retains the streaming request plan, complete
+process body, rich outcome, typed execution, and exact endpoint; the deterministic shell fixture
+projects archive `nextSeq = 8`, endpoint `nextSeq = 10`, and body length `523`. This is a local
+process boundary only: process/credential trust, incremental delivery, blocked-read cancellation,
+durability, external effects, and deployed Harness equivalence remain outside.
+
 `DeepSeekHarnessTransportRetryCancellation` composes that trace with a caller-controlled
 pre-round cancellation policy. Its cancellation fixture proves that no request is issued before
 round zero and retains the unchanged endpoint and typed reason; its success fixture retains the

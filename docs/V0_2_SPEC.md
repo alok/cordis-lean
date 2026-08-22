@@ -906,7 +906,7 @@ relation whose union cycles, so the module requires `SupportOrder` directly. It 
 combined-edge well-founded recursion, proves uniqueness, and derives support-equals-active at
 quiescence under state-local provision totality, failure exclusion, and active-parent closure.
 
-The bounded algebra/context/global layer now has forty-four explicit pieces:
+The bounded algebra/context/global layer now has forty-five explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -1187,6 +1187,12 @@ The bounded algebra/context/global layer now has forty-four explicit pieces:
     `nextSeq = 11`, two rounds, one transient failure, model `0`, and a typed completed stop.
     This is a local composition certificate only: fsync, live provider behavior, backoff,
     idempotency, cancellation, external effects, and deployed Harness equivalence remain open.
+45. `Cordis.DeepSeekHarnessPersistenceProcessOutcome` composes that restored runner with the
+    actual `IO.Process` outcome adapter. `PersistedProcessRound` retains the streaming request
+    plan, complete process body, classified rich outcome, dependent execution, and exact final
+    runner endpoint; its shell fixture checks archive `nextSeq = 8`, endpoint `nextSeq = 10`, and
+    body length `523`. Process/credential trust, incremental delivery, blocked-read cancellation,
+    durability, external effects, and deployed Harness equivalence remain open.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -1498,6 +1504,13 @@ completion stop in one dependent result. The executable fixture checks archive `
 final `nextSeq = 11`, two rounds, one transient failure, and model `0`; it remains an
 in-memory/injected-transport certificate rather than a durability, provider, or deployed-Harness
 theorem.
+
+`Cordis.DeepSeekHarnessPersistenceProcessOutcome` takes the same byte-backed restored runner
+through `DeepSeekHarnessProcessOutcome.executeSourceOutcome`. The dependent result retains the
+streaming request-plan proof, process/body certificate, rich outcome classification, typed tool
+execution, and exact endpoint, and its deterministic shell fixture reaches `8 -> 10` with a body
+of length `523`. This is an executable local process boundary, not provider authenticity,
+incremental-stream, blocked-read, durability, external-effect, or deployed-Harness evidence.
 
 `Cordis.DeepSeekHarnessTransportRetryCancellation` composes that trace with a caller-controlled
 pre-round cancellation decision. The cancellation fixture stops before issuing a request and

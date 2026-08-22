@@ -136,6 +136,7 @@ import Cordis.HarnessPersistenceIO
 import Cordis.DeepSeekHarnessPersistenceIO
 import Cordis.DeepSeekHarnessPersistenceTransportRound
 import Cordis.DeepSeekHarnessEndToEnd
+import Cordis.DeepSeekHarnessPersistenceProcessOutcome
 import Cordis.DeepSeekHarnessTransportConversation
 import Cordis.DeepSeekHarnessTransportRetry
 import Cordis.DeepSeekHarnessTransportRetryConversation
@@ -1828,6 +1829,32 @@ private def testDeepSeekHarnessProcessOutcome : IO Unit := do
           assertEqual "typed outcome failure preserves the runner"
             runner.session.nextSeq 0
       | .assistant _ => fail "provider failure became an assistant"
+
+private def testDeepSeekHarnessPersistenceProcessOutcome : IO Unit := do
+  match ← DeepSeekHarnessPersistenceProcessOutcome.runFixture with
+  | .error _ => fail "persisted process outcome fixture failed"
+  | .ok run =>
+      let summary := DeepSeekHarnessPersistenceProcessOutcome.summary run
+      assertEqual "persisted process outcome restores the archive endpoint"
+        summary.initialNextSeq
+        DeepSeekHarnessPersistenceProcessOutcome.executableInitialNextSeq
+      assertEqual "persisted process outcome reaches the process endpoint"
+        summary.finalNextSeq DeepSeekHarnessPersistenceProcessOutcome.executableFinalNextSeq
+      assertEqual "persisted process outcome retains the complete process body"
+        summary.bodyLength DeepSeekHarnessPersistenceProcessOutcome.executableBodyLength
+      assertEqual "persisted process outcome preserves the streaming request flag"
+        summary.streaming DeepSeekHarnessPersistenceProcessOutcome.executableStreaming
+      assertEqual "persisted process outcome executable projection agrees"
+        (DeepSeekHarnessPersistenceProcessOutcome.summaryMatchesFixture summary) true
+      let _sessionCertificate :=
+        DeepSeekHarnessPersistenceProcessOutcome.restored_session_eq_archive run
+      let _requestCertificate :=
+        DeepSeekHarnessPersistenceProcessOutcome.request_build_eq_archive run
+      let _streamCertificate :=
+        DeepSeekHarnessPersistenceProcessOutcome.stream_plan_true run
+      let _endpointCertificate :=
+        DeepSeekHarnessPersistenceProcessOutcome.process_endpoint run
+      pure ()
 
 private def testDeepSeekHarnessProcessSchema : IO Unit := do
   match DeepSeekToolSchema.weatherToolCertificate,
@@ -6642,6 +6669,7 @@ def run : IO Unit := do
   testDeepSeekCurlSession
   testDeepSeekHarnessProcess
   testDeepSeekHarnessProcessOutcome
+  testDeepSeekHarnessPersistenceProcessOutcome
   testDeepSeekHarnessProcessSchema
   testDeepSeekHarnessProcessSchemaPrefix
   testDeepSeekHarnessProcessSchemaPrefixConversation
