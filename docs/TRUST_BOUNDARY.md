@@ -460,6 +460,13 @@ and the executable `8 -> 11` endpoint. This is local process evidence, not provi
 credential authenticity, durable storage, byte framing, cancellation, external effects, or
 deployed Harness equivalence.
 
+`DeepSeekHarnessEventFileLocalSseSchema` carries that restored event-session endpoint into two real
+loopback HTTP/SSE byte-prefix rounds. The scoped heterogeneous registry, valid request counts,
+complete byte evidence, distinct rebuilt bodies, dependent two-tool execution, and terminal `8 -> 12`
+endpoint are retained together. The deterministic fixture model, local server, scoped approval,
+temporary-file lifetime, provider obedience, credentials, durable storage, blocked-read cancellation,
+external effects, and deployed Harness equivalence remain outside this certificate.
+
 `DeepSeekHarnessPersistenceStreamBytePrefixTimeout` is the bounded persistence-plus-byte-prefix
 composition. A memory archive restores the exact runner session; the fuel fixture accepts one
 streamed tool round and returns a typed nonterminal stop at `nextSeq = 10` from archive `nextSeq = 8`, while its companion switches to terminal text after the first tool result and completes at

@@ -671,6 +671,15 @@ tool step, and exact `8 -> 11` runner endpoint together. It remains local proces
 provider obedience, credential authenticity, durable storage, byte framing, cancellation, external
 effects, and deployed Harness equivalence remain outside.
 
+`Cordis.DeepSeekHarnessEventFileLocalSseSchema` takes the same restored event-session endpoint
+through two real loopback HTTP/SSE byte-prefix rounds. The fixture uses the explicitly named local
+deterministic model while retaining the heterogeneous weather/clock registry, validates both
+requests, keeps complete byte-prefix evidence and distinct rebuilt bodies, executes the first
+two-tool round, then appends the terminal streamed response at exact `8 -> 12`. The server,
+temporary file, model choice, and scoped approval policy are fixture evidence, not provider
+obedience, credential authenticity, durable storage, blocked-read cancellation, external effects,
+or deployed Harness equivalence.
+
 `Cordis.DeepSeekHarnessPersistenceStreamBytePrefixTimeout` composes the memory-backed archive
 reader with the timed byte-prefix streamed tool round. Its fuel fixture restores archive
 `nextSeq = 8`, accepts one real streamed tool round, then stops on caller fuel at final `nextSeq = 10`; its companion process switches to terminal text after the first tool result and completes at

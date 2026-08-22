@@ -188,6 +188,7 @@ import Cordis.DeepSeekHarnessPersistenceStreamBytePrefixTimeout
 import Cordis.DeepSeekHarnessEventFileStreamRetryCancellation
 import Cordis.DeepSeekHarnessEventFileLocalSseRetryConversation
 import Cordis.DeepSeekHarnessEventFileProcessSchema
+import Cordis.DeepSeekHarnessEventFileLocalSseSchema
 import Cordis.DeepSeekHarnessTransportConversation
 import Cordis.DeepSeekHarnessTransportRetry
 import Cordis.DeepSeekHarnessTransportRetryConversation
@@ -5942,6 +5943,44 @@ private def testDeepSeekHarnessEventFileProcessSchema : IO Unit := do
         DeepSeekHarnessEventFileProcessSchema.source_projection_exact run
       pure ()
 
+private def testDeepSeekHarnessEventFileLocalSseSchema : IO Unit := do
+  match ← DeepSeekHarnessEventFileLocalSseSchema.runFixture with
+  | .error error => fail s!"current-event file local SSE schema fixture failed: {reprStr error}"
+  | .ok ⟨_, ⟨_, run⟩⟩ =>
+      let summary := DeepSeekHarnessEventFileLocalSseSchema.summaryForRun run
+      let expected := DeepSeekHarnessEventFileLocalSseSchema.expectedSummary
+      assertEqual "current-event file local SSE schema reads source bytes"
+        (summary.readBytes, summary.sourceBytes)
+        (expected.readBytes, expected.sourceBytes)
+      assertEqual "current-event file local SSE schema starts at restored session"
+        summary.initialNextSeq expected.initialNextSeq
+      assertEqual "current-event file local SSE schema appends two streamed rounds"
+        summary.finalNextSeq expected.finalNextSeq
+      assertEqual "current-event file local SSE schema validates both requests"
+        (summary.requests, summary.validRequests)
+        (expected.requests, expected.validRequests)
+      assertEqual "current-event file local SSE schema retains two byte-complete rounds"
+        (summary.rounds, summary.allByteComplete)
+        (expected.rounds, expected.allByteComplete)
+      assertEqual "current-event file local SSE schema preserves distinct request bodies"
+        summary.distinctBodies expected.distinctBodies
+      assertEqual "current-event file local SSE schema receives many first-round chunks"
+        summary.manyFirstChunks expected.manyFirstChunks
+      assertEqual "current-event file local SSE schema completes without prefix stop"
+        (summary.completed, summary.prefixStopped)
+        (expected.completed, expected.prefixStopped)
+      assertEqual "current-event file local SSE schema executable projection agrees"
+        (DeepSeekHarnessEventFileLocalSseSchema.summaryMatches summary) true
+      let _bytesCertificate :=
+        DeepSeekHarnessEventFileLocalSseSchema.file_bytes_eq_source run
+      let _sessionCertificate :=
+        DeepSeekHarnessEventFileLocalSseSchema.restored_session_eq_event_archive run
+      let _serverCertificate :=
+        DeepSeekHarnessEventFileLocalSseSchema.server_exited_successfully run
+      let _outcomeCertificate :=
+        DeepSeekHarnessEventFileLocalSseSchema.successful_outcome run
+      pure ()
+
 private def testLoaderHMR : IO Unit := do
   assertEqual "loader reconciliation dispatches config-only edits in place"
     (LoaderHMR.changeKind LoaderHMR.Example.entry LoaderHMR.Example.updatedEntry)
@@ -8380,6 +8419,7 @@ def run : IO Unit := do
   testDeepSeekHarnessEventFileStreamRetryCancellation
   testDeepSeekHarnessEventFileLocalSseRetryConversation
   testDeepSeekHarnessEventFileProcessSchema
+  testDeepSeekHarnessEventFileLocalSseSchema
   testDeepSeekHarnessPersistenceStreamBytePrefixTimeout
   testLoaderHMR
   testDeepSeekHarnessPayloadText

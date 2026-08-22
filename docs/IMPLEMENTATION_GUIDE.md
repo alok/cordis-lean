@@ -2226,6 +2226,14 @@ from that runner, and calls `executeRestoredSchemaRound`. Package the source/rea
 archive/session equality, complete body, schema step, and dependent `8 -> 11` endpoint together.
 Keep provider obedience, credential authenticity, durable storage, byte framing, cancellation,
 external effects, and deployed Harness equivalence as later obligations.
+`Cordis.DeepSeekHarnessEventFileLocalSseSchema` is the adjacent live-shaped composition. Reuse the
+same restored session as the initial index for the loopback request-indexed byte-prefix runner,
+but choose the fixture's deterministic model explicitly so the server's request contract is visible.
+Retain the scoped heterogeneous registry, both valid-request counts, complete byte certificates,
+distinct rebuilt request bodies, the dependent two-tool round, and terminal completion at `8 -> 12`.
+This is a local HTTP/process fixture: the model override, server behavior, scoped approval, file
+lifetime, blocked-read cancellation, provider obedience, credentials, external effects, and deployed
+Harness equivalence remain explicit later obligations.
 `Cordis.DeepSeekHarnessPersistenceStreamBytePrefixTimeout` is a deliberately small composition
 after the persistence and timed byte-prefix seams. Start from
 `DeepSeekHarnessPersistenceIO.fixtureMemory` and pass its restored `ConversationRunner` to
