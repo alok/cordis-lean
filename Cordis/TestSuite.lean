@@ -55,6 +55,7 @@ import Cordis.DeepSeekProcessScopedStreamToolRound
 import Cordis.DeepSeekProcessScopedConversation
 import Cordis.DeepSeekProcessScopedRequestConversation
 import Cordis.DeepSeekProcessScopedRequestBytePrefixConversation
+import Cordis.DeepSeekHarnessLocalSseRequestBytePrefixConversation
 import Cordis.DeepSeekProcessStreamToolRound
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
@@ -3201,6 +3202,12 @@ private def testDeepSeekProcessScopedRequestBytePrefixConversation : IO Unit := 
     (← DeepSeekProcessScopedRequestBytePrefixConversation.Example.twoStepSummary) true
   assertEqual "request-indexed byte-prefix conversation retains prefix fuel"
     (← DeepSeekProcessScopedRequestBytePrefixConversation.Example.prefixFuelSummary) true
+
+private def testDeepSeekHarnessLocalSseRequestBytePrefixConversation : IO Unit := do
+  assertEqual "loopback request byte-prefix conversation completes two indexed rounds"
+    (← DeepSeekHarnessLocalSseRequestBytePrefixConversation.Example.twoStepSummary) true
+  assertEqual "loopback request byte-prefix conversation retains prefix fuel"
+    (← DeepSeekHarnessLocalSseRequestBytePrefixConversation.Example.prefixFuelSummary) true
 
 private def testDeepSeekProcessStreamToolRound : IO Unit := do
   match ← DeepSeekProcessStreamToolRound.counterRun with
@@ -8173,6 +8180,7 @@ def run : IO Unit := do
   testDeepSeekProcessScopedConversation
   testDeepSeekProcessScopedRequestConversation
   testDeepSeekProcessScopedRequestBytePrefixConversation
+  testDeepSeekHarnessLocalSseRequestBytePrefixConversation
   testDeepSeekProcessStreamToolRound
   testDeepSeekSessionBridge
   testDeepSeekSessionRunner

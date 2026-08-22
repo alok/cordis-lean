@@ -264,6 +264,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekProcessScopedRequestBytePrefixConversation`, carrying that exact request index
   through arbitrary-byte chunks, pending framing, strict SSE completion, scoped execution, and
   session append, with completed two-round and typed prefix-fuel fixtures;
+- `Cordis.DeepSeekHarnessLocalSseRequestBytePrefixConversation`, lifting that request-indexed
+  byte-prefix contract through a real bounded loopback HTTP/SSE server with distinct body selection
+  per request and typed complete/prefix-fuel conversation outcomes;
 - `Cordis.DeepSeekCurlProviderAssemblyPrefix`, composing the line-oriented process prefix with
   the terminal provider assembly certificate while keeping fuel/cancellation outcomes typed;
   live provider-incremental semantics and deployed equivalence remain outside;
@@ -1487,17 +1490,22 @@ The bounded algebra/context/global layer now has sixty-seven explicit pieces:
     dependent tools; a one-read budget returns the typed raw prefix before dispatch. Byte-level
     backpressure, blocked-read interruption, reconnects, provider-complete assembly, authenticity,
     and deployed Harness equivalence remain external.
-71. `Cordis.DeepSeekHarnessLocalSseProviderAssemblyTool` validates the typed streaming request at a
+71. `Cordis.DeepSeekHarnessLocalSseRequestBytePrefixConversation` extends that loopback evidence to
+    two request-indexed scoped rounds: the server selects the dual-tool body for request zero and
+    terminal text for request one, while Lean retains exact request/body/session witnesses and a
+    separate prefix-fuel stop. This is local HTTP/process evidence, not remote or deployed
+    Harness equivalence.
+72. `Cordis.DeepSeekHarnessLocalSseProviderAssemblyTool` validates the typed streaming request at a
     loopback server, emits the incremental provider tool body through real curl, and carries the
     provider assembly certificate into dependent execution and certified session append. The
     fixture reaches model `5` with one assembled call; provider obedience, byte/backpressure
     semantics, blocked-read cancellation, reconnects, authenticity, and deployed equivalence remain
     external.
-72. `Cordis.DeepSeekHarnessLocalSseBytePrefixProviderAssemblyTool` repeats that provider-complete
+73. `Cordis.DeepSeekHarnessLocalSseBytePrefixProviderAssemblyTool` repeats that provider-complete
     witness through real curl one-byte chunks. The loopback request, byte-prefix body, provider
     assembly, dependent execution, request counts, and server exit remain linked; timeout, fuel,
     cancellation, provider authenticity, and deployed equivalence remain external.
-73. `Cordis.DeepSeekSchemaLocalHttp` instantiates the heterogeneous schema conversation at the real
+74. `Cordis.DeepSeekSchemaLocalHttp` instantiates the heterogeneous schema conversation at the real
     local process/HTTP boundary. The fixture validates two declared tools and complete mode, sends
     the weather/clock tool response and terminal response through curl, and retains the prepared
     plan, one dependent tool round, terminal witness, final model/runner endpoint, request counts,
