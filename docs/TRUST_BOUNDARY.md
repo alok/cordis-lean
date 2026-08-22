@@ -99,6 +99,12 @@ fixture exercises both visibility paths and exact rejection witnesses. This rema
 boundary, not arbitrary JSON or deployed provider decoding; provider compatibility, transport,
 persistence, and deployed Harness equivalence remain external.
 
+`Cordis.SessionExtensionArchive` is the adjacent persistence-facing composition: it joins the
+lossless `SessionEventArchive` with the dependent replay only when every archived record is a
+required extension. Known core tags and ignorable records reject, while success retains exact raw
+order and the typed final session. This is still an in-memory certificate, not durable storage or
+deployed archive equivalence.
+
 The local protocol has both typed erasure and witness-reconstructing validation:
 
 ```text

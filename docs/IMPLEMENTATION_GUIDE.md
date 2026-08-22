@@ -2124,6 +2124,12 @@ the input: raw envelope ASTs, sanitized session validation, and the exact opaque
 The fixture proves that the known opaque `tool/result` record remains in the archive while the
 request is rebuilt from the sanitized messages.
 
+`Cordis.SessionExtensionArchive` is the complementary positive extension path. It composes
+`SessionEventArchive` with `SessionExtensionRefinement` only for a raw list whose every record is a
+required extension, retaining the exact archive order, dependent replay, and final indexed
+session. Known core tags and ignorable extensions are typed rejection cases; this module does not
+turn opaque retention into mixed-log replay, durable persistence, or deployed equivalence.
+
 `Cordis.DeepSeekToolSchema` is the next request-side type boundary. It validates the bounded
 schema vocabulary actually represented by the local DeepSeek API: an object parameter root,
 primitive property `type` tags, optional property descriptions, a duplicate-free `required`

@@ -142,6 +142,7 @@ import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
 import Cordis.SessionExtensionRefinement
+import Cordis.SessionExtensionArchive
 import Cordis.SessionOpaqueMetadata
 import Cordis.SessionArchive
 import Cordis.SessionEventArchive
@@ -3513,6 +3514,31 @@ private def testSessionExtensionRefinement : IO Unit := do
         log.final.messages [.user "extension:ready"]
       assertEqual "typed extension replay retains both dependent events"
         log.replay.events.length 2
+  have _archiveSummary := SessionExtensionArchive.Example.archived_example_summary
+  have _archiveRaw := SessionExtensionArchive.Example.archived_example_raw_exact
+  have _archiveExtensions :=
+    SessionExtensionArchive.Example.archived_example_required_extensions
+  match SessionExtensionArchive.Example.archivedExample with
+  | .error error => fail s!"typed extension archive failed: {reprStr error}"
+  | .ok archive =>
+      assertEqual "typed extension archive retains both raw records"
+        archive.archive.events.length 2
+      assertEqual "typed extension archive reaches the replay endpoint"
+        archive.validated.final.nextSeq 2
+      assertEqual "typed extension archive retains both dependent records"
+        archive.validated.replay.events.length 2
+  match SessionExtensionArchive.validate SessionExtensionRefinement.Example.exampleCodec
+      (Session.Session.empty DeepSeekHarnessExtensions.exampleSchema)
+      [SessionExtensionArchive.Example.knownCoreJson] with
+  | .error (.notExtension 0 (some .turnStart)) => pure ()
+  | .error error => fail s!"known core archive returned the wrong error: {reprStr error}"
+  | .ok _ => fail "known core event was accepted by extension-only archive"
+  match SessionExtensionArchive.validate SessionExtensionRefinement.Example.exampleCodec
+      (Session.Session.empty DeepSeekHarnessExtensions.exampleSchema)
+      [SessionExtensionArchive.Example.ignorableExtensionJson] with
+  | .error (.ignorable 0) => pure ()
+  | .error error => fail s!"ignorable archive returned the wrong error: {reprStr error}"
+  | .ok _ => fail "ignorable extension was accepted by required-extension archive"
 
 private def testDeepSeekSchemaStreamConversation : IO Unit := do
   match DeepSeekToolSchema.weatherToolCertificate,

@@ -140,6 +140,7 @@ import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
 import Cordis.SessionExtensionRefinement
+import Cordis.SessionExtensionArchive
 import Cordis.SessionOpaqueMetadata
 import Cordis.SessionArchive
 import Cordis.SessionEventArchive
@@ -729,6 +730,15 @@ set_option format.width 200
 #print axioms Cordis.SessionExtensionRefinement.Example.reject_ignorable
 #print axioms Cordis.SessionExtensionRefinement.Example.reject_malformed_banner
 #print axioms Cordis.SessionExtensionRefinement.Example.reject_stale_sequence
+#print axioms Cordis.SessionExtensionArchive.ValidatedExtensionArchive.raw_exact
+#print axioms Cordis.SessionExtensionArchive.ValidatedExtensionArchive.final_nextSeq
+#print axioms Cordis.SessionExtensionArchive.ValidatedExtensionArchive.typed_event_count
+#print axioms Cordis.SessionExtensionArchive.ValidatedExtensionArchive.archived_length
+#print axioms Cordis.SessionExtensionArchive.Example.archived_example_summary
+#print axioms Cordis.SessionExtensionArchive.Example.archived_example_raw_exact
+#print axioms Cordis.SessionExtensionArchive.Example.archived_example_required_extensions
+#print axioms Cordis.SessionExtensionArchive.Example.reject_known_core
+#print axioms Cordis.SessionExtensionArchive.Example.reject_ignorable_extension
 #print axioms Cordis.DeepSeekHarness.buildTypedCompleteRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan_source_stream

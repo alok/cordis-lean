@@ -63,6 +63,12 @@ surface visibility plus wrong-tag, ignorable, malformed-payload, and stale-seque
 Arbitrary JSON, provider compatibility, persistence, transport, and deployed Harness equivalence
 remain external.
 
+`Cordis.SessionExtensionArchive` composes the typed extension replay with the lossless full-event
+archive. Its success type carries the same raw list in both certificates, proves every archived
+record is a required extension, and exposes the final indexed session; known core and ignorable
+records fail closed before semantic replay. It remains an in-memory archive attachment, not
+durability or deployed persistence equivalence.
+
 The slice closes two concrete gaps in the original objective:
 
 1. the runner becomes generic over a dependent tool catalog instead of importing the counter

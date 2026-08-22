@@ -303,6 +303,11 @@ validation. The heartbeat/banner codec and wrong-tag/ignorable/malformed/stale r
 fixtures are executable. This does not decode arbitrary JSON or claim provider compatibility,
 persistence, transport, or deployed Harness equivalence.
 
+`Cordis.SessionExtensionArchive` composes that dependent replay with the lossless
+`SessionEventArchive`: a successful certificate retains the exact archive AST/order and proves
+that every record is a required extension. Known core tags and ignorable extensions reject before
+semantic replay, so archive retention cannot silently become a typed-session claim.
+
 `Cordis.DeepSeekHarnessPersistence` now attaches that bounded runner to the logical JSONL
 persistence refinement. A successful archive restores a `ConversationRunner` with an exact
 equality to the archive's final session, and a proof-carrying request rebuilt from the restored
