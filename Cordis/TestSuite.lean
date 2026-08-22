@@ -187,6 +187,7 @@ import Cordis.Session
 import Cordis.SessionRefinement
 import Cordis.SessionRefinementCodec
 import Cordis.SessionRefinementTextCodec
+import Cordis.SessionRefinementProcess
 import Cordis.SessionExtensionRefinement
 import Cordis.SessionExtensionArchive
 import Cordis.SessionOpaqueMetadata
@@ -6480,6 +6481,19 @@ private def testSessionRefinementTextCodec : IO Unit := do
   | result => fail s!"invalid UTF-8 canonical list was not rejected: {reprStr result}"
   pure ()
 
+private def testSessionRefinementProcess : IO Unit := do
+  match ← SessionRefinementProcess.runCanonicalProcess with
+  | .error error => fail s!"canonical session process fixture failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "canonical session process summary"
+        (SessionRefinementProcess.Example.summary result)
+        SessionRefinementProcess.Example.expectedSummary
+      assertEqual "canonical session process consumed count" result.consumed 4
+      assertEqual "canonical session process completed" result.stop.isCompleted true
+      let _projectionCertificate :=
+        SessionRefinementProcess.processResult_projection (result := result)
+      pure ()
+
 private def testSessionOpaqueMetadata : IO Unit := do
   match SessionOpaqueMetadata.decodeEventRetainingMetadata
       (List.getD SessionOpaqueMetadata.metadataExampleJson 5 .null) with
@@ -7479,6 +7493,7 @@ def run : IO Unit := do
   testSessionRefinement
   testSessionRefinementCodec
   testSessionRefinementTextCodec
+  testSessionRefinementProcess
   testSessionOpaqueMetadata
   testSessionArchive
   testSessionEventArchive
