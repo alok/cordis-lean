@@ -363,6 +363,13 @@ and a typed 503 rejection. This is a pure local transport contract: live network
 credential validity, provider obedience, TLS/retry behavior, persistence, and deployed Harness
 equivalence remain external.
 
+`Cordis.DeepSeekHarnessTransportToolRound` carries that same single-decoder certificate through
+dependent tool execution. It executes the certified response's tool calls without reparsing or
+re-admitting the response, then reconstructs the session-runner endpoint with exact sequence and
+tool-count equations. The local counter fixture covers one successful tool call and the 503
+transport failure remains typed. External tool effects, provider behavior, persistence, retries,
+and deployed Harness equivalence remain outside this local injected-transport slice.
+
 `Cordis.DeepSeekHarnessPersistence` now attaches that bounded runner to the logical JSONL
 persistence refinement. A successful archive restores a `ConversationRunner` with an exact
 equality to the archive's final session, and a proof-carrying request rebuilt from the restored
@@ -1310,6 +1317,7 @@ placeholders.
 | `Cordis.DeepSeekHarnessSchemaLift`                      | Arbitrary-schema transport for validated core sessions: dependent core kinds, payloads, intents, surface transitions, headers, sequence proofs, and protocol projections lift into any `ExtensionSchema`; the certificate example exercises a custom schema without claiming extension-row decoding or mixed replay.                                                                                |
 | `Cordis.DeepSeekHarnessMixedReplay`                     | Tagged mixed JSON replay for arbitrary schemas: core rows use the stateful core decoder, custom log-only extension rows interleave with a phantom shadow clock, and exact sequence, surface/header, protocol, and typed rejection witnesses are retained; custom surface/core-kind extension rows are rejected.                                                                                     |
 | `Cordis.DeepSeekHarnessTransportContract`               | Injected transport composition for prepared requests: successful status, one retained response decoder, `acceptValidated` session admission, exact accepted-response/body equations, runner append endpoint, and typed transport/status/decode/session errors; local 200/tool-call and 503 fixtures are executable.                                                                                 |
+| `Cordis.DeepSeekHarnessTransportToolRound`              | Carries that retained single-decoder response through dependent tool execution without reparsing, then certifies the assistant-plus-tool-result runner endpoint, exact sequence growth, and tool-count update; local success and typed 503 fixtures are executable.                                                                                                                                 |
 | `Cordis.DeepSeekHarnessEventText`                       | UTF-8/JSONL text and `ByteArray` ingress for the event-archive attachment, retaining exact source/decoded text and archive/session certificates before restoring a `ConversationRunner`; invalid UTF-8 and opaque/extension events fail closed.                                                                                                                                                     |
 | `Cordis.DeepSeekHarnessEventProcessOutcome`             | Carries restored text/byte event runners through complete-body rich outcomes and fuel-bounded streamed conversations, retaining prepared request, process/round, tool, endpoint, archive, session, projection, and completion/stop certificates; caller-supplied source and complete-body process boundaries remain explicit.                                                                       |
 | `Cordis.LoaderHMR`                                      | Definition 74 entry records, keyed configuration reconciliation, Algorithm 8 fixed-point accepted/declined classification with cycle fallback, declined-boundary stale detection, and Algorithm 10 indexed transactional reload with exact failure rollback; dynamic imports, filesystem watches, real fibers, and deployed loader equivalence remain external.                                     |

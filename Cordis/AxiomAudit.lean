@@ -12,6 +12,7 @@ import Cordis.DeepSeekCurlSession
 import Cordis.DeepSeekHarnessProcess
 import Cordis.DeepSeekHarnessProcessOutcome
 import Cordis.DeepSeekHarnessTransportContract
+import Cordis.DeepSeekHarnessTransportToolRound
 import Cordis.DeepSeekHarnessProcessSchema
 import Cordis.DeepSeekHarnessProcessSchemaPrefix
 import Cordis.DeepSeekHarnessProcessSchemaPrefixConversation
@@ -798,6 +799,13 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessTransportContract.executeSource
 #print axioms Cordis.DeepSeekHarnessTransportContract.Example.round
 #print axioms Cordis.DeepSeekHarnessTransportContract.Example.statusFailure
+#print axioms Cordis.DeepSeekHarnessTransportToolRound.appendToolResults_messages
+#print axioms Cordis.DeepSeekHarnessTransportToolRound.appendToolResults_nextSeq
+#print axioms Cordis.DeepSeekHarnessTransportToolRound.ToolTransportRound.finalRunner_messages
+#print axioms Cordis.DeepSeekHarnessTransportToolRound.ToolTransportRound.finalRunner_nextSeq
+#print axioms Cordis.DeepSeekHarnessTransportToolRound.executeSource
+#print axioms Cordis.DeepSeekHarnessTransportToolRound.Example.round
+#print axioms Cordis.DeepSeekHarnessTransportToolRound.Example.statusFailure
 #print axioms Cordis.DeepSeekHarness.buildTypedCompleteRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan_source_stream

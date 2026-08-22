@@ -152,6 +152,12 @@ append endpoint. The successful tool-call and 503 fixtures are executable. This 
 of live network reachability, credential validity, provider obedience, TLS/retry behavior,
 persistence, or deployed Harness equivalence.
 
+`Cordis.DeepSeekHarnessTransportToolRound` keeps that same dependent transport certificate while
+executing its typed tool calls. It does not parse or admit the response a second time; the result
+packages the final model, executions, and exact session-runner sequence/tool-count endpoint. The
+fixture is process-backed but local, so external tool effects, provider obedience, retries,
+persistence, and deployed Harness equivalence remain outside the claim.
+
 The local protocol has both typed erasure and witness-reconstructing validation:
 
 ```text

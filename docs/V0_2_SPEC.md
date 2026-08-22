@@ -115,6 +115,12 @@ acceptance, and endpoint equations, while fixtures cover a successful tool-call 
 typed 503 rejection. This does not establish live network, credential, provider, TLS/retry,
 persistence, or deployed Harness behavior.
 
+`Cordis.DeepSeekHarnessTransportToolRound` composes the retained `TransportRound` with the
+dependent tool executor. The response certificate is consumed directly, without a second decode
+or session admission, and the resulting runner retains exact assistant-plus-tool-result sequence
+and tool-count equations. Its process-backed fixture is local evidence only; external tool effects,
+provider behavior, retries, persistence, and deployed Harness equivalence remain unproved.
+
 The slice closes two concrete gaps in the original objective:
 
 1. the runner becomes generic over a dependent tool catalog instead of importing the counter

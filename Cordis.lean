@@ -17,6 +17,7 @@ import Cordis.DeepSeekCurlSession
 import Cordis.DeepSeekHarnessProcess
 import Cordis.DeepSeekHarnessProcessOutcome
 import Cordis.DeepSeekHarnessTransportContract
+import Cordis.DeepSeekHarnessTransportToolRound
 import Cordis.DeepSeekCurlIncremental
 import Cordis.DeepSeekCurlPrefix
 import Cordis.DeepSeekCurlPrefixSession

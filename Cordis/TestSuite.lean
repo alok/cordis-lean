@@ -11,6 +11,7 @@ import Cordis.DeepSeekCurlSession
 import Cordis.DeepSeekHarnessProcess
 import Cordis.DeepSeekHarnessProcessOutcome
 import Cordis.DeepSeekHarnessTransportContract
+import Cordis.DeepSeekHarnessTransportToolRound
 import Cordis.DeepSeekHarnessProcessSchema
 import Cordis.DeepSeekHarnessProcessSchemaPrefix
 import Cordis.DeepSeekHarnessProcessSchemaPrefixConversation
@@ -3717,6 +3718,31 @@ private def testDeepSeekHarnessTransportContract : IO Unit := do
   | .error error => fail s!"transport contract status error changed: {reprStr error}"
   | .ok _ => fail "transport contract accepted a 503 response"
 
+private def testDeepSeekHarnessTransportToolRound : IO Unit := do
+  match ← DeepSeekHarnessTransportToolRound.Example.round with
+  | .error error => fail s!"transport tool-round fixture failed: {reprStr error}"
+  | .ok ⟨prepared, ⟨_body, round⟩⟩ =>
+      assertEqual "transport tool round keeps the accepted HTTP status"
+        round.transportRound.response.status 200
+      assertEqual "transport tool round executes one certified tool call"
+        round.executions.length 1
+      assertEqual "transport tool round preserves the final model"
+        round.finalModel 0
+      assertEqual "transport tool round advances the session by assistant plus results"
+        round.finalRunner.session.nextSeq 2
+      assertEqual "transport tool round advances the tool-call counter"
+        round.finalRunner.nextCall 1
+      have _prepared := prepared.build_eq
+      have _messages :=
+        DeepSeekHarnessTransportToolRound.ToolTransportRound.finalRunner_messages round
+      have _nextSeq :=
+        DeepSeekHarnessTransportToolRound.ToolTransportRound.finalRunner_nextSeq round
+      pure ()
+  match ← DeepSeekHarnessTransportToolRound.Example.statusFailure with
+  | .error (.httpStatus 503 "busy") => pure ()
+  | .error error => fail s!"transport tool-round status error changed: {reprStr error}"
+  | .ok _ => fail "transport tool round accepted a 503 response"
+
 private def testDeepSeekSchemaStreamConversation : IO Unit := do
   match DeepSeekToolSchema.weatherToolCertificate,
       DeepSeekSchemaRegistry.Example.clockToolCertificate with
@@ -6085,6 +6111,7 @@ def run : IO Unit := do
   testDeepSeekHarnessSchemaLift
   testDeepSeekHarnessMixedReplay
   testDeepSeekHarnessTransportContract
+  testDeepSeekHarnessTransportToolRound
   testDeepSeekSchemaStreamConversation
   testDeepSeekSchemaStreamPrefixConversation
   testDeepSeekSchemaStreamErrors

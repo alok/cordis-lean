@@ -2183,6 +2183,13 @@ endpoint. Keep request, transport, status, response, and session failures distin
 must demonstrate both a tool-call success and a 503 rejection; it must not be described as live
 network, credential, provider, TLS/retry, persistence, or deployed-Harness verification.
 
+`Cordis.DeepSeekHarnessTransportToolRound` is the follow-on implementation seam: consume the
+`TransportRound` certificate directly, run `executeFunctionCalls` on its retained validated
+response, and append the typed results to the local session runner. Preserve the exact assistant
+and tool-result sequence/tool-count equations in the result type. Keep the transport injected and
+the fixture process-backed but local; do not infer external tool effects, provider obedience,
+retry/persistence semantics, or deployed-Harness equivalence.
+
 `Cordis.DeepSeekToolSchema` is the next request-side type boundary. It validates the bounded
 schema vocabulary actually represented by the local DeepSeek API: an object parameter root,
 primitive property `type` tags, optional property descriptions, a duplicate-free `required`
