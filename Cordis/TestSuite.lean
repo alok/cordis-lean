@@ -54,6 +54,7 @@ import Cordis.DeepSeekScopedStreamToolRound
 import Cordis.DeepSeekProcessScopedStreamToolRound
 import Cordis.DeepSeekProcessScopedConversation
 import Cordis.DeepSeekProcessScopedRequestConversation
+import Cordis.DeepSeekProcessScopedRequestBytePrefixConversation
 import Cordis.DeepSeekProcessStreamToolRound
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
@@ -3194,6 +3195,12 @@ private def testDeepSeekProcessScopedRequestConversation : IO Unit := do
     (← DeepSeekProcessScopedRequestConversation.Example.twoStepSummary) true
   assertEqual "request-indexed scoped conversation retains typed exhaustion"
     (← DeepSeekProcessScopedRequestConversation.Example.oneStepFuelSummary) true
+
+private def testDeepSeekProcessScopedRequestBytePrefixConversation : IO Unit := do
+  assertEqual "request-indexed byte-prefix conversation reaches terminal"
+    (← DeepSeekProcessScopedRequestBytePrefixConversation.Example.twoStepSummary) true
+  assertEqual "request-indexed byte-prefix conversation retains prefix fuel"
+    (← DeepSeekProcessScopedRequestBytePrefixConversation.Example.prefixFuelSummary) true
 
 private def testDeepSeekProcessStreamToolRound : IO Unit := do
   match ← DeepSeekProcessStreamToolRound.counterRun with
@@ -8165,6 +8172,7 @@ def run : IO Unit := do
   testDeepSeekProcessScopedStreamToolRound
   testDeepSeekProcessScopedConversation
   testDeepSeekProcessScopedRequestConversation
+  testDeepSeekProcessScopedRequestBytePrefixConversation
   testDeepSeekProcessStreamToolRound
   testDeepSeekSessionBridge
   testDeepSeekSessionRunner

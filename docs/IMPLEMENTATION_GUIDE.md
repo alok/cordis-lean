@@ -2522,6 +2522,15 @@ terminal-versus-fuel split; the fixture also proves that session growth changes 
 This remains deterministic local process evidence, not a claim about live providers, credentials,
 retries, cancellation, persistence, external effects, or deployed Harness equivalence.
 
+`Cordis.DeepSeekProcessScopedRequestBytePrefixConversation` is the next refinement when the
+process boundary delivers arbitrary byte chunks instead of a complete body. Keep the same typed
+request index, but add raw chunk/pending-framing evidence and a strict completion witness before
+calling scoped approval, dependent execution, and session append. Its two-round fixture proves
+multi-chunk completion and request-body growth; its one-read fixture proves that prefix fuel is a
+typed nonterminal stop. Preserve the boundary: this is local bounded-process evidence, not live
+network behavior, executable trust, blocked-read cancellation, backpressure, reconnects, retries,
+persistence, external effects, or deployed Harness equivalence.
+
 `Cordis.DeepSeekHarnessProcessSchema` is the provenance-preserving companion when the process
 boundary itself matters. It keeps the registry-certified streaming plan, processed body, schema
 step, and dependent runner endpoint in one dependent result. Use it for local executable evidence
