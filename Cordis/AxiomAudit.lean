@@ -45,6 +45,7 @@ import Cordis.DeepSeekHarnessLocalSse
 import Cordis.DeepSeekHarnessLocalSseRetry
 import Cordis.DeepSeekHarnessLocalSseTimeout
 import Cordis.DeepSeekHarnessLocalSseMultiTool
+import Cordis.DeepSeekHarnessLocalSseMultiToolPrefix
 import Cordis.DeepSeekHarnessExtensions
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
@@ -601,6 +602,8 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessLocalSseMultiTool.LocalSseMultiToolResult.server_exited_successfully
 #print axioms Cordis.DeepSeekHarnessLocalSseMultiTool.Example.expectedSummary_two_calls
 #print axioms Cordis.DeepSeekHarnessLocalSseMultiTool.Example.expectedSummary_two_executions
+#print axioms Cordis.DeepSeekHarnessLocalSseMultiToolPrefix.PreparedMultiToolPrefixRequest.streaming_mode
+#print axioms Cordis.DeepSeekHarnessLocalSseMultiToolPrefix.LocalSseMultiToolPrefixResult.server_exited_successfully
 #print axioms Cordis.SessionOpaqueMetadata.decodeEventRetainingMetadata
 #print axioms Cordis.SessionOpaqueMetadata.validateLogRetainingMetadata
 #print axioms Cordis.SessionOpaqueMetadata.metadata_example_valid

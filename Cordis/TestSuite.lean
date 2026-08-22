@@ -49,6 +49,7 @@ import Cordis.DeepSeekHarnessLocalSse
 import Cordis.DeepSeekHarnessLocalSseRetry
 import Cordis.DeepSeekHarnessLocalSseTimeout
 import Cordis.DeepSeekHarnessLocalSseMultiTool
+import Cordis.DeepSeekHarnessLocalSseMultiToolPrefix
 import Cordis.DeepSeekHarnessExtensions
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
@@ -3546,6 +3547,56 @@ private def testDeepSeekHarnessLocalSseMultiTool : IO Unit := do
           pure ()
       | executions =>
           fail s!"local SSE multi-tool returned {executions.length} executions"
+
+private def testDeepSeekHarnessLocalSseMultiToolPrefix : IO Unit := do
+  match ← DeepSeekHarnessLocalSseMultiToolPrefix.Example.completeRun with
+  | .error error => fail s!"local SSE multi-tool prefix completion failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "local SSE multi-tool prefix completion is terminal"
+        (DeepSeekStreamHarnessPrefix.PrefixStreamRoundOutcome.isCompleted result.outcome) true
+      assertEqual "local SSE multi-tool prefix completion validates one request"
+        result.requests 1
+      assertEqual "local SSE multi-tool prefix completion validates the request shape"
+        result.validRequests 1
+      assertEqual "local SSE multi-tool prefix completion retains stream mode"
+        result.prepared.plan.source.stream true
+      match result.outcome with
+      | .completed observed _ round =>
+          assertEqual "local SSE multi-tool prefix completion consumes every body line"
+            observed.state.line 7
+          assertEqual "local SSE multi-tool prefix completion executes both tools"
+            round.executions.length 2
+          assertEqual "local SSE multi-tool prefix completion reaches the tool endpoint"
+            round.runner.session.nextSeq 4
+      | _ => fail "local SSE multi-tool prefix returned a non-completed outcome"
+
+  match ← DeepSeekHarnessLocalSseMultiToolPrefix.Example.cancelledRun with
+  | .error error => fail s!"local SSE multi-tool prefix cancellation failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "local SSE multi-tool prefix cancellation is distinct"
+        (DeepSeekStreamHarnessPrefix.PrefixStreamRoundOutcome.isCancelled result.outcome) true
+      assertEqual "local SSE multi-tool prefix cancellation validates one request"
+        result.validRequests 1
+      match result.outcome with
+      | .cancelled observed line reason decided =>
+          assertEqual "local SSE multi-tool prefix cancellation stops at line one" line 1
+          assertEqual "local SSE multi-tool prefix cancellation retains the first frame"
+            observed.state.frames.length 1
+          assertEqual "local SSE multi-tool prefix cancellation retains its reason"
+            reason "line:user"
+          let _ := decided
+      | _ => fail "local SSE multi-tool prefix returned a non-cancelled outcome"
+
+  match ← DeepSeekHarnessLocalSseMultiToolPrefix.Example.exhaustedRun with
+  | .error error => fail s!"local SSE multi-tool prefix exhaustion failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "local SSE multi-tool prefix fuel stop is distinct"
+        (DeepSeekStreamHarnessPrefix.PrefixStreamRoundOutcome.isFuelExhausted result.outcome) true
+      match result.outcome with
+      | .fuelExhausted observed =>
+          assertEqual "local SSE multi-tool prefix fuel stop retains the first frame"
+            observed.state.frames.length 1
+      | _ => fail "local SSE multi-tool prefix returned a non-exhausted outcome"
 
 private def testDeepSeekHarnessPersistence : IO Unit := do
   match DeepSeekHarnessPersistence.persistedToolArchive with
@@ -7685,6 +7736,7 @@ def run : IO Unit := do
   testDeepSeekHarnessLocalSseRetry
   testDeepSeekHarnessLocalSseTimeout
   testDeepSeekHarnessLocalSseMultiTool
+  testDeepSeekHarnessLocalSseMultiToolPrefix
   testDeepSeekHarnessPersistence
   testDeepSeekHarnessPersistenceIO
   testDeepSeekHarnessOpaqueMetadata
