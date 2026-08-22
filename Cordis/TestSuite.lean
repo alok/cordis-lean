@@ -186,6 +186,7 @@ import Cordis.DeepSeekHarnessPersistenceStreamRetryCancellation
 import Cordis.DeepSeekHarnessPersistenceFileStreamRetryCancellation
 import Cordis.DeepSeekHarnessPersistenceStreamBytePrefixTimeout
 import Cordis.DeepSeekHarnessEventFileStreamRetryCancellation
+import Cordis.DeepSeekHarnessEventFileLocalSseRetryConversation
 import Cordis.DeepSeekHarnessTransportConversation
 import Cordis.DeepSeekHarnessTransportRetry
 import Cordis.DeepSeekHarnessTransportRetryConversation
@@ -5864,6 +5865,41 @@ private def testDeepSeekHarnessEventFileStreamRetryCancellation : IO Unit := do
         DeepSeekHarnessEventFileStreamRetryCancellation.request_body_eq_source run
       pure ()
 
+private def testDeepSeekHarnessEventFileLocalSseRetryConversation : IO Unit := do
+  match ← DeepSeekHarnessEventFileLocalSseRetryConversation.runFixture with
+  | .error error => fail s!"current-event file SSE retry fixture failed: {reprStr error}"
+  | .ok run =>
+      let summary := DeepSeekHarnessEventFileLocalSseRetryConversation.summary run
+      let expected := DeepSeekHarnessEventFileLocalSseRetryConversation.expectedSummary
+      assertEqual "current-event file SSE read preserves source bytes"
+        summary.readBytes summary.sourceBytes
+      assertEqual "current-event file SSE restore starts at the event endpoint"
+        summary.initialNextSeq expected.initialNextSeq
+      assertEqual "current-event file SSE conversation appends two responses"
+        summary.finalNextSeq expected.finalNextSeq
+      assertEqual "current-event file SSE retries both rounds once"
+        (summary.firstRequests, summary.secondRequests)
+        (expected.firstRequests, expected.secondRequests)
+      assertEqual "current-event file SSE keeps one transient failure per round"
+        (summary.firstFailures, summary.secondFailures)
+        (expected.firstFailures, expected.secondFailures)
+      assertEqual "current-event file SSE rebuilds the second request"
+        summary.requestBodiesDistinct expected.requestBodiesDistinct
+      assertEqual "current-event file SSE completes both accepted streams"
+        (summary.firstCompleted, summary.secondCompleted)
+        (expected.firstCompleted, expected.secondCompleted)
+      assertEqual "current-event file SSE executable projection agrees"
+        (DeepSeekHarnessEventFileLocalSseRetryConversation.summaryMatches summary) true
+      let _bytesCertificate :=
+        DeepSeekHarnessEventFileLocalSseRetryConversation.file_bytes_eq_source run
+      let _sessionCertificate :=
+        DeepSeekHarnessEventFileLocalSseRetryConversation.restored_session_eq_event_archive run
+      let _requestProvenance :=
+        DeepSeekHarnessEventFileLocalSseRetryConversation.requestProvenance run
+      let _advanceCertificate :=
+        DeepSeekHarnessEventFileLocalSseRetryConversation.final_session_advance run
+      pure ()
+
 private def testLoaderHMR : IO Unit := do
   assertEqual "loader reconciliation dispatches config-only edits in place"
     (LoaderHMR.changeKind LoaderHMR.Example.entry LoaderHMR.Example.updatedEntry)
@@ -8300,6 +8336,7 @@ def run : IO Unit := do
   testDeepSeekHarnessEventProcessOutcome
   testDeepSeekHarnessEventProcessSchema
   testDeepSeekHarnessEventFileStreamRetryCancellation
+  testDeepSeekHarnessEventFileLocalSseRetryConversation
   testDeepSeekHarnessPersistenceStreamBytePrefixTimeout
   testLoaderHMR
   testDeepSeekHarnessPayloadText

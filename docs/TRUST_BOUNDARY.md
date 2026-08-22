@@ -445,6 +445,14 @@ an assertion that the process adapter exposes or authenticates its internally co
 process cleanup, provider authenticity, external effects, and deployed Harness equivalence remain
 outside.
 
+`DeepSeekHarnessEventFileLocalSseRetryConversation` carries that current-event file endpoint into
+the real two-round loopback HTTP/SSE retry conversation. Both accepted rounds remain indexed by
+their predecessor runner; the first request is tied to the validated event archive session and
+the second to the first accepted session, with exact serialized-body equations and `8 -> 10`
+growth. This is local process/server evidence, not durable-file recovery, provider or credential
+authenticity, blocked-read interruption, arbitrary cleanup, external effects, or deployed Harness
+equivalence.
+
 `DeepSeekHarnessPersistenceStreamBytePrefixTimeout` is the bounded persistence-plus-byte-prefix
 composition. A memory archive restores the exact runner session; the fuel fixture accepts one
 streamed tool round and returns a typed nonterminal stop at `nextSeq = 10` from archive `nextSeq = 8`, while its companion switches to terminal text after the first tool result and completes at

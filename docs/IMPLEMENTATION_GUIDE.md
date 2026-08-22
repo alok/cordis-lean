@@ -2213,6 +2213,13 @@ source/read byte equality, the `8 -> 11` prefix, one round, two first-round call
 cancellation, and model `0`. Keep temporary-file cleanup separate from fsync, stable media, crash
 recovery, blocked-read interruption, process cleanup, provider authenticity, external effects, and
 deployed Harness equivalence.
+`Cordis.DeepSeekHarnessEventFileLocalSseRetryConversation` is the adjacent current-event
+composition. It reads the supported event JSONL fixture from a temporary file, restores the
+dependent runner, and feeds that exact endpoint into two real loopback HTTP/SSE retry rounds.
+The first request is tied to the validated event session, the second to the first accepted
+session, and both request/body equations plus the `8 -> 10` endpoint are retained. Keep the
+loopback and temporary-file evidence separate from durability, provider authenticity, blocked
+reads, cleanup, external effects, and deployed Harness equivalence.
 `Cordis.DeepSeekHarnessPersistenceStreamBytePrefixTimeout` is a deliberately small composition
 after the persistence and timed byte-prefix seams. Start from
 `DeepSeekHarnessPersistenceIO.fixtureMemory` and pass its restored `ConversationRunner` to
