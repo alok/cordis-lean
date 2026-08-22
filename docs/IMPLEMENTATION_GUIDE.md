@@ -2057,6 +2057,12 @@ round, and make the cancellation constructor retain the current trace prefix and
 recursive branch prepends the accepted head to the tail trace; cancellation never fabricates a
 round. Keep the proof boundary pre-round: do not infer interruption of an in-flight process,
 HTTP request, stream reader, tool, cleanup, reconnect, or deployed cancellation equivalence.
+`Cordis.DeepSeekAsyncStreamRetryCancellation` lifts that result into two cooperative
+`ContextAsync` children. Keep each job's retry/cancellation policies and existential final endpoint
+inside `JobResult`; race only the typed child computations, and expose the winner's dependent trace
+through `RaceResult`. The fixture is a cancellation-first process race. This remains cooperative:
+blocked-read interruption, fairness, cleanup, reconnect, and deployed async retry/cancellation
+equivalence are not derived.
 `Cordis.DeepSeekHarnessErrors` makes the provider-failure policy explicit rather than silently
 choosing one behavior: `.reject` is the default fail-closed request policy, while `.include`
 retains a `ProviderFailedTool` proof and appends its exact provider message as an `isError` tool
@@ -2411,6 +2417,11 @@ fixture proves that a child can stop before round zero while retaining its typed
 runner/model endpoint, and empty completed prefix; the other child remains a real streamed
 tool/text continuation. This is still a pre-round boundary, not blocked-read interruption,
 fairness, cleanup, or deployed async cancellation equivalence.
+`Cordis.DeepSeekAsyncStreamRetryCancellation` repeats that adapter shape for retry-aware jobs. Its
+`JobResult` keeps the retry policy in the error type and the final runner/model indices in the
+success type; `RaceResult` records which dependent child won. The cancellation-first fixture
+checks the exact round/reason stop and empty accepted trace, without claiming interruption,
+fairness, cleanup, reconnect, or deployed retry/cancellation equivalence.
 `Cordis.DeepSeekStream` supplies the next wire boundary: strict in-memory
 `data:` / `[DONE]` SSE framing, typed delta choices, retained raw-frame
 parse/decode certificates, and explicit invalid-UTF-8/JSON/terminal errors.

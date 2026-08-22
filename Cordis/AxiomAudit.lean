@@ -82,6 +82,7 @@ import Cordis.DeepSeekStreamHarnessRetryCancellation
 import Cordis.DeepSeekAsyncHarness
 import Cordis.DeepSeekAsyncStreamHarness
 import Cordis.DeepSeekAsyncStreamCancellation
+import Cordis.DeepSeekAsyncStreamRetryCancellation
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -1909,3 +1910,10 @@ end Cordis.GlobalPaperTraceNormalization
 #print axioms Cordis.DeepSeekStreamHarnessRetryCancellation.runAux
 #print axioms Cordis.DeepSeekStreamHarnessRetryCancellation.run
 #print axioms Cordis.DeepSeekStreamHarnessRetryCancellation.Example.loop
+#print axioms Cordis.DeepSeekAsyncStreamRetryCancellation.JobResult.phase_terminal_of_result
+#print axioms Cordis.DeepSeekAsyncStreamRetryCancellation.JobResult.phase_ne_pending
+#print axioms Cordis.DeepSeekAsyncStreamRetryCancellation.RaceResult.winner_mem
+#print axioms Cordis.DeepSeekAsyncStreamRetryCancellation.RaceResult.phase_terminal_of_winner
+#print axioms Cordis.DeepSeekAsyncStreamRetryCancellation.RaceResult.phase_pending_iff_waiting
+#print axioms Cordis.DeepSeekAsyncStreamRetryCancellation.RaceResult.result
+#print axioms Cordis.DeepSeekAsyncStreamRetryCancellation.exampleCancellationRace

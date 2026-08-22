@@ -91,6 +91,7 @@ import Cordis.DeepSeekStreamHarnessRetryCancellation
 import Cordis.DeepSeekAsyncHarness
 import Cordis.DeepSeekAsyncStreamHarness
 import Cordis.DeepSeekAsyncStreamCancellation
+import Cordis.DeepSeekAsyncStreamRetryCancellation
 import Cordis.Effect
 import Cordis.Examples.Counter
 import Cordis.Examples.CounterWire

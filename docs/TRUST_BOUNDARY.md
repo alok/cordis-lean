@@ -781,6 +781,11 @@ process read, HTTP request, stream reader, or external tool remains outside this
 process race. Its fixture cancels one child before round zero and checks the typed reason, terminal
 phase, unchanged runner/model endpoint, and empty completed prefix; it does not claim interruptible
 reads, fairness, arbitrary cleanup, or deployed async cancellation equivalence.
+`Cordis.DeepSeekAsyncStreamRetryCancellation` carries the retry-aware indexed result through the
+same cooperative race. Its `JobResult` retains the dependent retry trace/error and final endpoint;
+the fixture checks a cancellation-first child with an exact round/reason stop. Blocked-read
+interruption, fairness, cleanup, reconnect, and deployed async retry/cancellation equivalence
+remain external.
 
 `Cordis.DeepSeekStreamHarnessPrefix` extends the same continuation over the line-oriented
 process prefix. It retains either a completed multi-call tool append or the exact parsed prefix
@@ -872,7 +877,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1691
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1698
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.

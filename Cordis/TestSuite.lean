@@ -26,6 +26,7 @@ import Cordis.DeepSeekOutcomeTransportLoop
 import Cordis.DeepSeekAsyncHarness
 import Cordis.DeepSeekAsyncStreamHarness
 import Cordis.DeepSeekAsyncStreamCancellation
+import Cordis.DeepSeekAsyncStreamRetryCancellation
 import Cordis.DeepSeekStream
 import Cordis.DeepSeekStreamFailure
 import Cordis.DeepSeekTerminalOutcome
@@ -2120,6 +2121,34 @@ private def testDeepSeekAsyncStreamCancellation : IO Unit := do
       | .error error =>
           fail s!"async streamed cancellation returned typed error {reprStr error}"
   | .waiting => fail "async streamed cancellation returned no winning result"
+
+private def testDeepSeekAsyncStreamRetryCancellation : IO Unit := do
+  let race ← DeepSeekAsyncStreamRetryCancellation.exampleCancellationRace
+  assertEqual "async retry-aware streamed race returns an accepted result"
+    race.successful true
+  assertEqual "async retry-aware streamed race reports cancellation"
+    race.cancelled true
+  assertEqual "async retry-aware streamed race reaches a terminal phase"
+    race.phase.isTerminal true
+  match race with
+  | .left _ result | .right _ result =>
+      match result.result with
+      | .ok ⟨finalRunner, ⟨finalModel, run⟩⟩ =>
+          assertEqual "async retry-aware cancellation retains no dispatched rounds"
+            run.trace.length 0
+          assertEqual "async retry-aware cancellation retains the unchanged model"
+            finalModel 0
+          assertEqual "async retry-aware cancellation retains the unchanged runner"
+            finalRunner.session.nextSeq 1
+          assertEqual "async retry-aware cancellation retains its round"
+            (DeepSeekStreamHarnessRetryCancellation.RetryCancellableStop.cancelledRound run.stop)
+            (some 0)
+          assertEqual "async retry-aware cancellation retains its reason"
+            (DeepSeekStreamHarnessRetryCancellation.RetryCancellableStop.cancelledReason run.stop)
+            (some .peerFailure)
+      | .error _ =>
+          fail "async retry-aware cancellation returned a typed error"
+  | .waiting => fail "async retry-aware cancellation returned no winning result"
 
 private def testDeepSeekStream : IO Unit := do
   match DeepSeekStream.validateSse DeepSeekStream.exampleStreamBody with
@@ -6352,6 +6381,7 @@ def run : IO Unit := do
   testDeepSeekAsyncHarness
   testDeepSeekAsyncStreamHarness
   testDeepSeekAsyncStreamCancellation
+  testDeepSeekAsyncStreamRetryCancellation
   testDeepSeekStream
   testDeepSeekStreamFailure
   testDeepSeekTerminalOutcome
