@@ -48,6 +48,7 @@ import Cordis.DeepSeekHarnessLocalHttp
 import Cordis.DeepSeekHarnessLocalSse
 import Cordis.DeepSeekHarnessLocalSseRetry
 import Cordis.DeepSeekHarnessLocalSseTimeout
+import Cordis.DeepSeekHarnessLocalSseMultiTool
 import Cordis.DeepSeekHarnessExtensions
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
@@ -3491,6 +3492,60 @@ private def testDeepSeekHarnessLocalSseTimeout : IO Unit := do
         summary.validRequests DeepSeekHarnessLocalSseTimeout.Example.expectedFast.validRequests
       assertEqual "local SSE fast result retains stream mode"
         result.prepared.plan.source.stream true
+
+private def testDeepSeekHarnessLocalSseMultiTool : IO Unit := do
+  match ← DeepSeekHarnessLocalSseMultiTool.Example.run with
+  | .error error => fail s!"local SSE multi-tool round failed: {reprStr error}"
+  | .ok result =>
+      let summary := DeepSeekHarnessLocalSseMultiTool.Example.summarize result
+      assertEqual "local SSE multi-tool fixture receives one request"
+        summary.requests DeepSeekHarnessLocalSseMultiTool.Example.expectedSummary.requests
+      assertEqual "local SSE multi-tool fixture validates the typed request"
+        summary.validRequests DeepSeekHarnessLocalSseMultiTool.Example.expectedSummary.validRequests
+      assertEqual "local SSE multi-tool fixture retains both streamed calls"
+        summary.toolCalls DeepSeekHarnessLocalSseMultiTool.Example.expectedSummary.toolCalls
+      assertEqual "local SSE multi-tool fixture executes both dependent calls"
+        summary.executions DeepSeekHarnessLocalSseMultiTool.Example.expectedSummary.executions
+      assertEqual "local SSE multi-tool fixture reaches the tool-appended endpoint"
+        summary.finalNextSeq DeepSeekHarnessLocalSseMultiTool.Example.expectedSummary.finalNextSeq
+      assertEqual "local SSE multi-tool fixture threads the final model"
+        summary.finalModel DeepSeekHarnessLocalSseMultiTool.Example.expectedSummary.finalModel
+      assertEqual "local SSE multi-tool fixture retains the exact SSE body"
+        result.body DeepSeekStreamHarness.counterMultiToolStreamBody
+      assertEqual "local SSE multi-tool result retains stream mode"
+        result.prepared.plan.source.stream true
+      assertEqual "local SSE multi-tool result retains the actual loopback URL"
+        result.prepared.plan.request.url
+        (DeepSeekHarnessLocalSse.localBaseUrl result.port ++ "/chat/completions")
+      assertEqual "local SSE multi-tool appends both assistant calls"
+        result.round.assistantRunner.session.messages [
+          .user "Read the counter.",
+          .assistant "" [
+            { id := { value := 0 }, name := "counter_read", arguments := "null" },
+            { id := { value := 1 }, name := "counter_read", arguments := "null" }
+          ]
+        ]
+      assertEqual "local SSE multi-tool appends both certified tool results"
+        result.round.runner.session.messages [
+          .user "Read the counter.",
+          .assistant "" [
+            { id := { value := 0 }, name := "counter_read", arguments := "null" },
+            { id := { value := 1 }, name := "counter_read", arguments := "null" }
+          ],
+          .toolResult { value := 0 } "[true,0]" false,
+          .toolResult { value := 1 } "[true,0]" false
+        ]
+      match result.round.executions with
+      | [first, second] =>
+          assertEqual "local SSE multi-tool retains first provider tool name"
+            first.raw.name "counter_read"
+          assertEqual "local SSE multi-tool retains second provider tool name"
+            second.raw.name "counter_read"
+          let _firstCertificate := DeepSeekHarness.executedToolResultJson_decodes first
+          let _secondCertificate := DeepSeekHarness.executedToolResultJson_decodes second
+          pure ()
+      | executions =>
+          fail s!"local SSE multi-tool returned {executions.length} executions"
 
 private def testDeepSeekHarnessPersistence : IO Unit := do
   match DeepSeekHarnessPersistence.persistedToolArchive with
@@ -7629,6 +7684,7 @@ def run : IO Unit := do
   testDeepSeekHarnessLocalSse
   testDeepSeekHarnessLocalSseRetry
   testDeepSeekHarnessLocalSseTimeout
+  testDeepSeekHarnessLocalSseMultiTool
   testDeepSeekHarnessPersistence
   testDeepSeekHarnessPersistenceIO
   testDeepSeekHarnessOpaqueMetadata

@@ -297,6 +297,12 @@ Current machine-checked evidence includes:
   one runner append. Arbitrary cleanup, fairness, backpressure, credential/TLS authenticity,
   provider-complete assembly, reconnect semantics, and deployed cancellation equivalence remain
   external;
+- `Cordis.DeepSeekHarnessLocalSseMultiTool`, starting a one-shot loopback SSE fixture that validates
+  `stream: true`, emits the existing two-call terminal body, and feeds the actual curl response to
+  `executeConversationMultiStreamRound`; both local call IDs, dependent executions, certified tool
+  results, request evidence, and the final runner endpoint remain linked. Provider-complete
+  assembly, backpressure, cancellation, reconnects, credential/TLS authenticity, process trust,
+  and deployed Harness equivalence remain external;
 - `Cordis.DeepSeekStreamHarness`, composing complete-body terminal rich tool streams with the
   generic conversation runner, dependent tool execution, and certified typed-result append;
   streamed rounds use a request source/body certificate proving `stream: true`, and an executable
@@ -1374,6 +1380,12 @@ The bounded algebra/context/global layer now has sixty-seven explicit pieces:
     fixture completes through strict wire validation and appends one assistant. Arbitrary cleanup,
     fairness, backpressure, credential/TLS authenticity, provider-complete assembly, reconnect
     semantics, and deployed cancellation equivalence remain external.
+68. `Cordis.DeepSeekHarnessLocalSseMultiTool` crosses the local streaming boundary into the
+    dependent multi-tool continuation. The one-shot fixture validates `stream: true`, emits two
+    streamed function calls, and the actual curl response reaches local call-ID allocation,
+    dependent execution, certified tool-result append, request/server evidence, and the exact final
+    runner endpoint. Provider-complete assembly, backpressure, cancellation, reconnects,
+    credential/TLS authenticity, process trust, and deployed Harness equivalence remain external.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
