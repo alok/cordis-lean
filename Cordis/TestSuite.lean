@@ -139,6 +139,7 @@ import Cordis.DeepSeekHarnessEndToEnd
 import Cordis.DeepSeekHarnessPersistenceProcessOutcome
 import Cordis.DeepSeekHarnessPersistenceStreamRetry
 import Cordis.DeepSeekHarnessPersistenceStreamRetryCancellation
+import Cordis.DeepSeekHarnessPersistenceFileStreamRetryCancellation
 import Cordis.DeepSeekHarnessTransportConversation
 import Cordis.DeepSeekHarnessTransportRetry
 import Cordis.DeepSeekHarnessTransportRetryConversation
@@ -1918,6 +1919,47 @@ private def testDeepSeekHarnessPersistenceStreamRetryCancellation : IO Unit := d
         (DeepSeekHarnessPersistenceStreamRetryCancellation.summaryMatchesFixture summary) true
       let _sessionCertificate :=
         DeepSeekHarnessPersistenceStreamRetryCancellation.restored_session_eq_archive run
+      pure ()
+
+private def testDeepSeekHarnessPersistenceFileStreamRetryCancellation : IO Unit := do
+  match ← DeepSeekHarnessPersistenceFileStreamRetryCancellation.runFixture with
+  | .error _ => fail "file-backed persisted process cancellation fixture failed"
+  | .ok run =>
+      let summary := DeepSeekHarnessPersistenceFileStreamRetryCancellation.summary run
+      assertEqual "file-backed persisted cancellation restores the archive endpoint"
+        summary.initialNextSeq
+        DeepSeekHarnessPersistenceFileStreamRetryCancellation.executableInitialNextSeq
+      assertEqual "file-backed persisted cancellation retains the accepted prefix"
+        summary.finalNextSeq
+        DeepSeekHarnessPersistenceFileStreamRetryCancellation.executableFinalNextSeq
+      assertEqual "file-backed persisted cancellation retains one completed round"
+        summary.traceLength
+        DeepSeekHarnessPersistenceFileStreamRetryCancellation.executableTraceLength
+      assertEqual "file-backed persisted cancellation retains the first tool calls"
+        summary.firstToolCalls
+        DeepSeekHarnessPersistenceFileStreamRetryCancellation.executableFirstToolCalls
+      assertEqual "file-backed persisted cancellation has no transient failures"
+        summary.firstRetryFailures
+        DeepSeekHarnessPersistenceFileStreamRetryCancellation.executableFirstRetryFailures
+      assertEqual "file-backed persisted cancellation reports cancellation"
+        summary.cancelled
+        DeepSeekHarnessPersistenceFileStreamRetryCancellation.executableCancelled
+      assertEqual "file-backed persisted cancellation occurs before round one"
+        summary.cancelledRound
+        DeepSeekHarnessPersistenceFileStreamRetryCancellation.executableCancelledRound
+      assertEqual "file-backed persisted cancellation retains its reason"
+        summary.cancelledReason
+        DeepSeekHarnessPersistenceFileStreamRetryCancellation.executableCancelledReason
+      assertEqual "file-backed persisted cancellation preserves the model"
+        summary.finalModel
+        DeepSeekHarnessPersistenceFileStreamRetryCancellation.executableFinalModel
+      assertEqual "file-backed persisted cancellation records temporary-file storage"
+        summary.storage
+        DeepSeekHarnessPersistenceFileStreamRetryCancellation.executableStorage
+      assertEqual "file-backed persisted cancellation executable projection agrees"
+        (DeepSeekHarnessPersistenceFileStreamRetryCancellation.summaryMatchesFixture summary) true
+      let _sessionCertificate :=
+        DeepSeekHarnessPersistenceFileStreamRetryCancellation.restored_session_eq_file_archive run
       pure ()
 
 private def testDeepSeekHarnessProcessSchema : IO Unit := do
@@ -6736,6 +6778,7 @@ def run : IO Unit := do
   testDeepSeekHarnessPersistenceProcessOutcome
   testDeepSeekHarnessPersistenceStreamRetry
   testDeepSeekHarnessPersistenceStreamRetryCancellation
+  testDeepSeekHarnessPersistenceFileStreamRetryCancellation
   testDeepSeekHarnessProcessSchema
   testDeepSeekHarnessProcessSchemaPrefix
   testDeepSeekHarnessProcessSchemaPrefixConversation

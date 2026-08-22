@@ -1204,6 +1204,12 @@ The bounded algebra/context/global layer now has forty-five explicit pieces:
     cancellation before round one, and checks `8 -> 11`, one retained round, two first-round calls,
     timeout reason, model `0`, and an exact cancellation stop. In-flight interruption, process
     cleanup, durability, external effects, and deployed cancellation equivalence remain open.
+48. `Cordis.DeepSeekHarnessPersistenceFileStreamRetryCancellation` reruns that dependent
+    cancellation path after writing and reading the archive through a temporary-file
+    `DurableIO.FileBackend`. Its executable projection checks the same `8 -> 11` prefix and
+    records the file-backed route beside the exact restored-session equality. `withTempFile`
+    cleanup is real, but fsync, stable media, crash recovery, in-flight interruption, process
+    cleanup, external effects, and deployed Harness equivalence remain open.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a

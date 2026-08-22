@@ -417,6 +417,13 @@ the exact cancellation boundary. This proves no later request is selected after 
 does not interrupt a blocked read or establish process cleanup, durability, external-effect, or
 deployed cancellation equivalence.
 
+`DeepSeekHarnessPersistenceFileStreamRetryCancellation` executes the same dependent cancellation
+path after `DurableIO.FileBackend` writes and reads the archive in a temporary file. The returned
+certificate still proves exact restored-session equality and the `8 -> 11` cancellation prefix,
+and its executable summary records the temporary-file route. `withTempFile` removes the file on
+return; fsync, stable media, crash recovery, in-flight interruption, process cleanup, external
+effects, and deployed Harness equivalence remain outside.
+
 `DeepSeekHarnessTransportRetryCancellation` composes that trace with a caller-controlled
 pre-round cancellation policy. Its cancellation fixture proves that no request is issued before
 round zero and retains the unchanged endpoint and typed reason; its success fixture retains the
@@ -928,7 +935,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1815
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1839
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.
