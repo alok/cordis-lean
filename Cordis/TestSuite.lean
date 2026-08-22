@@ -3465,6 +3465,7 @@ private def testSessionExtensionRefinement : IO Unit := do
   have _bannerProof := SessionExtensionRefinement.Example.decode_banner_exact
   have _appendProof := SessionExtensionRefinement.Example.heartbeat_append_exact
   have _surfaceProof := SessionExtensionRefinement.Example.banner_append_messages
+  have _replayProof := SessionExtensionRefinement.Example.validated_example_summary
   match SessionExtensionRefinement.Example.heartbeatSession with
   | .error error => fail s!"typed heartbeat extension failed: {reprStr error}"
   | .ok session =>
@@ -3503,6 +3504,15 @@ private def testSessionExtensionRefinement : IO Unit := do
   | .error (.sequenceMismatch _ 0 1) => pure ()
   | .error error => fail s!"stale extension sequence returned the wrong error: {reprStr error}"
   | .ok _ => fail "stale extension sequence was accepted"
+  match SessionExtensionRefinement.Example.validatedExample with
+  | .error error => fail s!"typed extension replay failed: {reprStr error}"
+  | .ok log =>
+      assertEqual "typed extension replay advances both records"
+        log.final.nextSeq 2
+      assertEqual "typed extension replay retains the surface projection"
+        log.final.messages [.user "extension:ready"]
+      assertEqual "typed extension replay retains both dependent events"
+        log.replay.events.length 2
 
 private def testDeepSeekSchemaStreamConversation : IO Unit := do
   match DeepSeekToolSchema.weatherToolCertificate,

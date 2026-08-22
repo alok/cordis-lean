@@ -171,6 +171,160 @@ def decodeAndAppend
   let event ← decodeEvent codec json
   appendDecodedEvent session event
 
+@[simp] theorem appendDecoded_nextSeq_core
+    {schema : Session.ExtensionSchema}
+    (session : Session.Session schema)
+    (event : ExtensionEvent schema)
+    (seq_eq : event.seq.value = session.nextSeq) :
+    (appendDecoded session event seq_eq).nextSeq = session.nextSeq + 1 := by
+  cases event with
+  | mk seq time extension =>
+    cases extension <;>
+    simp [appendDecoded, Session.Session.appendLogOnly, Session.Session.appendSurface,
+      Session.Session.append]
+
+/-- An intrinsic sequential replay of exactly the supplied extension-event AST list. -/
+inductive ExtensionReplay
+    {schema : Session.ExtensionSchema}
+    (codec : ExtensionCodec schema) :
+    Session.Session schema → List Lean.Json → Session.Session schema → Type where
+  | nil (session : Session.Session schema) :
+      ExtensionReplay codec session [] session
+  | cons
+      {before after final : Session.Session schema}
+      {raw : Lean.Json}
+      {rest : List Lean.Json}
+      (event : ExtensionEvent schema)
+      (decoded : decodeEvent codec raw = .ok event)
+      (appended : appendDecodedEvent before event = .ok after)
+      (tail : ExtensionReplay codec after rest final) :
+      ExtensionReplay codec before (raw :: rest) final
+
+namespace ExtensionReplay
+
+/-- The typed events extracted from a replay certificate, in source order. -/
+def events
+    {schema : Session.ExtensionSchema}
+    {codec : ExtensionCodec schema} :
+    {before : Session.Session schema} →
+    {input : List Lean.Json} →
+    {after : Session.Session schema} →
+    ExtensionReplay codec before input after → List (ExtensionEvent schema)
+  | _, _, _, .nil _ => []
+  | _, _, _, .cons event _ _ tail => event :: tail.events
+
+theorem events_length
+    {schema : Session.ExtensionSchema}
+    {codec : ExtensionCodec schema}
+    {before after : Session.Session schema}
+    {input : List Lean.Json}
+    (replay : ExtensionReplay codec before input after) :
+    replay.events.length = input.length := by
+  induction replay with
+  | nil => rfl
+  | cons event decoded appended tail tail_ih =>
+      simp [events, tail_ih]
+
+theorem raw_length
+    {schema : Session.ExtensionSchema}
+    {codec : ExtensionCodec schema}
+    {before after : Session.Session schema}
+    {input : List Lean.Json}
+    (replay : ExtensionReplay codec before input after) :
+    input.length = replay.events.length := by
+  symm
+  exact events_length replay
+
+end ExtensionReplay
+
+theorem appendDecodedEvent_nextSeq
+    {schema : Session.ExtensionSchema}
+    {session after : Session.Session schema}
+    {event : ExtensionEvent schema}
+    (appended : appendDecodedEvent session event = .ok after) :
+    after.nextSeq = session.nextSeq + 1 := by
+  unfold appendDecodedEvent at appended
+  split at appended
+  · cases appended
+    exact appendDecoded_nextSeq_core session event _
+  · cases appended
+
+theorem ExtensionReplay.final_nextSeq
+    {schema : Session.ExtensionSchema}
+    {codec : ExtensionCodec schema}
+    {before after : Session.Session schema}
+    {input : List Lean.Json}
+    (replay : ExtensionReplay codec before input after) :
+    after.nextSeq = before.nextSeq + input.length := by
+  induction replay with
+  | nil => rfl
+  | cons event decoded appended tail inductionHypothesis =>
+      rw [inductionHypothesis, appendDecodedEvent_nextSeq appended]
+      simp only [List.length_cons]
+      omega
+
+/-- A validated extension log retains its final indexed session and intrinsic replay proof. -/
+structure ValidatedExtensionLog
+    {schema : Session.ExtensionSchema}
+    (codec : ExtensionCodec schema)
+    (initial : Session.Session schema)
+    (input : List Lean.Json) where
+  final : Session.Session schema
+  replay : ExtensionReplay codec initial input final
+
+namespace ValidatedExtensionLog
+
+theorem final_nextSeq
+    {schema : Session.ExtensionSchema}
+    {codec : ExtensionCodec schema}
+    {initial : Session.Session schema}
+    {input : List Lean.Json}
+    (log : ValidatedExtensionLog codec initial input) :
+    log.final.nextSeq = initial.nextSeq + input.length :=
+  log.replay.final_nextSeq
+
+theorem typed_event_count
+    {schema : Session.ExtensionSchema}
+    {codec : ExtensionCodec schema}
+    {initial : Session.Session schema}
+    {input : List Lean.Json}
+    (log : ValidatedExtensionLog codec initial input) :
+    log.replay.events.length = input.length :=
+  log.replay.events_length
+
+end ValidatedExtensionLog
+
+private def validateAt
+    {schema : Session.ExtensionSchema}
+    (codec : ExtensionCodec schema)
+    (session : Session.Session schema) :
+    (input : List Lean.Json) →
+    Except ExtensionDecodeError (ValidatedExtensionLog codec session input)
+  | [] => .ok { final := session, replay := .nil session }
+  | raw :: rest =>
+      match decodedResult : decodeEvent codec raw with
+      | .error error => .error error
+      | .ok event =>
+          match appendedResult : appendDecodedEvent session event with
+          | .error error => .error error
+          | .ok after =>
+              match _tailResult : validateAt codec after rest with
+              | .error error => .error error
+              | .ok tail =>
+                  .ok {
+                    final := tail.final
+                    replay := .cons event decodedResult appendedResult tail.replay
+                  }
+
+/-- Validate and replay an ordered extension-event AST list from one certified session. -/
+def validate
+    {schema : Session.ExtensionSchema}
+    (codec : ExtensionCodec schema)
+    (initial : Session.Session schema)
+    (input : List Lean.Json) :
+    Except ExtensionDecodeError (ValidatedExtensionLog codec initial input) :=
+  validateAt codec initial input
+
 @[simp] theorem appendDecoded_nextSeq
     {schema : Session.ExtensionSchema}
     (session : Session.Session schema)
@@ -245,6 +399,23 @@ def bannerJson : Lean.Json := Lean.Json.mkObj [
   ])
 ]
 
+def bannerAfterHeartbeatJson : Lean.Json := Lean.Json.mkObj [
+  ("type", .str "cordis/extension"),
+  ("seq", .num (Lean.JsonNumber.fromNat 1)),
+  ("time", .num (Lean.JsonNumber.fromNat 102)),
+  ("data", Lean.Json.mkObj [
+    ("kind", .str "banner"),
+    ("text", .str "ready")
+  ])
+]
+
+def exampleInput : List Lean.Json := [heartbeatJson, bannerAfterHeartbeatJson]
+
+def validatedExample :
+    Except ExtensionDecodeError
+      (ValidatedExtensionLog exampleCodec (Session.Session.empty exampleSchema) exampleInput) :=
+  validate exampleCodec (Session.Session.empty exampleSchema) exampleInput
+
 def wrongTagJson : Lean.Json := Lean.Json.mkObj [
   ("type", .str "session/turn-start"),
   ("seq", .num (Lean.JsonNumber.fromNat 0)),
@@ -304,6 +475,13 @@ theorem heartbeat_append_exact :
 theorem banner_append_messages :
     bannerSession.map Session.Session.messages =
       .ok [.user "extension:ready"] := by
+  rfl
+
+theorem validated_example_summary :
+    (match validatedExample with
+    | .error _ => none
+    | .ok log => some (log.final.nextSeq, log.final.messages, log.replay.events.length)) =
+      some (2, [.user "extension:ready"], 2) := by
   rfl
 
 theorem reject_wrong_tag :

@@ -715,6 +715,12 @@ set_option format.width 200
 #print axioms Cordis.SessionExtensionRefinement.appendDecoded_nextSeq
 #print axioms Cordis.SessionExtensionRefinement.appendDecoded_event_count
 #print axioms Cordis.SessionExtensionRefinement.appendDecoded_wire_seq
+#print axioms Cordis.SessionExtensionRefinement.ExtensionReplay.events_length
+#print axioms Cordis.SessionExtensionRefinement.appendDecodedEvent_nextSeq
+#print axioms Cordis.SessionExtensionRefinement.ExtensionReplay.final_nextSeq
+#print axioms Cordis.SessionExtensionRefinement.ValidatedExtensionLog.final_nextSeq
+#print axioms Cordis.SessionExtensionRefinement.ValidatedExtensionLog.typed_event_count
+#print axioms Cordis.SessionExtensionRefinement.Example.validated_example_summary
 #print axioms Cordis.SessionExtensionRefinement.Example.decode_heartbeat_exact
 #print axioms Cordis.SessionExtensionRefinement.Example.decode_banner_exact
 #print axioms Cordis.SessionExtensionRefinement.Example.heartbeat_append_exact

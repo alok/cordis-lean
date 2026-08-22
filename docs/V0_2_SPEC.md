@@ -56,9 +56,12 @@ the sequence/tool-count invariants through a validated terminal rich-response fi
 `SessionExtensionRefinement` adds a bounded typed-ingress layer: a caller-supplied
 `ExtensionCodec` constructs the dependent kind/payload sum, while the generic envelope decoder
 checks the declared tag, safe sequence/time fields, rejected metadata, and exact append freshness.
-The heartbeat/banner fixture exercises log-only and surface visibility plus wrong-tag, ignorable,
-malformed-payload, and stale-sequence rejection. Arbitrary JSON, provider compatibility,
-persistence, transport, and deployed Harness equivalence remain external.
+`ExtensionReplay`/`ValidatedExtensionLog` extends that proof across an ordered list: every raw
+event, dependent decode, append equation, and intermediate indexed session is retained, with final
+sequence and typed-event-count theorems. The heartbeat/banner fixture exercises log-only and
+surface visibility plus wrong-tag, ignorable, malformed-payload, and stale-sequence rejection.
+Arbitrary JSON, provider compatibility, persistence, transport, and deployed Harness equivalence
+remain external.
 
 The slice closes two concrete gaps in the original objective:
 

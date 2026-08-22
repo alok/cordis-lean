@@ -92,10 +92,12 @@ retains its sequence/tool-count invariants when a validated terminal rich respon
 through the existing process/stream fixture. `SessionExtensionRefinement` supplies the bounded
 typed-ingress counterpart: the caller's `ExtensionCodec` constructs the dependent kind/payload
 sum, while the generic envelope checks the declared tag, safe sequence/time fields, rejected
-metadata, and exact session-sequence freshness. Its heartbeat/banner fixture exercises both
-visibility paths and exact rejection witnesses. This remains a codec boundary, not arbitrary JSON
-or deployed provider decoding; provider compatibility, transport, persistence, and deployed
-Harness equivalence remain external.
+metadata, and exact session-sequence freshness. Its `ExtensionReplay`/`ValidatedExtensionLog`
+certificate consumes the supplied raw list in order, links each dependent event to the exact
+intermediate session, and proves the final sequence and typed-event count. The heartbeat/banner
+fixture exercises both visibility paths and exact rejection witnesses. This remains a codec
+boundary, not arbitrary JSON or deployed provider decoding; provider compatibility, transport,
+persistence, and deployed Harness equivalence remain external.
 
 The local protocol has both typed erasure and witness-reconstructing validation:
 

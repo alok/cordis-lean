@@ -296,10 +296,12 @@ the same sequence/tool-count invariants through an accepted terminal rich respon
 that path with the existing process/stream fixture. `SessionExtensionRefinement` adds a bounded
 typed-ingress API: a caller-supplied `ExtensionCodec` must construct the dependent kind/payload
 sum, while the generic envelope decoder checks the declared tag, safe sequence/time fields,
-metadata rejection, and exact append freshness. The heartbeat/banner codec and
-wrong-tag/ignorable/malformed/stale rejection fixtures are executable. This does not decode
-arbitrary JSON or claim provider compatibility, persistence, transport, or deployed Harness
-equivalence.
+metadata rejection, and exact append freshness. `ExtensionReplay` and
+`ValidatedExtensionLog` recursively retain the raw input order, each dependent event, every
+intermediate indexed session, and the final sequence/event-count equations across a multi-event
+validation. The heartbeat/banner codec and wrong-tag/ignorable/malformed/stale rejection
+fixtures are executable. This does not decode arbitrary JSON or claim provider compatibility,
+persistence, transport, or deployed Harness equivalence.
 
 `Cordis.DeepSeekHarnessPersistence` now attaches that bounded runner to the logical JSONL
 persistence refinement. A successful archive restores a `ConversationRunner` with an exact
@@ -1219,7 +1221,7 @@ placeholders.
 | `Cordis.GlobalActivationTransposition`                  | Fixed-program Begin/Iter/Finish activations, positive-target framing, endpoint/rule determinism, all-nine exact lifecycle diamonds, an actual-second-step transposition wrapper, and root/same-owner necessity witnesses.                                                                                                                                                                           |
 | `Cordis.GlobalActivationOrchestrationTransposition`     | Literal-clause parent/birth countermodels, occurrence-minimal orchestration framing, corrected exact activation/orchestration exchange, frame-necessity models, and representative structural/ordinary/registering examples.                                                                                                                                                                        |
 | `Cordis.GlobalProgress`                                 | Fixed-oracle and freshness-exhaustion deadlocks, finite provider precedence/rank, exact landing-or-raise and recovery authorities, maximal-unloading reasoning, conditional state-local no-deadlock, and executable examples.                                                                                                                                                                       |
-| `Cordis.GlobalProgressTermination`                      | A supplied strict natural-valued lifecycle potential, exact trace budget/telescoping inequalities, conditional `K + 4` length and cycle bounds, and an executable descending witness; it does not derive the potential or full Theorem 66.                                                                                                                                                |
+| `Cordis.GlobalProgressTermination`                      | A supplied strict natural-valued lifecycle potential, exact trace budget/telescoping inequalities, conditional `K + 4` length and cycle bounds, and an executable descending witness; it does not derive the potential or full Theorem 66.                                                                                                                                                          |
 | `Cordis.GlobalSupport`                                  | Reachable mixed-order/nonunique-support countermodels, combined-order recursion and uniqueness, state-local provision/failure/parent laws, corrected support-equals-active theorem, and necessity/positive examples.                                                                                                                                                                                |
 | `Cordis.GlobalTraceRewrite`                             | Exact indexed adjacent trace windows, occurrence/program assignment, assignment-preserving activation and orchestration adapters, rule/actor permutations, and a nonempty-context executable rewrite.                                                                                                                                                                                               |
 | `Cordis.GlobalDeletion`                                 | Intrinsic relation-indexed keep/drop replay, assignment reconstruction, multi-vestigial exact orchestration suffixes, positional templates, semantic redraw detection, and parent/allocator countermodels.                                                                                                                                                                                          |
