@@ -1,10 +1,12 @@
-import Std
+import Cordis.RuntimeRefinement
 
 /-!
 # Source-shaped DeepSeek provider assembler
 
 This module is a small, proof-carrying model of the current TypeScript
-`BlockAssembler` boundary.  It intentionally sits next to, rather than inside,
+`BlockAssembler` boundary at DeepSeek Harness commit
+`47f943859bef60e4160492346772ded9b24f765a` (`packages/llm/llm/src/assembler.ts`).
+It intentionally sits next to, rather than inside,
 the stricter `DeepSeekRichMultiStream` validator: the provider assembler accepts
 delta-only and open blocks, keeps the first block close, overwrites tool metadata
 with the latest supplied values, keeps the last usage/finish metadata, defaults a
@@ -21,6 +23,8 @@ with a certificate that records the exact folded state and assembly equation.
 set_option autoImplicit false
 
 namespace Cordis.DeepSeekProviderAssembler
+
+open Cordis
 
 /-! ## Canonical chunk vocabulary -/
 
@@ -252,6 +256,90 @@ theorem Certificate.fold_exact {chunks : List Chunk} (certificate : Certificate 
 theorem Certificate.assembly_exact {chunks : List Chunk} (certificate : Certificate chunks) :
     assemble certificate.state = .ok certificate.result :=
   certificate.result_eq
+
+/-! ## Composition with the strict current-Harness JSON subset -/
+
+private def blockKindOf : Cordis.RichStream.BlockKind → BlockType
+  | .text => .text
+  | .reasoning => .reasoning
+  | .toolCall => .toolCall
+
+private def blockOf : Cordis.RichStream.ContentBlock → Block
+  | .text content => .text content
+  | .reasoning content => .reasoning content
+  | .toolCall id name arguments => .toolCall id name arguments
+
+private def usageOf (usage : Cordis.RuntimeRefinement.WireUsage) : Usage := {
+  inputTokens := usage.inputTokens.value
+  outputTokens := usage.outputTokens.value
+  cacheReadTokens := usage.cacheReadTokens.map (fun value => value.value)
+  cacheWriteTokens := usage.cacheWriteTokens.map (fun value => value.value)
+  reasoningTokens := usage.reasoningTokens.map (fun value => value.value)
+}
+
+private def finishKindOf : Cordis.RuntimeRefinement.SuccessfulFinish → Finish
+  | .stop => .stop
+  | .toolCalls => .toolCalls
+  | .maxTokens => .maxTokens
+
+/-- Exact map from the accepted JSON-AST chunk subset to canonical assembler chunks. -/
+def fromSupported : Cordis.RuntimeRefinement.SupportedChunk → Chunk
+  | .blockStart index kind => .blockStart index.value (blockKindOf kind)
+  | .textDelta index text => .textDelta index.value text
+  | .reasoningDelta index text => .reasoningDelta index.value text
+  | .toolCallDelta index id name argumentsDelta =>
+      .toolCallDelta index.value id name argumentsDelta
+  | .blockEnd index block => .blockEnd index.value (blockOf block)
+  | .tokenUsage usage => .usage (usageOf usage)
+  | .finish reason => .finish (finishKindOf reason) none
+
+inductive JsonAssemblyError where
+  | stream (error : Cordis.RuntimeRefinement.ValidationError)
+  | assembler (error : AssemblyError)
+  deriving BEq, DecidableEq, Repr
+
+structure ValidatedJsonAssembly (input : List Lean.Json) where
+  stream : Cordis.RuntimeRefinement.ValidatedJsonTrace input
+  assembly : Certificate (stream.chunks.map fromSupported)
+
+/-- Compose strict JSON/rich validation with source-shaped post-decoder assembly. -/
+def validateJsonAssembly (input : List Lean.Json) :
+    Except JsonAssemblyError (ValidatedJsonAssembly input) :=
+  match Cordis.RuntimeRefinement.validateJsonTrace input with
+  | .error error => .error (.stream error)
+  | .ok stream =>
+      match validate (stream.chunks.map fromSupported) with
+      | .error error => .error (.assembler error)
+      | .ok assembly => .ok { stream, assembly }
+
+theorem ValidatedJsonAssembly.stream_exact {input : List Lean.Json}
+    (value : ValidatedJsonAssembly input) :
+    Cordis.RuntimeRefinement.decodeChunks input = .ok value.stream.chunks :=
+  value.stream.decode_eq
+
+theorem ValidatedJsonAssembly.assembly_exact {input : List Lean.Json}
+    (value : ValidatedJsonAssembly input) :
+    assemble value.assembly.state = .ok value.assembly.result :=
+  value.assembly.result_eq
+
+def jsonExampleResult : Option Assembled :=
+  match validateJsonAssembly Cordis.RuntimeRefinement.exampleJson with
+  | .error _ => none
+  | .ok value => some value.assembly.result
+
+def jsonExampleExpected : Assembled := {
+  role := "assistant"
+  blocks := [.text "hello"]
+  usage := some {
+    inputTokens := 5
+    outputTokens := 2
+  }
+  finish := .stop
+  replayState := none
+}
+
+theorem json_example_assembly_exact : jsonExampleResult = some jsonExampleExpected := by
+  rfl
 
 /-! ## Exact source-shaped witnesses -/
 

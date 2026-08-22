@@ -899,6 +899,11 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekProviderAssembler.validate
 #print axioms Cordis.DeepSeekProviderAssembler.Certificate.fold_exact
 #print axioms Cordis.DeepSeekProviderAssembler.Certificate.assembly_exact
+#print axioms Cordis.DeepSeekProviderAssembler.fromSupported
+#print axioms Cordis.DeepSeekProviderAssembler.validateJsonAssembly
+#print axioms Cordis.DeepSeekProviderAssembler.ValidatedJsonAssembly.stream_exact
+#print axioms Cordis.DeepSeekProviderAssembler.ValidatedJsonAssembly.assembly_exact
+#print axioms Cordis.DeepSeekProviderAssembler.json_example_assembly_exact
 #print axioms Cordis.DeepSeekProviderAssembler.Example.multiTool_result_exact
 #print axioms Cordis.DeepSeekProviderAssembler.Example.first_close_wins
 #print axioms Cordis.DeepSeekProviderAssembler.Example.max_tokens_drops_tools

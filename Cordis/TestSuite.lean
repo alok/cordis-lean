@@ -2948,6 +2948,9 @@ private def testDeepSeekRichMultiStream : IO Unit := do
   | result => fail s!"DeepSeek multi projection accepted multiple choices: {reprStr result}"
 
 private def testDeepSeekProviderAssembler : IO Unit := do
+  assertEqual "provider assembler composes with strict JSON refinement"
+    DeepSeekProviderAssembler.jsonExampleResult
+    (some DeepSeekProviderAssembler.jsonExampleExpected)
   assertEqual "provider assembler retains source-shaped multi-tool output"
     DeepSeekProviderAssembler.Example.multiToolSummary true
   assertEqual "provider assembler prunes tool calls on max-tokens"
