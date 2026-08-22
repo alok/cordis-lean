@@ -143,6 +143,7 @@ import Cordis.RuntimeOutcomeSession
 import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
+import Cordis.SessionExtensionRefinement
 import Cordis.SessionOpaqueMetadata
 import Cordis.SessionArchive
 import Cordis.SessionEventArchive

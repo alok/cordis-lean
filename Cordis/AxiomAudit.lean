@@ -139,6 +139,7 @@ import Cordis.RuntimeOutcomeSession
 import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
+import Cordis.SessionExtensionRefinement
 import Cordis.SessionOpaqueMetadata
 import Cordis.SessionArchive
 import Cordis.SessionEventArchive
@@ -711,6 +712,17 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessExtensions.extensionWithAssistant_messages
 #print axioms Cordis.DeepSeekHarnessExtensions.extensionRunner
 #print axioms Cordis.DeepSeekHarnessExtensions.extensionRunnerText
+#print axioms Cordis.SessionExtensionRefinement.appendDecoded_nextSeq
+#print axioms Cordis.SessionExtensionRefinement.appendDecoded_event_count
+#print axioms Cordis.SessionExtensionRefinement.appendDecoded_wire_seq
+#print axioms Cordis.SessionExtensionRefinement.Example.decode_heartbeat_exact
+#print axioms Cordis.SessionExtensionRefinement.Example.decode_banner_exact
+#print axioms Cordis.SessionExtensionRefinement.Example.heartbeat_append_exact
+#print axioms Cordis.SessionExtensionRefinement.Example.banner_append_messages
+#print axioms Cordis.SessionExtensionRefinement.Example.reject_wrong_tag
+#print axioms Cordis.SessionExtensionRefinement.Example.reject_ignorable
+#print axioms Cordis.SessionExtensionRefinement.Example.reject_malformed_banner
+#print axioms Cordis.SessionExtensionRefinement.Example.reject_stale_sequence
 #print axioms Cordis.DeepSeekHarness.buildTypedCompleteRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan_source_stream

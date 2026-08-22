@@ -89,8 +89,13 @@ the TypeScript assembler accepts exactly the same language.
 Its executable fixture keeps a custom log-only event in the append-only log while projecting only
 the certified surface message into the request and append result. The schema-indexed runner
 retains its sequence/tool-count invariants when a validated terminal rich response is appended
-through the existing process/stream fixture. This is an indexed Lean boundary, not extension JSON
-decoding, provider compatibility, transport, persistence, or deployed Harness equivalence.
+through the existing process/stream fixture. `SessionExtensionRefinement` supplies the bounded
+typed-ingress counterpart: the caller's `ExtensionCodec` constructs the dependent kind/payload
+sum, while the generic envelope checks the declared tag, safe sequence/time fields, rejected
+metadata, and exact session-sequence freshness. Its heartbeat/banner fixture exercises both
+visibility paths and exact rejection witnesses. This remains a codec boundary, not arbitrary JSON
+or deployed provider decoding; provider compatibility, transport, persistence, and deployed
+Harness equivalence remain external.
 
 The local protocol has both typed erasure and witness-reconstructing validation:
 

@@ -52,9 +52,13 @@ every indexed `Session.ExtensionSchema`, and appends an accepted assistant view 
 that schema. Custom log-only events remain in the append-only session but do not enter the model
 request; custom surface events use the schema-provided message projection. The fixture proves the
 exact one-message request shape and schema-preserving assistant append. Its indexed runner carries
-the sequence/tool-count invariants through a validated terminal rich-response fixture. Extension
-JSON decoding, provider compatibility, persistence, transport, and deployed Harness equivalence
-remain external.
+the sequence/tool-count invariants through a validated terminal rich-response fixture.
+`SessionExtensionRefinement` adds a bounded typed-ingress layer: a caller-supplied
+`ExtensionCodec` constructs the dependent kind/payload sum, while the generic envelope decoder
+checks the declared tag, safe sequence/time fields, rejected metadata, and exact append freshness.
+The heartbeat/banner fixture exercises log-only and surface visibility plus wrong-tag, ignorable,
+malformed-payload, and stale-sequence rejection. Arbitrary JSON, provider compatibility,
+persistence, transport, and deployed Harness equivalence remain external.
 
 The slice closes two concrete gaps in the original objective:
 

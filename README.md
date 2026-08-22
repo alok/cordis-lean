@@ -293,8 +293,13 @@ modes. Log-only custom events remain in the append-only session without entering
 request, while surface custom events contribute the schema-certified message. A generic assistant
 append preserves that schema and proves the exact surface result. The indexed runner now carries
 the same sequence/tool-count invariants through an accepted terminal rich response and exercises
-that path with the existing process/stream fixture. Extension JSON decoding, provider
-compatibility, persistence, transport, and deployed Harness equivalence remain outside.
+that path with the existing process/stream fixture. `SessionExtensionRefinement` adds a bounded
+typed-ingress API: a caller-supplied `ExtensionCodec` must construct the dependent kind/payload
+sum, while the generic envelope decoder checks the declared tag, safe sequence/time fields,
+metadata rejection, and exact append freshness. The heartbeat/banner codec and
+wrong-tag/ignorable/malformed/stale rejection fixtures are executable. This does not decode
+arbitrary JSON or claim provider compatibility, persistence, transport, or deployed Harness
+equivalence.
 
 `Cordis.DeepSeekHarnessPersistence` now attaches that bounded runner to the logical JSONL
 persistence refinement. A successful archive restores a `ConversationRunner` with an exact

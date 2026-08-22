@@ -141,6 +141,7 @@ import Cordis.RuntimeOutcomeSession
 import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
+import Cordis.SessionExtensionRefinement
 import Cordis.SessionOpaqueMetadata
 import Cordis.SessionArchive
 import Cordis.SessionEventArchive
@@ -3459,6 +3460,50 @@ private def testDeepSeekHarnessExtensions : IO Unit := do
       assertEqual "generic extension runner keeps the text tool-call count at zero"
         after.nextCall 0
 
+private def testSessionExtensionRefinement : IO Unit := do
+  have _heartbeatProof := SessionExtensionRefinement.Example.decode_heartbeat_exact
+  have _bannerProof := SessionExtensionRefinement.Example.decode_banner_exact
+  have _appendProof := SessionExtensionRefinement.Example.heartbeat_append_exact
+  have _surfaceProof := SessionExtensionRefinement.Example.banner_append_messages
+  match SessionExtensionRefinement.Example.heartbeatSession with
+  | .error error => fail s!"typed heartbeat extension failed: {reprStr error}"
+  | .ok session =>
+      assertEqual "typed log-only extension has no model message"
+        session.messages []
+      assertEqual "typed log-only extension advances the physical sequence"
+        session.nextSeq 1
+      assertEqual "typed log-only extension appends one event"
+        session.events.length 1
+  match SessionExtensionRefinement.Example.bannerSession with
+  | .error error => fail s!"typed banner extension failed: {reprStr error}"
+  | .ok session =>
+      assertEqual "typed surface extension projects its schema message"
+        session.messages [.user "extension:ready"]
+      assertEqual "typed surface extension advances the physical sequence"
+        session.nextSeq 1
+  match SessionExtensionRefinement.decodeEvent SessionExtensionRefinement.Example.exampleCodec
+      SessionExtensionRefinement.Example.wrongTagJson with
+  | .error (.unsupportedTag _ "session/turn-start") => pure ()
+  | .error error => fail s!"wrong extension tag returned the wrong error: {reprStr error}"
+  | .ok _ => fail "wrong extension tag was accepted"
+  match SessionExtensionRefinement.decodeEvent SessionExtensionRefinement.Example.exampleCodec
+      SessionExtensionRefinement.Example.ignorableJson with
+  | .error (.unsupportedField _ "ignorable") => pure ()
+  | .error error => fail s!"ignorable extension returned the wrong error: {reprStr error}"
+  | .ok _ => fail "ignorable extension was accepted"
+  match SessionExtensionRefinement.decodeEvent SessionExtensionRefinement.Example.exampleCodec
+      SessionExtensionRefinement.Example.malformedBannerJson with
+  | .error (.typeMismatch _ "string" .number) => pure ()
+  | .error error => fail s!"malformed extension payload returned the wrong error: {reprStr error}"
+  | .ok _ => fail "malformed extension payload was accepted"
+  match SessionExtensionRefinement.decodeAndAppend
+      SessionExtensionRefinement.Example.exampleCodec
+      (Session.Session.empty DeepSeekHarnessExtensions.exampleSchema)
+      SessionExtensionRefinement.Example.staleHeartbeatJson with
+  | .error (.sequenceMismatch _ 0 1) => pure ()
+  | .error error => fail s!"stale extension sequence returned the wrong error: {reprStr error}"
+  | .ok _ => fail "stale extension sequence was accepted"
+
 private def testDeepSeekSchemaStreamConversation : IO Unit := do
   match DeepSeekToolSchema.weatherToolCertificate,
       DeepSeekSchemaRegistry.Example.clockToolCertificate with
@@ -5821,6 +5866,7 @@ def run : IO Unit := do
   testDeepSeekToolSchema
   testDeepSeekScopedRegistry
   testDeepSeekHarnessExtensions
+  testSessionExtensionRefinement
   testDeepSeekSchemaStreamConversation
   testDeepSeekSchemaStreamPrefixConversation
   testDeepSeekSchemaStreamErrors
