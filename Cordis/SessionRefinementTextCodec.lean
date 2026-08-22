@@ -60,6 +60,17 @@ def decodeWireEventsText (text : String) :
   | .error error => .error (.text error)
   | .ok jsons => decodeSemanticLines jsons
 
+/-- Encode a finite supported event list as canonical UTF-8 JSONL bytes. -/
+def encodeWireEventsBytes (events : List WireEvent) : Except EncodeError ByteArray :=
+  (events.mapM encodeWireEvent).map TextRefinement.renderJsonLinesBytes
+
+/-- Decode canonical UTF-8 JSONL bytes through the same semantic event subset. -/
+def decodeWireEventsBytes (source : ByteArray) :
+    Except TextDecodeError (List WireEvent) :=
+  match _parsed : TextRefinement.parseJsonLinesBytes source with
+  | .error error => .error (.text error)
+  | .ok jsons => decodeSemanticLines jsons
+
 theorem encodeWireEventLine_eq_compress
     {event : WireEvent} {json : Lean.Json}
     (encoded : encodeWireEvent event = .ok json) :
@@ -139,6 +150,23 @@ theorem decodeWireEventsText_of_encoded
       cases lines_eq
       simp [decodeSemanticLines, decoded, Except.mapError]
 
+theorem decodeWireEventsBytes_of_encoded
+    {events : List WireEvent} {jsons : List Lean.Json} {source : ByteArray}
+    (encoded : events.mapM encodeWireEvent = .ok jsons)
+    (parsed : TextRefinement.parseJsonLinesBytes source = .ok jsons) :
+    decodeWireEventsBytes source = .ok events := by
+  have decoded : jsons.mapM decodeEvent = .ok events := map_decode_of_encoded encoded
+  unfold decodeWireEventsBytes
+  generalize h : TextRefinement.parseJsonLinesBytes source = result
+  cases result with
+  | error error => simp_all
+  | ok lines =>
+      have lines_eq :
+          (Except.ok lines : Except TextRefinement.TextError (List Lean.Json)) =
+            .ok jsons := h.symm.trans parsed
+      cases lines_eq
+      simp [decodeSemanticLines, decoded, Except.mapError]
+
 /-! ## Executable parser/codec witness -/
 
 def executableEvent : WireEvent := {
@@ -162,8 +190,18 @@ def executableEventsText : String :=
   | .ok text => text
   | .error _ => ""
 
+def executableEventsBytes : ByteArray :=
+  match encodeWireEventsBytes mixedFixture with
+  | .ok source => source
+  | .error _ => ByteArray.empty
+
 def executableEventsDecodeCount : Nat :=
   match decodeWireEventsText executableEventsText with
+  | .ok events => events.length
+  | .error _ => 0
+
+def executableEventsBytesDecodeCount : Nat :=
+  match decodeWireEventsBytes executableEventsBytes with
   | .ok events => events.length
   | .error _ => 0
 

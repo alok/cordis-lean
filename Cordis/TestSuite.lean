@@ -6459,6 +6459,25 @@ private def testSessionRefinementTextCodec : IO Unit := do
             | _ => "other"
           assertEqual "canonical text list retains event order" tags
             ["turn/start", "step/start", "assistant/chunk", "tool/call"]
+  match SessionRefinement.Codec.encodeWireEventsBytes SessionRefinement.Codec.mixedFixture with
+  | .error error => fail s!"canonical UTF-8 list encoding failed: {reprStr error}"
+  | .ok bytes =>
+      match SessionRefinement.Codec.decodeWireEventsBytes bytes with
+      | .error error => fail s!"canonical UTF-8 list decoding failed: {reprStr error}"
+      | .ok events =>
+          assertEqual "canonical UTF-8 list retains four events" events.length 4
+          let tags := events.map fun event =>
+            match event.payload with
+            | .turnStart _ => "turn/start"
+            | .stepStart _ _ => "step/start"
+            | .assistantChunk _ => "assistant/chunk"
+            | .toolCall _ _ _ _ _ => "tool/call"
+            | _ => "other"
+          assertEqual "canonical UTF-8 list retains event order" tags
+            ["turn/start", "step/start", "assistant/chunk", "tool/call"]
+  match SessionRefinement.Codec.decodeWireEventsBytes (ByteArray.mk #[255]) with
+  | .error (.text .invalidUtf8) => pure ()
+  | result => fail s!"invalid UTF-8 canonical list was not rejected: {reprStr result}"
   pure ()
 
 private def testSessionOpaqueMetadata : IO Unit := do
