@@ -6,7 +6,10 @@ import Cordis.GlobalPaperRelation
 This module lifts the paper-visible birth-erased relation from local steps to finite intrinsic
 traces. Orchestration matching is inherited from `GlobalPaperRelation`; lifecycle matching remains
 an explicit assigned-simulation frontier. The trace theorem is therefore conditional, but its
-suffix replay and assignment transport are constructed rather than assumed.
+suffix replay and assignment transport are constructed rather than assumed. A separate
+trace-local evidence family lets callers provide exact lifecycle matches occurrence by occurrence;
+the concrete leave/unload witness below exercises that interface without claiming global
+lifecycle bisimulation.
 
 The exact lifecycle rule tag retains the distinction between L-DivertAbort and L-DivertLand,
 which the public ten-name calculus projects to the same `lDivert` constructor. The related-window
@@ -706,6 +709,238 @@ noncomputable def BackwardOrchestrationStepSimulation.replayTrace
           rw [headMatch.same_detailedRule, tailResult.detailedRules_eq]
       }
 
+/-! ## Trace-local assigned lifecycle evidence -/
+
+/-
+The global lifecycle simulator above is intentionally stronger than the relation alone can
+provide.  This indexed evidence type is the smallest useful local alternative: every source
+occurrence carries its actual matched step, so a caller can replay a concrete mixed trace without
+claiming that all related states admit the same lifecycle transition.
+-/
+
+inductive ForwardAssignedTraceEvidence
+    (values : ValueSetoids sig)
+    (dynamics : Dynamics sig catalog Ambient)
+    (inertia : InertiaPolicy dynamics) :
+    {sourceBefore sourceAfter shadowBefore shadowAfter : State catalog Ambient} →
+      GlobalCalculus.Trace dynamics inertia sourceBefore sourceAfter →
+      GlobalCalculus.Trace dynamics inertia shadowBefore shadowAfter →
+      Type (u + 1) where
+  | nil {source shadow : State catalog Ambient} :
+      ForwardAssignedTraceEvidence values dynamics inertia
+        (.nil source) (.nil shadow)
+  | cons
+      {sourceBefore sourceMiddle sourceAfter shadowBefore shadowAfter : State catalog Ambient}
+      {head : Step dynamics inertia sourceBefore sourceMiddle}
+      {tail : GlobalCalculus.Trace dynamics inertia sourceMiddle sourceAfter}
+      (headMatch : ForwardAssignedStepMatch values dynamics inertia
+        (shadowBefore := shadowBefore) head)
+      {shadowTail : GlobalCalculus.Trace dynamics inertia headMatch.shadowAfter shadowAfter}
+      (tailEvidence : ForwardAssignedTraceEvidence values dynamics inertia tail shadowTail) :
+      ForwardAssignedTraceEvidence values dynamics inertia (.cons head tail)
+        (.cons headMatch.matched shadowTail)
+
+inductive BackwardAssignedTraceEvidence
+    (values : ValueSetoids sig)
+    (dynamics : Dynamics sig catalog Ambient)
+    (inertia : InertiaPolicy dynamics) :
+    {sourceBefore sourceAfter shadowBefore shadowAfter : State catalog Ambient} →
+      GlobalCalculus.Trace dynamics inertia sourceBefore sourceAfter →
+      GlobalCalculus.Trace dynamics inertia shadowBefore shadowAfter →
+      Type (u + 1) where
+  | nil {source shadow : State catalog Ambient} :
+      BackwardAssignedTraceEvidence values dynamics inertia
+        (.nil source) (.nil shadow)
+  | cons
+      {sourceBefore sourceMiddle sourceAfter shadowBefore shadowAfter : State catalog Ambient}
+      {head : Step dynamics inertia sourceBefore sourceMiddle}
+      {tail : GlobalCalculus.Trace dynamics inertia sourceMiddle sourceAfter}
+      (headMatch : BackwardAssignedStepMatch values dynamics inertia
+        (shadowBefore := shadowBefore) head)
+      {shadowTail : GlobalCalculus.Trace dynamics inertia headMatch.shadowAfter shadowAfter}
+      (tailEvidence : BackwardAssignedTraceEvidence values dynamics inertia tail shadowTail) :
+      BackwardAssignedTraceEvidence values dynamics inertia (.cons head tail)
+        (.cons headMatch.matched shadowTail)
+
+namespace ForwardAssignedStepMatch
+
+def refl
+    (values : ValueSetoids sig)
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {sourceBefore sourceAfter : State catalog Ambient}
+    (source : Step dynamics inertia sourceBefore sourceAfter)
+    (sourceBefore_wellFormed : WellFormed sourceBefore) :
+    ForwardAssignedStepMatch values dynamics inertia (shadowBefore := sourceBefore) source where
+  shadowAfter := sourceAfter
+  matched := source
+  same_detailedRule := rfl
+  same_actor := rfl
+  sourceAfter_wellFormed := source.preservesWellFormed sourceBefore_wellFormed
+  shadowAfter_wellFormed := source.preservesWellFormed sourceBefore_wellFormed
+  successors_related := birthErasedRuleRelated_refl values sourceAfter
+  transportAssignment := id
+
+end ForwardAssignedStepMatch
+
+namespace BackwardAssignedStepMatch
+
+def refl
+    (values : ValueSetoids sig)
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {sourceBefore sourceAfter : State catalog Ambient}
+    (source : Step dynamics inertia sourceBefore sourceAfter)
+    (sourceBefore_wellFormed : WellFormed sourceBefore) :
+    BackwardAssignedStepMatch values dynamics inertia (shadowBefore := sourceBefore) source where
+  shadowAfter := sourceAfter
+  matched := source
+  same_detailedRule := rfl
+  same_actor := rfl
+  sourceAfter_wellFormed := source.preservesWellFormed sourceBefore_wellFormed
+  shadowAfter_wellFormed := source.preservesWellFormed sourceBefore_wellFormed
+  successors_related := birthErasedRuleRelated_refl values sourceAfter
+  transportAssignment := id
+
+end BackwardAssignedStepMatch
+
+namespace ForwardAssignedTraceEvidence
+
+def refl
+    (values : ValueSetoids sig)
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {sourceBefore sourceAfter : State catalog Ambient}
+    {source : GlobalCalculus.Trace dynamics inertia sourceBefore sourceAfter}
+    (sourceBefore_wellFormed : WellFormed sourceBefore)
+    (assignment : TraceProgramAssignment dynamics inertia source) :
+    ForwardAssignedTraceEvidence values dynamics inertia source source := by
+  cases source with
+  | nil state =>
+      cases assignment
+      exact .nil
+  | cons head tail =>
+      cases assignment with
+      | cons _ tailAssignment =>
+          exact .cons (ForwardAssignedStepMatch.refl values head sourceBefore_wellFormed)
+            (refl values (head.preservesWellFormed sourceBefore_wellFormed) tailAssignment)
+
+end ForwardAssignedTraceEvidence
+
+namespace BackwardAssignedTraceEvidence
+
+def refl
+    (values : ValueSetoids sig)
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {sourceBefore sourceAfter : State catalog Ambient}
+    {source : GlobalCalculus.Trace dynamics inertia sourceBefore sourceAfter}
+    (sourceBefore_wellFormed : WellFormed sourceBefore)
+    (assignment : TraceProgramAssignment dynamics inertia source) :
+    BackwardAssignedTraceEvidence values dynamics inertia source source := by
+  cases source with
+  | nil state =>
+      cases assignment
+      exact .nil
+  | cons head tail =>
+      cases assignment with
+      | cons _ tailAssignment =>
+          exact .cons (BackwardAssignedStepMatch.refl values head sourceBefore_wellFormed)
+            (refl values (head.preservesWellFormed sourceBefore_wellFormed) tailAssignment)
+
+end BackwardAssignedTraceEvidence
+
+noncomputable def ForwardAssignedTraceEvidence.replay
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {sourceBefore sourceAfter shadowBefore shadowAfter : State catalog Ambient}
+    {source : GlobalCalculus.Trace dynamics inertia sourceBefore sourceAfter}
+    {shadow : GlobalCalculus.Trace dynamics inertia shadowBefore shadowAfter}
+    (evidence : ForwardAssignedTraceEvidence values dynamics inertia source shadow)
+    (sourceBefore_wellFormed : WellFormed sourceBefore)
+    (shadowBefore_wellFormed : WellFormed shadowBefore)
+    (related : BirthErasedRuleRelated values sourceBefore shadowBefore)
+    (assignment : TraceProgramAssignment dynamics inertia source) :
+    ForwardPaperTraceReplay values source shadowBefore := by
+  induction evidence with
+  | @nil source shadow =>
+      exact {
+        result := {
+          shadowAfter := shadow
+          shadow := .nil shadow
+          certificate := .nil related
+        }
+        sourceAfter_wellFormed := sourceBefore_wellFormed
+        shadowAfter_wellFormed := shadowBefore_wellFormed
+        detailedRules_eq := rfl
+      }
+  | @cons sourceBefore sourceMiddle sourceAfter shadowBefore shadowAfter head tail headMatch
+      shadowTail tailEvidence ih =>
+      cases assignment with
+      | cons headAssignment tailAssignment =>
+          let tailReplay := ih headMatch.sourceAfter_wellFormed
+            headMatch.shadowAfter_wellFormed headMatch.successors_related tailAssignment
+          exact {
+            result := {
+              shadowAfter := tailReplay.result.shadowAfter
+              shadow := .cons headMatch.matched tailReplay.result.shadow
+              certificate := .keep related headMatch.toRetainedStep
+                tailReplay.result.certificate
+            }
+            sourceAfter_wellFormed := tailReplay.sourceAfter_wellFormed
+            shadowAfter_wellFormed := tailReplay.shadowAfter_wellFormed
+            detailedRules_eq := by
+              simp only [detailedRules]
+              rw [headMatch.same_detailedRule, tailReplay.detailedRules_eq]
+          }
+
+noncomputable def BackwardAssignedTraceEvidence.replay
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {sourceBefore sourceAfter shadowBefore shadowAfter : State catalog Ambient}
+    {source : GlobalCalculus.Trace dynamics inertia sourceBefore sourceAfter}
+    {shadow : GlobalCalculus.Trace dynamics inertia shadowBefore shadowAfter}
+    (evidence : BackwardAssignedTraceEvidence values dynamics inertia source shadow)
+    (sourceBefore_wellFormed : WellFormed sourceBefore)
+    (shadowBefore_wellFormed : WellFormed shadowBefore)
+    (related : BirthErasedRuleRelated values shadowBefore sourceBefore)
+    (assignment : TraceProgramAssignment dynamics inertia source) :
+    BackwardPaperTraceReplay values source shadowBefore := by
+  induction evidence with
+  | @nil source shadow =>
+      exact {
+        result := {
+          shadowAfter := shadow
+          shadow := .nil shadow
+          certificate := .nil related
+        }
+        sourceAfter_wellFormed := sourceBefore_wellFormed
+        shadowAfter_wellFormed := shadowBefore_wellFormed
+        detailedRules_eq := rfl
+      }
+  | @cons sourceBefore sourceMiddle sourceAfter shadowBefore shadowAfter head tail headMatch
+      shadowTail tailEvidence ih =>
+      cases assignment with
+      | cons headAssignment tailAssignment =>
+          let tailReplay := ih headMatch.sourceAfter_wellFormed
+            headMatch.shadowAfter_wellFormed headMatch.successors_related tailAssignment
+          exact {
+            result := {
+              shadowAfter := tailReplay.result.shadowAfter
+              shadow := .cons headMatch.matched tailReplay.result.shadow
+              certificate := .keep (Related := fun source shadow =>
+                  BirthErasedRuleRelated values shadow source) (MayDrop := fun _ => False)
+                related headMatch.toRetainedStep tailReplay.result.certificate
+            }
+            sourceAfter_wellFormed := tailReplay.sourceAfter_wellFormed
+            shadowAfter_wellFormed := tailReplay.shadowAfter_wellFormed
+            detailedRules_eq := by
+              simp only [detailedRules]
+              rw [headMatch.same_detailedRule, tailReplay.detailedRules_eq]
+          }
+
 /-! ## Related assigned adjacent swaps -/
 
 structure RelatedAssignedAdjacentSwap
@@ -1140,5 +1375,122 @@ theorem detailedRules_eq
   rfl
 
 end PositiveOrchestration
+
+/-! ## Positive trace-local lifecycle replay -/
+
+namespace PositiveLifecycle
+
+abbrev Signature := GlobalLifecycle.Example.ExampleSig
+abbrev ExampleState := GlobalLifecycle.Example.ExampleState
+abbrev dynamics := GlobalLifecycle.Example.dynamics
+abbrev inertia := GlobalLifecycle.Example.inertia
+abbrev values := Cordis.GlobalRuleInvariance.HeterogeneousExample.values
+
+theorem leave_not_activation :
+    ¬IsProgramActivationRule
+      (Step.lifecycle GlobalLifecycle.Example.leaveTransition).rule := by
+  intro impossible
+  cases impossible
+
+theorem unload_not_activation :
+    ¬IsProgramActivationRule
+      (Step.lifecycle GlobalLifecycle.Example.unloadTransition).rule := by
+  intro impossible
+  cases impossible
+
+def unloadingCalculusTrace :
+    GlobalCalculus.Trace dynamics inertia GlobalLifecycle.Example.retiredState
+      GlobalLifecycle.Example.unloadedState :=
+  .cons (.lifecycle GlobalLifecycle.Example.leaveTransition)
+    (.cons (.lifecycle GlobalLifecycle.Example.unloadTransition) (.nil _))
+
+def unloadingAssignment :
+    TraceProgramAssignment dynamics inertia unloadingCalculusTrace :=
+  .cons (StepProgramAssignment.ofNonactivationLifecycle
+    GlobalLifecycle.Example.leaveTransition leave_not_activation) <|
+    .cons (StepProgramAssignment.ofNonactivationLifecycle
+      GlobalLifecycle.Example.unloadTransition unload_not_activation) (.nil _)
+
+noncomputable def forwardEvidence :
+    ForwardAssignedTraceEvidence values dynamics inertia
+      unloadingCalculusTrace unloadingCalculusTrace :=
+  ForwardAssignedTraceEvidence.refl values
+    GlobalLifecycle.Example.retiredState_wellFormed unloadingAssignment
+
+noncomputable def forwardReplay :
+    ForwardPaperTraceReplay values unloadingCalculusTrace
+      GlobalLifecycle.Example.retiredState :=
+  forwardEvidence.replay GlobalLifecycle.Example.retiredState_wellFormed
+    GlobalLifecycle.Example.retiredState_wellFormed
+    (birthErasedRuleRelated_refl values GlobalLifecycle.Example.retiredState)
+    unloadingAssignment
+
+noncomputable def backwardEvidence :
+    BackwardAssignedTraceEvidence values dynamics inertia
+      unloadingCalculusTrace unloadingCalculusTrace :=
+  BackwardAssignedTraceEvidence.refl values
+    GlobalLifecycle.Example.retiredState_wellFormed unloadingAssignment
+
+noncomputable def backwardReplay :
+    BackwardPaperTraceReplay values unloadingCalculusTrace
+      GlobalLifecycle.Example.retiredState :=
+  backwardEvidence.replay GlobalLifecycle.Example.retiredState_wellFormed
+    GlobalLifecycle.Example.retiredState_wellFormed
+    (birthErasedRuleRelated_refl values GlobalLifecycle.Example.retiredState)
+    unloadingAssignment
+
+noncomputable def forwardReplayAssignment :
+    TraceProgramAssignment dynamics inertia forwardReplay.result.shadow :=
+  forwardReplay.result.certificate.transportAssignment unloadingAssignment
+
+noncomputable def backwardReplayAssignment :
+    TraceProgramAssignment dynamics inertia backwardReplay.result.shadow :=
+  backwardReplay.result.certificate.transportAssignment unloadingAssignment
+
+def executableDetailedRules : List DetailedRule :=
+  [.lifecycle .leave, .lifecycle .unload]
+
+def executableActorNames : List Signature.Name := [0, 0]
+
+theorem executableDetailedRules_eq_source :
+    executableDetailedRules = detailedRules unloadingCalculusTrace := by
+  rfl
+
+theorem executableActorNames_eq_source :
+    executableActorNames = unloadingCalculusTrace.actors.map
+      (fun actor => match actor with | .fiber name => name) := by
+  rfl
+
+theorem forwardReplay_endpoint :
+    forwardReplay.result.shadowAfter = GlobalLifecycle.Example.unloadedState := by
+  simp [forwardReplay, forwardEvidence, unloadingCalculusTrace, unloadingAssignment,
+    ForwardAssignedTraceEvidence.refl, ForwardAssignedTraceEvidence.replay]
+
+theorem backwardReplay_endpoint :
+    backwardReplay.result.shadowAfter = GlobalLifecycle.Example.unloadedState := by
+  simp [backwardReplay, backwardEvidence, unloadingCalculusTrace, unloadingAssignment,
+    BackwardAssignedTraceEvidence.refl, BackwardAssignedTraceEvidence.replay]
+
+theorem forwardReplay_detailedRules_eq_source :
+    detailedRules forwardReplay.result.shadow =
+      detailedRules unloadingCalculusTrace :=
+  forwardReplay.detailedRules_eq
+
+theorem backwardReplay_detailedRules_eq_source :
+    detailedRules backwardReplay.result.shadow =
+      detailedRules unloadingCalculusTrace :=
+  backwardReplay.detailedRules_eq
+
+theorem forwardReplay_final_related :
+    BirthErasedRuleRelated values GlobalLifecycle.Example.unloadedState
+      forwardReplay.result.shadowAfter := by
+  simpa [forwardReplay_endpoint] using forwardReplay.final_related
+
+theorem backwardReplay_final_related :
+    BirthErasedRuleRelated values backwardReplay.result.shadowAfter
+      GlobalLifecycle.Example.unloadedState := by
+  simpa [backwardReplay_endpoint] using backwardReplay.final_related
+
+end PositiveLifecycle
 
 end Cordis.GlobalPaperTraceSimulation

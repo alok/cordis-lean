@@ -5344,6 +5344,13 @@ private def testGlobalPaperTraceSimulation : IO Unit := do
     (GlobalPaperTraceSimulation.PositiveOrchestration.executableDetailedRules.map
       GlobalPaperTraceSimulation.DetailedRule.global)
     [.oRetire]
+  let _forwardLocal := GlobalPaperTraceSimulation.PositiveLifecycle.forwardReplay_final_related
+  let _backwardLocal := GlobalPaperTraceSimulation.PositiveLifecycle.backwardReplay_final_related
+  assertEqual "trace-local lifecycle replay exposes the leave/unload tags"
+    GlobalPaperTraceSimulation.PositiveLifecycle.executableDetailedRules
+    [.lifecycle .leave, .lifecycle .unload]
+  assertEqual "trace-local lifecycle replay preserves the two acting names"
+    GlobalPaperTraceSimulation.PositiveLifecycle.executableActorNames [0, 0]
 
 private def testGlobalPaperTraceDeletion : IO Unit := do
   assertEqual "assigned deletion replay retains the concrete detailed rule"

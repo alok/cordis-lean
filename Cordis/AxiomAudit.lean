@@ -1500,6 +1500,16 @@ namespace Cordis.GlobalPaperTraceSimulation
 #print axioms PositiveOrchestration.actors_eq
 #print axioms PositiveOrchestration.executableDetailedRules_eq_source
 #print axioms PositiveOrchestration.executableActorNames_eq_source
+#print axioms ForwardAssignedStepMatch.refl
+#print axioms BackwardAssignedStepMatch.refl
+#print axioms ForwardAssignedTraceEvidence.refl
+#print axioms BackwardAssignedTraceEvidence.refl
+#print axioms ForwardAssignedTraceEvidence.replay
+#print axioms BackwardAssignedTraceEvidence.replay
+#print axioms PositiveLifecycle.forwardReplay_endpoint
+#print axioms PositiveLifecycle.backwardReplay_endpoint
+#print axioms PositiveLifecycle.forwardReplay_final_related
+#print axioms PositiveLifecycle.backwardReplay_final_related
 end Cordis.GlobalPaperTraceSimulation
 namespace Cordis.GlobalPaperTraceDeletion
 #print axioms detailedRule_eq_of_orchestration
