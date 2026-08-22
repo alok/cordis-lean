@@ -259,6 +259,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekHarnessProcessSchemaPrefix`, retaining that exact registry-certified streaming
   plan through a line-oriented prefix result, including typed fuel/cancellation stops and the
   completed `[DONE]` branch that carries the dependent schema step and runner endpoint;
+- `Cordis.DeepSeekHarnessProcessSchemaPrefixConversation`, lifting that retained plan through the
+  caller-fueled prefix loop so each completed tool round, attempted-round exhaustion, and
+  cancellation keeps its own process provenance;
 - `Cordis.DeepSeekSchemaStreamPrefixConversation`, preserving the accepted line prefix and typed
   line-budget/cancellation stop while deferring registry dispatch until the completed `[DONE]`
   rich/session certificate;
@@ -1193,6 +1196,11 @@ attached to that prefix result. Fuel exhaustion and line cancellation retain pla
 evidence, while only a completed `[DONE]` prefix exposes the dependent schema step and runner
 endpoint. It remains a synchronous complete-line adapter rather than a byte-level or deployed
 cancellation theorem.
+
+`Cordis.DeepSeekHarnessProcessSchemaPrefixConversation` lifts this provenance through the
+caller-fueled loop. Every completed tool-round witness retains its own prepared plan and accepted
+prefix; an attempted round's plan remains available on typed round exhaustion or cancellation.
+The loop is still local, line-oriented, and caller-fueled, with no deployed Harness equivalence.
 
 `Cordis.DeepSeekSchemaStreamPrefixConversation` sits immediately below that complete-body loop. A
 process line policy can return a proof-carrying prefix at a caller-selected boundary; a finite read

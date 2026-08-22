@@ -2181,6 +2181,12 @@ completed schema-dispatched step. This makes the deferred-dispatch boundary insp
 feeding partial bodies to the registry executor; byte framing, blocked-read interruption,
 persistence, and deployed cancellation remain separate obligations.
 
+`Cordis.DeepSeekHarnessProcessSchemaPrefixConversation` is the loop-level continuation. Its
+existential round witnesses retain the prepared plan, source prefix, and dependent tool result for
+each completed round; its typed stop retains the attempted plan when the next prefix exhausts or
+is cancelled. Keep the recursion caller-fueled and line-oriented rather than treating it as a
+general live-stream scheduler.
+
 `Cordis.DeepSeekSchemaStreamPrefixConversation` is the line-oriented companion. Use its
 `LinePolicy` and read budget to expose the exact prefix and typed stop; do not feed a partial body
 to the rich/session validator or the registry executor. Only the completed `[DONE]` branch may

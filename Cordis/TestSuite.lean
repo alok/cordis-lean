@@ -12,6 +12,7 @@ import Cordis.DeepSeekHarnessProcess
 import Cordis.DeepSeekHarnessProcessOutcome
 import Cordis.DeepSeekHarnessProcessSchema
 import Cordis.DeepSeekHarnessProcessSchemaPrefix
+import Cordis.DeepSeekHarnessProcessSchemaPrefixConversation
 import Cordis.DeepSeekCurlIncremental
 import Cordis.DeepSeekCurlPrefix
 import Cordis.DeepSeekCurlPrefixSession
@@ -1852,6 +1853,62 @@ private def testDeepSeekHarnessProcessSchemaPrefix : IO Unit := do
                 reason "cancelled:prefix"
           | .completed _ => fail "prefix process schema cancellation unexpectedly completed"
           | .fuelExhausted _ => fail "prefix process schema cancellation exhausted"
+
+private def testDeepSeekHarnessProcessSchemaPrefixConversation : IO Unit := do
+  match DeepSeekToolSchema.weatherToolCertificate,
+      DeepSeekSchemaRegistry.Example.clockToolCertificate with
+  | .error error, _ =>
+      fail s!"prefix process schema conversation weather certificate failed: {reprStr error}"
+  | _, .error error =>
+      fail s!"prefix process schema conversation clock certificate failed: {reprStr error}"
+  | .ok weatherCertificate, .ok clockCertificate =>
+      match ← DeepSeekHarnessProcessSchemaPrefixConversation.Example.dualToolPrefixConversationProvenanceRun
+          weatherCertificate clockCertificate with
+      | .error error =>
+          fail s!"prefix process schema conversation fixture failed: {reprStr error}"
+      | .ok result =>
+          assertEqual "prefix process schema conversation records one tool round"
+            result.rounds.length 1
+          assertEqual "prefix process schema conversation preserves the final model"
+            result.finalModel 0
+          assertEqual "prefix process schema conversation advances the runner"
+            result.runner.session.nextSeq
+            (DeepSeekSchemaHarness.Example.counterRunner.session.nextSeq + 3)
+          match result.rounds with
+          | [⟨_, witness⟩] =>
+              assertEqual "prefix process schema conversation retains stream mode per round"
+                witness.prepared.plan.source.stream true
+              assertEqual "prefix process schema conversation retains the accepted prefix"
+                witness.observed.state.frames.length 3
+              assertEqual "prefix process schema conversation dispatches both tools"
+                witness.step.batch.executions.length 2
+          | _ => fail "prefix process schema conversation lost its round witness"
+          match result.stop with
+          | .fuelExhausted _ _ => pure ()
+          | .completed _ _ => fail "prefix process schema conversation unexpectedly completed"
+          | .roundFuelExhausted _ _ => fail "prefix process schema conversation round exhausted"
+          | .cancelled _ _ _ _ _ => fail "prefix process schema conversation cancelled"
+      match ← DeepSeekHarnessProcessSchemaPrefixConversation.Example.dualToolPrefixConversationCancelled
+          weatherCertificate clockCertificate with
+      | .error error =>
+          fail s!"prefix process schema conversation cancellation failed: {reprStr error}"
+      | .ok result =>
+          assertEqual "prefix process schema conversation cancellation has no tool rounds"
+            result.rounds.length 0
+          match result.stop with
+          | .cancelled prepared observed line reason _ =>
+              assertEqual "prefix process schema conversation cancellation keeps stream mode"
+                prepared.plan.source.stream true
+              assertEqual "prefix process schema conversation cancellation keeps the prefix"
+                observed.state.frames.length 1
+              assertEqual "prefix process schema conversation cancellation reports its line"
+                line 1
+              assertEqual "prefix process schema conversation cancellation reports its reason"
+                reason "cancelled:prefix"
+          | .completed _ _ => fail "prefix process schema conversation cancellation completed"
+          | .fuelExhausted _ _ => fail "prefix process schema conversation cancellation exhausted"
+          | .roundFuelExhausted _ _ =>
+              fail "prefix process schema conversation cancellation exhausted the round"
 
 private def testDeepSeekCurlIncremental : IO Unit := do
   let seen ← IO.mkRef ([] : List (Nat × String))
@@ -5363,6 +5420,7 @@ def run : IO Unit := do
   testDeepSeekHarnessProcessOutcome
   testDeepSeekHarnessProcessSchema
   testDeepSeekHarnessProcessSchemaPrefix
+  testDeepSeekHarnessProcessSchemaPrefixConversation
   testDeepSeekCurlIncremental
   testDeepSeekCurlPrefix
   testDeepSeekCurlPrefixSession

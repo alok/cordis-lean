@@ -675,6 +675,11 @@ prefix process result, retaining fuel-exhausted and cancelled stops as well as t
 `[DONE]` branch that carries the dependent schema step. Byte framing and deployed cancellation
 semantics remain unmapped.
 
+`Cordis.DeepSeekHarnessProcessSchemaPrefixConversation` carries the same plan through the
+caller-fueled prefix loop. Each completed tool-round witness retains its prepared plan and
+accepted prefix, while round exhaustion and cancellation retain the attempted plan. The loop is
+still a local line-oriented adapter; deployed interruption and persistence remain unmapped.
+
 `Cordis.DeepSeekSchemaStreamPrefixConversation` adds the line-oriented companion: it retains an
 accepted prefix and typed budget/cancellation stop, then unlocks the same dependent registry only
 after strict `[DONE]` rich/session validation. Byte framing, blocked-read interruption, and

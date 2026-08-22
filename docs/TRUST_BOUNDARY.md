@@ -673,6 +673,12 @@ completed `[DONE]` branch carries the dependent schema step and runner update. T
 synchronous complete-line evidence and does not prove byte framing, blocked-read interruption,
 persistence, or deployed cancellation semantics.
 
+`DeepSeekHarnessProcessSchemaPrefixConversation` lifts the same provenance through the finite
+conversation loop. Completed tool-round witnesses retain their individual prepared plans and
+accepted prefixes; the stop constructors retain the attempted plan for round exhaustion or
+cancellation. This is still a local caller-fueled line adapter, not deployed interruption or
+durability evidence.
+
 `DeepSeekSchemaStreamPrefixConversation` additionally retains a process prefix at a caller-selected
 line budget or cancellation boundary and refuses registry dispatch until the completed `[DONE]`
 rich/session certificate exists. This is line-oriented evidence only; byte framing, blocked-read
