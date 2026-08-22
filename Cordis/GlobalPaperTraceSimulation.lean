@@ -13,9 +13,11 @@ which the public ten-name calculus projects to the same `lDivert` constructor. T
 rewrite also replays the old suffix from a merely related endpoint; it never casts an indexed
 suffix across a relation proof.
 
-This is a finite all-keep layer in both forward and backward orientations. It does not prove
-lifecycle simulation from base dynamics, deletion, normalization, termination, confluence, Lemma
-72, or Theorem 73.
+This is a finite all-keep layer in both forward and backward orientations. It also exposes
+forward and backward orchestration-only simulators, so the proved O-rules can replay concrete
+traces without inventing a lifecycle premise. It does not prove lifecycle simulation from base
+dynamics, deletion,
+normalization, termination, confluence, Lemma 72, or Theorem 73.
 -/
 
 set_option autoImplicit false
@@ -96,6 +98,20 @@ theorem detailedRules_append
   | nil => rfl
   | cons head tail ih =>
       simp [Cordis.GlobalTraceFacts.Trace.append, detailedRules, ih]
+
+inductive AllOrchestrationTrace
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics} :
+    {before after : State catalog Ambient} →
+      GlobalCalculus.Trace dynamics inertia before after → Type (u + 1) where
+  | nil (state : State catalog Ambient) :
+      AllOrchestrationTrace (.nil state)
+  | cons
+      {before middle after : State catalog Ambient}
+      (step : OrchestrationStep before middle)
+      (tail : GlobalCalculus.Trace dynamics inertia middle after)
+      (tailAll : AllOrchestrationTrace tail) :
+      AllOrchestrationTrace (.cons (.orchestration step) tail)
 
 /-! ## Local assigned step matches -/
 
@@ -331,6 +347,46 @@ noncomputable def AssignedStepSimulation.ofLifecycle
   forward := matchStepForward lifecycle
   backward := matchStepBackward lifecycle
 
+/-! The orchestration-only bundle is useful when no lifecycle premise is available. -/
+
+structure ForwardOrchestrationStepSimulation
+    (values : ValueSetoids sig)
+    (dynamics : Dynamics sig catalog Ambient)
+    (inertia : InertiaPolicy dynamics) where
+  forward : forall {sourceBefore shadowBefore sourceAfter : State catalog Ambient},
+    WellFormed sourceBefore ->
+    WellFormed shadowBefore ->
+    BirthErasedRuleRelated values sourceBefore shadowBefore ->
+    (source : OrchestrationStep sourceBefore sourceAfter) ->
+      ForwardAssignedStepMatch values dynamics inertia (shadowBefore := shadowBefore)
+        (.orchestration source)
+
+noncomputable def ForwardOrchestrationStepSimulation.ofPaperRelation
+    (values : ValueSetoids sig)
+    (dynamics : Dynamics sig catalog Ambient)
+    (inertia : InertiaPolicy dynamics) :
+    ForwardOrchestrationStepSimulation values dynamics inertia where
+  forward := matchOrchestrationStepForward
+
+structure BackwardOrchestrationStepSimulation
+    (values : ValueSetoids sig)
+    (dynamics : Dynamics sig catalog Ambient)
+    (inertia : InertiaPolicy dynamics) where
+  backward : forall {shadowBefore sourceBefore sourceAfter : State catalog Ambient},
+    WellFormed shadowBefore ->
+    WellFormed sourceBefore ->
+    BirthErasedRuleRelated values shadowBefore sourceBefore ->
+    (source : OrchestrationStep sourceBefore sourceAfter) ->
+      BackwardAssignedStepMatch values dynamics inertia (shadowBefore := shadowBefore)
+        (.orchestration source)
+
+noncomputable def BackwardOrchestrationStepSimulation.ofPaperRelation
+    (values : ValueSetoids sig)
+    (dynamics : Dynamics sig catalog Ambient)
+    (inertia : InertiaPolicy dynamics) :
+    BackwardOrchestrationStepSimulation values dynamics inertia where
+  backward := matchOrchestrationStepBackward
+
 /-! ## Structural all-keep replay -/
 
 theorem replay_rules_eq
@@ -464,6 +520,47 @@ theorem actors_eq
 
 end ForwardPaperTraceReplay
 
+noncomputable def ForwardOrchestrationStepSimulation.replayTrace
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (simulation : ForwardOrchestrationStepSimulation values dynamics inertia)
+    {sourceBefore sourceAfter shadowBefore : State catalog Ambient}
+    (sourceWf : WellFormed sourceBefore) (shadowWf : WellFormed shadowBefore)
+    (related : BirthErasedRuleRelated values sourceBefore shadowBefore)
+    {source : GlobalCalculus.Trace dynamics inertia sourceBefore sourceAfter}
+    (sourceAll : AllOrchestrationTrace source) :
+    ForwardPaperTraceReplay values source shadowBefore := by
+  induction sourceAll generalizing shadowBefore with
+  | nil state =>
+      exact {
+        result := {
+          shadowAfter := shadowBefore
+          shadow := .nil shadowBefore
+          certificate := .nil related
+        }
+        sourceAfter_wellFormed := sourceWf
+        shadowAfter_wellFormed := shadowWf
+        detailedRules_eq := rfl
+      }
+  | cons head tail tailAll ih =>
+      let headMatch := simulation.forward sourceWf shadowWf related head
+      let tailResult := ih headMatch.sourceAfter_wellFormed
+        headMatch.shadowAfter_wellFormed headMatch.successors_related
+      exact {
+        result := {
+          shadowAfter := tailResult.result.shadowAfter
+          shadow := .cons headMatch.matched tailResult.result.shadow
+          certificate := .keep related headMatch.toRetainedStep
+            tailResult.result.certificate
+        }
+        sourceAfter_wellFormed := tailResult.sourceAfter_wellFormed
+        shadowAfter_wellFormed := tailResult.shadowAfter_wellFormed
+        detailedRules_eq := by
+          simp only [detailedRules]
+          rw [headMatch.same_detailedRule, tailResult.detailedRules_eq]
+      }
+
 /-! ## Backward assigned replay -/
 
 structure BackwardPaperTraceReplay
@@ -566,6 +663,48 @@ theorem actors_eq
   replay_actors_eq replay.result.certificate
 
 end BackwardPaperTraceReplay
+
+noncomputable def BackwardOrchestrationStepSimulation.replayTrace
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (simulation : BackwardOrchestrationStepSimulation values dynamics inertia)
+    {sourceBefore sourceAfter shadowBefore : State catalog Ambient}
+    (sourceWf : WellFormed sourceBefore) (shadowWf : WellFormed shadowBefore)
+    (related : BirthErasedRuleRelated values shadowBefore sourceBefore)
+    {source : GlobalCalculus.Trace dynamics inertia sourceBefore sourceAfter}
+    (sourceAll : AllOrchestrationTrace source) :
+    BackwardPaperTraceReplay values source shadowBefore := by
+  induction sourceAll generalizing shadowBefore with
+  | nil state =>
+      exact {
+        result := {
+          shadowAfter := shadowBefore
+          shadow := .nil shadowBefore
+          certificate := .nil related
+        }
+        sourceAfter_wellFormed := sourceWf
+        shadowAfter_wellFormed := shadowWf
+        detailedRules_eq := rfl
+      }
+  | cons head tail tailAll ih =>
+      let headMatch := simulation.backward shadowWf sourceWf related head
+      let tailResult := ih headMatch.sourceAfter_wellFormed
+        headMatch.shadowAfter_wellFormed headMatch.successors_related
+      exact {
+        result := {
+          shadowAfter := tailResult.result.shadowAfter
+          shadow := .cons headMatch.matched tailResult.result.shadow
+          certificate := .keep (Related := fun source shadow =>
+              BirthErasedRuleRelated values shadow source) (MayDrop := fun _ => False)
+            related headMatch.toRetainedStep tailResult.result.certificate
+        }
+        sourceAfter_wellFormed := tailResult.sourceAfter_wellFormed
+        shadowAfter_wellFormed := tailResult.shadowAfter_wellFormed
+        detailedRules_eq := by
+          simp only [detailedRules]
+          rw [headMatch.same_detailedRule, tailResult.detailedRules_eq]
+      }
 
 /-! ## Related assigned adjacent swaps -/
 
@@ -826,6 +965,98 @@ def sourceTrace
       (retireFiber normal 1 normalOneFiber) :=
   .cons (.orchestration retireOne) (.nil _)
 
+def sourceAll
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    AllOrchestrationTrace (sourceTrace dynamics inertia) :=
+  .cons retireOne (.nil _) (.nil _)
+
+noncomputable def genericReplay
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    ForwardPaperTraceReplay exactValues (sourceTrace dynamics inertia) swapped :=
+  (ForwardOrchestrationStepSimulation.ofPaperRelation exactValues dynamics inertia).replayTrace
+    normal_wellFormed swapped_wellFormed birth_erased_related (sourceAll dynamics inertia)
+
+theorem genericReplay_final_related
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    BirthErasedRuleRelated exactValues
+      (retireFiber normal 1 normalOneFiber) (genericReplay dynamics inertia).result.shadowAfter :=
+  (genericReplay dynamics inertia).result.certificate.final_related
+
+theorem genericReplay_detailedRules_eq_source
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    detailedRules (genericReplay dynamics inertia).result.shadow =
+      detailedRules (sourceTrace dynamics inertia) :=
+  (genericReplay dynamics inertia).detailedRules_eq
+
+theorem genericReplay_rules_eq_source
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    (genericReplay dynamics inertia).result.shadow.rules =
+      (sourceTrace dynamics inertia).rules :=
+  replay_rules_eq (genericReplay dynamics inertia).result.certificate
+
+theorem genericReplay_actors_eq_source
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    (genericReplay dynamics inertia).result.shadow.actors =
+      (sourceTrace dynamics inertia).actors :=
+  replay_actors_eq (genericReplay dynamics inertia).result.certificate
+
+def swappedSourceTrace
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    GlobalCalculus.Trace dynamics inertia swapped
+      (retireFiber swapped 1 swappedOneFiber) :=
+  .cons (.orchestration retireOneSwapped) (.nil _)
+
+def swappedSourceAll
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    AllOrchestrationTrace (swappedSourceTrace dynamics inertia) :=
+  .cons retireOneSwapped (.nil _) (.nil _)
+
+noncomputable def genericBackwardReplay
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    BackwardPaperTraceReplay exactValues
+      (swappedSourceTrace dynamics inertia) normal :=
+  (BackwardOrchestrationStepSimulation.ofPaperRelation exactValues dynamics inertia).replayTrace
+    swapped_wellFormed normal_wellFormed birth_erased_related
+      (swappedSourceAll dynamics inertia)
+
+theorem genericBackwardReplay_final_related
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    BirthErasedRuleRelated exactValues
+      (genericBackwardReplay dynamics inertia).result.shadowAfter
+      (retireFiber swapped 1 swappedOneFiber) :=
+  (genericBackwardReplay dynamics inertia).result.certificate.final_related
+
+theorem genericBackwardReplay_detailedRules_eq_source
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    detailedRules (genericBackwardReplay dynamics inertia).result.shadow =
+      detailedRules (swappedSourceTrace dynamics inertia) :=
+  (genericBackwardReplay dynamics inertia).detailedRules_eq
+
+def swappedSourceAssignment
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    TraceProgramAssignment dynamics inertia (swappedSourceTrace dynamics inertia) :=
+  .cons (StepProgramAssignment.ofOrchestration retireOneSwapped) (.nil _)
+
+noncomputable def genericBackwardReplayAssignment
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    TraceProgramAssignment dynamics inertia
+      (genericBackwardReplay dynamics inertia).result.shadow :=
+  (genericBackwardReplay dynamics inertia).result.certificate.transportAssignment
+    (swappedSourceAssignment dynamics inertia)
+
 /-! A closed, executable tag projection for the concrete positive source occurrence. -/
 
 def executableDetailedRules : List DetailedRule :=
@@ -864,6 +1095,13 @@ def sourceAssignment
     (inertia : InertiaPolicy dynamics) :
     TraceProgramAssignment dynamics inertia (sourceTrace dynamics inertia) :=
   .cons (StepProgramAssignment.ofOrchestration retireOne) (.nil _)
+
+noncomputable def genericReplayAssignment
+    (dynamics : Dynamics Signature exampleCatalog Unit)
+    (inertia : InertiaPolicy dynamics) :
+    TraceProgramAssignment dynamics inertia (genericReplay dynamics inertia).result.shadow :=
+  (genericReplay dynamics inertia).result.certificate.transportAssignment
+    (sourceAssignment dynamics inertia)
 
 noncomputable def shadowAssignment
     (dynamics : Dynamics Signature exampleCatalog Unit)

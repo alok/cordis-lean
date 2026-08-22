@@ -23,9 +23,9 @@ Dependencies:
 
 Implementation checkpoint: `Cordis/GlobalPaperTraceSimulation.lean` now provides
 the detailed-rule tags, coherent forward/backward assigned-step matches,
-all-keep replay, related-endpoint suffix replay, assignment transport, the
-positive orchestration witness, and the clock-sensitive lifecycle obstruction
-described below. The lifecycle bridge remains an explicit caller-supplied
+all-keep replay, forward/backward orchestration-only replay constructors, related-endpoint suffix replay,
+assignment transport, the positive orchestration witness, and the clock-sensitive lifecycle
+obstruction described below. The unified lifecycle bridge remains an explicit caller-supplied
 `BirthErasedLifecycleAssignedSimulation`; no stronger claim is made here.
 
 ## 1. Goal
@@ -677,6 +677,10 @@ For the current calculus, the local simulator is constructible from:
 
 - the proved birth-erased orchestration simulation; and
 - an explicit `BirthErasedLifecycleAssignedSimulation` supplied by the caller.
+
+For an orchestration-only source trace, the separate forward and backward
+`*OrchestrationStepSimulation` constructors are constructible from the proved orchestration
+simulation alone and replay an `AllOrchestrationTrace` without requiring the lifecycle premise.
 
 The module does not prove:
 

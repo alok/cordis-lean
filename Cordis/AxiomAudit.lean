@@ -1465,6 +1465,10 @@ namespace Cordis.GlobalPaperTraceSimulation
 #print axioms ForwardAssignedStepSimulation.ofLifecycle
 #print axioms AssignedStepSimulation.ofLifecycle
 #print axioms ForwardAssignedStepSimulation.replayTrace
+#print axioms ForwardOrchestrationStepSimulation.ofPaperRelation
+#print axioms ForwardOrchestrationStepSimulation.replayTrace
+#print axioms BackwardOrchestrationStepSimulation.ofPaperRelation
+#print axioms BackwardOrchestrationStepSimulation.replayTrace
 #print axioms ForwardPaperTraceReplay.final_related
 #print axioms ForwardPaperTraceReplay.transportAssignment
 #print axioms ForwardPaperTraceReplay.rules_eq
@@ -1484,6 +1488,14 @@ namespace Cordis.GlobalPaperTraceSimulation
 #print axioms ForwardAssignedStepSimulation.rewriteAdjacent
 #print axioms ClockGap.no_forward_step_simulation
 #print axioms PositiveOrchestration.final_related
+#print axioms PositiveOrchestration.genericReplay_final_related
+#print axioms PositiveOrchestration.genericReplay_detailedRules_eq_source
+#print axioms PositiveOrchestration.genericReplay_rules_eq_source
+#print axioms PositiveOrchestration.genericReplay_actors_eq_source
+#print axioms PositiveOrchestration.genericReplayAssignment
+#print axioms PositiveOrchestration.genericBackwardReplay_final_related
+#print axioms PositiveOrchestration.genericBackwardReplay_detailedRules_eq_source
+#print axioms PositiveOrchestration.genericBackwardReplayAssignment
 #print axioms PositiveOrchestration.rules_eq
 #print axioms PositiveOrchestration.actors_eq
 #print axioms PositiveOrchestration.executableDetailedRules_eq_source
