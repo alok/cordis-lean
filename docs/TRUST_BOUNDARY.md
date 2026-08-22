@@ -511,9 +511,12 @@ to make restoration succeed.
 `DeepSeekHarnessEventIgnorableProjection` is intentionally weaker and more precise. It keeps the
 lossless archive, assigns each physical row a positional keep/drop decision, drops only opaque rows
 with the explicit `ignorable: true` marker, and retains supported wire certificates and source
-positions. Required opaque rows return a typed error. This does not produce a local validated
-session: a dropped physical row creates a source-sequence gap, so renumbering and semantic replay
-must be separately certified.
+positions. Required opaque rows return a typed error. `DeepSeekHarnessEventIgnorableNormalization`
+continues the supported subset: it renumbers retained rows contiguously, remaps supported
+`sourceEventSeqs`/`surfaceOp` references through the physical-to-local map, and validates the
+rewritten JSON into a local session. Duplicate physical sequences, missing references, malformed
+rewrites, and semantic failures return typed errors; opaque payload semantics and deployed Harness
+equivalence remain external.
 
 `DeepSeekHarnessEventText` is the corresponding UTF-8/JSONL ingress. `restoreTextRunner` retains
 the parsed source and both archive/semantic certificates, while `restoreBytesRunner` first retains

@@ -183,6 +183,7 @@ import Cordis.SessionOpaqueMetadata
 import Cordis.SessionArchive
 import Cordis.SessionEventArchive
 import Cordis.DeepSeekHarnessEventIgnorableProjection
+import Cordis.DeepSeekHarnessEventIgnorableNormalization
 import Cordis.SessionPayloadArchive
 import Cordis.SessionValidation
 import Cordis.SessionTheoremBridge
@@ -582,6 +583,9 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessEventIgnorableProjection.SupportedProjection.occurrence_decode
 #print axioms Cordis.DeepSeekHarnessEventIgnorableProjection.ignorable_fixture_summary
 #print axioms Cordis.DeepSeekHarnessEventIgnorableProjection.required_fixture_rejected
+#print axioms Cordis.DeepSeekHarnessEventIgnorableNormalization.normalize
+#print axioms Cordis.DeepSeekHarnessEventIgnorableNormalization.ignorable_middle_summary
+#print axioms Cordis.DeepSeekHarnessEventIgnorableNormalization.ignorable_middle_source_positions
 #print axioms Cordis.SessionPayloadArchive.PayloadLog.raw_exact
 #print axioms Cordis.SessionPayloadArchive.PayloadLog.length_exact
 #print axioms Cordis.SessionPayloadArchive.enrichEvent_raw

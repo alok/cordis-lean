@@ -299,8 +299,12 @@ Current machine-checked evidence includes:
   tool-message fixture rebuilds a typed request;
 - `Cordis.DeepSeekHarnessEventIgnorableProjection`, recording positional keep/drop decisions for
   the explicit `ignorable: true` envelope marker, retaining supported wire/raw certificates and
-  rejecting required opaque rows without pretending that physical sequence gaps are already
-  normalized for local session replay;
+  rejecting required opaque rows;
+- `Cordis.DeepSeekHarnessEventIgnorableNormalization`, continuing that projection for the
+  supported subset by renumbering retained rows contiguously, remapping supported
+  `sourceEventSeqs`/`surfaceOp` references, and validating the normalized local session; duplicate
+  physical sequences, missing references, malformed rewrites, required opaque rows, and semantic
+  failures reject, while opaque payload semantics and deployed Harness equivalence remain open;
 - `Cordis.DeepSeekHarnessEventText`, lifting that certificate-gated event attachment to exact
   UTF-8/JSONL text and `ByteArray` ingress while retaining source/decoded text and rejecting
   invalid encoding or opaque/extension events;
@@ -924,7 +928,7 @@ relation whose union cycles, so the module requires `SupportOrder` directly. It 
 combined-edge well-founded recursion, proves uniqueness, and derives support-equals-active at
 quiescence under state-local provision totality, failure exclusion, and active-parent closure.
 
-The bounded algebra/context/global layer now has fifty-seven explicit pieces:
+The bounded algebra/context/global layer now has fifty-eight explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -1278,8 +1282,13 @@ The bounded algebra/context/global layer now has fifty-seven explicit pieces:
 57. `Cordis.DeepSeekHarnessEventIgnorableProjection` adds the source-authorized archive exception
     for explicit `ignorable: true` rows. Its indexed ledger drops only opaque ignorable entries,
     retains supported wire/raw certificates and source positions, and rejects required opaque
-    rows. It stops before local replay: physical sequence renumbering and semantic normalization
-    remain separate obligations.
+    rows.
+58. `Cordis.DeepSeekHarnessEventIgnorableNormalization` continues the supported subset: it maps
+    each retained physical sequence to a contiguous local sequence, rewrites supported source-event
+    and surface-operation references through that map, and validates the rewritten JSON log into an
+    exact local session endpoint. Duplicate physical sequences, missing references, malformed
+    rewrites, and semantic failures reject; this remains a bounded source-honest slice rather than
+    complete opaque-payload or deployed-Harness equivalence.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -1384,8 +1393,11 @@ events are rejection cases rather than silently ignored records.
 `Cordis.DeepSeekHarnessEventIgnorableProjection` is the intentionally smaller source-authorized
 exception. It retains the full archive and a positional keep/drop ledger, drops only opaque rows
 marked `ignorable: true`, retains supported wire/raw certificates and positions, and rejects a
-required opaque vendor row. It stops before local replay: dropping a physical row leaves a sequence
-gap, so renumbering and semantic normalization remain separate obligations.
+required opaque vendor row. `Cordis.DeepSeekHarnessEventIgnorableNormalization` then handles the
+supported subset: it rewrites retained sequence numbers and supported source references before
+calling `SessionRefinement.validateJsonLog`, with typed rejection for duplicate physical sequences,
+missing references, malformed rewrites, and semantic failures. Opaque payload semantics and
+deployed-Harness equivalence remain external.
 
 `Cordis.DeepSeekHarnessEventText` is the direct text/byte ingress for this seam. Its text result
 retains the parsed source, archive lines, validated session, and restored runner; its byte result

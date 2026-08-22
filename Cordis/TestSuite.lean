@@ -61,6 +61,7 @@ import Cordis.DeepSeekSchemaStreamErrors
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessEventIgnorableProjection
+import Cordis.DeepSeekHarnessEventIgnorableNormalization
 import Cordis.DeepSeekHarnessExtensionArchive
 import Cordis.DeepSeekHarnessExtensionRequest
 import Cordis.DeepSeekHarnessExtensionPersistence
@@ -4674,6 +4675,29 @@ private def testDeepSeekHarnessEventIgnorableProjection : IO Unit := do
         DeepSeekHarnessEventIgnorableProjection.SupportedProjection.occurrence_decode projection
       pure ()
 
+private def testDeepSeekHarnessEventIgnorableNormalization : IO Unit := do
+  assertEqual "ignorable normalization renumbers retained rows and validates the local session"
+    DeepSeekHarnessEventIgnorableNormalization.ignorableMiddleSummary
+    (some (7, 6, 6, 0))
+  assertEqual "ignorable normalization retains source positions in archive order"
+    (match DeepSeekHarnessEventIgnorableNormalization.ignorableMiddleNormalized with
+    | .error _ => false
+    | .ok normalized =>
+        normalized.occurrences.map
+            DeepSeekHarnessEventIgnorableNormalization.NormalizedOccurrence.sourcePosition =
+          [0, 2, 3, 4, 5, 6])
+    true
+  match DeepSeekHarnessEventIgnorableNormalization.ignorableMiddleNormalized with
+  | .error error => fail s!"ignorable normalization certificate failed: {reprStr error}"
+  | .ok normalized =>
+      assertEqual "ignorable normalization produces six retained validated occurrences"
+        normalized.occurrences.length 6
+      assertEqual "ignorable normalization produces a contiguous local session endpoint"
+        normalized.validated.final.session.nextSeq 6
+      let _rawCertificate := normalized.normalizedInput_eq
+      let _validationCertificate := normalized.validated_eq
+      pure ()
+
 private def testDeepSeekHarnessEventText : IO Unit := do
   match DeepSeekHarnessEventText.toolTextRestored with
   | .error error => fail s!"current event text restoration failed: {reprStr error}"
@@ -7221,6 +7245,7 @@ def run : IO Unit := do
   testDeepSeekSchemaStreamErrors
   testDeepSeekHarnessEventArchive
   testDeepSeekHarnessEventIgnorableProjection
+  testDeepSeekHarnessEventIgnorableNormalization
   testDeepSeekHarnessEventText
   testDeepSeekHarnessEventPrefix
   testDeepSeekHarnessEventProcessPrefix

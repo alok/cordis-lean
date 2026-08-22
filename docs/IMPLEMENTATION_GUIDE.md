@@ -1916,10 +1916,13 @@ not silently omitted, and filesystem durability remains outside.
 `Cordis.DeepSeekHarnessEventIgnorableProjection` records the adjacent source-authorized exception
 without weakening that fail-closed runner boundary. Its positional ledger drops only opaque rows
 whose envelope explicitly carries `ignorable: true`, retains supported wire certificates and raw
-positions, and returns a typed required-opaque error otherwise. The output is an archive projection,
-not a local `ValidatedJsonLog`: physical sequence numbers still need an explicit renumbering and
-semantic-normalization certificate before any session replay claim is made. The nine-row fixture
-has eight retained supported events and one dropped telemetry row; a required vendor row rejects.
+positions, and returns a typed required-opaque error otherwise. The adjacent
+`Cordis.DeepSeekHarnessEventIgnorableNormalization` module continues only the supported subset: it
+renumbers retained rows contiguously, remaps supported `sourceEventSeqs`/`surfaceOp` references,
+and validates the rewritten JSON as a local session. Duplicate physical sequences, missing
+references, malformed rewrites, and semantic failures reject. The nine-row archive fixture and its
+middle-row normalization witness are executable; opaque payload semantics and deployed Harness
+equivalence remain external.
 `Cordis.SessionPayloadArchive` is the next typed raw-payload boundary. It classifies the five
 current content-block tags plus unknown block extensions, preserves exact content arrays and
 message/chunk source objects, and retains assistant usage/tool-result `error`/`meta` as raw JSON.
