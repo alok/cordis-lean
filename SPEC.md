@@ -203,6 +203,13 @@ automatic/canonical normalization and maximal-lifecycle termination remain open.
 `RelatedAdjacentRewrite` certificates, retaining assignments and proving terminal relation plus
 rule/actor permutations; it does not supply a rewrite strategy, canonical form, or confluence.
 
+`GlobalPaperTraceNormalizer` is the terminating conditional layer above that certificate
+composition. Its `Authority` explicitly supplies normal-form decidability, a source-indexed
+rewrite witness, and a strictly decreasing natural measure. `normalize_some` therefore produces
+a finite dependent rewrite chain, and the `Result` theorems preserve the endpoint relation and
+rule/actor permutations. This is not an inferred rewrite strategy or a proof of canonical form,
+global termination from CORDIS dynamics, Lemma 72, or confluence.
+
 The paper-relation layer then erases the allocator artifacts that the reference refinement added
 but the paper does not observe. Its full-domain relation compares active values plus exact
 component/parent/retirement/phase control while omitting `nextBirth` and per-fiber birth; the

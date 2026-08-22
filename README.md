@@ -1022,6 +1022,12 @@ ledger `[O-Insert, L-Begin, O-Insert]` with actors `[0, 0, 1]`. This is a proof-
 rewrite-chain surface, not an automatic normalizer; strategy, canonical form, termination,
 Lemma 72, and confluence remain outside.
 
+`Cordis.GlobalPaperTraceNormalizer` adds a terminating, dependent normalizer under an explicit
+authority: the caller supplies normal-form decidability, a rewrite witness for every non-normal
+package, and a strictly decreasing natural measure. The resulting finite chain preserves the
+birth-erased endpoint relation and rule/actor permutations; it does not derive a strategy,
+canonical form, or the paper's global normalization/confluence theorems.
+
 `Cordis.GlobalRelations` supplies the two deliberately incomparable global observation candidates
 that the temporal layer had left abstract. Rule observation keeps the derived dependent context up
 to key-indexed value setoids and keeps registry domain/control exactly; effect observation keeps
@@ -1387,6 +1393,7 @@ placeholders.
 | `Cordis.GlobalPaperTraceSimulation`                     | Birth-erased finite forward/backward trace replay with assigned-step transport, endpoint well-formedness, exact rule/actor projections, forward/backward orchestration-only constructors, and occurrence-specific lifecycle evidence exercised by a leave/unload witness; global lifecycle matching remains explicit.                                                                               |
 | `Cordis.GlobalPaperTraceDeletion`                       | Relation-indexed positional keep/drop replay with assigned shadow traces and a safe orchestration deletion example.                                                                                                                                                                                                                                                                                 |
 | `Cordis.GlobalPaperTraceNormalization`                  | Finite connected composition of supplied adjacent-rewrite certificates, retaining assignments and proving terminal relation plus rule/actor permutations; includes one-link and connected two-link activation/orchestration witnesses with executable terminal ledgers; no automatic normal form or confluence.                                                                                     |
+| `Cordis.GlobalPaperTraceNormalizer`                     | A terminating dependent normalizer driven by an explicit normal-form predicate, rewrite authority, and decreasing Nat measure; it proves finite-chain endpoint relation plus rule/actor permutations while keeping strategy, canonical form, and global confluence as external obligations.                                                                                                         |
 | `Cordis.GlobalRelations`                                | Key-indexed rule observation, ambient/table effect observation, setoid and temporal-undo bridges, and incomparability examples.                                                                                                                                                                                                                                                                     |
 | `Cordis.GlobalRuleInvariance`                           | Dependent fiber-control transport, exact bidirectional orchestration matching, heterogeneous related tables, and an inertia countermodel.                                                                                                                                                                                                                                                           |
 | `Cordis.GlobalRuleObservations`                         | Provider/target/reliance/quiescence transport, dependent phase guards, active-table relations, and explicit relation-separation examples.                                                                                                                                                                                                                                                           |

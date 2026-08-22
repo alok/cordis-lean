@@ -108,6 +108,7 @@ import Cordis.GlobalPaperRelation
 import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
+import Cordis.GlobalPaperTraceNormalizer
 import Cordis.GlobalProgress
 import Cordis.GlobalProgressTermination
 import Cordis.GlobalProgressRun
@@ -1783,6 +1784,14 @@ namespace Cordis.GlobalPaperTraceNormalization
 #print axioms Example.ActivationOrchestration.executableTwoLinkTerminalRules_eq
 #print axioms Example.ActivationOrchestration.executableTwoLinkTerminalActors_eq
 end Cordis.GlobalPaperTraceNormalization
+namespace Cordis.GlobalPaperTraceNormalizer
+#print axioms normalizeFuel_some_of_measure_le
+#print axioms normalize_some
+#print axioms Result.final_related
+#print axioms Result.rules_perm
+#print axioms Result.actors_perm
+#print axioms Example.empty_normalizes
+end Cordis.GlobalPaperTraceNormalizer
 #print axioms Cordis.GlobalRelations.contextRelated_domain
 #print axioms Cordis.GlobalRelations.ruleSetoid
 #print axioms Cordis.GlobalRelations.ruleRelated_registry_domain

@@ -108,6 +108,7 @@ import Cordis.GlobalPaperRelation
 import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
+import Cordis.GlobalPaperTraceNormalizer
 import Cordis.GlobalProgress
 import Cordis.GlobalProgressTermination
 import Cordis.GlobalProgressRun
@@ -6193,6 +6194,12 @@ private def testGlobalPaperTraceNormalization : IO Unit := do
     GlobalPaperTraceNormalization.Example.ActivationOrchestration.executableTwoLinkTerminalActors
     [0, 0, 1]
 
+private def testGlobalPaperTraceNormalizer : IO Unit := do
+  let _normalizes := Cordis.GlobalPaperTraceNormalizer.Example.empty_normalizes
+  let _normalForm := Cordis.GlobalPaperTraceNormalizer.Example.empty_normal_form
+  assertEqual "conditional trace normalizer consumes the executable zero-fuel authority"
+    Cordis.GlobalPaperTraceNormalizer.Example.executableFuel 0
+
 private def testGlobalProgress : IO Unit := do
   assertEqual "conditional progress constructs the expected concrete Begin rule"
     GlobalProgress.BeginExample.executableRule .begin
@@ -6666,6 +6673,7 @@ def run : IO Unit := do
   testGlobalPaperTraceSimulation
   testGlobalPaperTraceDeletion
   testGlobalPaperTraceNormalization
+  testGlobalPaperTraceNormalizer
   testGlobalProgress
   testGlobalProgressTermination
   testGlobalProgressRun

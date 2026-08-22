@@ -476,6 +476,9 @@ Current machine-checked evidence includes:
 - `Cordis.GlobalPaperTraceNormalization`, packaging a finite certificate-driven chain of
   birth-erased adjacent trace rewrites with transported assignments and final rule/actor
   permutation facts, while leaving automatic normal-form search and confluence external;
+- `Cordis.GlobalPaperTraceNormalizer`, adding an authority-driven terminating chain constructor
+  from explicit normal-form, rewrite, and decreasing-measure certificates, while leaving strategy,
+  canonical form, global dynamic termination, and confluence external;
 - `Cordis.GlobalProgress`, distinguishing configured-oracle rejection from the permissive raw
   relation, kernel-refuting progress under exhausted names, and proving conditional state-local
   no-deadlock from finite precedence and exact execution/recovery authorities;
@@ -903,7 +906,7 @@ relation whose union cycles, so the module requires `SupportOrder` directly. It 
 combined-edge well-founded recursion, proves uniqueness, and derives support-equals-active at
 quiescence under state-local provision totality, failure exclusion, and active-parent closure.
 
-The bounded algebra/context/global layer now has forty-one explicit pieces:
+The bounded algebra/context/global layer now has forty-two explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -1163,6 +1166,13 @@ The bounded algebra/context/global layer now has forty-one explicit pieces:
     complete intrinsic trace. The runner's endpoint, length, stop, and initial-potential
     quiescence proofs are retained. Fixed programs, roots, oracles, reachability, and the full
     paper Definition 60/66 provenance remain supplied or unproved.
+42. `Cordis.GlobalPaperTraceNormalizer` adds a terminating dependent normalizer above the
+    supplied rewrite-chain layer. An `Authority` carries normal-form decidability, a source-indexed
+    rewrite witness, and a strictly decreasing natural measure; `normalize_some` constructs a
+    finite chain whose endpoint is birth-erased related to the source and whose rule/actor lists
+    are permutations. This is conditional termination for the supplied authority, not an inferred
+    strategy, canonical-form theorem, global dynamic termination, Lemma 72, Theorem 73, or
+    confluence.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
