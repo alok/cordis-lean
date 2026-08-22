@@ -2033,6 +2033,12 @@ child and returns the accepted prefix state, raw chunks, pending fragment, stder
 and timeout line as one typed result. The blocked, delayed-prefix, and fast-completion process
 fixtures are executable. Keep arbitrary descendant cleanup, fairness, backpressure, authenticity,
 durability, reconnects, and deployed semantics as separate obligations.
+`Cordis.DeepSeekCurlBytePrefixProviderAssemblyTool` is the provider-complete continuation above
+that timer boundary. It maps the accepted byte-prefix body into the indexed provider assembler,
+admits dependent execution and session append only for a completed `[DONE]` stream, and preserves
+fuel, cancellation, and timeout as pending provider states. The local loopback companion
+`Cordis.DeepSeekHarnessLocalSseBytePrefixProviderAssemblyTool` exercises the same path through
+typed request validation and real curl byte chunks.
 `Cordis.DeepSeekStreamHarnessBytePrefixTimeout` is the continuation layer above the timed reader.
 Only a completed byte prefix enters finish, assistant/tool append, and session indexing; the
 fuel-bounded multi-round loop carries the resulting runner/model endpoints. Timeout, fuel, and

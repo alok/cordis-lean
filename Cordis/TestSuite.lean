@@ -63,6 +63,7 @@ import Cordis.DeepSeekHarnessLocalSseTimeout
 import Cordis.DeepSeekHarnessLocalSseMultiTool
 import Cordis.DeepSeekHarnessLocalSseMultiToolPrefix
 import Cordis.DeepSeekHarnessLocalSseProviderAssemblyTool
+import Cordis.DeepSeekHarnessLocalSseBytePrefixProviderAssemblyTool
 import Cordis.DeepSeekHarnessLocalSseMultiToolBytePrefix
 import Cordis.DeepSeekHarnessExtensions
 import Cordis.DeepSeekToolSchema
@@ -3788,6 +3789,21 @@ private def testDeepSeekHarnessLocalSseProviderAssemblyTool : IO Unit := do
         result.round.runner.session.nextSeq 2
       assertEqual "local SSE provider assembly retains streaming mode"
         result.prepared.plan.source.stream true
+
+private def testDeepSeekHarnessLocalSseBytePrefixProviderAssemblyTool : IO Unit := do
+  match ← DeepSeekHarnessLocalSseBytePrefixProviderAssemblyTool.Example.run with
+  | .error _ => fail "local SSE byte-prefix provider assembly round failed"
+  | .ok result =>
+      assertEqual "local SSE byte-prefix provider assembly summary"
+        (DeepSeekHarnessLocalSseBytePrefixProviderAssemblyTool.Example.summary result) true
+      assertEqual "local SSE byte-prefix provider assembly validates one request"
+        result.requests 1
+      assertEqual "local SSE byte-prefix provider assembly validates stream request shape"
+        result.validRequests 1
+      assertEqual "local SSE byte-prefix provider assembly retains six raw chunks"
+        result.round.provider.raw.length 6
+      assertEqual "local SSE byte-prefix provider assembly reaches model five"
+        result.round.execution.after 5
 
 private def testDeepSeekHarnessLocalSseMultiToolPrefix : IO Unit := do
   match ← DeepSeekHarnessLocalSseMultiToolPrefix.Example.completeRun with
@@ -8024,6 +8040,7 @@ def run : IO Unit := do
   testDeepSeekHarnessLocalSseTimeout
   testDeepSeekHarnessLocalSseMultiTool
   testDeepSeekHarnessLocalSseProviderAssemblyTool
+  testDeepSeekHarnessLocalSseBytePrefixProviderAssemblyTool
   testDeepSeekHarnessLocalSseMultiToolPrefix
   testDeepSeekHarnessLocalSseMultiToolBytePrefix
   testDeepSeekHarnessPersistence

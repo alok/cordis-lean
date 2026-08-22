@@ -353,6 +353,10 @@ Current machine-checked evidence includes:
   provider assembly, dependent execution, and certified session append in one result. The fixture
   reaches model `5` with one assembled call; provider obedience, byte/backpressure semantics,
   blocked-read cancellation, reconnects, authenticity, and deployed equivalence remain external;
+- `Cordis.DeepSeekHarnessLocalSseBytePrefixProviderAssemblyTool`, repeating that provider-complete
+  witness through real curl byte chunks. The loopback request, byte-prefix body, provider assembly,
+  dependent execution, and request counts remain linked; timeout/fuel/cancellation are typed
+  pending states, and deployed/provider-authenticity claims remain external;
 - `Cordis.DeepSeekStreamHarness`, composing complete-body terminal rich tool streams with the
   generic conversation runner, dependent tool execution, and certified typed-result append;
   streamed rounds use a request source/body certificate proving `stream: true`, and an executable
@@ -1452,6 +1456,10 @@ The bounded algebra/context/global layer now has sixty-seven explicit pieces:
     fixture reaches model `5` with one assembled call; provider obedience, byte/backpressure
     semantics, blocked-read cancellation, reconnects, authenticity, and deployed equivalence remain
     external.
+72. `Cordis.DeepSeekHarnessLocalSseBytePrefixProviderAssemblyTool` repeats that provider-complete
+    witness through real curl one-byte chunks. The loopback request, byte-prefix body, provider
+    assembly, dependent execution, request counts, and server exit remain linked; timeout, fuel,
+    cancellation, provider authenticity, and deployed equivalence remain external.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
