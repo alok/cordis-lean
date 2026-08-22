@@ -131,6 +131,7 @@ import Cordis.DeepSeekHarnessTransportConversation
 import Cordis.DeepSeekHarnessTransportRetry
 import Cordis.DeepSeekHarnessTransportRetryConversation
 import Cordis.DeepSeekHarnessTransportRetryCancellation
+import Cordis.DeepSeekSchemaTransportRetryCancellation
 import Cordis.DeepSeekHarnessOpaqueMetadata
 import Cordis.DeepSeekHarnessMetadataArchive
 import Cordis.Lifecycle
@@ -907,6 +908,12 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessTransportRetryCancellation.run
 #print axioms Cordis.DeepSeekHarnessTransportRetryCancellation.Example.cancellationRun
 #print axioms Cordis.DeepSeekHarnessTransportRetryCancellation.Example.successRun
+#print axioms Cordis.DeepSeekSchemaTransportRetryCancellation.executeSchemaRetryStep
+#print axioms Cordis.DeepSeekSchemaTransportRetryCancellation.SchemaRetryTrace.length
+#print axioms Cordis.DeepSeekSchemaTransportRetryCancellation.runAux
+#print axioms Cordis.DeepSeekSchemaTransportRetryCancellation.run
+#print axioms Cordis.DeepSeekSchemaTransportRetryCancellation.Example.cancellationRun
+#print axioms Cordis.DeepSeekSchemaTransportRetryCancellation.Example.successRun
 #print axioms Cordis.DeepSeekHarnessOpaqueMetadata.restoreRunner
 #print axioms Cordis.DeepSeekHarnessOpaqueMetadata.RestoredRunner.session_eq_log
 #print axioms Cordis.DeepSeekHarnessOpaqueMetadata.RestoredRunner.metadata_eq_source

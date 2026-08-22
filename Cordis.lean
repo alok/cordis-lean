@@ -23,6 +23,7 @@ import Cordis.DeepSeekHarnessTransportConversation
 import Cordis.DeepSeekHarnessTransportRetry
 import Cordis.DeepSeekHarnessTransportRetryConversation
 import Cordis.DeepSeekHarnessTransportRetryCancellation
+import Cordis.DeepSeekSchemaTransportRetryCancellation
 import Cordis.DeepSeekCurlIncremental
 import Cordis.DeepSeekCurlPrefix
 import Cordis.DeepSeekCurlPrefixSession

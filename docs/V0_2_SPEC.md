@@ -336,6 +336,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekSchemaConversationLoop`, carrying those rounds through a caller-fueled dependent
   loop with an explicit validated no-tool terminal witness, accumulated round history, and a
   distinct fuel-exhaustion stop;
+- `Cordis.DeepSeekSchemaTransportRetryCancellation`, composing that heterogeneous registry with
+  single-decoder bounded retry and caller-controlled pre-round cancellation, retaining exact
+  dependent tool-round endpoints and distinct completion/cancellation/exhaustion stops;
 - `Cordis.DeepSeekSchemaStreamConversation`, carrying the same registry through the typed
   `stream: true` SSE/rich-stream/session boundary, validating a complete streamed body before
   heterogeneous dispatch, and distinguishing a text terminal from caller-fuel exhaustion;
@@ -1329,6 +1332,14 @@ advances the dependent model after every certified tool round, preserves an exis
 and retains a validated no-tool response as terminal rather than confusing it with exhaustion.
 These modules remain complete-body and caller-fueled; provider obedience, retries, cancellation,
 persistence, external effects, and deployed Harness equivalence remain outside.
+
+`Cordis.DeepSeekSchemaTransportRetryCancellation` composes the same heterogeneous registry with
+the single-decoder retry boundary and pre-round cancellation. A successful validated response is
+used directly for either terminal admission or dependent weather/clock execution; the tool-round
+trace retains retry history and exact runner/model endpoints. The timeout-before-send and 503-to-
+200 fixtures are local injected-transport evidence only: in-flight interruption, backoff,
+idempotency, persistence, external effects, and deployed Harness retry/cancellation equivalence
+remain outside.
 
 `Cordis.DeepSeekSchemaStreamConversation` applies the same dependent registry to the existing
 complete-body SSE/rich-stream/session boundary. Its request certificate proves `stream: true`,

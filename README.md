@@ -547,6 +547,13 @@ dependent tool rounds. The loop is still caller-fueled and complete-body; it doe
 provider obedience, retries, cancellation, persistence, external effects, or deployed Harness
 equivalence.
 
+`Cordis.DeepSeekSchemaTransportRetryCancellation` composes that registry with bounded
+single-decoder retry and pre-round cancellation. The successful validated response is reused
+directly for terminal admission or heterogeneous weather/clock execution, while the dependent
+trace retains retry history and exact runner/model endpoints. The executable fixtures cover
+timeout-before-send and 503-to-200 completion; in-flight interruption, backoff/idempotency,
+persistence, external effects, and deployed Harness retry/cancellation equivalence remain outside.
+
 `Cordis.DeepSeekSchemaStreamConversation` carries the same registry certificate through the
 complete-body SSE/rich-stream/session boundary: the request is indexed as `stream: true`, a
 terminal streamed body is validated before its heterogeneous calls are dispatched, and a
@@ -1396,6 +1403,7 @@ placeholders.
 | `Cordis.DeepSeekScopedRegistry`                         | Nearest-first scoped registry with dependent entries, terminal shadowing restrictions, typed resolve/approval failures, and an approval ticket retained before provider execution; automatic/review/rejection fixtures are executable, while scope construction and deployed Harness semantics remain external.                                                                                     |
 | `Cordis.DeepSeekSchemaConversation`                     | Connects registry-derived tool declarations to a typed complete-body transport request and validated response, retaining the wire plan, response certificate, heterogeneous execution batch, and runner endpoint for one round.                                                                                                                                                                     |
 | `Cordis.DeepSeekSchemaConversationLoop`                 | Fuel-bounded heterogeneous transport loop with an explicit terminal no-tool response, dependent round history, model/runner endpoint, and distinct exhaustion stop; retries, cancellation, persistence, and deployed semantics remain external.                                                                                                                                                     |
+| `Cordis.DeepSeekSchemaTransportRetryCancellation`       | Heterogeneous schema retry/cancellation composition: one validated response feeds terminal or dependent registry execution, retry history and exact endpoints are retained, and timeout-before-send, completion, and exhaustion/cancellation remain distinct; live IO interruption, persistence, and deployed equivalence remain external.                                                          |
 | `Cordis.DeepSeekSchemaStreamConversation`               | Complete-body SSE/rich-stream/session continuation for the heterogeneous registry: a certified `stream: true` request, terminal streamed-body validation, mixed registry dispatch, and a caller-fueled history with distinct completion/exhaustion stops; incremental delivery and deployed semantics remain external.                                                                              |
 | `Cordis.DeepSeekSchemaStreamPrefixConversation`         | Line-oriented process-prefix continuation for the heterogeneous registry: exact accepted prefixes, typed line-budget/cancellation stops, and post-`[DONE]` dependent dispatch into the existing runner; byte framing, blocked-read interruption, and deployed semantics remain external.                                                                                                            |
 | `Cordis.DeepSeekSchemaStreamErrors`                     | Heterogeneous streamed provider-failure continuation: dependent failure certificates retain entry/schema/admission/policy/error/model evidence, convert to opt-in `isError` tool results, and prove a later terminal continuation; retry, cancellation, persistence, and deployed error semantics remain external.                                                                                  |

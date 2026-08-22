@@ -2337,6 +2337,17 @@ Implement this as a finite loop over the existing registry theorem, not as an un
 claim about remote model/tool behavior. Retries, cancellation, persistence, and external effects
 remain separate authorities.
 
+`Cordis.DeepSeekSchemaTransportRetryCancellation` is the composed schema-aware retry/cancellation
+slice. Build the registry-derived complete plan once, call `executeValidatedRetry`, and branch on
+the same successful `ValidatedResponse`: terminal admission appends the assistant, while the
+nonempty call branch constructs `AcceptedToolCalls` from the already-accepted list and executes
+`executeSchemaRegistryCalls` without reparsing the body. Check `CancellationPolicy.decide` before
+that round, index the recursive tail by the resulting runner/model endpoint, and keep completion,
+cancellation, and fuel exhaustion as distinct constructors. The fixture should cover timeout
+before send and 503-to-200 weather/clock execution followed by a no-tool terminal body; do not
+silently add in-flight interruption, provider backoff/idempotency, persistence, external effects,
+or deployed Harness equivalence.
+
 `Cordis.DeepSeekSchemaStreamConversation` is the corresponding complete-body streamed boundary.
 It derives the validated tool list from the heterogeneous registry, builds the typed request whose
 wire certificate proves `stream: true`, sends a process-backed SSE body through the existing
