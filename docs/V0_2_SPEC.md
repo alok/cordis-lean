@@ -1199,6 +1199,11 @@ The bounded algebra/context/global layer now has forty-five explicit pieces:
     terminal text. The dependent fixture checks `8 -> 12`, two rounds, two first-round calls, one
     attempt, model `0`, and a typed completed stop. Provider/process trust, durability,
     cancellation, external effects, and deployed Harness equivalence remain open.
+47. `Cordis.DeepSeekHarnessPersistenceStreamRetryCancellation` adds a pre-round cancellation
+    certificate to that process-backed continuation. It accepts the first tool round, decides
+    cancellation before round one, and checks `8 -> 11`, one retained round, two first-round calls,
+    timeout reason, model `0`, and an exact cancellation stop. In-flight interruption, process
+    cleanup, durability, external effects, and deployed cancellation equivalence remain open.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -1525,6 +1530,12 @@ returns terminal text when the next serialized request contains `[true,0]`. It r
 with two typed rounds and a completed stop. This remains deterministic local process evidence,
 not provider authenticity, durable recovery, cancellation, external-effect, or deployed-Harness
 equivalence evidence.
+
+`Cordis.DeepSeekHarnessPersistenceStreamRetryCancellation` adds the same cancellation policy at
+the continuation boundary. After the first process-backed tool round, the policy decides before
+the next request and retains the one-round prefix plus exact runner/model endpoint. This proves a
+pre-round cancellation certificate, not interruption of an in-flight process or HTTP read,
+process cleanup, durable recovery, external effects, or deployed cancellation equivalence.
 
 `Cordis.DeepSeekHarnessTransportRetryCancellation` composes that trace with a caller-controlled
 pre-round cancellation decision. The cancellation fixture stops before issuing a request and

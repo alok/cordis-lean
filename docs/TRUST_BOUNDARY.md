@@ -410,6 +410,13 @@ one attempt, model `0`, and typed completion. This proves a deterministic local 
 provider/process authenticity, durable recovery, backoff/idempotency, blocked-read cancellation,
 external effects, and deployed Harness equivalence remain external.
 
+`DeepSeekHarnessPersistenceStreamRetryCancellation` adds a pre-round cancellation decision to
+that same persisted process trace. It retains the first accepted tool round and decides before
+round one, projecting `8 -> 11`, one round, two first-round calls, timeout reason, model `0`, and
+the exact cancellation boundary. This proves no later request is selected after the decision; it
+does not interrupt a blocked read or establish process cleanup, durability, external-effect, or
+deployed cancellation equivalence.
+
 `DeepSeekHarnessTransportRetryCancellation` composes that trace with a caller-controlled
 pre-round cancellation policy. Its cancellation fixture proves that no request is issued before
 round zero and retains the unchanged endpoint and typed reason; its success fixture retains the

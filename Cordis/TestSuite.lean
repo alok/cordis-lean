@@ -138,6 +138,7 @@ import Cordis.DeepSeekHarnessPersistenceTransportRound
 import Cordis.DeepSeekHarnessEndToEnd
 import Cordis.DeepSeekHarnessPersistenceProcessOutcome
 import Cordis.DeepSeekHarnessPersistenceStreamRetry
+import Cordis.DeepSeekHarnessPersistenceStreamRetryCancellation
 import Cordis.DeepSeekHarnessTransportConversation
 import Cordis.DeepSeekHarnessTransportRetry
 import Cordis.DeepSeekHarnessTransportRetryConversation
@@ -1883,6 +1884,40 @@ private def testDeepSeekHarnessPersistenceStreamRetry : IO Unit := do
         (DeepSeekHarnessPersistenceStreamRetry.summaryMatchesFixture summary) true
       let _sessionCertificate :=
         DeepSeekHarnessPersistenceStreamRetry.restored_session_eq_archive run
+      pure ()
+
+private def testDeepSeekHarnessPersistenceStreamRetryCancellation : IO Unit := do
+  match ← DeepSeekHarnessPersistenceStreamRetryCancellation.runFixture with
+  | .error _ => fail "persisted process stream-retry cancellation fixture failed"
+  | .ok run =>
+      let summary := DeepSeekHarnessPersistenceStreamRetryCancellation.summary run
+      assertEqual "persisted process cancellation restores the archive endpoint"
+        summary.initialNextSeq
+        DeepSeekHarnessPersistenceStreamRetryCancellation.executableInitialNextSeq
+      assertEqual "persisted process cancellation retains the accepted prefix"
+        summary.finalNextSeq DeepSeekHarnessPersistenceStreamRetryCancellation.executableFinalNextSeq
+      assertEqual "persisted process cancellation retains one completed round"
+        summary.traceLength DeepSeekHarnessPersistenceStreamRetryCancellation.executableTraceLength
+      assertEqual "persisted process cancellation retains the first tool calls"
+        summary.firstToolCalls
+        DeepSeekHarnessPersistenceStreamRetryCancellation.executableFirstToolCalls
+      assertEqual "persisted process cancellation has no transient failures"
+        summary.firstRetryFailures
+        DeepSeekHarnessPersistenceStreamRetryCancellation.executableFirstRetryFailures
+      assertEqual "persisted process cancellation reports cancellation"
+        summary.cancelled DeepSeekHarnessPersistenceStreamRetryCancellation.executableCancelled
+      assertEqual "persisted process cancellation occurs before round one"
+        summary.cancelledRound
+        DeepSeekHarnessPersistenceStreamRetryCancellation.executableCancelledRound
+      assertEqual "persisted process cancellation retains its reason"
+        summary.cancelledReason
+        DeepSeekHarnessPersistenceStreamRetryCancellation.executableCancelledReason
+      assertEqual "persisted process cancellation preserves the model"
+        summary.finalModel DeepSeekHarnessPersistenceStreamRetryCancellation.executableFinalModel
+      assertEqual "persisted process cancellation executable projection agrees"
+        (DeepSeekHarnessPersistenceStreamRetryCancellation.summaryMatchesFixture summary) true
+      let _sessionCertificate :=
+        DeepSeekHarnessPersistenceStreamRetryCancellation.restored_session_eq_archive run
       pure ()
 
 private def testDeepSeekHarnessProcessSchema : IO Unit := do
@@ -6700,6 +6735,7 @@ def run : IO Unit := do
   testDeepSeekHarnessProcessOutcome
   testDeepSeekHarnessPersistenceProcessOutcome
   testDeepSeekHarnessPersistenceStreamRetry
+  testDeepSeekHarnessPersistenceStreamRetryCancellation
   testDeepSeekHarnessProcessSchema
   testDeepSeekHarnessProcessSchemaPrefix
   testDeepSeekHarnessProcessSchemaPrefixConversation
