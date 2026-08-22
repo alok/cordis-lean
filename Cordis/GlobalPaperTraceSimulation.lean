@@ -13,8 +13,9 @@ which the public ten-name calculus projects to the same `lDivert` constructor. T
 rewrite also replays the old suffix from a merely related endpoint; it never casts an indexed
 suffix across a relation proof.
 
-This is an all-keep finite trace layer. It does not prove lifecycle simulation from base dynamics,
-deletion, normalization, termination, confluence, Lemma 72, or Theorem 73.
+This is a finite all-keep layer in both forward and backward orientations. It does not prove
+lifecycle simulation from base dynamics, deletion, normalization, termination, confluence, Lemma
+72, or Theorem 73.
 -/
 
 set_option autoImplicit false
@@ -462,6 +463,109 @@ theorem actors_eq
   replay_actors_eq replay.result.certificate
 
 end ForwardPaperTraceReplay
+
+/-! ## Backward assigned replay -/
+
+structure BackwardPaperTraceReplay
+    (values : ValueSetoids sig)
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {sourceBefore sourceAfter : State catalog Ambient}
+    (source : GlobalCalculus.Trace dynamics inertia sourceBefore sourceAfter)
+    (shadowBefore : State catalog Ambient) where
+  /-- The relation is oriented shadow-to-source, matching a backward local match. -/
+  result :
+    DeletionResult (fun source shadow => BirthErasedRuleRelated values shadow source)
+      (fun _ => False) source shadowBefore
+  sourceAfter_wellFormed : WellFormed sourceAfter
+  shadowAfter_wellFormed : WellFormed result.shadowAfter
+  detailedRules_eq : detailedRules result.shadow = detailedRules source
+
+noncomputable def AssignedStepSimulation.replayTraceBackward
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (simulation : AssignedStepSimulation values dynamics inertia)
+    {sourceBefore sourceAfter shadowBefore : State catalog Ambient}
+    (sourceWf : WellFormed sourceBefore) (shadowWf : WellFormed shadowBefore)
+    (related : BirthErasedRuleRelated values shadowBefore sourceBefore)
+    (source : GlobalCalculus.Trace dynamics inertia sourceBefore sourceAfter) :
+    BackwardPaperTraceReplay values source shadowBefore := by
+  induction source generalizing shadowBefore with
+  | nil sourceBefore =>
+      exact {
+        result := {
+          shadowAfter := shadowBefore
+          shadow := .nil shadowBefore
+          certificate := .nil related
+        }
+        sourceAfter_wellFormed := sourceWf
+        shadowAfter_wellFormed := shadowWf
+        detailedRules_eq := rfl
+      }
+  | @cons sourceBefore sourceMiddle sourceAfter head tail ih =>
+      let headMatch := simulation.backward shadowWf sourceWf related head
+      let tailResult := ih headMatch.sourceAfter_wellFormed
+        headMatch.shadowAfter_wellFormed headMatch.successors_related
+      exact {
+        result := {
+          shadowAfter := tailResult.result.shadowAfter
+          shadow := .cons headMatch.matched tailResult.result.shadow
+          certificate := .keep (Related := fun source shadow =>
+              BirthErasedRuleRelated values shadow source) (MayDrop := fun _ => False)
+            related headMatch.toRetainedStep tailResult.result.certificate
+        }
+        sourceAfter_wellFormed := tailResult.sourceAfter_wellFormed
+        shadowAfter_wellFormed := tailResult.shadowAfter_wellFormed
+        detailedRules_eq := by
+          simp only [detailedRules]
+          rw [headMatch.same_detailedRule, tailResult.detailedRules_eq]
+      }
+
+namespace BackwardPaperTraceReplay
+
+theorem final_related
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {sourceBefore sourceAfter shadowBefore : State catalog Ambient}
+    {source : GlobalCalculus.Trace dynamics inertia sourceBefore sourceAfter}
+    (replay : BackwardPaperTraceReplay values source shadowBefore) :
+    BirthErasedRuleRelated values replay.result.shadowAfter sourceAfter :=
+  replay.result.certificate.final_related
+
+noncomputable def transportAssignment
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {sourceBefore sourceAfter shadowBefore : State catalog Ambient}
+    {source : GlobalCalculus.Trace dynamics inertia sourceBefore sourceAfter}
+    (replay : BackwardPaperTraceReplay values source shadowBefore)
+    (assignment : TraceProgramAssignment dynamics inertia source) :
+    TraceProgramAssignment dynamics inertia replay.result.shadow :=
+  replay.result.certificate.transportAssignment assignment
+
+theorem rules_eq
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {sourceBefore sourceAfter shadowBefore : State catalog Ambient}
+    {source : GlobalCalculus.Trace dynamics inertia sourceBefore sourceAfter}
+    (replay : BackwardPaperTraceReplay values source shadowBefore) :
+    replay.result.shadow.rules = source.rules :=
+  replay_rules_eq replay.result.certificate
+
+theorem actors_eq
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    {sourceBefore sourceAfter shadowBefore : State catalog Ambient}
+    {source : GlobalCalculus.Trace dynamics inertia sourceBefore sourceAfter}
+    (replay : BackwardPaperTraceReplay values source shadowBefore) :
+    replay.result.shadow.actors = source.actors :=
+  replay_actors_eq replay.result.certificate
+
+end BackwardPaperTraceReplay
 
 /-! ## Related assigned adjacent swaps -/
 

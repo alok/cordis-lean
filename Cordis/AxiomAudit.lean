@@ -1469,6 +1469,11 @@ namespace Cordis.GlobalPaperTraceSimulation
 #print axioms ForwardPaperTraceReplay.transportAssignment
 #print axioms ForwardPaperTraceReplay.rules_eq
 #print axioms ForwardPaperTraceReplay.actors_eq
+#print axioms AssignedStepSimulation.replayTraceBackward
+#print axioms BackwardPaperTraceReplay.final_related
+#print axioms BackwardPaperTraceReplay.transportAssignment
+#print axioms BackwardPaperTraceReplay.rules_eq
+#print axioms BackwardPaperTraceReplay.actors_eq
 #print axioms RelatedAssignedAdjacentSwap.ofExact
 #print axioms RelatedAdjacentRewrite.final_related
 #print axioms RelatedAdjacentRewrite.final_wellFormed

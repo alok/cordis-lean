@@ -2803,7 +2803,8 @@ countermodels expose why general lifecycle episode deletion still needs temporal
 lifecycle/oracle suffix simulation, lifetime-aware no-redraw, corrected support authority, and a
 birth-erased outside relation. It proves neither Lemma 72 nor automatic normalization/confluence.
 `GlobalPaperTraceSimulation` and `GlobalPaperTraceDeletion` retain the assigned trace/replay
-certificates for the birth-erased relation. `GlobalPaperTraceNormalization` now composes a finite
+certificates for the birth-erased relation, with the simulation layer now supporting both forward
+and backward orientations. `GlobalPaperTraceNormalization` now composes a finite
 connected list of those supplied adjacent-rewrite certificates and proves endpoint relatedness
 plus rule/actor permutations. It is certificate composition only: no rewrite strategy,
 canonical form, termination, Lemma 72, or confluence is derived.
