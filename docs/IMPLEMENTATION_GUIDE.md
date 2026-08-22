@@ -2249,6 +2249,16 @@ endpoint discipline as `TransportConversation`. The executable fixture should re
 continue from its exact endpoint, and terminate on a no-tool response; a bounded fuel stop must
 remain distinguishable from completion.
 
+`Cordis.DeepSeekHarnessTransportRetryCancellation` is the immediate composition above that
+trace. Check `CancellationPolicy.decide` before calling the retry-aware `executeSource`; on a
+decision, return the unchanged endpoint and an empty/previous dependent trace prefix, and on an
+accepted round recurse from the exact `finalRunner`/`finalModel` endpoint. Keep retry history in
+each head and retain completion, fuel exhaustion, and cancellation as distinct indexed stops.
+The executable fixtures must cover both the no-request cancellation branch and a successful
+503-retry plus terminal round. This remains a complete-body injected-transport certificate:
+blocked reads, backoff/idempotency, persistence, external effects, and deployed equivalence need
+separate evidence.
+
 `Cordis.DeepSeekToolSchema` is the next request-side type boundary. It validates the bounded
 schema vocabulary actually represented by the local DeepSeek API: an object parameter root,
 primitive property `type` tags, optional property descriptions, a duplicate-free `required`

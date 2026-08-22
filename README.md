@@ -424,6 +424,13 @@ fuel-bounded dependent trace shape as the non-retrying conversation. Every head 
 previous retried round. The fixture retries the tool round once, then reaches a no-tool terminal
 round; completion and fuel exhaustion remain separate typed stops.
 
+`Cordis.DeepSeekHarnessTransportRetryCancellation` composes that indexed injected-transport
+trace with the pre-round `CancellationPolicy`. A cancellation-first fixture retains an empty
+typed prefix, unchanged runner/model endpoint, round/reason decision, and no issued request; a
+non-cancelled fixture retains the 503 retry history and the two-round terminal endpoint.
+Blocked-read interruption, provider backoff/idempotency, persistence, external effects, and
+deployed Harness retry/cancellation equivalence remain outside.
+
 `Cordis.DeepSeekHarnessEventArchive` attaches the broader current-Harness event vocabulary to
 the same runner only when both certificates are present: `SessionEventArchive` must preserve
 every envelope exactly and `SessionRefinement` must validate every event semantically. Known

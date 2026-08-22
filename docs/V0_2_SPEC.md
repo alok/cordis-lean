@@ -387,6 +387,11 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekHarnessCancellation`, adding a pre-round cancellation decision that retains the
   exact completed prefix, runner/model endpoint, and cancellation certificate; it does not claim
   mid-request IO interruption, cleanup, or deployed Harness cancellation semantics;
+- `Cordis.DeepSeekHarnessTransportRetryCancellation`, composing that pre-round decision with the
+  indexed injected-transport retry trace: cancellation retains the exact retry-aware prefix and
+  endpoint, while the non-cancelled fixture retains the 503 retry history and terminal endpoint;
+  blocked-read interruption, backoff/idempotency, persistence, and deployed equivalence remain
+  external;
 - `Cordis.DeepSeekStreamIncremental`, adding pure proof-carrying SSE prefix state: complete lines
   retain the accumulated body/frame equation, `finish` requires `[DONE]`, and a finite line policy
   can stop before the next line; live IO, backpressure, process cancellation, and reconnect remain
@@ -1411,6 +1416,12 @@ runner/model endpoint of the previous round; the fixture retries a tool round on
 reaches a no-tool terminal response. Completion and fuel exhaustion remain distinct certificates,
 and the model does not add provider backoff, idempotency, cancellation, persistence, external
 effects, or deployed Harness equivalence.
+
+`Cordis.DeepSeekHarnessTransportRetryCancellation` composes that trace with a caller-controlled
+pre-round cancellation decision. The cancellation fixture stops before issuing a request and
+retains the empty typed prefix; the success fixture retains the retried tool round and terminal
+no-tool round. This is still a complete-body injected-transport boundary, not in-flight IO
+interruption or deployed retry/cancellation equivalence.
 
 `Cordis.SessionPayloadArchive` moves one layer inward without inventing provider semantics. It
 classifies the five current content-block tags plus unknown block extensions, retains exact message

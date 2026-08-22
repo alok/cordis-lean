@@ -131,6 +131,7 @@ import Cordis.DeepSeekHarnessPersistenceTransportRound
 import Cordis.DeepSeekHarnessTransportConversation
 import Cordis.DeepSeekHarnessTransportRetry
 import Cordis.DeepSeekHarnessTransportRetryConversation
+import Cordis.DeepSeekHarnessTransportRetryCancellation
 import Cordis.DeepSeekHarnessOpaqueMetadata
 import Cordis.DeepSeekHarnessMetadataArchive
 import Cordis.Lifecycle
@@ -3996,6 +3997,52 @@ private def testDeepSeekHarnessTransportRetryConversation : IO Unit := do
             second.round.retryHistory.failures.length 0
       | _ => fail "retry-aware conversation returned the wrong trace shape"
 
+private def testDeepSeekHarnessTransportRetryCancellation : IO Unit := do
+  let cancelled ← DeepSeekHarnessTransportRetryCancellation.Example.cancellationRun
+  match cancelled with
+  | .error _ => fail "retry+cancellation pre-round fixture failed"
+  | .ok ⟨finalRunner, ⟨finalModel, run⟩⟩ =>
+      assertEqual "retry+cancellation pre-round retains no typed rounds"
+        run.trace.length 0
+      assertEqual "retry+cancellation pre-round preserves the model"
+        finalModel 0
+      assertEqual "retry+cancellation pre-round preserves the runner"
+        finalRunner.session.nextSeq 0
+      assertEqual "retry+cancellation pre-round reports cancellation"
+        (DeepSeekHarnessTransportRetryCancellation.RetryCancellableTransportStop.isCancelled
+          run.stop) true
+      assertEqual "retry+cancellation pre-round records round zero"
+        (DeepSeekHarnessTransportRetryCancellation.RetryCancellableTransportStop.cancelledRound
+          run.stop) (some 0)
+      assertEqual "retry+cancellation pre-round records the peer-failure reason"
+        (DeepSeekHarnessTransportRetryCancellation.RetryCancellableTransportStop.cancelledReason
+          run.stop) (some .peerFailure)
+  let succeeded ← DeepSeekHarnessTransportRetryCancellation.Example.successRun
+  match succeeded with
+  | .error _ => fail "retry+cancellation success fixture failed"
+  | .ok ⟨finalRunner, ⟨finalModel, run⟩⟩ =>
+      assertEqual "retry+cancellation success retains both typed rounds"
+        run.trace.length 2
+      assertEqual "retry+cancellation success preserves the final model"
+        finalModel 0
+      assertEqual "retry+cancellation success reaches the final session"
+        finalRunner.session.nextSeq 3
+      assertEqual "retry+cancellation success completes without cancellation"
+        (DeepSeekHarnessTransportRetryCancellation.RetryCancellableTransportStop.isCompleted
+          run.stop) true
+      assertEqual "retry+cancellation success has no cancelled round"
+        (DeepSeekHarnessTransportRetryCancellation.RetryCancellableTransportStop.cancelledRound
+          run.stop) none
+      match run.trace with
+      | .cons first (.cons second _) =>
+          assertEqual "retry+cancellation success retains the first retry failure"
+            first.round.retryHistory.failures.length 1
+          assertEqual "retry+cancellation success bounds the first retry"
+            first.round.retryHistory.attemptCount 2
+          assertEqual "retry+cancellation success has no terminal retry"
+            second.round.retryHistory.failures.length 0
+      | _ => fail "retry+cancellation success returned the wrong trace shape"
+
 private def testDeepSeekSchemaStreamConversation : IO Unit := do
   match DeepSeekToolSchema.weatherToolCertificate,
       DeepSeekSchemaRegistry.Example.clockToolCertificate with
@@ -6438,6 +6485,7 @@ def run : IO Unit := do
   testDeepSeekHarnessTransportConversation
   testDeepSeekHarnessTransportRetry
   testDeepSeekHarnessTransportRetryConversation
+  testDeepSeekHarnessTransportRetryCancellation
   testDeepSeekSchemaStreamConversation
   testDeepSeekSchemaStreamPrefixConversation
   testDeepSeekSchemaStreamErrors

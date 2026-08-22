@@ -387,6 +387,13 @@ followed by a no-tool terminal response. Completion and fuel exhaustion are dist
 certificates. Provider backoff, idempotency, cancellation, persistence, external effects,
 live-provider behavior, and deployed Harness equivalence remain external.
 
+`DeepSeekHarnessTransportRetryCancellation` composes that trace with a caller-controlled
+pre-round cancellation policy. Its cancellation fixture proves that no request is issued before
+round zero and retains the unchanged endpoint and typed reason; its success fixture retains the
+503 retry history and the final no-tool endpoint. In-flight process/HTTP interruption, provider
+backoff/idempotency, persistence, external effects, and deployed Harness equivalence remain
+outside.
+
 `DeepSeekStreamHarnessRetryConversation` is the process-backed streamed analogue. Its indexed
 trace retains each complete SSE body, ordered retry history, dependent assistant/tool endpoint,
 and exact runner/model tail; fixtures cover tool-to-text completion and an exhausted transient-HTTP
