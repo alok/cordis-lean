@@ -516,6 +516,14 @@ branches. This proves local timer-driven blocked-read interruption for the confi
 it does not prove arbitrary descendant cleanup, fairness, backpressure, provider or executable
 authenticity, crash durability, or deployed asynchronous Harness equivalence.
 
+`Cordis.DeepSeekHarnessEventProcessTimeoutRefinement` attaches the already accepted timeout
+cursor to an intrinsic `SessionRefinement.ValidatedSequence` without reparsing observed lines.
+Its `PrefixValidatedLog` preserves the cursor entries, final state, and exact protocol-projection
+equation. The attachment is proof packaging (`noncomputable` because the snoc-to-cons transport
+is erased); the executable timeout path and fixtures remain in
+`DeepSeekHarnessEventProcessTimeout`. It does not claim raw `decodeEvents` equivalence, JSONL byte
+framing, provider authenticity, persistence, or deployed Harness refinement.
+
 `Cordis.DeepSeekHarnessEventProcessOutcome` carries that restored runner through the existing
 complete process-backed rich-outcome adapter. Its dependent result keeps the prepared streaming
 request, process/response certificate, optional dependent tool execution, final runner endpoint,

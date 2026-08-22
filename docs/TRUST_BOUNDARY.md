@@ -524,6 +524,13 @@ fixtures cover both branches. This is local configured-child interruption eviden
 descendant cleanup, fairness, backpressure, provider/executable authenticity, crash durability,
 or deployed asynchronous Harness equivalence.
 
+`DeepSeekHarnessEventProcessTimeoutRefinement` is a proof-level composition above that executable
+boundary. It transports the cursor's existing per-entry `RefinedEvent` proofs into an intrinsic
+`SessionRefinement.ValidatedSequence`, retaining the exact entry ledger, final state, and protocol
+projection without reparsing. The snoc-to-cons conversion is noncomputable proof packaging; it
+does not produce a standard raw `decodeEvents` certificate or claim JSONL framing, persistence,
+provider authenticity, or deployed Harness refinement.
+
 `DeepSeekHarnessEventProcessOutcome` is the next local composition seam: it carries a restored
 event runner through a caller-supplied streaming request source and the complete process-backed
 rich-outcome adapter. The result retains the restored-session/raw-archive certificates and the
@@ -962,7 +969,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1897
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1914
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.

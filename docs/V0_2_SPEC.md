@@ -1248,6 +1248,11 @@ The bounded algebra/context/global layer now has forty-five explicit pieces:
     retains the accepted prefix, observed lines, exit code, stderr, and timeout index. This is a
     local configured-child interruption fixture, not arbitrary descendant cleanup, fairness,
     backpressure, authenticity, crash durability, or deployed asynchronous equivalence.
+53. `Cordis.DeepSeekHarnessEventProcessTimeoutRefinement` transports the timed cursor's existing
+    per-entry refinement proofs into an intrinsic `SessionRefinement.ValidatedSequence`, retaining
+    the exact entries, final state, and protocol projection without reparsing. This is
+    noncomputable proof packaging above the executable timeout module; raw `decodeEvents` equality,
+    byte framing, authenticity, persistence, and deployed Harness refinement remain external.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a

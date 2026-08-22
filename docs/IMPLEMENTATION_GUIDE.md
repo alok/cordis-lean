@@ -2128,6 +2128,13 @@ prefix, line ledger, exit code, stderr, and timeout index. The completion and de
 fixtures are executable. The contract is intentionally local: arbitrary descendant cleanup,
 fairness, backpressure, provider/executable authenticity, crash durability, and deployed
 asynchronous equivalence remain separate obligations.
+`Cordis.DeepSeekHarnessEventProcessTimeoutRefinement` is the proof-only attachment above that
+runner. Build `PrefixValidatedLog` from the cursor's stored `EventEntry`/`RefinedEvent` proofs,
+then transport its snoc `PrefixSequence` to the cons-shaped `SessionRefinement.ValidatedSequence`.
+Keep this wrapper noncomputable and do not use it as an executable IO fixture: the executable
+timeout functions and their blocked/delayed/fast tests remain in
+`DeepSeekHarnessEventProcessTimeout`. This composition deliberately avoids reparsing through
+`decodeEvents`; it proves only the cursor-level projection and sequence equations.
 `Cordis.DeepSeekHarnessEventProcessOutcome` then carries the restored runner through the
 complete process-backed rich-outcome adapter. Its dependent result keeps the prepared streaming
 request, response and dependent-tool certificate, final runner endpoint, raw event archive,
