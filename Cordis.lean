@@ -59,6 +59,7 @@ import Cordis.DeepSeekSchemaStreamPrefixConversation
 import Cordis.DeepSeekSchemaStreamErrors
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
+import Cordis.DeepSeekHarnessExtensionArchive
 import Cordis.DeepSeekHarnessEventText
 import Cordis.DeepSeekHarnessEventProcessOutcome
 import Cordis.LoaderHMR

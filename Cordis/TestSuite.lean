@@ -56,6 +56,7 @@ import Cordis.DeepSeekSchemaStreamPrefixConversation
 import Cordis.DeepSeekSchemaStreamErrors
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
+import Cordis.DeepSeekHarnessExtensionArchive
 import Cordis.DeepSeekHarnessEventText
 import Cordis.DeepSeekHarnessEventProcessOutcome
 import Cordis.LoaderHMR
@@ -3539,6 +3540,24 @@ private def testSessionExtensionRefinement : IO Unit := do
   | .error (.ignorable 0) => pure ()
   | .error error => fail s!"ignorable archive returned the wrong error: {reprStr error}"
   | .ok _ => fail "ignorable extension was accepted by required-extension archive"
+  have _runnerSummary := DeepSeekHarnessExtensionArchive.Example.restored_example_summary
+  have _runnerRequest := DeepSeekHarnessExtensionArchive.Example.restored_example_request
+  match DeepSeekHarnessExtensionArchive.Example.restoredExample with
+  | .error error => fail s!"schema extension runner restoration failed: {error}"
+  | .ok restored =>
+      assertEqual "schema extension runner retains the archived sequence endpoint"
+        restored.runner.session.nextSeq 2
+      assertEqual "schema extension runner aligns its step with the archived endpoint"
+        restored.runner.step 2
+      assertEqual "schema extension runner derives the archived tool-call count"
+        restored.runner.nextCall 0
+  match DeepSeekHarnessExtensionArchive.Example.exampleRequest with
+  | .error error => fail s!"schema extension request construction failed: {reprStr error}"
+  | .ok request =>
+      assertEqual "schema extension request keeps the source model"
+        request.model "deepseek-chat"
+      assertEqual "schema extension request keeps the surface extension message"
+        request.messages.toList [DeepSeekApi.ChatMessage.user "extension:ready"]
 
 private def testDeepSeekSchemaStreamConversation : IO Unit := do
   match DeepSeekToolSchema.weatherToolCertificate,

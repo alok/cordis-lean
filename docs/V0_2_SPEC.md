@@ -69,6 +69,12 @@ record is a required extension, and exposes the final indexed session; known cor
 records fail closed before semantic replay. It remains an in-memory archive attachment, not
 durability or deployed persistence equivalence.
 
+`Cordis.DeepSeekHarnessExtensionArchive` is the schema-indexed runner bridge above that archive.
+`restoreRunner` derives the indexed runner's local tool-call count and proves exact equality to the
+archive's final session, while `RequestCertificate` rebuilds a typed request from that exact
+endpoint. It remains a caller-owned extension/schema certificate; mixed current-Harness replay,
+provider compatibility, transport, durable persistence, and deployed equivalence are unclaimed.
+
 The slice closes two concrete gaps in the original objective:
 
 1. the runner becomes generic over a dependent tool catalog instead of importing the counter

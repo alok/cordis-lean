@@ -105,6 +105,12 @@ required extension. Known core tags and ignorable records reject, while success 
 order and the typed final session. This is still an in-memory certificate, not durable storage or
 deployed archive equivalence.
 
+`Cordis.DeepSeekHarnessExtensionArchive` attaches that required-extension certificate to the
+schema-indexed `ExtensionRunner`. Its `restoreRunner` derives the tool-call count and stores exact
+runner/session equality; `RequestCertificate` rebuilds the request from that same endpoint. The
+attachment is schema-owned and in memory: mixed current-Harness replay, provider compatibility,
+transport, durable storage, and deployed Harness equivalence remain external.
+
 The local protocol has both typed erasure and witness-reconstructing validation:
 
 ```text

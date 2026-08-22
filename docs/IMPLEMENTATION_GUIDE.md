@@ -2130,6 +2130,12 @@ required extension, retaining the exact archive order, dependent replay, and fin
 session. Known core tags and ignorable extensions are typed rejection cases; this module does not
 turn opaque retention into mixed-log replay, durable persistence, or deployed equivalence.
 
+`Cordis.DeepSeekHarnessExtensionArchive` is the next typed attachment. It carries the validated
+archive endpoint into `DeepSeekHarnessExtensions.ExtensionRunner`, derives the local tool-call
+count, and exposes exact runner/session equality plus a request certificate built from that same
+indexed session. Keep the codec, request source, and extension schema explicit; this slice does
+not supply mixed-log replay, provider/transport semantics, or durable/deployed equivalence.
+
 `Cordis.DeepSeekToolSchema` is the next request-side type boundary. It validates the bounded
 schema vocabulary actually represented by the local DeepSeek API: an object parameter root,
 primitive property `type` tags, optional property descriptions, a duplicate-free `required`
