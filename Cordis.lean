@@ -65,6 +65,7 @@ import Cordis.DeepSeekStreamToolRound
 import Cordis.DeepSeekScopedStreamToolRound
 import Cordis.DeepSeekProcessScopedStreamToolRound
 import Cordis.DeepSeekProcessScopedConversation
+import Cordis.DeepSeekProcessScopedRequestConversation
 import Cordis.DeepSeekProcessStreamToolRound
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner

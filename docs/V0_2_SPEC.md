@@ -258,6 +258,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekProcessScopedConversation`, lifting that process-backed scoped round to a finite
   dependent conversation indexed by `Nat → ProcessConfig`, with retained round witnesses and
   typed terminal versus fuel-exhaustion stops;
+- `Cordis.DeepSeekProcessScopedRequestConversation`, closing request provenance by rebuilding a
+  typed streaming request from each current session and indexing the prepared process/SSE/scoped
+  result by that exact `HttpRequest`, with distinct-body, completion, and exhaustion fixtures;
 - `Cordis.DeepSeekCurlProviderAssemblyPrefix`, composing the line-oriented process prefix with
   the terminal provider assembly certificate while keeping fuel/cancellation outcomes typed;
   live provider-incremental semantics and deployed equivalence remain outside;
@@ -469,6 +472,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekProcessScopedConversation`, carrying a process family through multiple scoped
   rounds: each body is parsed and dispatched before the indexed model/session successor is
   retained, while no-call completion and fuel exhaustion remain distinct typed stops;
+- `Cordis.DeepSeekProcessScopedRequestConversation`, rebuilding the typed streaming request at
+  every round and retaining the exact request index through process/SSE/scoped execution and
+  append; its fixture proves session growth changes the request body without erasing stop typing;
 - `Cordis.DeepSeekSchemaConversation`, attaching registry-derived tool declarations to a typed
   complete-body transport request and validated response while retaining the exact plan, response,
   heterogeneous execution batch, and runner endpoint for one round;
@@ -1598,6 +1604,13 @@ execution, model successor, and exact session append; the result type distinguis
 terminal from fuel exhaustion. The local fixture checks both a two-round four-message completion
 and a one-round exhausted prefix. Retries, cancellation, persistence, external effects, and
 deployed Harness equivalence remain outside.
+
+`Cordis.DeepSeekProcessScopedRequestConversation` closes the request-provenance gap around that
+conversation. It rebuilds a typed `stream = true` request from the current session, passes that
+request to the process/SSE adapter, and stores the successful scoped round under the same exact
+`HttpRequest` index. The local fixture proves distinct request bodies across two rounds and keeps
+the terminal and fuel-exhaustion stops dependent; live network/provider behavior, credentials,
+retries, cancellation, persistence, external effects, and deployed equivalence remain outside.
 
 `Cordis.SessionRefinement` covers a separate stateful subset of current `SessionEvent` JSON:
 turn/step boundaries, selected request/header snapshots, route context, whole-list todo snapshots,

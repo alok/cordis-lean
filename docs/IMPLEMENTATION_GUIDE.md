@@ -2514,6 +2514,14 @@ fixture checks both a two-round four-message endpoint and a one-round exhausted 
 complete-body local process evidence rather than a claim about retries, cancellation, persistence,
 external effects, or deployed Harness behavior.
 
+`Cordis.DeepSeekProcessScopedRequestConversation` is the request-provenance refinement of that
+loop. Build a typed streaming request from the current session before each process invocation, then
+retain the process/SSE/scoped result under the exact `HttpRequest` that was sent. Its dependent
+round witness proves streaming-mode selection, request-body equality, scoped append, and the
+terminal-versus-fuel split; the fixture also proves that session growth changes successive bodies.
+This remains deterministic local process evidence, not a claim about live providers, credentials,
+retries, cancellation, persistence, external effects, or deployed Harness equivalence.
+
 `Cordis.DeepSeekHarnessProcessSchema` is the provenance-preserving companion when the process
 boundary itself matters. It keeps the registry-certified streaming plan, processed body, schema
 step, and dependent runner endpoint in one dependent result. Use it for local executable evidence
