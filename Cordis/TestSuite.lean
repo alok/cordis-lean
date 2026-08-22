@@ -111,6 +111,7 @@ import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalPaperTraceNormalizer
 import Cordis.GlobalPaperTraceConfluence
+import Cordis.GlobalPaperTraceScopedConfluence
 import Cordis.GlobalProgress
 import Cordis.GlobalProgressTermination
 import Cordis.GlobalProgressRun
@@ -6233,6 +6234,13 @@ private def testGlobalPaperTraceConfluence : IO Unit := do
   assertEqual "conditional confluence witness has the expected normal endpoint"
     Cordis.GlobalPaperTraceConfluence.boolLeftNormal.endpoint (false, false)
 
+private def testGlobalPaperTraceScopedConfluence : IO Unit := do
+  assertEqual "indexed confluence fixture selects the target node"
+    Cordis.GlobalPaperTraceScopedConfluence.Example.demoExecutableFinal
+    Cordis.GlobalPaperTraceScopedConfluence.Example.DemoNode.target
+  assertEqual "indexed confluence fixture carries one real rewrite link"
+    Cordis.GlobalPaperTraceScopedConfluence.Example.demoExecutableLinkCount 1
+
 private def testGlobalPaperProgressReplay : IO Unit := do
   let _stop := Cordis.GlobalPaperProgressReplay.Example.executable_stop
   let _related := Cordis.GlobalPaperProgressReplay.Example.executable_replay_related
@@ -6717,6 +6725,7 @@ def run : IO Unit := do
   testGlobalPaperTraceNormalization
   testGlobalPaperTraceNormalizer
   testGlobalPaperTraceConfluence
+  testGlobalPaperTraceScopedConfluence
   testGlobalPaperProgressReplay
   testGlobalProgress
   testGlobalProgressTermination

@@ -111,6 +111,7 @@ import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalPaperTraceNormalizer
 import Cordis.GlobalPaperTraceConfluence
+import Cordis.GlobalPaperTraceScopedConfluence
 import Cordis.GlobalProgress
 import Cordis.GlobalProgressTermination
 import Cordis.GlobalProgressRun
@@ -1804,6 +1805,20 @@ namespace Cordis.GlobalPaperTraceConfluence
 #print axioms normalize_results_unique
 #print axioms Example.empty_normalizer_unique
 end Cordis.GlobalPaperTraceConfluence
+namespace Cordis.GlobalPaperTraceScopedConfluence
+#print axioms IndexedAuthority
+#print axioms normalizeFuel_some_of_measure_le
+#print axioms path_of_indexedLinked
+#print axioms normalize_results_unique
+namespace Example
+#print axioms demo_normalizes
+#print axioms demo_result_rules
+#print axioms demo_result_actors
+#print axioms demo_result_final_executable
+#print axioms demo_result_link_count_executable
+#print axioms demo_normalizer_unique
+end Example
+end Cordis.GlobalPaperTraceScopedConfluence
 namespace Cordis.GlobalPaperProgressReplay
 #print axioms ReplayedProgressRun
 #print axioms replayRun

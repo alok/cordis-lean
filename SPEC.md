@@ -219,6 +219,13 @@ normalizer endpoints. The Boolean two-branch witness exercises the theorem, but 
 not derive the required local joins, measure, or normal-form strategy; consequently this does not
 close Theorem 73.
 
+`GlobalPaperTraceScopedConfluence` adds the indexed version needed when a caller has a finite
+reachable package family. Package identity, selected-link source/target equations, decreasing
+fuel, and normal-form decisions are all fields of the type; its activation/orchestration fixture
+therefore proves a nonempty real-link normalization result and endpoint uniqueness without
+eliminating a reachability proposition into data. This is still conditional finite metatheory,
+not a CORDIS-derived strategy or Theorem 73.
+
 The paper-relation layer then erases the allocator artifacts that the reference refinement added
 but the paper does not observe. Its full-domain relation compares active values plus exact
 component/parent/retirement/phase control while omitting `nextBirth` and per-fiber birth; the

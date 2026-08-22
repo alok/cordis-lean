@@ -121,6 +121,7 @@ import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalPaperTraceNormalizer
 import Cordis.GlobalPaperTraceConfluence
+import Cordis.GlobalPaperTraceScopedConfluence
 import Cordis.GlobalProgress
 import Cordis.GlobalProgressTermination
 import Cordis.GlobalProgressRun

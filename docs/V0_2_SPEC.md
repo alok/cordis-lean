@@ -906,7 +906,7 @@ relation whose union cycles, so the module requires `SupportOrder` directly. It 
 combined-edge well-founded recursion, proves uniqueness, and derives support-equals-active at
 quiescence under state-local provision totality, failure exclusion, and active-parent closure.
 
-The bounded algebra/context/global layer now has forty-two explicit pieces:
+The bounded algebra/context/global layer now has forty-three explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -1173,6 +1173,14 @@ The bounded algebra/context/global layer now has forty-two explicit pieces:
     are permutations. This is conditional termination for the supplied authority, not an inferred
     strategy, canonical-form theorem, global dynamic termination, Lemma 72, Theorem 73, or
     confluence.
+43. `Cordis.GlobalPaperTraceScopedConfluence` makes the reachable package family an explicit
+    finite index type instead of hiding it behind a proposition. `IndexedAuthority` carries
+    package injectivity, a decreasing measure, normal-form decisions, and source/target equations
+    for every selected adjacent rewrite; `normalizeFuel`, `path_of_indexedLinked`, and
+    `normalize_results_unique` then reconstruct the independent rewrite path and equal package
+    endpoints. The nonempty activation/orchestration fixture exercises a real link and exposes
+    its rewritten rule and actor ledgers. This remains a supplied finite confluence certificate,
+    not a derived CORDIS strategy, global termination, Lemma 72, or Theorem 73.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
