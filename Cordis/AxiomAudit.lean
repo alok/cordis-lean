@@ -126,6 +126,7 @@ import Cordis.DeepSeekHarnessPersistenceIO
 import Cordis.DeepSeekHarnessPersistenceTransportRound
 import Cordis.DeepSeekHarnessTransportConversation
 import Cordis.DeepSeekHarnessTransportRetry
+import Cordis.DeepSeekHarnessTransportRetryConversation
 import Cordis.DeepSeekHarnessOpaqueMetadata
 import Cordis.DeepSeekHarnessMetadataArchive
 import Cordis.Lifecycle
@@ -886,6 +887,13 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessTransportRetry.RetriedTransportRound.final_endpoint
 #print axioms Cordis.DeepSeekHarnessTransportRetry.executeSource
 #print axioms Cordis.DeepSeekHarnessTransportRetry.Example.retryRound
+#print axioms Cordis.DeepSeekHarnessTransportRetryConversation.RetryTransportTrace.length
+#print axioms Cordis.DeepSeekHarnessTransportRetryConversation.RetryTransportTrace.length_cons
+#print axioms Cordis.DeepSeekHarnessTransportRetryConversation.RetryTransportStop.isCompleted
+#print axioms Cordis.DeepSeekHarnessTransportRetryConversation.RetryTransportStop.isFuelExhausted
+#print axioms Cordis.DeepSeekHarnessTransportRetryConversation.runTransportAux
+#print axioms Cordis.DeepSeekHarnessTransportRetryConversation.runTransport
+#print axioms Cordis.DeepSeekHarnessTransportRetryConversation.Example.retryConversation
 #print axioms Cordis.DeepSeekHarnessOpaqueMetadata.restoreRunner
 #print axioms Cordis.DeepSeekHarnessOpaqueMetadata.RestoredRunner.session_eq_log
 #print axioms Cordis.DeepSeekHarnessOpaqueMetadata.RestoredRunner.metadata_eq_source

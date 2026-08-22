@@ -2223,6 +2223,13 @@ and validate the first successful body exactly once. Feed that accepted dependen
 backoff, idempotency, cancellation, persistence, external effects, live-provider behavior, or
 deployed Harness equivalence.
 
+`Cordis.DeepSeekHarnessTransportRetryConversation` then lifts the retried round into an indexed
+fuel-bounded trace. Define the head with the retry history and nested typed round; index the tail
+by `head.round.round.finalRunner` and `head.round.round.finalModel`, preserving the same dependent
+endpoint discipline as `TransportConversation`. The executable fixture should retry a tool round,
+continue from its exact endpoint, and terminate on a no-tool response; a bounded fuel stop must
+remain distinguishable from completion.
+
 `Cordis.DeepSeekToolSchema` is the next request-side type boundary. It validates the bounded
 schema vocabulary actually represented by the local DeepSeek API: an object parameter root,
 primitive property `type` tags, optional property descriptions, a duplicate-free `required`

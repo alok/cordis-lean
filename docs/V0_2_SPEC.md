@@ -1383,6 +1383,13 @@ response through `acceptValidated` and typed tool execution. The executable fixt
 cancellation, persistence, external effects, live-provider behavior, and deployed Harness
 equivalence remain outside this immediate injected-transport model.
 
+`Cordis.DeepSeekHarnessTransportRetryConversation` composes those retried rounds into an indexed,
+fuel-bounded trace. Each head retains its retry history and the tail starts from the exact final
+runner/model endpoint of the previous round; the fixture retries a tool round once and then
+reaches a no-tool terminal response. Completion and fuel exhaustion remain distinct certificates,
+and the model does not add provider backoff, idempotency, cancellation, persistence, external
+effects, or deployed Harness equivalence.
+
 `Cordis.SessionPayloadArchive` moves one layer inward without inventing provider semantics. It
 classifies the five current content-block tags plus unknown block extensions, retains exact message
 content arrays and source objects, preserves assistant-chunk objects and raw usage, and retains

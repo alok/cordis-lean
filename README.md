@@ -412,6 +412,12 @@ retry and checks the exact assistant/tool endpoint plus the retry bound. Backoff
 cancellation, persistence, external effects, live-provider behavior, and deployed Harness
 equivalence remain outside this immediate injected-transport slice.
 
+`Cordis.DeepSeekHarnessTransportRetryConversation` lifts that retry evidence into the same
+fuel-bounded dependent trace shape as the non-retrying conversation. Every head retains its
+`RetryHistory`, and the next request is indexed by the exact final runner/model endpoint of the
+previous retried round. The fixture retries the tool round once, then reaches a no-tool terminal
+round; completion and fuel exhaustion remain separate typed stops.
+
 `Cordis.DeepSeekHarnessEventArchive` attaches the broader current-Harness event vocabulary to
 the same runner only when both certificates are present: `SessionEventArchive` must preserve
 every envelope exactly and `SessionRefinement` must validate every event semantically. Known

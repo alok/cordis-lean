@@ -127,6 +127,7 @@ import Cordis.DeepSeekHarnessPersistenceIO
 import Cordis.DeepSeekHarnessPersistenceTransportRound
 import Cordis.DeepSeekHarnessTransportConversation
 import Cordis.DeepSeekHarnessTransportRetry
+import Cordis.DeepSeekHarnessTransportRetryConversation
 import Cordis.DeepSeekHarnessOpaqueMetadata
 import Cordis.DeepSeekHarnessMetadataArchive
 import Cordis.Lifecycle
@@ -3918,6 +3919,29 @@ private def testDeepSeekHarnessTransportRetry : IO Unit := do
         DeepSeekHarnessTransportRetry.RetriedTransportRound.final_endpoint round
       pure ()
 
+private def testDeepSeekHarnessTransportRetryConversation : IO Unit := do
+  let result ← DeepSeekHarnessTransportRetryConversation.Example.retryConversation
+  match result.toOption with
+  | none => fail "retry-aware transport conversation fixture failed"
+  | some ⟨finalRunner, ⟨finalModel, run⟩⟩ =>
+      assertEqual "retry-aware conversation records both typed rounds"
+        run.trace.length 2
+      assertEqual "retry-aware conversation preserves the final model"
+        finalModel 0
+      assertEqual "retry-aware conversation reaches the final session"
+        finalRunner.session.nextSeq 3
+      assertEqual "retry-aware conversation stops after the final no-tool response"
+        (DeepSeekHarnessTransportRetryConversation.RetryTransportStop.isCompleted run.stop) true
+      match run.trace with
+      | .cons first (.cons second _) =>
+          assertEqual "retry-aware conversation retains the first round retry history"
+            first.round.retryHistory.failures.length 1
+          assertEqual "retry-aware conversation bounds the first round attempts"
+            first.round.retryHistory.attemptCount 2
+          assertEqual "retry-aware conversation has no retry on the terminal round"
+            second.round.retryHistory.failures.length 0
+      | _ => fail "retry-aware conversation returned the wrong trace shape"
+
 private def testDeepSeekSchemaStreamConversation : IO Unit := do
   match DeepSeekToolSchema.weatherToolCertificate,
       DeepSeekSchemaRegistry.Example.clockToolCertificate with
@@ -6290,6 +6314,7 @@ def run : IO Unit := do
   testDeepSeekHarnessPersistenceTransportRound
   testDeepSeekHarnessTransportConversation
   testDeepSeekHarnessTransportRetry
+  testDeepSeekHarnessTransportRetryConversation
   testDeepSeekSchemaStreamConversation
   testDeepSeekSchemaStreamPrefixConversation
   testDeepSeekSchemaStreamErrors
