@@ -241,6 +241,11 @@ Current machine-checked evidence includes:
   last usage/finish/replay metadata, max-token tool pruning, and typed unknown-block errors;
 - `Cordis.DeepSeekAssemblerToolRound`, converting a successful assembly into local function calls,
   dependent execution, and certified assistant/tool-result session append messages;
+- `Cordis.DeepSeekProviderStreamAssembly`, composing the strict multi-call SSE projection with
+  that provider assembler and retaining both source and fold certificates while rejecting replay
+  metadata and normalizing structured failure/abort causes;
+- `Cordis.DeepSeekStreamToolRound`, carrying the wire-backed result through dependent execution
+  and certified assistant/tool-result session append, with a model-2-to-5 counter fixture;
 - `Cordis.DeepSeekRequestMode`, indexing complete versus streaming request plans by a proof that
   the serialized `stream` flag matches the mode and restricting terminal execution to complete
   plans;
@@ -1478,6 +1483,17 @@ counter configuration, and appends both the assistant message and certified tool
 The executable witness starts at model `2` and reaches model `5`. This is post-decoder local
 composition: provider-ID authenticity, external effects, transport, persistence, and deployed
 Harness equivalence remain outside.
+
+`Cordis.DeepSeekProviderStreamAssembly` composes the strict rich multi-call SSE validator with
+the provider assembler. It retains the source validation equation, the mapped chunk equation, and
+the exact fold/assembly certificate; aligned replay metadata is rejected, while rich structured
+failure/abort causes are normalized to the provider failure vocabulary. Wire transport,
+image/tool-result schemas, and deployed TypeScript equivalence remain outside.
+
+`Cordis.DeepSeekStreamToolRound` carries that accepted wire-backed assembly through the same
+dependent execution and session append path. Its executable fixture reaches model `5` from `2`
+and proves the assistant/tool-result message pair and sequence advancement. Network/authentication,
+external effects, persistence, retries/cancellation, and deployed Harness equivalence remain outside.
 
 `Cordis.SessionRefinement` covers a separate stateful subset of current `SessionEvent` JSON:
 turn/step boundaries, selected request/header snapshots, route context, whole-list todo snapshots,

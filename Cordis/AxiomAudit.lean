@@ -36,7 +36,9 @@ import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekRichMixedStream
 import Cordis.DeepSeekRichMultiStream
 import Cordis.DeepSeekProviderAssembler
+import Cordis.DeepSeekProviderStreamAssembly
 import Cordis.DeepSeekAssemblerToolRound
+import Cordis.DeepSeekStreamToolRound
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
@@ -918,6 +920,19 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekAssemblerToolRound.appendAssistant_messages
 #print axioms Cordis.DeepSeekAssemblerToolRound.appendToolResults_messages
 #print axioms Cordis.DeepSeekAssemblerToolRound.Example.counter_session_messages
+#print axioms Cordis.DeepSeekProviderStreamAssembly.mapRawChunk
+#print axioms Cordis.DeepSeekProviderStreamAssembly.mapRawChunks
+#print axioms Cordis.DeepSeekProviderStreamAssembly.validateBody
+#print axioms Cordis.DeepSeekProviderStreamAssembly.ValidatedProviderAssembly.source_exact
+#print axioms Cordis.DeepSeekProviderStreamAssembly.ValidatedProviderAssembly.chunks_exact
+#print axioms Cordis.DeepSeekProviderStreamAssembly.ValidatedProviderAssembly.assembly_exact
+#print axioms Cordis.DeepSeekProviderStreamAssembly.counterAssemblySummary
+#print axioms Cordis.DeepSeekStreamToolRound.executeBodyTools
+#print axioms Cordis.DeepSeekStreamToolRound.ValidatedStreamToolRound.source_exact
+#print axioms Cordis.DeepSeekStreamToolRound.ValidatedStreamToolRound.execution_exact
+#print axioms Cordis.DeepSeekStreamToolRound.appendRound_messages
+#print axioms Cordis.DeepSeekStreamToolRound.counterSummary
+#print axioms Cordis.DeepSeekStreamToolRound.counterSessionSummary
 #print axioms Cordis.DeepSeekSessionBridge.finishAssistant
 #print axioms Cordis.DeepSeekSessionBridge.appendFinishedAssistant_messages
 #print axioms Cordis.DeepSeekSessionRunner.finishText

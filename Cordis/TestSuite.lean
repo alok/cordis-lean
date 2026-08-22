@@ -40,7 +40,9 @@ import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekRichMixedStream
 import Cordis.DeepSeekRichMultiStream
 import Cordis.DeepSeekProviderAssembler
+import Cordis.DeepSeekProviderStreamAssembly
 import Cordis.DeepSeekAssemblerToolRound
+import Cordis.DeepSeekStreamToolRound
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
@@ -2976,6 +2978,33 @@ private def testDeepSeekAssemblerToolRound : IO Unit := do
     DeepSeekAssemblerToolRound.Example.counterFinalSummary true
   assertEqual "assembled tool round advances the session sequence twice"
     DeepSeekAssemblerToolRound.Example.counterFinalSession.isSome true
+
+private def testDeepSeekProviderStreamAssembly : IO Unit := do
+  assertEqual "rich wire stream reaches provider assembly"
+    DeepSeekProviderStreamAssembly.counterAssemblySummary true
+  match DeepSeekProviderStreamAssembly.validateBody
+      DeepSeekProviderStreamAssembly.counterBody with
+  | .error error => fail s!"wire-backed provider assembly was rejected: {reprStr error}"
+  | .ok validated =>
+      assertEqual "wire-backed provider assembly retains one tool block"
+        validated.assembly.result.blocks.length 1
+      assertEqual "wire-backed provider assembly retains tool-call finish"
+        validated.assembly.result.finish .toolCalls
+
+private def testDeepSeekStreamToolRound : IO Unit := do
+  assertEqual "wire-backed stream reaches dependent tool execution"
+    DeepSeekStreamToolRound.counterSummary true
+  assertEqual "wire-backed stream appends assistant and tool results"
+    DeepSeekStreamToolRound.counterSessionSummary true
+  match DeepSeekStreamToolRound.counterRound with
+  | .error error => fail s!"wire-backed dependent round was rejected: {reprStr error}"
+  | .ok round =>
+      assertEqual "wire-backed dependent round reaches exact counter successor"
+        round.execution.after 5
+      assertEqual "wire-backed dependent round retains one provider call"
+        round.execution.calls.length 1
+      assertEqual "wire-backed dependent round retains one dependent reply"
+        round.execution.executions.length 1
 
 private def testDeepSeekSessionBridge : IO Unit := do
   match DeepSeekRichToolStream.validateToolStream
@@ -7794,6 +7823,8 @@ def run : IO Unit := do
   testDeepSeekRichMultiStream
   testDeepSeekProviderAssembler
   testDeepSeekAssemblerToolRound
+  testDeepSeekProviderStreamAssembly
+  testDeepSeekStreamToolRound
   testDeepSeekSessionBridge
   testDeepSeekSessionRunner
   testDeepSeekApiSession
