@@ -2,7 +2,7 @@
 
 <!-- markdownlint-disable MD013 -->
 
-Status: implemented by `Cordis.GlobalProgress`
+Status: implemented by `Cordis.GlobalProgress` and `Cordis.GlobalProgressRun`
 
 Source basis: CORDIS paper revision
 `948a07b369c62adb3b12e102458be5c18dfb69b9`, especially Definition 65 and
@@ -492,6 +492,24 @@ trace-wide assignment, maximal/infinite execution semantics, fairness, support,
 or confluence. The executable three-state witness checks the arithmetic without
 claiming to model the paper's global name universe.
 
+## 13.6. Certified finite runner
+
+`Cordis.GlobalProgressRun` connects the state-local existence theorem to an exact
+dependent finite execution. `ProgressAuthority` supplies `LocalProgressLaws` at
+each well-formed endpoint; `StepPotential` supplies strict natural-valued decrease
+for every unified `GlobalCalculus.Step`; and `ProgressRunResult` retains the final
+state, intrinsic lifecycle trace, endpoint `WellFormed` proof, fuel bound, and the
+two-way stop certificate. `runFuel` recursively chooses the lifecycle edge supplied
+by `lifecycle_progress`, preserves the endpoint proof, and stops either at a
+quiescent state or at a nonquiescent full-fuel boundary. `certifiedRun_quiescent`
+proves that a run funded by its initial potential cannot reach the latter branch.
+
+This is an executable finite runner under supplied authorities. The authority and
+potential are not derived from the raw registry calculus, and the runner does not
+add target-turn accounting, finite-name freshness, fairness, trace-wide program
+assignment, maximal-execution semantics, support, confluence, or the paper's
+unrestricted Theorem 66.
+
 ## 14. Explicit non-claims
 
 This slice does not prove:
@@ -506,6 +524,7 @@ This slice does not prove:
 - full Theorem 63 provider/provision soundness;
 - the paper's `(K + 4)` bound from its printed assumptions (the separate
   `GlobalProgressTermination` certificate requires an explicit potential);
+- a derived strict potential or a derived `ProgressAuthority` for the finite runner;
 - target-turn finiteness;
 - termination of maximal executions;
 - scheduler fairness;
@@ -537,6 +556,7 @@ Before claiming the slice complete:
 
 1. import it through `Cordis.lean`;
 1. import `Cordis.GlobalProgressTermination` through `Cordis.lean` and the test/audit modules;
+1. import `Cordis.GlobalProgressRun` through `Cordis.lean` and the test/audit modules;
 1. add representative runtime projections to `Cordis.TestSuite`;
 1. add a guarded fixed-program or fresh-admission rejection to
    `Cordis.NegativeTests`;

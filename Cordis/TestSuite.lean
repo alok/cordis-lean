@@ -110,6 +110,7 @@ import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalProgress
 import Cordis.GlobalProgressTermination
+import Cordis.GlobalProgressRun
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
@@ -6203,6 +6204,16 @@ private def testGlobalProgressTermination : IO Unit := do
     (GlobalProgressTermination.Example.potential.value
       GlobalProgressTermination.Example.State.done) 0
 
+private def testGlobalProgressRun : IO Unit := do
+  assertEqual "finite progress runner zero-fuel trace is empty"
+    (GlobalProgressRun.progressTraceLength GlobalProgressRun.Example.zeroFuelResult.trace) 0
+  let _endpoint :
+      GlobalProgressRun.Example.zeroFuelResult.final =
+        GlobalProgressRun.Example.state := rfl
+  let _proof := GlobalProgressRun.Example.zeroFuelResult_not_quiescent
+  assertEqual "finite progress runner exposes the non-quiescent exhaustion proof"
+    true true
+
 private def testGlobalSupport : IO Unit := do
   assertEqual "separate acyclic relations can form one cyclic support dependency"
     GlobalSupport.MixedCycle.cycleProjection (true, true, true)
@@ -6645,6 +6656,7 @@ def run : IO Unit := do
   testGlobalPaperTraceNormalization
   testGlobalProgress
   testGlobalProgressTermination
+  testGlobalProgressRun
   testGlobalSupport
   testGlobalRelations
   testGlobalSpatial

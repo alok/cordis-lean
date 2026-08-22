@@ -231,6 +231,14 @@ then proves state-local no-deadlock by choosing a maximal-rank unloading provide
 The quantitative step bound, target-turn finiteness, maximal-execution termination, and fairness
 remain open trace/provenance work.
 
+`Cordis.GlobalProgressRun` is the finite executable bridge for this conditional result. It accepts
+an explicit `ProgressAuthority` and strict `StepPotential`, recursively chooses the certified
+lifecycle edge, preserves `WellFormed` endpoints, and returns an intrinsic trace with either a
+quiescent stop or a full-fuel certificate. Funding the run with its initial potential proves the
+endpoint is quiescent. These authorities are supplied rather than derived, so this remains a
+finite conditional runner and not the paper's unrestricted quantitative or maximal-termination
+Theorem 66.
+
 The support layer exposes another printed-proof gap. A reachable, well-formed two-insert registry
 can have well-founded provider precedence and an acyclic parent relation while their union cycles,
 making Definition 67 support nonunique. The corrected API therefore requires a well-founded

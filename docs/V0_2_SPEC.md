@@ -878,6 +878,13 @@ and a finite increasing rank, derives fixed-program landing-or-raise readiness f
 totality, and proves conditional state-local lifecycle no-deadlock. It does not prove the
 quantitative or maximal-termination clauses of Theorem 66.
 
+`Cordis.GlobalProgressRun` adds the finite dependent execution bridge: callers supply a
+`ProgressAuthority` and strict `StepPotential`, and `runFuel` retains exact lifecycle traces,
+well-formed endpoints, and a quiescent/full-fuel stop certificate. Funding a run with its initial
+potential proves quiescent completion. This remains conditional finite execution; the authorities,
+target-turn accounting, freshness, fairness, trace-wide assignment, maximal termination, support,
+and confluence are not derived.
+
 The corrected support slice is specified in
 [`GLOBAL_SUPPORT_SPEC.md`](GLOBAL_SUPPORT_SPEC.md) and implemented by `Cordis.GlobalSupport`. A
 reachable legal two-insert trace gives well-founded provider precedence and an acyclic parent
@@ -885,7 +892,7 @@ relation whose union cycles, so the module requires `SupportOrder` directly. It 
 combined-edge well-founded recursion, proves uniqueness, and derives support-equals-active at
 quiescence under state-local provision totality, failure exclusion, and active-parent closure.
 
-The bounded algebra/context/global layer now has thirty-nine explicit pieces:
+The bounded algebra/context/global layer now has forty explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -1126,7 +1133,13 @@ The bounded algebra/context/global layer now has thirty-nine explicit pieces:
     closure assumption necessary, while a root-only positive state exercises the corrected theorem.
     The module does not derive combined order or parent provenance from `FromEmpty`, does not prove
     component-wide Definition 69 or printed Lemma 70, and stops before deletion/confluence.
-39. `Cordis.GlobalPaperTraceNormalization` packages a finite list of supplied
+39. `Cordis.GlobalProgressRun` connects the conditional progress theorem to a finite
+    dependent runner. `ProgressAuthority` and `StepPotential` are explicit inputs;
+    `runFuel` retains endpoint `WellFormed` proofs and exact lifecycle traces, while
+    `certifiedRun_quiescent` rules out full-fuel exhaustion at the initial potential.
+    This is a finite conditional execution bridge, not derived quantitative/maximal
+    termination, target-turn accounting, fairness, trace assignment, support, or confluence.
+40. `Cordis.GlobalPaperTraceNormalization` packages a finite list of supplied
     `RelatedAdjacentRewrite` certificates. The dependent-safe chain representation connects each
     link to the next rewritten trace package, retains each transported `TraceProgramAssignment`,
     and proves final `BirthErasedRuleRelated` plus `List.Perm` facts for trace rules and actors.

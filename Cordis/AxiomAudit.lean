@@ -110,6 +110,7 @@ import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalProgress
 import Cordis.GlobalProgressTermination
+import Cordis.GlobalProgressRun
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
@@ -1463,6 +1464,16 @@ namespace Cordis.GlobalProgressTermination
 #print axioms Example.executableBound
 #print axioms Example.executableEndpoint
 end Cordis.GlobalProgressTermination
+namespace Cordis.GlobalProgressRun
+#print axioms traceLength_append
+#print axioms trace_budget
+#print axioms chooseApplicable
+#print axioms runFuel
+#print axioms certifiedRun_quiescent
+#print axioms certifiedRun_length_le_initial_potential
+#print axioms Example.zeroFuelResult_length
+#print axioms Example.zeroFuelResult_not_quiescent
+end Cordis.GlobalProgressRun
 namespace Cordis.GlobalSupport
 #print axioms MixedCycle.final_wellFormed
 #print axioms MixedCycle.precedence_wellFounded
