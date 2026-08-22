@@ -44,6 +44,7 @@ import Cordis.DeepSeekProviderStreamAssembly
 import Cordis.DeepSeekProviderAssemblyPrefix
 import Cordis.DeepSeekCurlProviderAssemblyPrefix
 import Cordis.DeepSeekCurlProviderAssemblyIncremental
+import Cordis.DeepSeekCurlProviderAssemblyToolRound
 import Cordis.DeepSeekAssemblerToolRound
 import Cordis.DeepSeekStreamToolRound
 import Cordis.DeepSeekProcessStreamToolRound
@@ -3045,6 +3046,29 @@ private def testDeepSeekCurlProviderAssemblyIncremental : IO Unit := do
         processed.certificate.result.blocks.length 1
       assertEqual "incremental process provider assembly retains tool-call finish"
         processed.certificate.result.finish .toolCalls
+
+private def testDeepSeekCurlProviderAssemblyToolRound : IO Unit := do
+  assertEqual "incremental process provider reaches dependent tool round"
+    (← DeepSeekCurlProviderAssemblyToolRound.counterSummary) true
+  match ← DeepSeekCurlProviderAssemblyToolRound.counterRun with
+  | .error error =>
+      fail s!"incremental process dependent round was rejected: {reprStr error}"
+  | .ok ⟨_, round⟩ =>
+      assertEqual "incremental process dependent round retains nine snapshots"
+        round.provider.accepted.length 9
+      assertEqual "incremental process dependent round reaches exact successor"
+        round.execution.after 5
+      assertEqual "incremental process dependent round retains one call"
+        round.execution.calls.length 1
+      assertEqual "incremental process dependent round retains one execution"
+        round.execution.executions.length 1
+  match ← DeepSeekCurlProviderAssemblyToolRound.counterFinalSession with
+  | none => fail "incremental process dependent round did not append a session"
+  | some session =>
+      assertEqual "incremental process dependent round appends two messages"
+        session.messages.length 2
+      assertEqual "incremental process dependent round advances sequence"
+        session.nextSeq 2
 
 private def testDeepSeekStreamToolRound : IO Unit := do
   assertEqual "wire-backed stream reaches dependent tool execution"
@@ -7897,6 +7921,7 @@ def run : IO Unit := do
   testDeepSeekProviderAssemblyPrefix
   testDeepSeekCurlProviderAssemblyPrefix
   testDeepSeekCurlProviderAssemblyIncremental
+  testDeepSeekCurlProviderAssemblyToolRound
   testDeepSeekStreamToolRound
   testDeepSeekProcessStreamToolRound
   testDeepSeekSessionBridge
