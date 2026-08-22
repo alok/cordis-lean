@@ -567,6 +567,7 @@ set_option format.width 200
 #print axioms Cordis.SessionRefinement.Codec.mixedFixture_decode_encode
 #print axioms Cordis.SessionRefinement.Codec.encodeWireEventLine_eq_compress
 #print axioms Cordis.SessionRefinement.Codec.decodeWireEventLine_of_encoded
+#print axioms Cordis.SessionRefinement.Codec.decodeWireEventsText_of_encoded
 #print axioms Cordis.SessionOpaqueMetadata.decodeEventRetainingMetadata
 #print axioms Cordis.SessionOpaqueMetadata.validateLogRetainingMetadata
 #print axioms Cordis.SessionOpaqueMetadata.metadata_example_valid

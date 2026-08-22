@@ -6443,6 +6443,22 @@ private def testSessionRefinementTextCodec : IO Unit := do
   match SessionRefinement.Codec.decodeWireEventLine "{}\n{}" with
   | .error (.multiple 2) => pure ()
   | result => fail s!"multiple canonical text lines were not rejected distinctly: {reprStr result}"
+  match SessionRefinement.Codec.encodeWireEventsText SessionRefinement.Codec.mixedFixture with
+  | .error error => fail s!"canonical text list encoding failed: {reprStr error}"
+  | .ok text =>
+      match SessionRefinement.Codec.decodeWireEventsText text with
+      | .error error => fail s!"canonical text list decoding failed: {reprStr error}"
+      | .ok events =>
+          assertEqual "canonical text list retains four events" events.length 4
+          let tags := events.map fun event =>
+            match event.payload with
+            | .turnStart _ => "turn/start"
+            | .stepStart _ _ => "step/start"
+            | .assistantChunk _ => "assistant/chunk"
+            | .toolCall _ _ _ _ _ => "tool/call"
+            | _ => "other"
+          assertEqual "canonical text list retains event order" tags
+            ["turn/start", "step/start", "assistant/chunk", "tool/call"]
   pure ()
 
 private def testSessionOpaqueMetadata : IO Unit := do
