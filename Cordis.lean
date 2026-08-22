@@ -56,6 +56,7 @@ import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
 import Cordis.DeepSeekHarnessLiveProbe
+import Cordis.DeepSeekHarnessLocalHttp
 import Cordis.DeepSeekHarnessExtensions
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission

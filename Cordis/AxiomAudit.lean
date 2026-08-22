@@ -40,6 +40,7 @@ import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
 import Cordis.DeepSeekHarnessLiveProbe
+import Cordis.DeepSeekHarnessLocalHttp
 import Cordis.DeepSeekHarnessExtensions
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
@@ -577,6 +578,9 @@ set_option format.width 200
 #print axioms Cordis.SessionRefinementProcessConversation.restored_projection_eq_process
 #print axioms Cordis.DeepSeekHarnessLiveProbe.PreparedRequest.complete_mode
 #print axioms Cordis.DeepSeekHarnessLiveProbe.Example.expectedSummary_complete
+#print axioms Cordis.DeepSeekHarnessLocalHttp.LocalProbeResult.complete_mode
+#print axioms Cordis.DeepSeekHarnessLocalHttp.LocalProbeResult.server_exited_successfully
+#print axioms Cordis.DeepSeekHarnessLocalHttp.Example.expectedSummary_complete
 #print axioms Cordis.SessionOpaqueMetadata.decodeEventRetainingMetadata
 #print axioms Cordis.SessionOpaqueMetadata.validateLogRetainingMetadata
 #print axioms Cordis.SessionOpaqueMetadata.metadata_example_valid

@@ -44,6 +44,7 @@ import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
 import Cordis.DeepSeekHarnessLiveProbe
+import Cordis.DeepSeekHarnessLocalHttp
 import Cordis.DeepSeekHarnessExtensions
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
@@ -3343,6 +3344,38 @@ private def testDeepSeekHarnessLiveProbe : IO Unit := do
         summary.finalModel DeepSeekHarnessLiveProbe.Example.expectedSummary.finalModel
       assertEqual "live probe fixture reports typed completion"
         summary.completed DeepSeekHarnessLiveProbe.Example.expectedSummary.completed
+
+private def testDeepSeekHarnessLocalHttp : IO Unit := do
+  assertEqual "local HTTP port parser accepts a decimal port"
+    (DeepSeekHarnessLocalHttp.parsePort "61701\n") (some 61701)
+  assertEqual "local HTTP report parser retains request validity counts"
+    (DeepSeekHarnessLocalHttp.parseReport "requests:2:valid:2\n") (some (2, 2))
+  assertEqual "local HTTP report parser rejects malformed evidence"
+    (DeepSeekHarnessLocalHttp.parseReport "requests:two:valid:2\n") none
+  match ← DeepSeekHarnessLocalHttp.runWithKey DeepSeekHarness.counterRequestSource 1 []
+      Cordis.Harness.counterConfig 0 DeepSeekHarnessLocalHttp.Example.runner
+      { value := "fixture-key" } with
+  | .error .emptyResponses => pure ()
+  | .error error => fail s!"empty local HTTP response list returned {reprStr error}"
+  | .ok _ => fail "empty local HTTP response list was accepted"
+  match ← DeepSeekHarnessLocalHttp.Example.run with
+  | .error error => fail s!"local HTTP curl round-trip failed: {reprStr error}"
+  | .ok result =>
+      let summary := DeepSeekHarnessLocalHttp.Example.summarize result
+      assertEqual "local HTTP fixture receives both bounded conversation requests"
+        summary.requests DeepSeekHarnessLocalHttp.Example.expectedSummary.requests
+      assertEqual "local HTTP fixture validates authorization and request shape"
+        summary.validRequests DeepSeekHarnessLocalHttp.Example.expectedSummary.validRequests
+      assertEqual "local HTTP fixture retains both conversation rounds"
+        summary.rounds DeepSeekHarnessLocalHttp.Example.expectedSummary.rounds
+      assertEqual "local HTTP fixture reaches the exact final session endpoint"
+        summary.finalNextSeq DeepSeekHarnessLocalHttp.Example.expectedSummary.finalNextSeq
+      assertEqual "local HTTP fixture reports typed completion"
+        summary.completed DeepSeekHarnessLocalHttp.Example.expectedSummary.completed
+      assertEqual "local HTTP result retains the exact base URL used by its prepared plan"
+        result.config.baseUrl (DeepSeekHarnessLocalHttp.localBaseUrl result.port)
+      assertEqual "local HTTP result retains the complete-mode certificate"
+        result.prepared.plan.source.stream false
 
 private def testDeepSeekHarnessPersistence : IO Unit := do
   match DeepSeekHarnessPersistence.persistedToolArchive with
@@ -7477,6 +7510,7 @@ def run : IO Unit := do
   testDeepSeekApiSession
   testDeepSeekHarness
   testDeepSeekHarnessLiveProbe
+  testDeepSeekHarnessLocalHttp
   testDeepSeekHarnessPersistence
   testDeepSeekHarnessPersistenceIO
   testDeepSeekHarnessOpaqueMetadata

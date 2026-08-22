@@ -278,6 +278,10 @@ Current machine-checked evidence includes:
   logging it, retaining a complete-mode request plan beside a bounded conversation result, and
   exercising the same API with an injected two-response fixture; credential validity, network
   reachability, process trust, provider behavior, and deployed equivalence remain external;
+- `Cordis.DeepSeekHarnessLocalHttp`, starting a one-shot loopback HTTP fixture and sending the
+  actual complete request through curl, with request method/route/authorization/model/stream-mode
+  checks and server request-count evidence retained beside the typed conversation result; remote
+  reachability, TLS, provider authenticity, and deployed equivalence remain external;
 - `Cordis.DeepSeekStreamHarness`, composing complete-body terminal rich tool streams with the
   generic conversation runner, dependent tool execution, and certified typed-result append;
   streamed rounds use a request source/body certificate proving `stream: true`, and an executable
@@ -940,7 +944,7 @@ relation whose union cycles, so the module requires `SupportOrder` directly. It 
 combined-edge well-founded recursion, proves uniqueness, and derives support-equals-active at
 quiescence under state-local provision totality, failure exclusion, and active-parent closure.
 
-The bounded algebra/context/global layer now has sixty-three explicit pieces:
+The bounded algebra/context/global layer now has sixty-four explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -1331,6 +1335,12 @@ The bounded algebra/context/global layer now has sixty-three explicit pieces:
     `Example.run` exercises the same high-level path with two injected responses, while network
     reachability, credential validity, provider obedience, process trust, backoff, idempotency,
     and deployed Harness equivalence remain external.
+64. `Cordis.DeepSeekHarnessLocalHttp` crosses the local process/HTTP boundary with a one-shot
+    standard-library server and the real curl executable. The fixture validates the request route,
+    authorization header, model, and `stream: false` mode before returning the two existing typed
+    counter responses; `LocalProbeResult` retains the port, request/validity counts, server exit,
+    prepared request, and final conversation endpoint. Remote reachability, TLS, provider
+    authenticity, executable trust, retries, and deployed Harness equivalence remain external.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
