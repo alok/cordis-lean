@@ -1985,6 +1985,11 @@ bounded stdout chunks, keeps the incomplete raw fragment separate from complete 
 the pure byte-prefix state before the next read, and excludes the private status trailer from SSE
 parsing. The result is a read-boundary and framing certificate, not a theorem about interrupting a
 blocked read, backpressure, reconnect, credentials, executable trust, or deployed semantics.
+`Cordis.DeepSeekStreamHarnessBytePrefix` is the continuation layer above that reader. On a
+completed prefix it reuses the existing dependent finish, assistant append, tool execution, and
+tool-result append; on a prefix fuel stop it returns an explicit nonterminal Harness stop. This
+keeps the process/framing witness adjacent to the session endpoint without claiming deployed
+provider behavior or interruptible IO.
 `Cordis.DeepSeekCurlSession` takes the terminal text subset one step further: it retains the
 process-backed wire certificate, runs the accepted rich/session projection, and returns the
 proof-carrying append-only runner. Source-event evidence, numeric local-ID assignment, and all

@@ -892,6 +892,10 @@ bounded stdout reads retain raw chunks and incomplete fragments, complete body l
 prefix state before the next read, and status-trailer bytes stay outside the SSE body. This is
 finite process/framing evidence; blocked-read interruption, backpressure, cancellation, reconnect,
 provider-complete assembly, and deployed Harness equivalence remain unproved.
+`Cordis.DeepSeekStreamHarnessBytePrefix` composes that live process-byte prefix with the
+existing rich/tool/session runner. Completed prefixes retain the exact body/framing/status witness
+beside the assistant/tool endpoint, while read-budget prefix stops become explicit nonterminal
+Harness stops. This remains finite process evidence rather than deployed or blocked-read semantics.
 
 [paper-tree]: https://github.com/cordiverse/paper/tree/948a07b369c62adb3b12e102458be5c18dfb69b9
 [paper-pdf]: https://raw.githubusercontent.com/cordiverse/paper/948a07b369c62adb3b12e102458be5c18dfb69b9/paper.pdf

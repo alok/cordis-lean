@@ -62,6 +62,7 @@ import Cordis.DeepSeekHarnessRetry
 import Cordis.DeepSeekHarnessCancellation
 import Cordis.DeepSeekStreamHarness
 import Cordis.DeepSeekStreamHarnessByte
+import Cordis.DeepSeekStreamHarnessBytePrefix
 import Cordis.DeepSeekStreamHarnessCancellation
 import Cordis.DeepSeekStreamHarnessPrefix
 import Cordis.DeepSeekStreamHarnessErrors
@@ -3880,6 +3881,69 @@ private def testDeepSeekStreamHarnessByte : IO Unit := do
       assertEqual "byte-backed Harness loop reports completion"
         (DeepSeekStreamHarnessByte.ByteStreamConversationStop.isCompleted result.stop) true
 
+private def testDeepSeekStreamHarnessBytePrefix : IO Unit := do
+  let process := DeepSeekStreamHarness.streamFlagFixtureProcess
+    DeepSeekStreamHarness.counterToolStreamBody
+  let initialRunner : DeepSeekHarness.ConversationRunner := {
+    session := DeepSeekHarness.counterSession
+    turn := 1
+    step := 0
+    nextCall := 0
+    toolCallCount_eq_nextCall := by rfl
+  }
+  let roundResult ← DeepSeekStreamHarnessBytePrefix.executeConversationBytePrefixRound
+    DeepSeekSessionRunner.finishTool 4096 1 process "https://fixture.invalid"
+    { value := "fixture-key" } DeepSeekHarness.counterRequestSource
+    Cordis.Harness.counterConfig 0 initialRunner [] (by simp) (by simp)
+  match roundResult with
+  | .error _ => fail "byte-prefix Harness round failed"
+  | .ok ⟨body, result⟩ =>
+      assertEqual "byte-prefix Harness preserves the decoded body"
+        body DeepSeekStreamHarness.counterToolStreamBody
+      assertEqual "byte-prefix Harness retains many process chunks"
+        (decide (result.observed.rawChunks.length > 1)) true
+      assertEqual "byte-prefix Harness executes the dependent tool"
+        result.round.finalModel 0
+      assertEqual "byte-prefix Harness appends the certified result"
+        result.round.runner.session.nextSeq 3
+      match result.observed.stop with
+      | .completed stream =>
+          assertEqual "byte-prefix Harness completion retains the exact body"
+            stream.text body
+      | .fuelExhausted => fail "byte-prefix Harness round exhausted"
+      | .cancelled _ _ _ => fail "byte-prefix Harness round cancelled"
+
+  let loopProcess : Cordis.DeepSeekCurlTransport.ProcessConfig := {
+    command := "sh"
+    args := fun _ => #[
+      "-c",
+      "body=$(cat); case \"$body\" in " ++
+        "*tool_calls*) printf '%s\\n__CORDIS_HTTP_STATUS__200\\n' \"$2\" ;; " ++
+        "*) printf '%s\\n__CORDIS_HTTP_STATUS__200\\n' \"$1\" ;; esac",
+      "cordis-byte-prefix-loop-fixture",
+      DeepSeekStreamHarness.counterMultiToolStreamBody,
+      DeepSeekRichStream.exampleTextStreamBody
+    ]
+  }
+  let loopResult :
+      Except DeepSeekStreamHarnessBytePrefix.BytePrefixConversationError
+        (DeepSeekStreamHarnessBytePrefix.BytePrefixConversationRunResult
+          Cordis.Harness.counterConfig) ←
+    DeepSeekStreamHarnessBytePrefix.runConversationMultiBytePrefix 2 4096 1
+    loopProcess "https://fixture.invalid" { value := "fixture-key" }
+    DeepSeekHarness.counterRequestSource [] (by simp) (by
+      intro current source sourceMem
+      cases sourceMem) 0 initialRunner
+  match loopResult with
+  | .error _ => fail "byte-prefix Harness loop failed"
+  | .ok result =>
+      assertEqual "byte-prefix Harness loop retains both round witnesses"
+        result.rounds.length 2
+      assertEqual "byte-prefix Harness loop preserves the final model"
+        result.finalModel 0
+      assertEqual "byte-prefix Harness loop reports completion"
+        (DeepSeekStreamHarnessBytePrefix.BytePrefixConversationStop.isCompleted result.stop) true
+
 private def testDeepSeekStreamHarnessCancellation : IO Unit := do
   let streamLoopProcess : Cordis.DeepSeekCurlTransport.ProcessConfig := {
     command := "sh"
@@ -5626,6 +5690,7 @@ def run : IO Unit := do
   testDeepSeekHarnessPayloadPersistence
   testDeepSeekStreamHarness
   testDeepSeekStreamHarnessByte
+  testDeepSeekStreamHarnessBytePrefix
   testDeepSeekStreamHarnessCancellation
   testDeepSeekStreamHarnessPrefix
   testDeepSeekHarnessErrors

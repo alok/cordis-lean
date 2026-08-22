@@ -121,6 +121,11 @@ bounded stdout reads preserve incomplete raw fragments, decode only complete bod
 typed prefix before the next read, and classify the private status trailer separately. Its typed
 stop policy is checked before each subsequent read; blocked-read interruption, backpressure,
 reconnects, and deployed Harness equivalence remain external.
+`Cordis.DeepSeekStreamHarnessBytePrefix` carries a completed process-byte prefix witness
+through the rich/tool/session continuation and turns a prefix fuel stop into an explicit Harness
+stop instead of a fabricated terminal response. The deterministic round and two-round loop retain
+the raw/framing/status evidence beside the runner endpoint; blocked-read interruption, backpressure,
+reconnects, and deployed Harness equivalence remain external.
 `Cordis.DeepSeekStreamFailure` preserves the two provider terminal-failure tags
 currently decoded by the wire layer (`content_filter` and
 `insufficient_system_resource`) as a raw, typed failure certificate. It does

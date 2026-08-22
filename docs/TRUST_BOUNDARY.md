@@ -667,6 +667,11 @@ chunks, incomplete fragments, and a typed stop state; complete body lines advanc
 state before another read, while the private status trailer remains outside SSE parsing. It proves
 neither blocked-read interruption nor backpressure, cancellation, reconnect, provider-complete
 assembly, credential/executable trust, or deployed stream equivalence.
+`Cordis.DeepSeekStreamHarnessBytePrefix` is the typed continuation above that boundary:
+completed prefix witnesses feed the existing rich/tool/session append path, and prefix fuel stops
+remain explicit nonterminal Harness stops. The tests establish only deterministic process/framing
+and runner evidence; they do not establish blocked-read interruption, backpressure, reconnect,
+provider-complete assembly, credentials, executable trust, or deployed equivalence.
 
 When an adapter such as `ToolWire` is used, textual resolution, decoding, and admission can
 fail closed before an `AuthorizedCall` is constructed. The adapter still supplies its resolver,

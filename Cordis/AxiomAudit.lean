@@ -60,6 +60,7 @@ import Cordis.DeepSeekHarnessRetry
 import Cordis.DeepSeekHarnessCancellation
 import Cordis.DeepSeekStreamHarness
 import Cordis.DeepSeekStreamHarnessByte
+import Cordis.DeepSeekStreamHarnessBytePrefix
 import Cordis.DeepSeekStreamHarnessCancellation
 import Cordis.DeepSeekStreamHarnessPrefix
 import Cordis.DeepSeekStreamHarnessErrors
@@ -874,6 +875,9 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekStreamHarnessByte.executeConversationByteStreamRound
 #print axioms Cordis.DeepSeekStreamHarnessByte.executeConversationMultiByteStreamRound
 #print axioms Cordis.DeepSeekStreamHarnessByte.runConversationMultiByteStream
+#print axioms Cordis.DeepSeekStreamHarnessBytePrefix.executeConversationBytePrefixRound
+#print axioms Cordis.DeepSeekStreamHarnessBytePrefix.executeConversationMultiBytePrefixRound
+#print axioms Cordis.DeepSeekStreamHarnessBytePrefix.runConversationMultiBytePrefix
 #print axioms Cordis.DeepSeekStreamHarnessCancellation.runConversationMultiStreamCancellable
 #print axioms Cordis.DeepSeekStreamHarnessPrefix.executeConversationMultiStreamPrefixRound
 #print axioms Cordis.Transformation.Closure.commute

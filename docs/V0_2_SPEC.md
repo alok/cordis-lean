@@ -314,6 +314,10 @@ Current machine-checked evidence includes:
   and the private status trailer is kept outside the SSE body. The stop policy is read-boundary
   evidence only; blocked-read interruption, backpressure, cancellation, reconnect, and deployed
   semantics remain external;
+- `Cordis.DeepSeekStreamHarnessBytePrefix`, carrying a completed process-byte prefix
+  witness through rich/tool/session continuation and preserving prefix fuel stops as explicit
+  Harness stops. The deterministic fixtures retain the framing/status evidence beside the runner;
+  blocked-read interruption, backpressure, reconnect, and deployed semantics remain external;
 - `Cordis.DeepSeekCurlIncremental`, delivering complete response lines through a process callback
   under an explicit read budget before strict validation of the reconstructed SSE body; byte-level
   and cancellation semantics remain external;
