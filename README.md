@@ -97,6 +97,13 @@ frames, a terminal `[DONE]` is required at `finish`, and a finite line policy
 can stop before consuming the next line. This is prefix control rather than a
 live HTTP reader, backpressure, process cancellation, reconnect, or deployed
 assembler theorem.
+`Cordis.DeepSeekStreamByteFraming` adds the pure byte-ingress seam below that
+line machine: arbitrary `ByteArray` chunks split at LF boundaries, complete
+lines decode as UTF-8 only after framing, and the prefix state retains an exact
+canonical reconstruction. `finish` rejects an incomplete final line and
+bridges the reconstructed text to the strict SSE validator. Process-level
+reads, blocked-read interruption, backpressure, cancellation, reconnect, and
+deployed stream semantics remain external.
 `Cordis.DeepSeekStreamFailure` preserves the two provider terminal-failure tags
 currently decoded by the wire layer (`content_filter` and
 `insufficient_system_resource`) as a raw, typed failure certificate. It does

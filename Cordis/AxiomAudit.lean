@@ -26,6 +26,7 @@ import Cordis.DeepSeekStream
 import Cordis.DeepSeekStreamFailure
 import Cordis.DeepSeekTerminalOutcome
 import Cordis.DeepSeekStreamIncremental
+import Cordis.DeepSeekStreamByteFraming
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekRichMixedStream
@@ -641,6 +642,10 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekTerminalOutcome.validateTerminalOutcome_tool
 #print axioms Cordis.DeepSeekStreamIncremental.consumeLines
 #print axioms Cordis.DeepSeekStreamIncremental.consumeBody
+#print axioms Cordis.DeepSeekStreamByteFraming.splitComplete_spec
+#print axioms Cordis.DeepSeekStreamByteFraming.pushChunk_source
+#print axioms Cordis.DeepSeekStreamByteFraming.ValidatedByteStream.validateSseBytes_exact
+#print axioms Cordis.DeepSeekStreamByteFraming.validateChunks
 #print axioms Cordis.DeepSeekStream.validateSseBytes
 #print axioms Cordis.DeepSeekRichStream.projectFrames
 #print axioms Cordis.DeepSeekRichStream.validateTextStream

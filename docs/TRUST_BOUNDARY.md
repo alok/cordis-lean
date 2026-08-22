@@ -649,6 +649,13 @@ process prefix. It retains either a completed multi-call tool append or the exac
 with a typed line-cancellation/read-budget stop; byte framing and blocked-read interruption are
 not proved.
 
+`Cordis.DeepSeekStreamByteFraming` is the separate pure byte-ingress boundary below that line
+prefix. It splits arbitrary `ByteArray` chunks at LF boundaries, retains an exact canonical
+reconstruction, decodes complete lines as UTF-8 before typed prefix parsing, and bridges a complete
+reconstruction to strict SSE validation. It does not prove process-level byte reads, blocked-read
+interruption, backpressure, cancellation, reconnect, provider-complete assembly, or deployed
+stream equivalence.
+
 When an adapter such as `ToolWire` is used, textual resolution, decoding, and admission can
 fail closed before an `AuthorizedCall` is constructed. The adapter still supplies its resolver,
 codecs, decidability procedures, and proof-producing `certifyAdmission` implementation. Its

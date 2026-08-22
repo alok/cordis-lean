@@ -28,6 +28,7 @@ import Cordis.DeepSeekStream
 import Cordis.DeepSeekStreamFailure
 import Cordis.DeepSeekTerminalOutcome
 import Cordis.DeepSeekStreamIncremental
+import Cordis.DeepSeekStreamByteFraming
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekRichMixedStream

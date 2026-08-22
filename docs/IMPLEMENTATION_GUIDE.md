@@ -1961,6 +1961,12 @@ parser: each complete line is parsed into a state retaining the exact accumulate
 line number, and prefix equation; `finish` invokes the original complete-body validator and refuses
 an incomplete `[DONE]` prefix. Its line policy is a proof-carrying stop boundary, not a live-reader
 or backpressure/cancellation implementation.
+`Cordis.DeepSeekStreamByteFraming` supplies the pure byte-ingress layer immediately below that
+line machine. It accumulates arbitrary `ByteArray` chunks, retains the exact canonical
+reconstruction of complete LF-delimited lines plus pending bytes, decodes UTF-8 only after a line
+is complete, and feeds the existing typed prefix state. `finish` requires an empty pending suffix
+and bridges the reconstructed text to strict SSE validation. This is not a process byte reader or
+a theorem about blocked reads, backpressure, cancellation, reconnect, or deployed semantics.
 `Cordis.DeepSeekCurlSession` takes the terminal text subset one step further: it retains the
 process-backed wire certificate, runs the accepted rich/session projection, and returns the
 proof-carrying append-only runner. Source-event evidence, numeric local-ID assignment, and all

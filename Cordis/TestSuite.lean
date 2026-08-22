@@ -28,6 +28,7 @@ import Cordis.DeepSeekStream
 import Cordis.DeepSeekStreamFailure
 import Cordis.DeepSeekTerminalOutcome
 import Cordis.DeepSeekStreamIncremental
+import Cordis.DeepSeekStreamByteFraming
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekRichMixedStream
@@ -2250,6 +2251,35 @@ private def testDeepSeekStreamIncremental : IO Unit := do
         (DeepSeekStreamIncremental.StreamStop.isFuelExhausted result.stop) true
       assertEqual "incremental fuel exhaustion retains the parsed prefix"
         result.state.frames.length 1
+
+private def testDeepSeekStreamByteFraming : IO Unit := do
+  assertEqual "byte-framing ASCII fixture succeeds"
+    DeepSeekStreamByteFraming.exampleRuntime true
+  assertEqual "byte-framing UTF-8 boundary fixture succeeds"
+    DeepSeekStreamByteFraming.unicodeRuntime true
+  match DeepSeekStreamByteFraming.validateChunks [ByteArray.mk #[255, 10]] with
+  | .error (.invalidUtf8 0 bytes) =>
+      assertEqual "byte-framing invalid UTF-8 retains the offending line bytes"
+        bytes.size 1
+  | .error _ => fail "byte-framing invalid UTF-8 returned the wrong typed error"
+  | .ok _ => fail "byte-framing invalid UTF-8 was accepted"
+  match DeepSeekStreamByteFraming.validateChunks [
+      DeepSeekStreamByteFraming.exampleBytes.extract 0 1] with
+  | .error (.incomplete bytes) =>
+      assertEqual "byte-framing incomplete final line retains pending bytes"
+        bytes.size 1
+  | .error _ => fail "byte-framing incomplete input returned the wrong typed error"
+  | .ok _ => fail "byte-framing incomplete input was accepted"
+  match DeepSeekStreamByteFraming.validateChunks DeepSeekStreamByteFraming.exampleChunks with
+  | .error _ => fail "byte-framing bridge rejected the valid chunked fixture"
+  | .ok result =>
+      assertEqual "byte-framing bridge retains both SSE frames"
+        result.stream.frames.length 2
+      let _sourceCertificate := result.state.framed
+      let _decodedCertificate := result.decoded
+      let _bodyCertificate := result.body_eq
+      let _validatorCertificate :=
+        DeepSeekStreamByteFraming.ValidatedByteStream.validateSseBytes_exact result
 
 private def testDeepSeekRichStream : IO Unit := do
   match DeepSeekRichStream.validateTextStream DeepSeekRichStream.exampleTextStreamBody with
@@ -5431,6 +5461,7 @@ def run : IO Unit := do
   testDeepSeekStreamFailure
   testDeepSeekTerminalOutcome
   testDeepSeekStreamIncremental
+  testDeepSeekStreamByteFraming
   testDeepSeekRichStream
   testDeepSeekRichToolStream
   testDeepSeekRichMixedStream

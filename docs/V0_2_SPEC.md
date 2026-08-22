@@ -294,6 +294,11 @@ Current machine-checked evidence includes:
   retain the accumulated body/frame equation, `finish` requires `[DONE]`, and a finite line policy
   can stop before the next line; live IO, backpressure, process cancellation, and reconnect remain
   external;
+- `Cordis.DeepSeekStreamByteFraming`, adding pure arbitrary-byte ingress below that prefix state:
+  LF-delimited chunks retain an exact canonical reconstruction, complete lines decode as UTF-8
+  before typed prefix parsing, and invalid UTF-8/incomplete final lines are typed errors; process
+  reads, blocked-read interruption, backpressure, cancellation, reconnect, and deployed semantics
+  remain external;
 - `Cordis.DeepSeekCurlIncremental`, delivering complete response lines through a process callback
   under an explicit read budget before strict validation of the reconstructed SSE body; byte-level
   and cancellation semantics remain external;

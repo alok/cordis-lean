@@ -870,6 +870,14 @@ paths, the mapped Lean modules do not establish:
 These are adapter, runtime, and systems claims. They require separate refinement theorems or
 integration tests; they cannot be inferred from similarly named Lean declarations.
 
+`Cordis.DeepSeekStreamByteFraming` now fills the pure byte-ingress gap below the
+line-oriented prefix machine. Arbitrary `ByteArray` chunks are split at LF boundaries with an
+exact canonical reconstruction; complete lines decode as UTF-8 before typed prefix parsing;
+invalid UTF-8 and incomplete final lines remain typed errors; and `finish` bridges the
+reconstructed text to strict SSE validation. This is not a process-level byte reader and does
+not prove blocked-read interruption, backpressure, cancellation, reconnect, provider-complete
+assembly, or deployed stream equivalence.
+
 [paper-tree]: https://github.com/cordiverse/paper/tree/948a07b369c62adb3b12e102458be5c18dfb69b9
 [paper-pdf]: https://raw.githubusercontent.com/cordiverse/paper/948a07b369c62adb3b12e102458be5c18dfb69b9/paper.pdf
 [cordis-tree]: https://github.com/cordiverse/cordis/tree/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4
