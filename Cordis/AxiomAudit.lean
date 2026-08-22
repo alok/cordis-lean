@@ -77,6 +77,7 @@ import Cordis.DeepSeekStreamHarnessCancellation
 import Cordis.DeepSeekStreamHarnessPrefix
 import Cordis.DeepSeekStreamHarnessErrors
 import Cordis.DeepSeekStreamHarnessRetry
+import Cordis.DeepSeekStreamHarnessRetryConversation
 import Cordis.DeepSeekAsyncHarness
 import Cordis.DeepSeekAsyncStreamHarness
 import Cordis.DeepSeekAsyncStreamCancellation
@@ -1891,3 +1892,11 @@ end Cordis.GlobalPaperTraceNormalization
 #print axioms Cordis.DeepSeekStreamHarnessRetry.executeWithRetry
 #print axioms Cordis.DeepSeekStreamHarnessRetry.executeConversationMultiStreamRound
 #print axioms Cordis.DeepSeekStreamHarness.streamFlagFixtureProcess
+#print axioms Cordis.DeepSeekStreamHarnessRetryConversation.StreamRetryTrace.length
+#print axioms Cordis.DeepSeekStreamHarnessRetryConversation.StreamRetryTrace.length_cons
+#print axioms Cordis.DeepSeekStreamHarnessRetryConversation.StreamRetryStop.isCompleted
+#print axioms Cordis.DeepSeekStreamHarnessRetryConversation.StreamRetryStop.isFuelExhausted
+#print axioms Cordis.DeepSeekStreamHarnessRetryConversation.runAux
+#print axioms Cordis.DeepSeekStreamHarnessRetryConversation.run
+#print axioms Cordis.DeepSeekStreamHarnessRetryConversation.Example.loop
+#print axioms Cordis.DeepSeekStreamHarnessRetryConversation.Example.failure

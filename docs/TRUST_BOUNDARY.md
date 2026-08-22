@@ -387,6 +387,12 @@ followed by a no-tool terminal response. Completion and fuel exhaustion are dist
 certificates. Provider backoff, idempotency, cancellation, persistence, external effects,
 live-provider behavior, and deployed Harness equivalence remain external.
 
+`DeepSeekStreamHarnessRetryConversation` is the process-backed streamed analogue. Its indexed
+trace retains each complete SSE body, ordered retry history, dependent assistant/tool endpoint,
+and exact runner/model tail; fixtures cover tool-to-text completion and an exhausted transient-HTTP
+policy. Backoff, idempotency, blocked-read cancellation, persistence, reconnects, external effects,
+and deployed Harness retry equivalence remain external.
+
 `HarnessPersistenceBytes` is the pure immutable-`ByteArray` companion. Its dependent certificate
 retains the original bytes, decoded UTF-8 text, parsed JSONL rows, packed-row expansion, and the
 composed Session/Protocol projection. Runtime fixtures cover accepted, malformed, empty, and
@@ -859,7 +865,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1675
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1683
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.

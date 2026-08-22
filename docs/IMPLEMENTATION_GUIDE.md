@@ -2044,6 +2044,13 @@ round. Its explicit policy retries process and transient-HTTP `SessionClientErro
 ordered history and retry bound, and then reuses the existing streamed assistant/tool certificates
 on success. Stream framing, semantic response, and tool failures remain terminal; backoff,
 idempotency, cancellation, persistence, and deployed retry equivalence remain external.
+`Cordis.DeepSeekStreamHarnessRetryConversation` is the loop-level process bridge above it. Define
+an indexed head carrying the complete SSE body and `ConversationRoundResult`, then index the tail
+by `round.runner` and `round.finalModel`. Keep a distinct `completed` stop with a no-tool proof,
+`fuelExhausted` with the exact prefix endpoint, and the underlying retry `ConversationError`
+unchanged. The executable fixture covers tool-to-text continuation and an exhausted transient-HTTP
+history; do not infer backoff, idempotency, blocked-read interruption, persistence, reconnect,
+or deployed retry semantics.
 `Cordis.DeepSeekHarnessErrors` makes the provider-failure policy explicit rather than silently
 choosing one behavior: `.reject` is the default fail-closed request policy, while `.include`
 retains a `ProviderFailedTool` proof and appends its exact provider message as an `isError` tool

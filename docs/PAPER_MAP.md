@@ -512,6 +512,13 @@ boundary. Process and transient-HTTP failures retain ordered `SessionClientError
 may retry under policy; stream framing, semantic response, and tool failures remain terminal.
 Backoff, idempotency, cancellation, persistence, and deployed retry equivalence remain external.
 
+`Cordis.DeepSeekStreamHarnessRetryConversation` composes that process-backed retry round into an
+indexed fuel-bounded trace. Heads retain complete SSE bodies, ordered histories, dependent
+assistant/tool endpoints, and exact runner/model tail indices; the executable fixtures cover a
+streamed tool-to-text completion and an exhausted transient-HTTP policy. Backoff, idempotency,
+blocked-read cancellation, persistence, reconnects, external effects, and deployed retry
+equivalence remain external.
+
 ### Current-development transformation and operation independence
 
 Local sources: [`Cordis/Transformation.lean`](../Cordis/Transformation.lean),

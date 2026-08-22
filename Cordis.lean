@@ -86,6 +86,7 @@ import Cordis.DeepSeekStreamHarnessCancellation
 import Cordis.DeepSeekStreamHarnessPrefix
 import Cordis.DeepSeekStreamHarnessErrors
 import Cordis.DeepSeekStreamHarnessRetry
+import Cordis.DeepSeekStreamHarnessRetryConversation
 import Cordis.DeepSeekAsyncHarness
 import Cordis.DeepSeekAsyncStreamHarness
 import Cordis.DeepSeekAsyncStreamCancellation

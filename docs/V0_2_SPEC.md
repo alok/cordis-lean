@@ -368,6 +368,12 @@ Current machine-checked evidence includes:
   streamed rounds. Process and transient-HTTP failures retain ordered history and may retry under
   policy, while stream framing, semantic response, and tool failures remain terminal;
   backoff, idempotency, cancellation, persistence, and deployed retry semantics remain outside;
+- `Cordis.DeepSeekStreamHarnessRetryConversation`, composing those process-backed retry rounds
+  into an indexed fuel-bounded trace whose heads retain complete SSE bodies, retry histories,
+  dependent assistant/tool endpoints, and exact runner/model tails; its fixtures cover streamed
+  tool-to-text completion and an exhausted transient-HTTP policy, while backoff, idempotency,
+  blocked-read cancellation, persistence, reconnects, and deployed retry equivalence remain
+  outside;
 - `Cordis.DeepSeekHarnessCancellation`, adding a pre-round cancellation decision that retains the
   exact completed prefix, runner/model endpoint, and cancellation certificate; it does not claim
   mid-request IO interruption, cleanup, or deployed Harness cancellation semantics;

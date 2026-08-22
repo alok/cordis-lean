@@ -631,6 +631,14 @@ framing, semantic response, and tool failures remain terminal; the exact retry h
 existing streamed assistant/tool certificates are retained. Backoff, idempotency, cancellation,
 persistence, and deployed retry semantics remain external.
 
+`Cordis.DeepSeekStreamHarnessRetryConversation` composes those process-backed retry rounds into
+an indexed, fuel-bounded trace. Every head retains the accepted streamed body, ordered retry
+history, dependent assistant/tool endpoint, and exact final runner/model; the tail begins at that
+endpoint. The executable fixture covers a streamed two-call tool round followed by a text terminal,
+while a transient-HTTP fixture proves the bounded failure history. Backoff, idempotency,
+cancellation of blocked reads, persistence, reconnects, external effects, and deployed retry
+equivalence remain external.
+
 The next paper layer is explicit rather than assumed. `Cordis.OperationalEquivalence` models
 Definition 34's heterogeneous finite tests and proves the generator-level coarsest relation of
 Lemma 35, while a compiled counterexample shows that same-word tests do not imply the stronger

@@ -79,6 +79,7 @@ import Cordis.DeepSeekStreamHarnessCancellation
 import Cordis.DeepSeekStreamHarnessPrefix
 import Cordis.DeepSeekStreamHarnessErrors
 import Cordis.DeepSeekStreamHarnessRetry
+import Cordis.DeepSeekStreamHarnessRetryConversation
 import Cordis.DurableCodec
 import Cordis.DurableBytes
 import Cordis.DurableIO
@@ -5082,6 +5083,46 @@ private def testDeepSeekStreamHarnessRetry : IO Unit := do
           .toolResult { value := 0 } "[true,0]" false
         ]
 
+private def testDeepSeekStreamHarnessRetryConversation : IO Unit := do
+  match ← DeepSeekStreamHarnessRetryConversation.Example.loop with
+  | .error _ => fail "stream retry conversation loop failed"
+  | .ok ⟨finalRunner, ⟨finalModel, run⟩⟩ =>
+      assertEqual "stream retry conversation loop retains both round witnesses"
+        run.trace.length 2
+      assertEqual "stream retry conversation loop preserves the final model"
+        finalModel 0
+      assertEqual "stream retry conversation loop appends the text terminal"
+        finalRunner.session.messages [
+          .user "Read the counter.",
+          .assistant "" [
+            { id := { value := 0 }, name := "counter_read", arguments := "null" },
+            { id := { value := 1 }, name := "counter_read", arguments := "null" }
+          ],
+          .toolResult { value := 0 } "[true,0]" false,
+          .toolResult { value := 1 } "[true,0]" false,
+          .assistant "Hello world" []
+        ]
+      assertEqual "stream retry conversation loop reports completion"
+        (DeepSeekStreamHarnessRetryConversation.StreamRetryStop.isCompleted run.stop) true
+      match run.trace with
+      | .cons first (.cons second _) =>
+          assertEqual "stream retry loop first round executes both streamed tools"
+            first.round.round.executions.length 2
+          assertEqual "stream retry loop first round has no failed attempts"
+            first.round.retryHistory.failures.length 0
+          assertEqual "stream retry loop final round has no failed attempts"
+            second.round.retryHistory.failures.length 0
+      | _ => fail "stream retry conversation loop returned the wrong trace shape"
+
+  match ← DeepSeekStreamHarnessRetryConversation.Example.failure with
+  | .error (.client history (.transport (.httpStatus 503 _))) =>
+      assertEqual "stream retry conversation failure retains both retry failures"
+        history.failures.length 2
+      assertEqual "stream retry conversation failure reports the retry bound"
+        (DeepSeekStreamHarnessRetry.RetryHistory.attemptCount history) 3
+  | .error _ => fail "stream retry conversation returned the wrong failure"
+  | .ok _ => fail "stream retry conversation accepted an exhausted transient process"
+
 private def testDeepSeekHarnessCancellation : IO Unit := do
   let initialRunner : DeepSeekHarness.ConversationRunner := {
     session := DeepSeekHarness.counterSession
@@ -6334,6 +6375,7 @@ def run : IO Unit := do
   testDeepSeekStreamHarnessErrorsLoop
   testDeepSeekHarnessRetry
   testDeepSeekStreamHarnessRetry
+  testDeepSeekStreamHarnessRetryConversation
   testDeepSeekHarnessCancellation
   testQuotientEffects
   testCoeffectQuotientLift
