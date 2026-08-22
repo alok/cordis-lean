@@ -46,6 +46,7 @@ import Cordis.DeepSeekCurlProviderAssemblyPrefix
 import Cordis.DeepSeekCurlProviderAssemblyIncremental
 import Cordis.DeepSeekCurlProviderAssemblyToolRound
 import Cordis.DeepSeekCurlProviderAssemblyToolPrefix
+import Cordis.DeepSeekCurlProviderAssemblyToolConversation
 import Cordis.DeepSeekAssemblerToolRound
 import Cordis.DeepSeekStreamToolRound
 import Cordis.DeepSeekProcessStreamToolRound
@@ -3085,6 +3086,24 @@ private def testDeepSeekCurlProviderAssemblyToolPrefix : IO Unit := do
         pendingPrefix.provider.raw.length 3
   assertEqual "process prefix terminal branch reaches dependent tool session"
     (← DeepSeekCurlProviderAssemblyToolPrefix.counterTerminalSummary) true
+
+private def testDeepSeekCurlProviderAssemblyToolConversation : IO Unit := do
+  assertEqual "incremental process tool conversation reaches two typed rounds"
+    (← DeepSeekCurlProviderAssemblyToolConversation.counterSummary) true
+  match ← DeepSeekCurlProviderAssemblyToolConversation.counterRun with
+  | .error error =>
+      fail s!"incremental process tool conversation was rejected: {reprStr error}"
+  | .ok result =>
+      assertEqual "incremental process tool conversation retains two round witnesses"
+        result.rounds.length 2
+      assertEqual "incremental process tool conversation reaches model eight"
+        result.finalModel 8
+      assertEqual "incremental process tool conversation appends four messages"
+        result.runner.session.messages.length 4
+      assertEqual "incremental process tool conversation advances sequence four"
+        result.runner.session.nextSeq 4
+      assertEqual "incremental process tool conversation allocates two call IDs"
+        result.runner.nextCall 2
 
 private def testDeepSeekStreamToolRound : IO Unit := do
   assertEqual "wire-backed stream reaches dependent tool execution"
@@ -7939,6 +7958,7 @@ def run : IO Unit := do
   testDeepSeekCurlProviderAssemblyIncremental
   testDeepSeekCurlProviderAssemblyToolRound
   testDeepSeekCurlProviderAssemblyToolPrefix
+  testDeepSeekCurlProviderAssemblyToolConversation
   testDeepSeekStreamToolRound
   testDeepSeekProcessStreamToolRound
   testDeepSeekSessionBridge

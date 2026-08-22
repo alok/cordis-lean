@@ -2537,6 +2537,11 @@ extends the same seam to stopped prefixes: fuel and cancellation retain the prov
 while only the completed constructor carries an execution certificate. Neither module proves
 blocked-read interruption, backpressure, reconnect, process trust, persistence, external effects,
 or deployed Harness equivalence.
+`Cordis.DeepSeekCurlProviderAssemblyToolConversation` lifts the completed round into a bounded
+`ConversationRunner`: the next request is indexed by the previous model, local call IDs advance
+from the runner state, certified tool results are appended, and the run stops on a no-tool round
+or explicit fuel exhaustion. Its `2 → 5 → 8` fixture is deterministic local evidence; it does
+not establish deployed conversation equivalence.
 `Cordis.DeepSeekCurlPrefixSession` consumes the completed branch of that result, applies the
 existing text/tool/mixed/multi terminal projections, and appends the retained assistant to the
 typed session runner with the existing next-sequence/next-call proofs. Fuel and cancellation are

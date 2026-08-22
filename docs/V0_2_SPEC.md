@@ -263,6 +263,10 @@ Current machine-checked evidence includes:
   synchronous fuel or cancellation and admitting dependent execution only on completion;
   blocked-read interruption, backpressure, reconnects, process trust, persistence, external
   effects, and deployed equivalence remain outside;
+- `Cordis.DeepSeekCurlProviderAssemblyToolConversation`, lifting those certificates into a
+  bounded `ConversationRunner` whose rounds preserve the prior-model index, allocate fresh
+  local call IDs, append certified tool results, and stop either on no-tool completion or
+  explicit fuel exhaustion; deployed conversation equivalence remains outside;
 - `Cordis.DeepSeekRequestMode`, indexing complete versus streaming request plans by a proof that
   the serialized `stream` flag matches the mode and restricting terminal execution to complete
   plans;

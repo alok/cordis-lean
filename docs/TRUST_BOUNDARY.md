@@ -1577,6 +1577,10 @@ Without additional proofs or tests, do not state that:
   provider/tool prefix on synchronous fuel or cancellation and admits execution only on completion;
   blocked-read interruption, backpressure, reconnects, process trust, persistence, external effects,
   and deployed equivalence remain outside;
+- `DeepSeekCurlProviderAssemblyToolConversation` lifts those round certificates into a bounded
+  `ConversationRunner`. Each round preserves the prior-model index, allocates fresh local call IDs,
+  appends certified tool results, and ends on a no-tool response or explicit fuel exhaustion. The
+  deterministic fixture is local evidence only; deployed conversation equivalence remains outside;
 - `DeepSeekTerminalOutcome` proves only the fixed-order complete-body classification over the
   provider-failure, text, one-tool, mixed, and finite multi-call certificates; it does not turn
   those certificates into a session message or claim deployed stream equivalence;

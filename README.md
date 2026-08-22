@@ -278,6 +278,11 @@ prefix on synchronous fuel or cancellation and admits dependent execution only
 on the completed branch; blocked-read interruption, backpressure, reconnects,
 credentials, process trust, persistence, external effects, and deployed
 equivalence remain external.
+`Cordis.DeepSeekCurlProviderAssemblyToolConversation` lifts those certificates
+into a bounded `ConversationRunner`: each round is indexed by its prior model,
+allocates fresh local call IDs, appends certified tool results, and either stops
+on a no-tool response or returns an explicit fuel stop. Its deterministic fixture
+reaches `2 → 5 → 8`; deployed conversation equivalence remains external.
 `Cordis.DeepSeekCurlPrefixSession` consumes only the completed prefix branch,
 projects it through the accepted text/tool/mixed/multi stream validators, and
 appends the resulting proof-carrying assistant to the typed session runner.
