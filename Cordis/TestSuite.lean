@@ -11,6 +11,7 @@ import Cordis.DeepSeekCurlSession
 import Cordis.DeepSeekHarnessProcess
 import Cordis.DeepSeekHarnessProcessOutcome
 import Cordis.DeepSeekHarnessProcessSchema
+import Cordis.DeepSeekHarnessProcessSchemaPrefix
 import Cordis.DeepSeekCurlIncremental
 import Cordis.DeepSeekCurlPrefix
 import Cordis.DeepSeekCurlPrefixSession
@@ -1805,6 +1806,52 @@ private def testDeepSeekHarnessProcessSchema : IO Unit := do
               assertEqual "process schema terminal has no tool calls"
                 terminal.processed.finished.finished.view.rawToolCalls.length 0
           | .tools _ => fail "process schema text fixture unexpectedly dispatched tools"
+
+private def testDeepSeekHarnessProcessSchemaPrefix : IO Unit := do
+  match DeepSeekToolSchema.weatherToolCertificate,
+      DeepSeekSchemaRegistry.Example.clockToolCertificate with
+  | .error error, _ => fail s!"prefix process schema weather certificate failed: {reprStr error}"
+  | _, .error error => fail s!"prefix process schema clock certificate failed: {reprStr error}"
+  | .ok weatherCertificate, .ok clockCertificate =>
+      match ← DeepSeekHarnessProcessSchemaPrefix.Example.dualToolPrefixProvenanceRun
+          weatherCertificate clockCertificate with
+      | .error error => fail s!"prefix process schema tool fixture failed: {reprStr error}"
+      | .ok ⟨prepared, round⟩ =>
+          assertEqual "prefix process schema retains stream mode"
+            prepared.plan.source.stream true
+          assertEqual "prefix process schema retains both certified tools"
+            prepared.plan.source.tools.length 2
+          let _bodyCertificate :=
+            DeepSeekHarnessProcessSchemaPrefix.PreparedSchemaPrefixRound.body_eq_source round
+          match round.outcome with
+          | .completed completed =>
+              assertEqual "prefix process schema preserves the complete body prefix"
+                (completed.observed.state.body.startsWith
+                  DeepSeekSchemaStreamConversation.Example.dualToolStreamBody) true
+              assertEqual "prefix process schema records all three SSE frames"
+                completed.observed.state.frames.length 3
+              assertEqual "prefix process schema marks the done frame"
+                completed.observed.state.done true
+              match completed.step with
+              | .terminal _ => fail "prefix process schema tool fixture became terminal"
+              | .tools toolStep =>
+                  assertEqual "prefix process schema executes both registry calls"
+                    toolStep.batch.executions.length 2
+          | .fuelExhausted _ => fail "prefix process schema exhausted before completion"
+          | .cancelled _ _ _ _ => fail "prefix process schema unexpectedly cancelled"
+      match ← DeepSeekHarnessProcessSchemaPrefix.Example.dualToolPrefixCancelled
+          weatherCertificate clockCertificate with
+      | .error error => fail s!"prefix process schema cancellation failed: {reprStr error}"
+      | .ok ⟨prepared, round⟩ =>
+          assertEqual "prefix process schema cancellation retains stream mode"
+            prepared.plan.source.stream true
+          match round.outcome with
+          | .cancelled _ line reason _ =>
+              assertEqual "prefix process schema cancellation reports its line" line 1
+              assertEqual "prefix process schema cancellation reports its reason"
+                reason "cancelled:prefix"
+          | .completed _ => fail "prefix process schema cancellation unexpectedly completed"
+          | .fuelExhausted _ => fail "prefix process schema cancellation exhausted"
 
 private def testDeepSeekCurlIncremental : IO Unit := do
   let seen ← IO.mkRef ([] : List (Nat × String))
@@ -5315,6 +5362,7 @@ def run : IO Unit := do
   testDeepSeekHarnessProcess
   testDeepSeekHarnessProcessOutcome
   testDeepSeekHarnessProcessSchema
+  testDeepSeekHarnessProcessSchemaPrefix
   testDeepSeekCurlIncremental
   testDeepSeekCurlPrefix
   testDeepSeekCurlPrefixSession

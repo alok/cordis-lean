@@ -670,6 +670,11 @@ remain unmapped claims.
 registry-certified streaming plan, processed body, schema step, and dependent runner endpoint
 are retained together; request, process/status, and registry-execution errors remain distinct.
 
+`Cordis.DeepSeekHarnessProcessSchemaPrefix` carries the same exact plan through the line-oriented
+prefix process result, retaining fuel-exhausted and cancelled stops as well as the completed
+`[DONE]` branch that carries the dependent schema step. Byte framing and deployed cancellation
+semantics remain unmapped.
+
 `Cordis.DeepSeekSchemaStreamPrefixConversation` adds the line-oriented companion: it retains an
 accepted prefix and typed budget/cancellation stop, then unlocks the same dependent registry only
 after strict `[DONE]` rich/session validation. Byte framing, blocked-read interruption, and

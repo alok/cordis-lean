@@ -256,6 +256,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekHarnessProcessSchema`, retaining the registry-certified heterogeneous source
   and exact streaming plan through a complete-body SSE response, schema-dispatched step, and
   dependent runner endpoint, with request/process/registry-execution errors separated;
+- `Cordis.DeepSeekHarnessProcessSchemaPrefix`, retaining that exact registry-certified streaming
+  plan through a line-oriented prefix result, including typed fuel/cancellation stops and the
+  completed `[DONE]` branch that carries the dependent schema step and runner endpoint;
 - `Cordis.DeepSeekSchemaStreamPrefixConversation`, preserving the accepted line prefix and typed
   line-budget/cancellation stop while deferring registry dispatch until the completed `[DONE]`
   rich/session certificate;
@@ -1184,6 +1187,12 @@ dispatched, and a finite run retains heterogeneous tool rounds or a typed exhaus
 fixture also exercises a text-only terminal body. Incremental readers, backpressure, cancellation,
 reconnects, provider-complete assembly, call-ID authenticity, persistence, external effects, and
 deployed Harness equivalence remain outside this slice.
+
+`Cordis.DeepSeekHarnessProcessSchemaPrefix` keeps the exact registry-certified streaming plan
+attached to that prefix result. Fuel exhaustion and line cancellation retain plan and stop
+evidence, while only a completed `[DONE]` prefix exposes the dependent schema step and runner
+endpoint. It remains a synchronous complete-line adapter rather than a byte-level or deployed
+cancellation theorem.
 
 `Cordis.DeepSeekSchemaStreamPrefixConversation` sits immediately below that complete-body loop. A
 process line policy can return a proof-carrying prefix at a caller-selected boundary; a finite read

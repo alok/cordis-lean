@@ -48,6 +48,7 @@ import Cordis.DeepSeekSchemaConversation
 import Cordis.DeepSeekSchemaConversationLoop
 import Cordis.DeepSeekSchemaStreamConversation
 import Cordis.DeepSeekHarnessProcessSchema
+import Cordis.DeepSeekHarnessProcessSchemaPrefix
 import Cordis.DeepSeekSchemaStreamPrefixConversation
 import Cordis.DeepSeekSchemaStreamErrors
 import Cordis.DeepSeekHarnessPersistence

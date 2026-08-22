@@ -2175,6 +2175,12 @@ step, and dependent runner endpoint in one dependent result. Use it for local ex
 that a heterogeneous registry was the source of the request; keep provider obedience, live
 incremental semantics, persistence, and deployed equivalence as separate obligations.
 
+`Cordis.DeepSeekHarnessProcessSchemaPrefix` is the matching process-prefix adapter. Start from
+the prepared registry plan, then retain it with the accepted prefix, fuel/cancellation stop, or
+completed schema-dispatched step. This makes the deferred-dispatch boundary inspectable without
+feeding partial bodies to the registry executor; byte framing, blocked-read interruption,
+persistence, and deployed cancellation remain separate obligations.
+
 `Cordis.DeepSeekSchemaStreamPrefixConversation` is the line-oriented companion. Use its
 `LinePolicy` and read budget to expose the exact prefix and typed stop; do not feed a partial body
 to the rich/session validator or the registry executor. Only the completed `[DONE]` branch may

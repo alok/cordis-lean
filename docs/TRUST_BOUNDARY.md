@@ -667,6 +667,12 @@ dependent runner endpoint in one indexed result; request, process/status, and re
 failures remain distinct. It remains complete-body local evidence and does not prove provider
 obedience, credential authenticity, incremental delivery, persistence, or deployed equivalence.
 
+`DeepSeekHarnessProcessSchemaPrefix` carries the same exact plan through the line-oriented prefix
+boundary. Fuel exhaustion and line cancellation retain the plan and typed stop evidence; only the
+completed `[DONE]` branch carries the dependent schema step and runner update. This remains
+synchronous complete-line evidence and does not prove byte framing, blocked-read interruption,
+persistence, or deployed cancellation semantics.
+
 `DeepSeekSchemaStreamPrefixConversation` additionally retains a process prefix at a caller-selected
 line budget or cancellation boundary and refuses registry dispatch until the completed `[DONE]`
 rich/session certificate exists. This is line-oriented evidence only; byte framing, blocked-read

@@ -12,6 +12,7 @@ import Cordis.DeepSeekCurlSession
 import Cordis.DeepSeekHarnessProcess
 import Cordis.DeepSeekHarnessProcessOutcome
 import Cordis.DeepSeekHarnessProcessSchema
+import Cordis.DeepSeekHarnessProcessSchemaPrefix
 import Cordis.DeepSeekCurlIncremental
 import Cordis.DeepSeekCurlPrefix
 import Cordis.DeepSeekCurlPrefixSession
@@ -613,6 +614,10 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessProcessSchema.executePreparedSchemaRound
 #print axioms Cordis.DeepSeekHarnessProcessSchema.executeRegistrySchemaRound
 #print axioms Cordis.DeepSeekHarnessProcessSchema.SchemaProcessRound.processed_exact
+#print axioms Cordis.DeepSeekHarnessProcessSchemaPrefix.executePreparedSchemaPrefixRound
+#print axioms Cordis.DeepSeekHarnessProcessSchemaPrefix.executeRegistrySchemaPrefixRound
+#print axioms Cordis.DeepSeekHarnessProcessSchemaPrefix.PreparedSchemaPrefixRound.plan_exact
+#print axioms Cordis.DeepSeekHarnessProcessSchemaPrefix.PreparedSchemaPrefixRound.body_eq_source
 #print axioms Cordis.DeepSeekCurlIncremental.readBodyLines
 #print axioms Cordis.DeepSeekCurlIncremental.executeSseIncremental
 #print axioms Cordis.DeepSeekCurlPrefix.executeSsePrefix
