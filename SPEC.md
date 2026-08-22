@@ -239,6 +239,14 @@ endpoint is quiescent. These authorities are supplied rather than derived, so th
 finite conditional runner and not the paper's unrestricted quantitative or maximal-termination
 Theorem 66.
 
+`Cordis.GlobalProgressAssignment` supplies the missing provenance layer without pretending to
+derive it. Its `AssignedProgressAuthority` gives a `StepProgramAssignment` for each lifecycle
+transition, and `assignTrace` recursively builds a dependent `TraceProgramAssignment` for every
+finite runner trace. Endpoint well-formedness, stop certificates, and the initial-potential
+quiescence theorem are preserved. The fixed program, root, oracle, and reachability evidence are
+explicit authority fields; raw transitions do not imply them, so full Definition 60/66 provenance
+and maximal-execution claims remain open.
+
 The support layer exposes another printed-proof gap. A reachable, well-formed two-insert registry
 can have well-founded provider precedence and an acyclic parent relation while their union cycles,
 making Definition 67 support nonunique. The corrected API therefore requires a well-founded

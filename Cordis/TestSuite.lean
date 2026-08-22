@@ -111,6 +111,7 @@ import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalProgress
 import Cordis.GlobalProgressTermination
 import Cordis.GlobalProgressRun
+import Cordis.GlobalProgressAssignment
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
@@ -6214,6 +6215,13 @@ private def testGlobalProgressRun : IO Unit := do
   assertEqual "finite progress runner exposes the non-quiescent exhaustion proof"
     true true
 
+private def testGlobalProgressAssignment : IO Unit := do
+  assertEqual "assigned progress bridge retains the exact lifecycle rule"
+    GlobalProgressAssignment.Example.beginProjection [.lBegin]
+  let _occurrence := GlobalProgressAssignment.Example.beginAssignment_head_is_activation
+  assertEqual "assigned progress bridge exposes a fixed-program head occurrence"
+    true true
+
 private def testGlobalSupport : IO Unit := do
   assertEqual "separate acyclic relations can form one cyclic support dependency"
     GlobalSupport.MixedCycle.cycleProjection (true, true, true)
@@ -6657,6 +6665,7 @@ def run : IO Unit := do
   testGlobalProgress
   testGlobalProgressTermination
   testGlobalProgressRun
+  testGlobalProgressAssignment
   testGlobalSupport
   testGlobalRelations
   testGlobalSpatial

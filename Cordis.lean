@@ -121,6 +121,7 @@ import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalProgress
 import Cordis.GlobalProgressTermination
 import Cordis.GlobalProgressRun
+import Cordis.GlobalProgressAssignment
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance

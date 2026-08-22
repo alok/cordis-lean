@@ -2,7 +2,8 @@
 
 <!-- markdownlint-disable MD013 -->
 
-Status: implemented by `Cordis.GlobalProgress` and `Cordis.GlobalProgressRun`
+Status: implemented by `Cordis.GlobalProgress`, `Cordis.GlobalProgressRun`, and
+`Cordis.GlobalProgressAssignment`
 
 Source basis: CORDIS paper revision
 `948a07b369c62adb3b12e102458be5c18dfb69b9`, especially Definition 65 and
@@ -510,6 +511,22 @@ add target-turn accounting, finite-name freshness, fairness, trace-wide program
 assignment, maximal-execution semantics, support, confluence, or the paper's
 unrestricted Theorem 66.
 
+## 13.7. Explicit progress-trace assignment
+
+`Cordis.GlobalProgressAssignment` adds a deliberately supplied provenance seam above
+the finite runner. `AssignedProgressAuthority` supplies a
+`StepProgramAssignment` for every lifecycle transition. `assignTrace` then consumes
+the intrinsic trace one constructor at a time, using orchestration assignments for
+orchestration steps and the authority for lifecycle steps, to construct an exact
+dependent `TraceProgramAssignment`. `AssignedProgressRunResult` and `certifiedRun`
+retain the runner's endpoint, length, stop, and initial-potential quiescence proofs.
+
+This is not an inference theorem: raw `Transition`, `Dynamics`, `WellFormed`, and
+`Reach` data do not provide fixed programs, roots, registration oracles, or
+continuation reachability. Full Definition 60/66 provenance, fairness, maximal
+execution, lifecycle bisimulation, deletion, normalization, and confluence remain
+outside this slice.
+
 ## 14. Explicit non-claims
 
 This slice does not prove:
@@ -538,34 +555,23 @@ The exact positive claim is:
 > fixed reachable program with an exact landing-or-raise witness, and every
 > unrelied unloading occurrence admits recovery.
 
-## 15. Verification and integration requirements
+## 15. Verification and integration receipt
 
-Before public integration, run:
+The progress layers are imported through `Cordis.lean`, `Cordis.TestSuite`, and
+`Cordis.AxiomAudit`. The assignment bridge is checked with:
 
 ```bash
-lake --wfail build Cordis.GlobalProgress
-lake env lean Cordis/GlobalProgress.lean
-uv run scripts/check_lean_hygiene.py Cordis/GlobalProgress.lean
+lake --wfail build Cordis.GlobalProgressAssignment
+lake env lean Cordis/GlobalProgressAssignment.lean
+lake exe cordis_tests
 ```
 
 The module must remain free of `sorry`, `admit`, custom axioms, `unsafe`,
 `partial`, native-decision trust shortcuts, compiler implementation overrides,
 and library-level `#eval` commands.
 
-Before claiming the slice complete:
-
-1. import it through `Cordis.lean`;
-1. import `Cordis.GlobalProgressTermination` through `Cordis.lean` and the test/audit modules;
-1. import `Cordis.GlobalProgressRun` through `Cordis.lean` and the test/audit modules;
-1. add representative runtime projections to `Cordis.TestSuite`;
-1. add a guarded fixed-program or fresh-admission rejection to
-   `Cordis.NegativeTests`;
-1. add selected counterexample, authority, and headline theorem declarations to
-   `Cordis.AxiomAudit`;
-1. change this specification's status to implemented;
-1. update `README.md`, `SPEC.md`, `docs/PAPER_MAP.md`,
-   `docs/V0_2_SPEC.md`, `docs/TRUST_BOUNDARY.md`, and
-   `docs/IMPLEMENTATION_GUIDE.md`;
-1. run strict/default builds, runtime suite, demo, hygiene, documentation,
-   link, and selected-axiom gates; and
-1. repeat every gate from a clean `git archive` before pushing.
+The repository receipt additionally includes strict/default full builds, direct module elaboration,
+the adversarial test suite and demo, the self-testing hygiene scan, documentation/style checks,
+and the selected-axiom allow-list. The assignment layer remains deliberately conditional: the
+authority supplies provenance for each lifecycle transition, while the existing progress and
+negative tests retain the fixed-oracle and finite-name rejection boundaries.

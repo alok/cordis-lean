@@ -475,6 +475,9 @@ Current machine-checked evidence includes:
 - `Cordis.GlobalProgress`, distinguishing configured-oracle rejection from the permissive raw
   relation, kernel-refuting progress under exhausted names, and proving conditional state-local
   no-deadlock from finite precedence and exact execution/recovery authorities;
+- `Cordis.GlobalProgressAssignment`, adding a supplied lifecycle-step provenance authority and
+  recursively reconstructing a dependent `TraceProgramAssignment` for every finite progress run,
+  while preserving endpoint and quiescence certificates;
 - `Cordis.GlobalSupport`, kernel-refuting support well-foundedness from separate acyclicity,
   defining the unique support predicate under an explicit combined order, and proving corrected
   support-equals-active under state-local totality/failure/parent closure;
@@ -892,7 +895,7 @@ relation whose union cycles, so the module requires `SupportOrder` directly. It 
 combined-edge well-founded recursion, proves uniqueness, and derives support-equals-active at
 quiescence under state-local provision totality, failure exclusion, and active-parent closure.
 
-The bounded algebra/context/global layer now has forty explicit pieces:
+The bounded algebra/context/global layer now has forty-one explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -1146,6 +1149,12 @@ The bounded algebra/context/global layer now has forty explicit pieces:
     Its executable examples include a one-link activation/orchestration rewrite and a connected
     two-link reverse cycle. This is not a strategy, canonical-form, termination, confluence,
     Lemma 72, or Theorem 73 proof.
+41. `Cordis.GlobalProgressAssignment` adds an explicit provenance bridge above
+    `GlobalProgressRun`: `AssignedProgressAuthority` supplies one `StepProgramAssignment` for
+    each lifecycle transition, and `assignTrace` reconstructs the dependent assignment for the
+    complete intrinsic trace. The runner's endpoint, length, stop, and initial-potential
+    quiescence proofs are retained. Fixed programs, roots, oracles, reachability, and the full
+    paper Definition 60/66 provenance remain supplied or unproved.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a

@@ -111,6 +111,7 @@ import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalProgress
 import Cordis.GlobalProgressTermination
 import Cordis.GlobalProgressRun
+import Cordis.GlobalProgressAssignment
 import Cordis.GlobalRelations
 import Cordis.GlobalRegistry
 import Cordis.GlobalRuleInvariance
@@ -1474,6 +1475,14 @@ namespace Cordis.GlobalProgressRun
 #print axioms Example.zeroFuelResult_length
 #print axioms Example.zeroFuelResult_not_quiescent
 end Cordis.GlobalProgressRun
+namespace Cordis.GlobalProgressAssignment
+#print axioms assignTrace
+#print axioms runFuel
+#print axioms certifiedRun_quiescent
+#print axioms certifiedRun_length_le_initial_potential
+#print axioms Example.beginAssignment
+#print axioms Example.beginAssignment_head_is_activation
+end Cordis.GlobalProgressAssignment
 namespace Cordis.GlobalSupport
 #print axioms MixedCycle.final_wellFormed
 #print axioms MixedCycle.precedence_wellFounded
