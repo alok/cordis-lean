@@ -82,6 +82,7 @@ import Cordis.DeepSeekHarnessSchemaLift
 import Cordis.DeepSeekHarnessMixedReplay
 import Cordis.DeepSeekHarnessEventText
 import Cordis.DeepSeekHarnessEventPrefix
+import Cordis.DeepSeekHarnessEventProcessPrefix
 import Cordis.DeepSeekHarnessEventProcessOutcome
 import Cordis.LoaderHMR
 import Cordis.DeepSeekHarnessPayloadText

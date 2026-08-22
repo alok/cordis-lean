@@ -509,6 +509,11 @@ persistence, or deployed Harness equivalence.
 `Cursor.push` appends one decoded/refined event to the current session state and snoc trace, and
 its fuel-bounded `run` can return an explicit cooperative stop with the unread JSON suffix. It
 does not claim JSONL framing, blocked-read interruption, crash durability, or deployed equivalence.
+`DeepSeekHarnessEventProcessPrefix` is the line-oriented executable reader below that target. It
+feeds complete stdout lines into `Cursor.push`, retaining observed lines, endpoint, exit status, and
+typed completion/fuel/cancellation stops; fuel/policy stops kill and wait for the child. It does not
+claim byte framing, blocked-read interruption, executable/provider authenticity, crash durability,
+or deployed Harness equivalence.
 
 `DeepSeekHarnessEventProcessOutcome` is the next local composition seam: it carries a restored
 event runner through a caller-supplied streaming request source and the complete process-backed

@@ -304,6 +304,10 @@ Current machine-checked evidence includes:
   that ingress: each accepted JSON object extends `SessionRefinement.State` and a snoc protocol
   trace, while fuel/cooperative entry stops retain the unread suffix without claiming framing,
   blocked-read interruption, durability, or deployed Harness equivalence;
+- `Cordis.DeepSeekHarnessEventProcessPrefix`, feeding that cursor from a configured local process
+  one complete stdout line at a time, retaining observed lines, exit status, endpoint, and typed
+  completion/fuel/cancellation stops; child cleanup is exercised, while byte framing, blocked-read
+  interruption, executable/provider authenticity, durability, and deployed equivalence remain open;
 - `Cordis.DeepSeekHarnessPayloadText`, composing the same text/byte restore with the raw
   `SessionPayloadArchive.PayloadLog` so block tags, usage, and tool-result metadata remain aligned
   with the runner without inventing provider-owned semantics;
@@ -1227,6 +1231,11 @@ The bounded algebra/context/global layer now has forty-five explicit pieces:
     the exact snoc protocol trace, raw entries, and endpoint state. `run` adds explicit fuel and
     cooperative entry cancellation, preserving the unread suffix; JSONL framing, blocked-read
     interruption, crash durability, and deployed Harness equivalence remain open.
+51. `Cordis.DeepSeekHarnessEventProcessPrefix` feeds the cursor from one configured local process
+    stdout line at a time. Its result retains the observed line ledger, endpoint, exit status, and
+    typed completion/fuel/cancellation stop; fuel and policy stops kill and wait for the child.
+    Byte framing, blocked-read interruption, executable/provider authenticity, crash durability,
+    and deployed Harness equivalence remain open.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a

@@ -67,6 +67,7 @@ import Cordis.DeepSeekHarnessSchemaLift
 import Cordis.DeepSeekHarnessMixedReplay
 import Cordis.DeepSeekHarnessEventText
 import Cordis.DeepSeekHarnessEventPrefix
+import Cordis.DeepSeekHarnessEventProcessPrefix
 import Cordis.DeepSeekHarnessEventProcessOutcome
 import Cordis.LoaderHMR
 import Cordis.DeepSeekHarnessPayloadText
@@ -4562,6 +4563,37 @@ private def testDeepSeekHarnessEventPrefix : IO Unit := do
       let _cancellationCertificate :=
         DeepSeekHarnessEventPrefix.run_cancelled_before_first 0 .null []
 
+private def testDeepSeekHarnessEventProcessPrefix : IO Unit := do
+  match ← DeepSeekHarnessEventProcessPrefix.toolProcessRun with
+  | .error error => fail s!"current event process prefix failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "current event process prefix consumes every event line"
+        result.consumed 8
+      assertEqual "current event process prefix retains every observed line"
+        result.lines.length 8
+      assertEqual "current event process prefix reaches the session endpoint"
+        result.cursor.final.session.nextSeq 8
+      assertEqual "current event process prefix exits successfully"
+        result.exitCode (some (0 : UInt32))
+      assertEqual "current event process prefix reports completion"
+        result.stop.isCompleted true
+      let _endpointCertificate :=
+        DeepSeekHarnessEventProcessPrefix.processResult_endpoint_sequence result
+  match ← DeepSeekHarnessEventProcessPrefix.cancellationProcessRun with
+  | .error error => fail s!"current event process prefix cancellation failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "current event process prefix cancels before reading"
+        result.consumed 0
+      assertEqual "current event process prefix cancellation retains no consumed lines"
+        result.lines.length 0
+      match result.stop with
+      | .cancelled entry reason _ =>
+          assertEqual "current event process prefix cancellation entry" entry 0
+          assertEqual "current event process prefix cancellation reason"
+            reason "process-prefix-cancelled"
+      | .completed | .fuelExhausted =>
+          fail "current event process prefix returned the wrong process stop reason"
+
 private def testDeepSeekHarnessEventProcessOutcome : IO Unit := do
   match ← DeepSeekHarnessEventProcessOutcome.Example.text with
   | .error error => fail s!"current event process outcome failed: {reprStr error}"
@@ -6922,6 +6954,7 @@ def run : IO Unit := do
   testDeepSeekHarnessEventArchive
   testDeepSeekHarnessEventText
   testDeepSeekHarnessEventPrefix
+  testDeepSeekHarnessEventProcessPrefix
   testDeepSeekHarnessEventProcessOutcome
   testDeepSeekHarnessEventFileStreamRetryCancellation
   testLoaderHMR
