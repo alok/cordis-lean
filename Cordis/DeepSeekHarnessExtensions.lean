@@ -135,6 +135,116 @@ theorem appendAssistantFor_messages
   simp [appendAssistantFor, StreamSession.toAssistantPayload,
     Session.Session.appendSurface, Session.Session.append, Session.Session.messages_eq_surface]
 
+/-! ## Schema-indexed terminal runner -/
+
+structure ExtensionRunner (schema : Session.ExtensionSchema) where
+  session : Session.Session schema
+  turn : Nat
+  step : Nat
+  nextCall : Nat
+  nextSeq_eq_step : session.nextSeq = step
+  toolCallCount_eq_nextCall : toolCallCount session.messages = nextCall
+
+namespace ExtensionRunner
+
+def empty (schema : Session.ExtensionSchema) (turn : Nat := 1) : ExtensionRunner schema where
+  session := Session.Session.empty schema
+  turn
+  step := 0
+  nextCall := 0
+  nextSeq_eq_step := rfl
+  toolCallCount_eq_nextCall := by rfl
+
+def appendFinished
+    {schema : Session.ExtensionSchema}
+    (runner : ExtensionRunner schema)
+    {body : String}
+    (finished : FinishedResponse body)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    ExtensionRunner schema :=
+  let view := finished.finished.view
+  let assignment := sequentialAssignment runner.nextCall view
+  let session := appendAssistantFor runner.session runner.turn runner.step view assignment
+    sourceEventSeqs sourcesNodup sourcesEarlier
+  {
+    session
+    turn := runner.turn
+    step := runner.step + 1
+    nextCall := runner.nextCall + view.rawToolCalls.length
+    nextSeq_eq_step := by
+      change runner.session.nextSeq + 1 = runner.step + 1
+      rw [runner.nextSeq_eq_step]
+    toolCallCount_eq_nextCall := by
+      have messages_eq := appendAssistantFor_messages runner.session runner.turn runner.step view
+        assignment sourceEventSeqs sourcesNodup sourcesEarlier
+      simp only [session, messages_eq]
+      rw [toolCallCount_append]
+      rw [runner.toolCallCount_eq_nextCall]
+      simp [toolCallCount, messageToolCallCount,
+        StreamSession.toSessionToolCalls_length]
+  }
+
+theorem appendFinished_messages
+    {schema : Session.ExtensionSchema}
+    (runner : ExtensionRunner schema)
+    {body : String}
+    (finished : FinishedResponse body)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    (appendFinished runner finished sourceEventSeqs sourcesNodup sourcesEarlier).session.messages =
+      runner.session.messages ++ [.assistant finished.finished.view.content
+        (StreamSession.toSessionToolCalls finished.finished.view
+          (sequentialAssignment runner.nextCall finished.finished.view))] := by
+  change (appendAssistantFor runner.session runner.turn runner.step finished.finished.view
+      (sequentialAssignment runner.nextCall finished.finished.view)
+      sourceEventSeqs sourcesNodup sourcesEarlier).messages = _
+  exact appendAssistantFor_messages runner.session runner.turn runner.step
+    finished.finished.view (sequentialAssignment runner.nextCall finished.finished.view)
+    sourceEventSeqs sourcesNodup sourcesEarlier
+
+theorem appendFinished_nextSeq
+    {schema : Session.ExtensionSchema}
+    (runner : ExtensionRunner schema)
+    {body : String}
+    (finished : FinishedResponse body)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    (appendFinished runner finished sourceEventSeqs sourcesNodup sourcesEarlier).session.nextSeq =
+      runner.session.nextSeq + 1 := by
+  change runner.session.nextSeq + 1 = runner.session.nextSeq + 1
+  rfl
+
+theorem appendFinished_nextCall
+    {schema : Session.ExtensionSchema}
+    (runner : ExtensionRunner schema)
+    {body : String}
+    (finished : FinishedResponse body)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    (appendFinished runner finished sourceEventSeqs sourcesNodup sourcesEarlier).nextCall =
+      runner.nextCall + finished.finished.view.rawToolCalls.length := by
+  rfl
+
+def appendText
+    {schema : Session.ExtensionSchema}
+    (runner : ExtensionRunner schema)
+    (body : String)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    Except DeepSeekSessionRunner.ResponseError (ExtensionRunner schema) :=
+  match finishText body with
+  | .error error => .error error
+  | .ok finished =>
+      .ok (appendFinished runner finished sourceEventSeqs sourcesNodup sourcesEarlier)
+
+end ExtensionRunner
+
 /-! ## A concrete extension schema -/
 
 inductive ExampleKind : Session.Visibility → Type where
@@ -209,6 +319,19 @@ def extensionAssignment : StreamSession.CallIdAssignment extensionView where
 
 def extensionWithAssistant : Session.Session exampleSchema :=
   appendAssistantFor extensionSession 1 3 extensionView extensionAssignment [] (by simp) (by simp)
+
+def extensionRunner : ExtensionRunner exampleSchema where
+  session := extensionSession
+  turn := 1
+  step := 3
+  nextCall := 0
+  nextSeq_eq_step := rfl
+  toolCallCount_eq_nextCall := by rfl
+
+def extensionRunnerText :
+    Except DeepSeekSessionRunner.ResponseError (ExtensionRunner exampleSchema) :=
+  ExtensionRunner.appendText extensionRunner DeepSeekRichStream.exampleTextStreamBody []
+    (by simp) (by simp)
 
 theorem extensionRequest_ok : ∃ request, extensionRequest = .ok request := by
   exact ⟨_, rfl⟩

@@ -87,9 +87,10 @@ the TypeScript assembler accepts exactly the same language.
 `Cordis.DeepSeekHarnessExtensions` adds a generic request-side adapter over the session
 `ExtensionSchema` for complete and streaming modes, plus a schema-preserving assistant append.
 Its executable fixture keeps a custom log-only event in the append-only log while projecting only
-the certified surface message into the request and append result. This is an indexed Lean
-boundary, not extension JSON decoding, provider compatibility, transport, persistence, or
-deployed Harness equivalence.
+the certified surface message into the request and append result. The schema-indexed runner
+retains its sequence/tool-count invariants when a validated terminal rich response is appended
+through the existing process/stream fixture. This is an indexed Lean boundary, not extension JSON
+decoding, provider compatibility, transport, persistence, or deployed Harness equivalence.
 
 The local protocol has both typed erasure and witness-reconstructing validation:
 

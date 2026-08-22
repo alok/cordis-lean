@@ -699,6 +699,9 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessExtensions.buildTypedStreamingRequestPlanFor
 #print axioms Cordis.DeepSeekHarnessExtensions.buildTypedStreamingRequestPlanFor_source_stream
 #print axioms Cordis.DeepSeekHarnessExtensions.appendAssistantFor_messages
+#print axioms Cordis.DeepSeekHarnessExtensions.ExtensionRunner.appendFinished_messages
+#print axioms Cordis.DeepSeekHarnessExtensions.ExtensionRunner.appendFinished_nextSeq
+#print axioms Cordis.DeepSeekHarnessExtensions.ExtensionRunner.appendFinished_nextCall
 #print axioms Cordis.DeepSeekHarnessExtensions.extensionSession_messages
 #print axioms Cordis.DeepSeekHarnessExtensions.heartbeat_is_log_only
 #print axioms Cordis.DeepSeekHarnessExtensions.extensionRequest_surface_exact
@@ -706,6 +709,8 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessExtensions.extensionStreamingRequest_stream
 #print axioms Cordis.DeepSeekHarnessExtensions.extensionTypedStreamingRequest_stream
 #print axioms Cordis.DeepSeekHarnessExtensions.extensionWithAssistant_messages
+#print axioms Cordis.DeepSeekHarnessExtensions.extensionRunner
+#print axioms Cordis.DeepSeekHarnessExtensions.extensionRunnerText
 #print axioms Cordis.DeepSeekHarness.buildTypedCompleteRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan_source_stream

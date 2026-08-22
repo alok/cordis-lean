@@ -291,8 +291,10 @@ Persistence, credentials, scheduling, and deployed-Harness equivalence remain ou
 `Session.noExtensions` to any indexed `ExtensionSchema`, for both complete and streaming request
 modes. Log-only custom events remain in the append-only session without entering the model
 request, while surface custom events contribute the schema-certified message. A generic assistant
-append preserves that schema and proves the exact surface result. Extension JSON decoding,
-provider compatibility, persistence, transport, and deployed Harness equivalence remain outside.
+append preserves that schema and proves the exact surface result. The indexed runner now carries
+the same sequence/tool-count invariants through an accepted terminal rich response and exercises
+that path with the existing process/stream fixture. Extension JSON decoding, provider
+compatibility, persistence, transport, and deployed Harness equivalence remain outside.
 
 `Cordis.DeepSeekHarnessPersistence` now attaches that bounded runner to the logical JSONL
 persistence refinement. A successful archive restores a `ConversationRunner` with an exact

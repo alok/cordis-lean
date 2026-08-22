@@ -51,8 +51,10 @@ cancellation equivalence remain external.
 every indexed `Session.ExtensionSchema`, and appends an accepted assistant view without changing
 that schema. Custom log-only events remain in the append-only session but do not enter the model
 request; custom surface events use the schema-provided message projection. The fixture proves the
-exact one-message request shape and schema-preserving assistant append. Extension JSON decoding,
-provider compatibility, persistence, transport, and deployed Harness equivalence remain external.
+exact one-message request shape and schema-preserving assistant append. Its indexed runner carries
+the sequence/tool-count invariants through a validated terminal rich-response fixture. Extension
+JSON decoding, provider compatibility, persistence, transport, and deployed Harness equivalence
+remain external.
 
 The slice closes two concrete gaps in the original objective:
 
@@ -193,7 +195,8 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekHarnessExtensions`, generalizing the pure request adapter to arbitrary indexed
   `Session.ExtensionSchema`s and proving that custom log-only events stay out of the model surface
   while custom surface events contribute their certified message; complete/streaming mode
-  certificates and a schema-preserving assistant append are included;
+  certificates, a schema-preserving assistant append, and an indexed terminal-response runner
+  are included;
 - `Cordis.DeepSeekHarnessProcessOutcome`, retaining a typed `stream: true` request plan through
   complete-body provider-failure or rich terminal classification, dependent tool execution, and
   the final `ConversationRunner` endpoint;

@@ -3449,6 +3449,15 @@ private def testDeepSeekHarnessExtensions : IO Unit := do
   assertEqual "schema-preserving assistant append keeps the extension session surface"
     DeepSeekHarnessExtensions.extensionWithAssistant.messages
     [.user "hello", .assistant "assistant" []]
+  match DeepSeekHarnessExtensions.extensionRunnerText with
+  | .error error => fail s!"generic extension runner text append failed: {reprStr error}"
+  | .ok after =>
+      assertEqual "generic extension runner preserves prior messages and appends rich text"
+        after.session.messages [.user "hello", .assistant "Hello world" []]
+      assertEqual "generic extension runner advances the physical sequence"
+        after.session.nextSeq 4
+      assertEqual "generic extension runner keeps the text tool-call count at zero"
+        after.nextCall 0
 
 private def testDeepSeekSchemaStreamConversation : IO Unit := do
   match DeepSeekToolSchema.weatherToolCertificate,
