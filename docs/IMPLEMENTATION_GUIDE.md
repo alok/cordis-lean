@@ -2163,6 +2163,18 @@ retains exact sequence, surface, header, and protocol-projection equations in a 
 rows and mixed replay outside this helper until their source decoder and surface transport are
 separately specified.
 
+`Cordis.DeepSeekHarnessMixedReplay` is the bounded follow-on for a single tagged source schedule.
+Define `MixedState` with both the target arbitrary-schema session and a `SessionRefinement.State`
+shadow, then carry clock, surface, header, and protocol equalities as fields. For a core row,
+decode/refine against the shadow and transport its validated append with `liftCoreAppend`. For a
+custom extension row, require the extension decoder to produce `.logOnly (.custom kind) payload`,
+reject all surface/core-kind cases, and require the row sequence to equal the target clock. Advance
+the shadow with a phantom `.sessionEndSeed` log-only row; this preserves the protocol projection
+while making global sequence arithmetic inductive. The recursive `MixedReplay` witness should
+carry the exact row list and dependent endpoint, and the public validator should expose typed
+decode/refinement/surface/core-kind/sequence failures. Do not widen this helper into arbitrary
+custom surface edits, provider or persistence compatibility, or deployed Harness equivalence.
+
 `Cordis.DeepSeekToolSchema` is the next request-side type boundary. It validates the bounded
 schema vocabulary actually represented by the local DeepSeek API: an object parameter root,
 primitive property `type` tags, optional property descriptions, a duplicate-free `required`

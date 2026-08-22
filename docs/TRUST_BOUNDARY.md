@@ -136,6 +136,15 @@ equations. The custom-schema example is executable. It does not decode custom ex
 merge extension surface edits into the core protocol, or establish provider/transport/deployed
 persistence equivalence.
 
+`Cordis.DeepSeekHarnessMixedReplay` adds a bounded global replay certificate above that lift.
+Each source row is tagged as core or extension; core rows are refined by the existing stateful
+core validator, while extension rows are accepted only when they are custom log-only events.
+The shadow core receives a phantom log-only clock row, and the resulting proof carries exact
+sequence growth, surface/header invariance, and target-versus-shadow protocol equality. Surface
+extension rows, extension encodings of core kinds, malformed rows, and stale sequence numbers
+fail closed. This does not prove arbitrary custom surface interleaving, provider compatibility,
+transport, persistence, or deployed Harness equivalence.
+
 The local protocol has both typed erasure and witness-reconstructing validation:
 
 ```text

@@ -61,6 +61,7 @@ import Cordis.DeepSeekHarnessExtensionRequest
 import Cordis.DeepSeekHarnessExtensionPersistence
 import Cordis.DeepSeekHarnessMixedPersistence
 import Cordis.DeepSeekHarnessSchemaLift
+import Cordis.DeepSeekHarnessMixedReplay
 import Cordis.DeepSeekHarnessEventText
 import Cordis.DeepSeekHarnessEventProcessOutcome
 import Cordis.LoaderHMR
@@ -3677,6 +3678,23 @@ private def testDeepSeekHarnessSchemaLift : IO Unit := do
       DeepSeekHarnessSchemaLift.Example.certifiedLift.target.events)
     Session.certifiedToolTrace.erase
 
+private def testDeepSeekHarnessMixedReplay : IO Unit := do
+  assertEqual "mixed replay accepts interleaved custom log-only rows"
+    (match DeepSeekHarnessMixedReplay.Example.certificate with
+    | .error _ => none
+    | .ok log =>
+        some (log.final.session.nextSeq, log.final.session.events.length,
+          log.final.session.surface.length))
+    (some (3, 3, 0))
+  assertEqual "mixed replay preserves the core protocol projection"
+    (match DeepSeekHarnessMixedReplay.Example.certificate with
+    | .error _ => []
+    | .ok log => Session.protocolProjection log.final.session.events)
+    [.turnStart 1, .stepStart 1 0]
+  have _surfaceRejected := DeepSeekHarnessMixedReplay.Example.surface_rejected
+  have _staleRejected := DeepSeekHarnessMixedReplay.Example.stale_rejected
+  pure ()
+
 private def testDeepSeekSchemaStreamConversation : IO Unit := do
   match DeepSeekToolSchema.weatherToolCertificate,
       DeepSeekSchemaRegistry.Example.clockToolCertificate with
@@ -6043,6 +6061,7 @@ def run : IO Unit := do
   testDeepSeekHarnessExtensionPersistence
   testDeepSeekHarnessMixedPersistence
   testDeepSeekHarnessSchemaLift
+  testDeepSeekHarnessMixedReplay
   testDeepSeekSchemaStreamConversation
   testDeepSeekSchemaStreamPrefixConversation
   testDeepSeekSchemaStreamErrors

@@ -98,6 +98,15 @@ retaining dependent kind/payload/intent indices, `ValidLog`, materialized surfac
 protocol-projection equations. The example uses a custom schema. Custom-row decoding and a
 single mixed replay remain separate obligations.
 
+`Cordis.DeepSeekHarnessMixedReplay` implements that next bounded obligation at the log level.
+Its `Row` schedule interleaves core JSON rows with extension JSON rows. Core rows use the
+stateful `SessionRefinement` decoder/refiner; extension rows are accepted only for custom
+log-only kinds and are checked against the target session clock. The proof-carrying `MixedState`
+keeps a shadow core session synchronized by a phantom clock event and proves exact final
+sequence, surface/header, and protocol-projection equations. Extension surface rows and
+extension encodings of core kinds reject explicitly. This is not arbitrary extension surface
+integration, provider/transport/persistence compatibility, or deployed equivalence.
+
 The slice closes two concrete gaps in the original objective:
 
 1. the runner becomes generic over a dependent tool catalog instead of importing the counter

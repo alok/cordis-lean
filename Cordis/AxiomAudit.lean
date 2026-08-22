@@ -58,6 +58,8 @@ import Cordis.DeepSeekHarnessExtensionArchive
 import Cordis.DeepSeekHarnessExtensionRequest
 import Cordis.DeepSeekHarnessExtensionPersistence
 import Cordis.DeepSeekHarnessMixedPersistence
+import Cordis.DeepSeekHarnessSchemaLift
+import Cordis.DeepSeekHarnessMixedReplay
 import Cordis.DeepSeekHarnessEventText
 import Cordis.DeepSeekHarnessEventProcessOutcome
 import Cordis.LoaderHMR
@@ -777,6 +779,15 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessSchemaLift.liftSession_protocolProjection
 #print axioms Cordis.DeepSeekHarnessSchemaLift.certify
 #print axioms Cordis.DeepSeekHarnessSchemaLift.Example.certifiedLift_protocol_exact
+#print axioms Cordis.DeepSeekHarnessMixedReplay.coreAfter_nextSeq
+#print axioms Cordis.DeepSeekHarnessMixedReplay.extensionAfter_nextSeq
+#print axioms Cordis.DeepSeekHarnessMixedReplay.MixedReplay.final_nextSeq
+#print axioms Cordis.DeepSeekHarnessMixedReplay.ValidatedMixedLog.final_nextSeq
+#print axioms Cordis.DeepSeekHarnessMixedReplay.ValidatedMixedLog.protocol_projection_eq
+#print axioms Cordis.DeepSeekHarnessMixedReplay.Example.summary
+#print axioms Cordis.DeepSeekHarnessMixedReplay.Example.protocol_exact
+#print axioms Cordis.DeepSeekHarnessMixedReplay.Example.surface_rejected
+#print axioms Cordis.DeepSeekHarnessMixedReplay.Example.stale_rejected
 #print axioms Cordis.DeepSeekHarness.buildTypedCompleteRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan_source_stream
