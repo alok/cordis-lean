@@ -343,6 +343,11 @@ rich-outcome adapter. The result retains the restored-session/raw-archive certif
 prepared request, response, dependent-tool, endpoint, and protocol-projection certificates. It
 does not turn the event log into authenticated provider configuration or prove deployed runtime
 equivalence.
+Its `executeRestoredStreamConversation` and byte twin also launch the existing fuel-bounded
+complete-body streamed conversation from the restored endpoint, retaining the prepared request,
+round history, final runner/model, and completion-or-exhaustion stop. The source remains
+caller-supplied and blocked-read cancellation, persistence, and deployed semantics remain
+external.
 
 `DeepSeekHarnessPayloadText` composes the same text/byte restore with
 `SessionPayloadArchive.PayloadLog`. Its dependent indices force the payload ledger and runner to

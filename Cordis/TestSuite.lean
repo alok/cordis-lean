@@ -3610,6 +3610,18 @@ private def testDeepSeekHarnessEventProcessOutcome : IO Unit := do
   | .ok body =>
       assertEqual "current event byte process outcome preserves the fixture body"
         body DeepSeekRichStream.exampleTextStreamBody
+  match ← DeepSeekHarnessEventProcessOutcome.Example.stream with
+  | .error error => fail s!"restored streamed conversation failed: {reprStr error}"
+  | .ok (rounds, nextSeq, completed) =>
+      assertEqual "restored streamed conversation retains one round" rounds 1
+      assertEqual "restored streamed conversation appends the tool result" nextSeq 10
+      assertEqual "restored streamed conversation distinguishes fuel exhaustion" completed false
+  match ← DeepSeekHarnessEventProcessOutcome.Example.bytesStream with
+  | .error error => fail s!"restored byte streamed conversation failed: {reprStr error}"
+  | .ok (rounds, nextSeq, completed) =>
+      assertEqual "restored byte streamed conversation retains one round" rounds 1
+      assertEqual "restored byte streamed conversation appends the tool result" nextSeq 10
+      assertEqual "restored byte streamed conversation distinguishes fuel exhaustion" completed false
 
 private def testDeepSeekHarnessPayloadText : IO Unit := do
   match DeepSeekHarnessPayloadText.toolPayloadRestored with

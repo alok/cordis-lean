@@ -847,6 +847,10 @@ prepared streaming request, process/response certificate, dependent tool outcome
 raw event archive, restored-session equality, and exact protocol projection. The request source
 is caller-supplied; provider/schema/credential authenticity, blocked-read cancellation,
 persistence, and deployed Harness equivalence remain outside this composition.
+The same composition now also launches the existing fuel-bounded complete-body streamed
+conversation from the restored endpoint. Its result retains the prepared first request, typed
+round history, final runner/model, and explicit completion-or-exhaustion stop; it does not add
+blocked-read cancellation, persistence, or deployed-runtime equivalence.
 
 ## Harness claims not established by this map
 

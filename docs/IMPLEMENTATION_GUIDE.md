@@ -2091,6 +2091,12 @@ request, response and dependent-tool certificate, final runner endpoint, raw eve
 restored-session equality, and exact protocol projection. The request source remains an
 explicit caller input; provider/schema/credential authenticity and deployed equivalence remain
 outside.
+The same module's `executeRestoredStreamConversation` and byte twin launch the existing
+fuel-bounded streamed tool conversation from that restored endpoint. The dependent result retains
+the prepared first request, typed streamed rounds, final runner/model, and explicit completion or
+fuel-exhaustion stop, while the original event archive remains attached. This remains a
+complete-body process fixture boundary rather than blocked-read cancellation or deployed runtime
+equivalence.
 `Cordis.DeepSeekHarnessPayloadText` composes that result with
 `SessionPayloadArchive.PayloadLog`. The dependent payload index is aligned to the same parsed
 JSONL lines, retaining raw content-block tags, assistant usage, tool-result `error`/`meta`, and

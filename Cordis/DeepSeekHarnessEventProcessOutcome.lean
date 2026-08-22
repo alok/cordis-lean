@@ -1,5 +1,6 @@
 import Cordis.DeepSeekHarnessEventText
 import Cordis.DeepSeekHarnessProcessOutcome
+import Cordis.DeepSeekStreamHarness
 
 /-!
 # Current-Harness event refinement to a process-backed outcome round
@@ -31,6 +32,7 @@ open Cordis.DeepSeekOutcomeConversation
 open Cordis.DeepSeekSessionRunner
 open Cordis.SessionEventArchive
 open Cordis.SessionRefinement
+open Cordis.DeepSeekStreamHarness
 
 /-! ## Attached successful round -/
 
@@ -226,6 +228,131 @@ def executeRestoredBytesOutcome
   executeRestoredOutcome config restored.restored baseUrl apiKey source cfg before sourceEventSeqs
     sourcesNodup sourcesEarlier
 
+/-! ## Fuel-bounded streamed conversation entry points -/
+
+/-- A complete-body streamed conversation launched from a restored event-log endpoint. -/
+structure RestoredStreamConversation
+    {sourceText : String}
+    (restored : RestoredTextRunner sourceText)
+    {baseUrl : String}
+    {apiKey : ApiKey}
+    (source : RequestSource)
+    {Model Capability : Type}
+    (cfg : GenericHarness.Config Model Capability)
+    (fuel : Nat)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ current : ConversationRunner,
+      ∀ eventSeq ∈ sourceEventSeqs, eventSeq < current.session.nextSeq)
+    (before : Model) where
+  prepared : PreparedStreamingRequest baseUrl apiKey source restored.restored.runner
+  result : StreamConversationRunResult cfg
+  restored_session_eq :
+    restored.restored.runner.session = restored.validated.validated.final.session
+  archive_raw_eq :
+    restored.restored.log.archive.events.map ArchivedEvent.raw =
+      restored.validated.parsed.lines
+
+namespace RestoredStreamConversation
+
+theorem request_build_eq_restored_session
+    {sourceText : String}
+    {restored : RestoredTextRunner sourceText}
+    {baseUrl : String}
+    {apiKey : ApiKey}
+    {source : RequestSource}
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    {fuel : Nat}
+    {sourceEventSeqs : List Nat}
+    {sourcesNodup : sourceEventSeqs.Nodup}
+    {sourcesEarlier : ∀ current : ConversationRunner,
+      ∀ eventSeq ∈ sourceEventSeqs, eventSeq < current.session.nextSeq}
+    {before : Model}
+    (conversation : RestoredStreamConversation (baseUrl := baseUrl) (apiKey := apiKey)
+      restored source cfg fuel sourceEventSeqs sourcesNodup sourcesEarlier before) :
+    buildTypedStreamingRequestPlan baseUrl apiKey source
+        restored.validated.validated.final.session = .ok conversation.prepared.plan := by
+  rw [← conversation.restored_session_eq]
+  exact conversation.prepared.build_eq
+
+theorem archive_raw_eq_source
+    {sourceText : String}
+    {restored : RestoredTextRunner sourceText}
+    {baseUrl : String}
+    {apiKey : ApiKey}
+    {source : RequestSource}
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    {fuel : Nat}
+    {sourceEventSeqs : List Nat}
+    {sourcesNodup : sourceEventSeqs.Nodup}
+    {sourcesEarlier : ∀ current : ConversationRunner,
+      ∀ eventSeq ∈ sourceEventSeqs, eventSeq < current.session.nextSeq}
+    {before : Model}
+    (_conversation : RestoredStreamConversation (baseUrl := baseUrl) (apiKey := apiKey)
+      restored source cfg fuel sourceEventSeqs sourcesNodup sourcesEarlier before) :
+    restored.restored.log.archive.events.map ArchivedEvent.raw =
+      restored.validated.parsed.lines :=
+  restored.archive_raw_eq_lines
+
+end RestoredStreamConversation
+
+/-- Execute a fuel-bounded streamed conversation from a restored text runner. -/
+def executeRestoredStreamConversation
+    (config : ProcessConfig)
+    {sourceText : String}
+    (restored : RestoredTextRunner sourceText)
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (source : RequestSource)
+    {Model Capability : Type}
+    (cfg : GenericHarness.Config Model Capability)
+    (fuel : Nat)
+    (before : Model)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ current : ConversationRunner,
+      ∀ eventSeq ∈ sourceEventSeqs, eventSeq < current.session.nextSeq) :
+    IO (Except StreamConversationError
+      (RestoredStreamConversation (baseUrl := baseUrl) (apiKey := apiKey) restored source cfg fuel
+        sourceEventSeqs sourcesNodup sourcesEarlier before)) := do
+  match prepareStreamingRequest baseUrl apiKey source restored.restored.runner with
+  | .error error => pure (.error (.request error))
+  | .ok prepared =>
+      match ← runConversationMultiStream fuel config baseUrl apiKey source sourceEventSeqs
+          sourcesNodup sourcesEarlier before restored.restored.runner with
+      | .error error => pure (.error error)
+      | .ok result =>
+          pure (.ok {
+            prepared
+            result
+            restored_session_eq := restored.session_eq
+            archive_raw_eq := restored.archive_raw_eq_lines
+          })
+
+/-- Execute the same streamed conversation after proof-carrying UTF-8 restoration. -/
+def executeRestoredBytesStreamConversation
+    (config : ProcessConfig)
+    {bytes : ByteArray}
+    (restored : RestoredBytesRunner bytes)
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (source : RequestSource)
+    {Model Capability : Type}
+    (cfg : GenericHarness.Config Model Capability)
+    (fuel : Nat)
+    (before : Model)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ current : ConversationRunner,
+      ∀ eventSeq ∈ sourceEventSeqs, eventSeq < current.session.nextSeq) :
+    IO (Except StreamConversationError
+      (RestoredStreamConversation (baseUrl := baseUrl) (apiKey := apiKey)
+        restored.restored source cfg fuel sourceEventSeqs sourcesNodup sourcesEarlier before)) :=
+  executeRestoredStreamConversation config restored.restored baseUrl apiKey source cfg fuel before
+    sourceEventSeqs sourcesNodup sourcesEarlier
+
 /-! ## Deterministic evidence -/
 
 namespace Example
@@ -236,6 +363,11 @@ private theorem emptySourcesEarlier
     {sourceText : String} (restored : RestoredTextRunner sourceText) :
     ∀ eventSeq ∈ ([] : List Nat),
       eventSeq < restored.restored.runner.session.nextSeq := by
+  simp
+
+private theorem emptySourcesEarlierAll :
+    ∀ current : ConversationRunner, ∀ eventSeq ∈ ([] : List Nat),
+      eventSeq < current.session.nextSeq := by
   simp
 
 def restoredText : Except TextArchiveError
@@ -249,6 +381,15 @@ def restoredBytes : Except TextArchiveError
 def source : RequestSource where
   model := "fixture-model"
   system := some "Execute only certified local tools."
+
+def streamSource : RequestSource where
+  model := "fixture-model"
+  system := some "Execute only certified local tools."
+  tools := [counterReadTool]
+  toolChoice := some .auto
+
+def streamProcess : ProcessConfig :=
+  DeepSeekStreamHarness.streamFlagFixtureProcess DeepSeekStreamHarness.counterToolStreamBody
 
 def text : IO (Except DeepSeekHarnessProcessOutcome.RoundError String) := do
   match restoredText with
@@ -271,6 +412,31 @@ def bytes : IO (Except DeepSeekHarnessProcessOutcome.RoundError String) := do
           (emptySourcesEarlier restored.restored) with
       | .error error => pure (.error error)
       | .ok ⟨_, ⟨body, _⟩⟩ => pure (.ok body)
+
+def stream : IO (Except StreamConversationError (Nat × Nat × Bool)) := do
+  match restoredText with
+  | .error _ => pure (.error (.request .emptyMessages))
+  | .ok restored =>
+      match ← executeRestoredStreamConversation streamProcess restored
+          "https://fixture.invalid" { value := "fixture-key" } streamSource
+          Cordis.Harness.counterConfig 1 0 [] emptySourcesNodup emptySourcesEarlierAll with
+      | .error error => pure (.error error)
+      | .ok result =>
+          pure (.ok (result.result.rounds.length, result.result.runner.session.nextSeq,
+            StreamConversationStop.isCompleted result.result.stop))
+
+def bytesStream : IO (Except StreamConversationError (Nat × Nat × Bool)) := do
+  match restoredBytes with
+  | .error _ => pure (.error (.request .emptyMessages))
+  | .ok restored =>
+      match ← executeRestoredBytesStreamConversation streamProcess restored
+          "https://fixture.invalid" { value := "fixture-key" } streamSource
+          Cordis.Harness.counterConfig 1 0 [] emptySourcesNodup
+          emptySourcesEarlierAll with
+      | .error error => pure (.error error)
+      | .ok result =>
+          pure (.ok (result.result.rounds.length, result.result.runner.session.nextSeq,
+            StreamConversationStop.isCompleted result.result.stop))
 
 end Example
 
