@@ -5,8 +5,8 @@
 > **Current-development addendum.** This document records the reviewed `0.1.0`
 > mapping at DeepSeek Harness `47f9438`. The active `0.2` contract and refreshed
 > Harness pin `99f6f02` live in [`V0_2_SPEC.md`](V0_2_SPEC.md). The new
-> `Cordis.GenericHarness`, `Cordis.GenericSessionHarness`, `Cordis.Session`, and
-> `Cordis.SessionValidation`
+> `Cordis.GenericHarness`, `Cordis.GenericSessionHarness`, `Cordis.Session`,
+> `Cordis.SessionValidation`, and `Cordis.SessionTheoremBridge`
 > implement a generic phase-indexed runner, exact-call policy denial,
 > visibility-indexed rich events, proof-producing surface-intent validation,
 > certified replacement, request reconstruction, and a proof that generic rich
@@ -48,7 +48,9 @@
 > local Session and Protocol witnesses. Surface IDs and provider metadata are retained
 > in the refinement state; provider call IDs are allocated once and reused by later
 > call/result events. Neither module is a behavioral-
-> equivalence or completeness theorem.
+> equivalence or completeness theorem. `Cordis.SessionTheoremBridge` gives the
+> stable `ValidatedAppend.applies` and `ValidatedLog.replays` names for the
+> already proof-carrying append and finite-log endpoint certificates.
 > `Cordis.GlobalDynamics` is paper-side rather than a TypeScript refinement: it
 > gives opaque iterator/undo codes an external proof-carrying semantics.
 

@@ -166,6 +166,7 @@ import Cordis.SessionArchive
 import Cordis.SessionEventArchive
 import Cordis.SessionPayloadArchive
 import Cordis.SessionValidation
+import Cordis.SessionTheoremBridge
 import Cordis.Stream
 import Cordis.StreamSession
 import Cordis.TextRefinement
@@ -267,6 +268,11 @@ set_option format.width 200
 #print axioms Cordis.Examples.DependentChoiceSession.retained_record_count
 #print axioms Cordis.Session.SurfaceTransition.replacement_exact_shadow
 #print axioms Cordis.Session.SurfaceTransition.replacement_coverage
+#print axioms Cordis.Session.SurfaceTransition.replace_shadowed
+#print axioms Cordis.Session.SurfaceTransition.replace_covers
+#print axioms Cordis.Session.ModelRequest.reconstructible
+#print axioms Cordis.Session.ValidatedAppend.applies
+#print axioms Cordis.Session.ValidatedLog.replays
 #print axioms Cordis.Session.ValidLog.length_eq_nextSeq
 #print axioms Cordis.Session.ValidLog.seqs_eq_range
 #print axioms Cordis.Session.ValidLog.surface_nodup

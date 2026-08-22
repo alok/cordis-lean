@@ -168,6 +168,7 @@ import Cordis.SessionArchive
 import Cordis.SessionEventArchive
 import Cordis.SessionPayloadArchive
 import Cordis.SessionValidation
+import Cordis.SessionTheoremBridge
 import Cordis.Stream
 import Cordis.StreamSession
 import Cordis.TextRefinement
@@ -574,6 +575,7 @@ private def testSessionLog : IO Unit := do
   match Session.mkRequest Session.certifiedSession with
   | none => fail "certified session did not reconstruct a model request"
   | some request =>
+      let _certificate := Session.ModelRequest.reconstructible request
       assertEqual "request reconstructs the latest full header"
         request.header Session.exampleHeader
       assertEqual "request reconstructs the exact session surface"
@@ -653,6 +655,7 @@ private def testSessionValidation : IO Unit := do
   match Session.validateAppend Session.certifiedSession Session.replacementEvent with
   | .error error => fail s!"valid surface replacement was rejected with {reprStr error}"
   | .ok validated =>
+      let _certificate := Session.ValidatedAppend.applies validated
       assertEqual "validated replacement reconstructs the exact intrinsic surface"
         validated.apply.messages Session.replacementSession.messages
   match Session.validateAppend Session.certifiedSession Session.wrongSequenceEvent with
@@ -668,6 +671,7 @@ private def testSessionValidation : IO Unit := do
   match Session.validateLog (Session.Session.empty Session.noExtensions) Session.shortRawLog with
   | .error error => fail s!"valid rich suffix was rejected with {reprStr error}"
   | .ok validated =>
+      let _certificate := Session.ValidatedLog.replays validated
       let _eventsEq :
           validated.final.events =
             (Session.Session.empty Session.noExtensions).events ++ Session.shortRawLog :=

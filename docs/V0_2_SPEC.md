@@ -150,6 +150,10 @@ Current machine-checked evidence includes:
   replacement examples, and rich-to-structural `ProtocolCertificate`;
 - `Cordis.SessionValidation.RangeWitness`, `ValidatedAppend`, `ValidatedSuffix`, and
   `ValidatedLog`, including exact structured rejection examples;
+- `Cordis.SessionTheoremBridge.SurfaceTransition.replace_shadowed`,
+  `SurfaceTransition.replace_covers`, `ModelRequest.reconstructible`,
+  `ValidatedAppend.applies`, and `ValidatedLog.replays`, which expose the exact intrinsic append
+  and finite-log endpoint certificates;
 - `Cordis.RichStream`, including block-kind-indexed deltas, interleaved first-seen ordering,
   exact block ends, usage/terminal discipline, error/abort terminals, and aligned replay data;
 - `Cordis.Schedule.runEffects_eq_of_perm`, promoting the exactly-two batch result to arbitrary
@@ -712,7 +716,9 @@ substitute an independently assembled message history or stale header.
 
 ### Required theorems
 
-The session slice is incomplete until Lean checks all of the following:
+The session certificate bridge now checks all of the following in Lean. The first eight are the
+intrinsic `Session` declarations; the final two are exported by
+`Cordis.SessionTheoremBridge` over the proof-carrying validation structures:
 
 1. `ValidLog.length_eq_nextSeq`: the stored next sequence equals the event-list length.
 2. `ValidLog.seqs_eq_range`: event sequence numbers are exactly `List.range nextSeq`.
@@ -728,12 +734,14 @@ The session slice is incomplete until Lean checks all of the following:
 8. `ModelRequest.reconstructible`: every model request carries the exact log-derived history and
    latest header.
 9. `ValidatedAppend.applies`: every successfully reconstructed raw append is accepted by the
-   intrinsic transition and reaches the same surface/header endpoint.
-10. `ValidatedLog.replays`: every successfully validated raw finite log reconstructs an
-    intrinsic proof-carrying log with the same events and projections.
+   intrinsic transition and reaches the same physical, surface, header, sequence, and `ValidLog`
+   endpoint.
+10. `ValidatedLog.replays`: every successfully validated raw finite log retains its intrinsic
+    suffix certificate and reaches the same physical events, derived messages, and `ValidLog`
+    endpoint.
 
-The exact declaration names may change during implementation, but the propositions may not be
-dropped or replaced with weaker executable assertions.
+These are proof-producing propositions, not weaker executable assertions or mere endpoint
+booleans.
 
 ## Generic dependent runner
 

@@ -170,6 +170,7 @@ import Cordis.SessionArchive
 import Cordis.SessionEventArchive
 import Cordis.SessionPayloadArchive
 import Cordis.SessionValidation
+import Cordis.SessionTheoremBridge
 import Cordis.Examples.DependentChoiceSession
 import Cordis.Stream
 import Cordis.StreamSession
