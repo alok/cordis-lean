@@ -61,6 +61,7 @@ import Cordis.DeepSeekHarnessLocalSseRetry
 import Cordis.DeepSeekHarnessLocalSseTimeout
 import Cordis.DeepSeekHarnessLocalSseMultiTool
 import Cordis.DeepSeekHarnessLocalSseMultiToolPrefix
+import Cordis.DeepSeekHarnessLocalSseProviderAssemblyTool
 import Cordis.DeepSeekHarnessLocalSseMultiToolBytePrefix
 import Cordis.DeepSeekHarnessExtensions
 import Cordis.DeepSeekToolSchema
@@ -3737,6 +3738,32 @@ private def testDeepSeekHarnessLocalSseMultiTool : IO Unit := do
           pure ()
       | executions =>
           fail s!"local SSE multi-tool returned {executions.length} executions"
+
+private def testDeepSeekHarnessLocalSseProviderAssemblyTool : IO Unit := do
+  match ← DeepSeekHarnessLocalSseProviderAssemblyTool.Example.run with
+  | .error error =>
+      fail s!"local SSE provider assembly tool round failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "local SSE provider assembly validates one request"
+        result.requests 1
+      assertEqual "local SSE provider assembly validates stream request shape"
+        result.validRequests 1
+      assertEqual "local SSE provider assembly preserves provider body"
+        result.body DeepSeekProviderStreamAssembly.counterBody
+      assertEqual "local SSE provider assembly accepts every provider line"
+        result.round.source.provider.accepted.length 9
+      assertEqual "local SSE provider assembly retains four provider frames"
+        result.round.source.provider.final.frames.length 4
+      assertEqual "local SSE provider assembly executes one dependent call"
+        result.round.source.execution.executions.length 1
+      assertEqual "local SSE provider assembly reaches model five"
+        result.round.source.execution.after 5
+      assertEqual "local SSE provider assembly appends assistant and tool result"
+        result.round.runner.session.messages.length 2
+      assertEqual "local SSE provider assembly advances sequence twice"
+        result.round.runner.session.nextSeq 2
+      assertEqual "local SSE provider assembly retains streaming mode"
+        result.prepared.plan.source.stream true
 
 private def testDeepSeekHarnessLocalSseMultiToolPrefix : IO Unit := do
   match ← DeepSeekHarnessLocalSseMultiToolPrefix.Example.completeRun with
@@ -7971,6 +7998,7 @@ def run : IO Unit := do
   testDeepSeekHarnessLocalSseRetry
   testDeepSeekHarnessLocalSseTimeout
   testDeepSeekHarnessLocalSseMultiTool
+  testDeepSeekHarnessLocalSseProviderAssemblyTool
   testDeepSeekHarnessLocalSseMultiToolPrefix
   testDeepSeekHarnessLocalSseMultiToolBytePrefix
   testDeepSeekHarnessPersistence

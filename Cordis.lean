@@ -73,6 +73,7 @@ import Cordis.DeepSeekHarnessLocalSseRetry
 import Cordis.DeepSeekHarnessLocalSseTimeout
 import Cordis.DeepSeekHarnessLocalSseMultiTool
 import Cordis.DeepSeekHarnessLocalSseMultiToolPrefix
+import Cordis.DeepSeekHarnessLocalSseProviderAssemblyTool
 import Cordis.DeepSeekHarnessLocalSseMultiToolBytePrefix
 import Cordis.DeepSeekHarnessExtensions
 import Cordis.DeepSeekToolSchema

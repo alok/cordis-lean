@@ -345,6 +345,11 @@ Current machine-checked evidence includes:
   while a one-read budget retains the typed raw prefix before dispatch. Byte-level backpressure,
   blocked-read interruption, reconnects, provider-complete assembly, authenticity, and deployed
   equivalence remain external;
+- `Cordis.DeepSeekHarnessLocalSseProviderAssemblyTool`, validating a typed streaming request at a
+  loopback server, emitting the incremental provider tool body through real curl, and retaining
+  provider assembly, dependent execution, and certified session append in one result. The fixture
+  reaches model `5` with one assembled call; provider obedience, byte/backpressure semantics,
+  blocked-read cancellation, reconnects, authenticity, and deployed equivalence remain external;
 - `Cordis.DeepSeekStreamHarness`, composing complete-body terminal rich tool streams with the
   generic conversation runner, dependent tool execution, and certified typed-result append;
   streamed rounds use a request source/body certificate proving `stream: true`, and an executable
@@ -1438,6 +1443,12 @@ The bounded algebra/context/global layer now has sixty-seven explicit pieces:
     dependent tools; a one-read budget returns the typed raw prefix before dispatch. Byte-level
     backpressure, blocked-read interruption, reconnects, provider-complete assembly, authenticity,
     and deployed Harness equivalence remain external.
+71. `Cordis.DeepSeekHarnessLocalSseProviderAssemblyTool` validates the typed streaming request at a
+    loopback server, emits the incremental provider tool body through real curl, and carries the
+    provider assembly certificate into dependent execution and certified session append. The
+    fixture reaches model `5` with one assembled call; provider obedience, byte/backpressure
+    semantics, blocked-read cancellation, reconnects, authenticity, and deployed equivalence remain
+    external.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
