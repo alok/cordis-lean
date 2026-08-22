@@ -1980,6 +1980,11 @@ retains the witness beside the assistant/tool runner endpoint. Its round and fue
 are executable with the same deterministic tool and text fixtures as `DeepSeekStreamHarness`;
 byte-level cancellation, blocked-read interruption, backpressure, reconnect, and deployed
 Harness semantics remain explicit runtime obligations.
+`Cordis.DeepSeekCurlBytePrefix` supplies the corresponding process-byte prefix seam. It reads
+bounded stdout chunks, keeps the incomplete raw fragment separate from complete lines, advances
+the pure byte-prefix state before the next read, and excludes the private status trailer from SSE
+parsing. The result is a read-boundary and framing certificate, not a theorem about interrupting a
+blocked read, backpressure, reconnect, credentials, executable trust, or deployed semantics.
 `Cordis.DeepSeekCurlSession` takes the terminal text subset one step further: it retains the
 process-backed wire certificate, runs the accepted rich/session projection, and returns the
 proof-carrying append-only runner. Source-event evidence, numeric local-ID assignment, and all

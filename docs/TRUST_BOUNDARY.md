@@ -662,6 +662,11 @@ body chunks unchanged through the pure byte framer. It returns typed process/sta
 errors and a dependent strict-SSE certificate, but does not establish network reachability,
 credential validity, executable trust, blocked-read interruption, backpressure, cancellation,
 reconnect, provider-complete assembly, or deployed stream equivalence.
+`Cordis.DeepSeekCurlBytePrefix` is the next process boundary: bounded byte reads retain raw
+chunks, incomplete fragments, and a typed stop state; complete body lines advance the pure prefix
+state before another read, while the private status trailer remains outside SSE parsing. It proves
+neither blocked-read interruption nor backpressure, cancellation, reconnect, provider-complete
+assembly, credential/executable trust, or deployed stream equivalence.
 
 When an adapter such as `ToolWire` is used, textual resolution, decoding, and admission can
 fail closed before an `AuthorizedCall` is constructed. The adapter still supplies its resolver,

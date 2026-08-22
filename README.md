@@ -116,6 +116,11 @@ round and fuel-bounded loop: the decoded body reaches the same rich/tool/session
 while raw chunks, status, framing, and exact runner/tool-result evidence remain indexed together.
 It does not claim byte-level cancellation, blocked-read interruption, backpressure, reconnects, or
 deployed Harness equivalence.
+`Cordis.DeepSeekCurlBytePrefix` is the live process-byte prefix boundary below that composition:
+bounded stdout reads preserve incomplete raw fragments, decode only complete body lines, feed the
+typed prefix before the next read, and classify the private status trailer separately. Its typed
+stop policy is checked before each subsequent read; blocked-read interruption, backpressure,
+reconnects, and deployed Harness equivalence remain external.
 `Cordis.DeepSeekStreamFailure` preserves the two provider terminal-failure tags
 currently decoded by the wire layer (`content_filter` and
 `insufficient_system_resource`) as a raw, typed failure certificate. It does

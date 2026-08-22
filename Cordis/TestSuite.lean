@@ -30,6 +30,7 @@ import Cordis.DeepSeekTerminalOutcome
 import Cordis.DeepSeekStreamIncremental
 import Cordis.DeepSeekStreamByteFraming
 import Cordis.DeepSeekCurlByteFraming
+import Cordis.DeepSeekCurlBytePrefix
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekRichMixedStream
@@ -2316,6 +2317,45 @@ private def testDeepSeekCurlByteFraming : IO Unit := do
   | .error (.readLimit 1) => pure ()
   | .error _ => fail "process byte-framing read budget returned wrong error"
   | .ok _ => fail "process byte-framing ignored the read budget"
+
+private def testDeepSeekCurlBytePrefix : IO Unit := do
+  match ← DeepSeekCurlBytePrefix.fixtureResponse with
+  | .error _ => fail "process byte-prefix fixture failed"
+  | .ok response =>
+      assertEqual "process byte-prefix completes the typed stream"
+        (DeepSeekCurlBytePrefix.BytePrefixResponse.isCompleted response) true
+      assertEqual "process byte-prefix retains many one-byte reads"
+        (decide (response.rawChunks.length > 1)) true
+      assertEqual "process byte-prefix has no pending bytes at completion"
+        response.pendingRaw []
+      assertEqual "process byte-prefix typed body is exact"
+        response.state.typed.body DeepSeekStream.exampleStreamBody
+      assertEqual "process byte-prefix source is exact UTF-8"
+        (decide (DeepSeekStreamByteFraming.bytesOfList response.state.source =
+          DeepSeekStream.exampleStreamBody.toUTF8)) true
+      let _rawCertificate := response.raw_chunks_eq
+      match response.stop with
+      | .completed stream =>
+          assertEqual "process byte-prefix completion retains both SSE frames"
+            stream.stream.frames.length 2
+          let _sourceCertificate := stream.decoded
+          let _bodyCertificate := stream.body_eq
+      | .fuelExhausted => fail "process byte-prefix fixture exhausted"
+      | .cancelled _ _ _ => fail "process byte-prefix fixture cancelled"
+  match ← DeepSeekCurlBytePrefix.cancellationResponse with
+  | .error _ => fail "process byte-prefix cancellation fixture failed"
+  | .ok response =>
+      assertEqual "process byte-prefix cancellation is typed"
+        (DeepSeekCurlBytePrefix.BytePrefixResponse.isCancelled response) true
+      assertEqual "process byte-prefix cancellation stops at line one"
+        response.state.typed.line 1
+      match response.stop with
+      | .cancelled line reason _ =>
+          assertEqual "process byte-prefix cancellation retains line" line 1
+          assertEqual "process byte-prefix cancellation retains reason"
+            reason "cancelled:byte-prefix"
+      | .completed _ => fail "process byte-prefix cancellation completed"
+      | .fuelExhausted => fail "process byte-prefix cancellation exhausted"
 
 private def testDeepSeekRichStream : IO Unit := do
   match DeepSeekRichStream.validateTextStream DeepSeekRichStream.exampleTextStreamBody with
@@ -5563,6 +5603,7 @@ def run : IO Unit := do
   testDeepSeekStreamIncremental
   testDeepSeekStreamByteFraming
   testDeepSeekCurlByteFraming
+  testDeepSeekCurlBytePrefix
   testDeepSeekRichStream
   testDeepSeekRichToolStream
   testDeepSeekRichMixedStream

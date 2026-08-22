@@ -30,6 +30,7 @@ import Cordis.DeepSeekTerminalOutcome
 import Cordis.DeepSeekStreamIncremental
 import Cordis.DeepSeekStreamByteFraming
 import Cordis.DeepSeekCurlByteFraming
+import Cordis.DeepSeekCurlBytePrefix
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekRichMixedStream

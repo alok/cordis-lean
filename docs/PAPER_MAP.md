@@ -887,6 +887,11 @@ streamed Harness continuation. Its one-round and fuel-bounded fixtures retain th
 certificate while dispatching the decoded body through rich tool execution, certified result append,
 and text-terminal completion. Byte-level cancellation, blocked-read interruption, backpressure,
 reconnect, and deployed Harness equivalence remain outside.
+`Cordis.DeepSeekCurlBytePrefix` now adds the process-byte prefix seam below that continuation:
+bounded stdout reads retain raw chunks and incomplete fragments, complete body lines feed the typed
+prefix state before the next read, and status-trailer bytes stay outside the SSE body. This is
+finite process/framing evidence; blocked-read interruption, backpressure, cancellation, reconnect,
+provider-complete assembly, and deployed Harness equivalence remain unproved.
 
 [paper-tree]: https://github.com/cordiverse/paper/tree/948a07b369c62adb3b12e102458be5c18dfb69b9
 [paper-pdf]: https://raw.githubusercontent.com/cordiverse/paper/948a07b369c62adb3b12e102458be5c18dfb69b9/paper.pdf

@@ -28,6 +28,7 @@ import Cordis.DeepSeekTerminalOutcome
 import Cordis.DeepSeekStreamIncremental
 import Cordis.DeepSeekStreamByteFraming
 import Cordis.DeepSeekCurlByteFraming
+import Cordis.DeepSeekCurlBytePrefix
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekRichMixedStream
@@ -650,6 +651,9 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekStreamByteFraming.validateChunks
 #print axioms Cordis.DeepSeekCurlByteFraming.executeSseBytes
 #print axioms Cordis.DeepSeekCurlByteFraming.ByteChunkResponse.validateSseBytes_exact
+#print axioms Cordis.DeepSeekCurlBytePrefix.executeSseBytePrefix
+#print axioms Cordis.DeepSeekCurlBytePrefix.BytePrefixResponse.isCompleted
+#print axioms Cordis.DeepSeekCurlBytePrefix.fixtureResponse
 #print axioms Cordis.DeepSeekStream.validateSseBytes
 #print axioms Cordis.DeepSeekRichStream.projectFrames
 #print axioms Cordis.DeepSeekRichStream.validateTextStream
