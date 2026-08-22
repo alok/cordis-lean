@@ -43,6 +43,7 @@ import Cordis.DeepSeekProviderAssembler
 import Cordis.DeepSeekProviderStreamAssembly
 import Cordis.DeepSeekProviderAssemblyPrefix
 import Cordis.DeepSeekCurlProviderAssemblyPrefix
+import Cordis.DeepSeekCurlProviderAssemblyIncremental
 import Cordis.DeepSeekAssemblerToolRound
 import Cordis.DeepSeekStreamToolRound
 import Cordis.DeepSeekProcessStreamToolRound
@@ -3024,6 +3025,26 @@ private def testDeepSeekCurlProviderAssemblyPrefix : IO Unit := do
         processed.provider.assembly.result.finish .toolCalls
   assertEqual "process provider prefix reaches exact counter assembly"
     (← DeepSeekCurlProviderAssemblyPrefix.counterSummary) true
+
+private def testDeepSeekCurlProviderAssemblyIncremental : IO Unit := do
+  assertEqual "process provider assembly prefix retains every accepted line"
+    (← DeepSeekCurlProviderAssemblyIncremental.counterSummary) true
+  match ← DeepSeekCurlProviderAssemblyIncremental.counterRun with
+  | .error error =>
+      fail s!"incremental process provider assembly was rejected: {reprStr error}"
+  | .ok ⟨_, processed⟩ =>
+      assertEqual "incremental process provider assembly retains nine snapshots"
+        processed.accepted.length 9
+      assertEqual "incremental process provider assembly retains nine process lines"
+        processed.observed.lines.length 9
+      assertEqual "incremental process provider assembly retains four final frames"
+        processed.final.frames.length 4
+      assertEqual "incremental process provider assembly retains six final raw chunks"
+        processed.final.raw.length 6
+      assertEqual "incremental process provider assembly retains one tool block"
+        processed.certificate.result.blocks.length 1
+      assertEqual "incremental process provider assembly retains tool-call finish"
+        processed.certificate.result.finish .toolCalls
 
 private def testDeepSeekStreamToolRound : IO Unit := do
   assertEqual "wire-backed stream reaches dependent tool execution"
@@ -7875,6 +7896,7 @@ def run : IO Unit := do
   testDeepSeekProviderStreamAssembly
   testDeepSeekProviderAssemblyPrefix
   testDeepSeekCurlProviderAssemblyPrefix
+  testDeepSeekCurlProviderAssemblyIncremental
   testDeepSeekStreamToolRound
   testDeepSeekProcessStreamToolRound
   testDeepSeekSessionBridge

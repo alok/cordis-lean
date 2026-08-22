@@ -2523,6 +2523,13 @@ requesting the next complete line, retains the raw process body separately from 
 prefix certificate, and uses the same line policy for synchronous fuel/cancellation stops. Its
 cleanup kills and waits for the child, but it cannot interrupt a blocked read or establish
 backpressure, reconnect, process trust, or deployed assembler equivalence.
+`Cordis.DeepSeekCurlProviderAssemblyIncremental` attaches an indexed provider fold to that
+callback: each accepted line retains the parsed multi-call state, emitted raw chunks, mapped
+provider chunks, and source-shaped `BlockAssembler` state before the next process read. The
+completed result exposes an exact assembly certificate and records the one-line status-separator
+padding relation when the fixture adds it. This remains line-oriented local evidence, not
+blocked-read interruption, backpressure, cancellation, process trust, persistence, external
+effects, or deployed provider equivalence.
 `Cordis.DeepSeekCurlPrefixSession` consumes the completed branch of that result, applies the
 existing text/tool/mixed/multi terminal projections, and appends the retained assistant to the
 typed session runner with the existing next-sequence/next-call proofs. Fuel and cancellation are

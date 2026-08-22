@@ -292,6 +292,29 @@ def projectFrames : MultiState → List DeepSeekStream.Frame →
       let suffix ← projectFrames next rest
       .ok (emitted ++ suffix)
 
+/-! ## Prefix projection
+
+The terminal projector above deliberately rejects an unfinished list.  A process reader needs a
+slightly different view: every accepted prefix should retain the exact multi-call state and raw
+chunks without pretending that the provider has finished.  The prefix projector therefore admits
+an unfinished empty suffix; terminal `[DONE]` and data-after-finish checks remain identical.
+-/
+
+def projectFramesPrefix : MultiState → List DeepSeekStream.Frame →
+    Except ProjectionError (MultiState × List RichStream.RawChunk)
+  | state, [] => .ok (state, [])
+  | state, .done :: rest =>
+      if !rest.isEmpty then
+        .error .extraAfterDone
+      else if state.finished then
+        .ok (state, [])
+      else
+        .error .missingBlock
+  | state, .data frame :: rest => do
+      let (next, emitted) ← applyData state frame.chunk
+      let (final, suffix) ← projectFramesPrefix next rest
+      .ok (final, emitted ++ suffix)
+
 def projectChunks : MultiState → List DeepSeekStream.StreamChunk →
     Except ProjectionError (List RichStream.RawChunk)
   | state, [] => if state.finished then .ok [] else .error .missingBlock

@@ -39,6 +39,7 @@ import Cordis.DeepSeekProviderAssembler
 import Cordis.DeepSeekProviderStreamAssembly
 import Cordis.DeepSeekProviderAssemblyPrefix
 import Cordis.DeepSeekCurlProviderAssemblyPrefix
+import Cordis.DeepSeekCurlProviderAssemblyIncremental
 import Cordis.DeepSeekAssemblerToolRound
 import Cordis.DeepSeekStreamToolRound
 import Cordis.DeepSeekProcessStreamToolRound
@@ -943,6 +944,11 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekCurlProviderAssemblyPrefix.ProcessedProviderPrefix.assembly_exact
 #print axioms Cordis.DeepSeekCurlProviderAssemblyPrefix.counterRun
 #print axioms Cordis.DeepSeekCurlProviderAssemblyPrefix.counterSummary
+#print axioms Cordis.DeepSeekCurlProviderAssemblyIncremental.buildSnapshot
+#print axioms Cordis.DeepSeekCurlProviderAssemblyIncremental.finishSnapshot_exact
+#print axioms Cordis.DeepSeekCurlProviderAssemblyIncremental.execute
+#print axioms Cordis.DeepSeekCurlProviderAssemblyIncremental.counterRun
+#print axioms Cordis.DeepSeekCurlProviderAssemblyIncremental.counterSummary
 #print axioms Cordis.DeepSeekStreamToolRound.executeBodyTools
 #print axioms Cordis.DeepSeekStreamToolRound.ValidatedStreamToolRound.source_exact
 #print axioms Cordis.DeepSeekStreamToolRound.ValidatedStreamToolRound.execution_exact
