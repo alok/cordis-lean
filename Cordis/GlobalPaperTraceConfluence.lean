@@ -231,21 +231,25 @@ structure ConfluentAuthority
     (inertia : InertiaPolicy dynamics)
     (initial : GlobalState catalog Ambient) where
   base : Authority values dynamics inertia initial
+  rewrite : Package values dynamics inertia initial →
+    Package values dynamics inertia initial → Prop
+  selected : ∀ (source : Package values dynamics inertia initial)
+    (notNormal : ¬ base.normal source),
+    rewrite source ((base.step source notNormal).val.target dynamics inertia initial)
+  decreases : ∀ {source target : Package values dynamics inertia initial},
+    rewrite source target → base.measure target < base.measure source
   localJoin : ∀ {source left right : Package values dynamics inertia initial},
-    AuthorityStep base source left →
-      AuthorityStep base source right →
-        Joinable (AuthorityStep base) left right
+    rewrite source left →
+      rewrite source right → Joinable rewrite left right
+  normal_iff : ∀ (source : Package values dynamics inertia initial),
+    base.normal source ↔ Irreducible rewrite source
 
 def authoritySystem
     (authority : ConfluentAuthority values dynamics inertia initial) :
     DecreasingSystem (Package values dynamics inertia initial) where
-  step := AuthorityStep authority.base
+  step := authority.rewrite
   measure := authority.base.measure
-  decreases := by
-    intro source target edge
-    obtain ⟨notNormal, targetEq⟩ := edge
-    rw [← targetEq]
-    exact authority.base.decreases source notNormal
+  decreases := authority.decreases
   localJoin := authority.localJoin
 
 theorem path_of_authorityLinked
@@ -263,6 +267,19 @@ theorem path_of_authorityLinked
         (path_of_authorityLinked authority
           ((authority.step source notNormal).val.target dynamics inertia initial)
           rest tail)
+
+theorem path_lift_to_rewrite
+    (authority : ConfluentAuthority values dynamics inertia initial)
+    {source target : Package values dynamics inertia initial} :
+    Path (AuthorityStep authority.base) source target →
+      Path authority.rewrite source target := by
+  intro path
+  induction path with
+  | refl node => exact .refl node
+  | cons edge tail ih =>
+      obtain ⟨notNormal, targetEq⟩ := edge
+      cases targetEq
+      exact .cons (authority.selected _ notNormal) ih
 
 theorem normalizeFuel_authorityLinked
     (authority : Authority values dynamics inertia initial) :
@@ -310,6 +327,13 @@ theorem normal_irreducible
   intro target edge
   exact edge.choose normal
 
+theorem normal_rewrite_irreducible
+    (authority : ConfluentAuthority values dynamics inertia initial)
+    {source : Package values dynamics inertia initial}
+    (normal : authority.base.normal source) :
+    Irreducible authority.rewrite source :=
+  (authority.normal_iff source).mp normal
+
 theorem normalize_results_unique
     (authority : ConfluentAuthority values dynamics inertia initial)
     (source : Package values dynamics inertia initial)
@@ -320,20 +344,22 @@ theorem normalize_results_unique
   have leftEvidence := normalize_authorityLinked authority.base source left leftEquality
   have rightEvidence := normalize_authorityLinked authority.base source right rightEquality
   have leftPath :
-      Path (AuthorityStep authority.base) source left.final := by
+      Path authority.rewrite source left.final := by
     rw [← left.terminal_eq]
-    exact path_of_authorityLinked authority.base source left.links leftEvidence
+    exact path_lift_to_rewrite authority
+      (path_of_authorityLinked authority.base source left.links leftEvidence)
   have rightPath :
-      Path (AuthorityStep authority.base) source right.final := by
+      Path authority.rewrite source right.final := by
     rw [← right.terminal_eq]
-    exact path_of_authorityLinked authority.base source right.links rightEvidence
+    exact path_lift_to_rewrite authority
+      (path_of_authorityLinked authority.base source right.links rightEvidence)
   exact NormalForm.endpoint_eq (authoritySystem authority)
     { endpoint := left.final
       path := leftPath
-      irreducible := normal_irreducible authority.base left.normal }
+      irreducible := normal_rewrite_irreducible authority left.normal }
     { endpoint := right.final
       path := rightPath
-      irreducible := normal_irreducible authority.base right.normal }
+      irreducible := normal_rewrite_irreducible authority right.normal }
 
 namespace Example
 
@@ -348,9 +374,24 @@ abbrev examplePackage := Cordis.GlobalPaperTraceNormalizer.Example.emptySource
 def emptyConfluent :
     ConfluentAuthority exampleValues exampleDynamics exampleInertia exampleInitial where
   base := emptyAuthority
+  rewrite := AuthorityStep emptyAuthority
+  selected := by
+    intro source notNormal
+    exact ⟨notNormal, rfl⟩
+  decreases := by
+    intro source target edge
+    exact emptyAuthority.decreases source edge.choose
   localJoin := by
     intro source left right leftStep _
     exact False.elim (leftStep.choose (by trivial))
+  normal_iff := by
+    intro source
+    constructor
+    · exact normal_irreducible emptyAuthority
+    · intro irreducible
+      by_cases normal : emptyAuthority.normal source
+      · exact normal
+      · exact False.elim (irreducible _ ⟨normal, rfl⟩)
 
 theorem empty_normalizer_unique
     (left right : Result emptyConfluent.base examplePackage)
