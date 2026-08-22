@@ -145,6 +145,13 @@ extension rows, extension encodings of core kinds, malformed rows, and stale seq
 fail closed. This does not prove arbitrary custom surface interleaving, provider compatibility,
 transport, persistence, or deployed Harness equivalence.
 
+`Cordis.DeepSeekHarnessTransportContract` is a local, injected-transport composition certificate.
+It checks successful HTTP status, validates the response body once, applies `acceptValidated` to
+the retained dependent decoder certificate, and links the accepted response to the exact runner
+append endpoint. The successful tool-call and 503 fixtures are executable. This is not evidence
+of live network reachability, credential validity, provider obedience, TLS/retry behavior,
+persistence, or deployed Harness equivalence.
+
 The local protocol has both typed erasure and witness-reconstructing validation:
 
 ```text

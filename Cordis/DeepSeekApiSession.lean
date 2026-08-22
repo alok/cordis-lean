@@ -46,64 +46,67 @@ structure AcceptedApiResponse (body : String) where
 private def choicePayloadPresent (choice : DeepSeekApi.Choice) : Prop :=
   choice.message.content.isSome ∨ choice.message.toolCalls ≠ []
 
+def acceptValidated {body : String} (validated : DeepSeekApi.ValidatedResponse body) :
+    Except ApiSessionError (AcceptedApiResponse body) :=
+  if hindex : validated.response.choices.head.index = 0 then
+    if htail : validated.response.choices.tail = [] then
+      match hfinish : validated.response.choices.head.finishReason with
+      | none => .error .missingFinish
+      | some .stop =>
+          if hpayload :
+              (validated.response.choices.head.message.content.isSome ∨
+                validated.response.choices.head.message.toolCalls ≠ []) then
+            .ok {
+              validated
+              index_zero := hindex
+              singleton := htail
+              finish := .stop
+              finish_eq := hfinish
+              content_or_tool := hpayload
+            }
+          else
+            .error .emptyAssistant
+      | some .length =>
+          if hpayload :
+              (validated.response.choices.head.message.content.isSome ∨
+                validated.response.choices.head.message.toolCalls ≠ []) then
+            .ok {
+              validated
+              index_zero := hindex
+              singleton := htail
+              finish := .length
+              finish_eq := hfinish
+              content_or_tool := hpayload
+            }
+          else
+            .error .emptyAssistant
+      | some .toolCalls =>
+          if hpayload :
+              (validated.response.choices.head.message.content.isSome ∨
+                validated.response.choices.head.message.toolCalls ≠ []) then
+            .ok {
+              validated
+              index_zero := hindex
+              singleton := htail
+              finish := .toolCalls
+              finish_eq := hfinish
+              content_or_tool := hpayload
+            }
+          else
+            .error .emptyAssistant
+      | some .contentFilter => .error (.unsupportedFinish .contentFilter)
+      | some .insufficientSystemResource =>
+          .error (.unsupportedFinish .insufficientSystemResource)
+    else
+      .error (.extraChoices validated.response.choices.tail.length)
+  else
+    .error (.wrongChoiceIndex validated.response.choices.head.index)
+
 def acceptResponse (body : String) :
     Except ApiSessionError (AcceptedApiResponse body) :=
   match _parsed : DeepSeekApi.validateResponse body with
   | .error error => .error (.response error)
-  | .ok validated =>
-      if hindex : validated.response.choices.head.index = 0 then
-        if htail : validated.response.choices.tail = [] then
-          match hfinish : validated.response.choices.head.finishReason with
-          | none => .error .missingFinish
-          | some .stop =>
-              if hpayload :
-                  (validated.response.choices.head.message.content.isSome ∨
-                    validated.response.choices.head.message.toolCalls ≠ []) then
-                .ok {
-                  validated
-                  index_zero := hindex
-                  singleton := htail
-                  finish := .stop
-                  finish_eq := hfinish
-                  content_or_tool := hpayload
-                }
-              else
-                .error .emptyAssistant
-          | some .length =>
-              if hpayload :
-                  (validated.response.choices.head.message.content.isSome ∨
-                    validated.response.choices.head.message.toolCalls ≠ []) then
-                .ok {
-                  validated
-                  index_zero := hindex
-                  singleton := htail
-                  finish := .length
-                  finish_eq := hfinish
-                  content_or_tool := hpayload
-                }
-              else
-                .error .emptyAssistant
-          | some .toolCalls =>
-              if hpayload :
-                  (validated.response.choices.head.message.content.isSome ∨
-                    validated.response.choices.head.message.toolCalls ≠ []) then
-                .ok {
-                  validated
-                  index_zero := hindex
-                  singleton := htail
-                  finish := .toolCalls
-                  finish_eq := hfinish
-                  content_or_tool := hpayload
-                }
-              else
-                .error .emptyAssistant
-          | some .contentFilter => .error (.unsupportedFinish .contentFilter)
-          | some .insufficientSystemResource =>
-              .error (.unsupportedFinish .insufficientSystemResource)
-        else
-          .error (.extraChoices validated.response.choices.tail.length)
-      else
-        .error (.wrongChoiceIndex validated.response.choices.head.index)
+  | .ok validated => acceptValidated validated
 
 def view {body : String} (accepted : AcceptedApiResponse body) :
     RichStream.AssistantMessageView :=

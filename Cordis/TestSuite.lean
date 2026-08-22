@@ -10,6 +10,7 @@ import Cordis.DeepSeekCurlStream
 import Cordis.DeepSeekCurlSession
 import Cordis.DeepSeekHarnessProcess
 import Cordis.DeepSeekHarnessProcessOutcome
+import Cordis.DeepSeekHarnessTransportContract
 import Cordis.DeepSeekHarnessProcessSchema
 import Cordis.DeepSeekHarnessProcessSchemaPrefix
 import Cordis.DeepSeekHarnessProcessSchemaPrefixConversation
@@ -3695,6 +3696,27 @@ private def testDeepSeekHarnessMixedReplay : IO Unit := do
   have _staleRejected := DeepSeekHarnessMixedReplay.Example.stale_rejected
   pure ()
 
+private def testDeepSeekHarnessTransportContract : IO Unit := do
+  match ← DeepSeekHarnessTransportContract.Example.round with
+  | .error error => fail s!"transport contract fixture failed: {reprStr error}"
+  | .ok ⟨prepared, ⟨_body, round⟩⟩ =>
+      assertEqual "transport contract keeps the successful HTTP status"
+        round.response.status 200
+      assertEqual "transport contract appends one accepted response"
+        round.after.session.nextSeq 1
+      assertEqual "transport contract retains the accepted tool call"
+        round.accepted.validated.response.choices.head.message.toolCalls.length 1
+      have _prepared := prepared.build_eq
+      have _body := round.body_eq
+      have _validated := DeepSeekHarnessTransportContract.TransportRound.validated_response_eq
+        round
+      have _accepted := DeepSeekHarnessTransportContract.TransportRound.accepted_response_eq round
+      pure ()
+  match ← DeepSeekHarnessTransportContract.Example.statusFailure with
+  | .error (.httpStatus 503 "busy") => pure ()
+  | .error error => fail s!"transport contract status error changed: {reprStr error}"
+  | .ok _ => fail "transport contract accepted a 503 response"
+
 private def testDeepSeekSchemaStreamConversation : IO Unit := do
   match DeepSeekToolSchema.weatherToolCertificate,
       DeepSeekSchemaRegistry.Example.clockToolCertificate with
@@ -6062,6 +6084,7 @@ def run : IO Unit := do
   testDeepSeekHarnessMixedPersistence
   testDeepSeekHarnessSchemaLift
   testDeepSeekHarnessMixedReplay
+  testDeepSeekHarnessTransportContract
   testDeepSeekSchemaStreamConversation
   testDeepSeekSchemaStreamPrefixConversation
   testDeepSeekSchemaStreamErrors

@@ -354,6 +354,15 @@ stale sequence numbers reject with typed errors. Arbitrary custom surface interl
 provider/persistence/transport compatibility, and deployed Harness equivalence remain
 external.
 
+`Cordis.DeepSeekHarnessTransportContract` closes the adjacent injected-transport seam. A prepared
+typed request is sent through a `DeepSeekApi.Transport`, successful HTTP status is checked, the
+response is decoded once, and `DeepSeekApiSession.acceptValidated` admits that same dependent
+response before appending it to the runner. `TransportRound` retains the exact response body,
+decoder, acceptance, and session-endpoint equations; fixtures cover a successful tool-call body
+and a typed 503 rejection. This is a pure local transport contract: live network reachability,
+credential validity, provider obedience, TLS/retry behavior, persistence, and deployed Harness
+equivalence remain external.
+
 `Cordis.DeepSeekHarnessPersistence` now attaches that bounded runner to the logical JSONL
 persistence refinement. A successful archive restores a `ConversationRunner` with an exact
 equality to the archive's final session, and a proof-carrying request rebuilt from the restored
@@ -1300,6 +1309,7 @@ placeholders.
 | `Cordis.DeepSeekHarnessMixedPersistence`                | Schedule-indexed mixed persistence certificate: one lossless archive covers the complete source row stream while independent core and dependent-extension projections retain exact source ASTs and indexed endpoints; no combined arbitrary-schema replay is claimed.                                                                                                                               |
 | `Cordis.DeepSeekHarnessSchemaLift`                      | Arbitrary-schema transport for validated core sessions: dependent core kinds, payloads, intents, surface transitions, headers, sequence proofs, and protocol projections lift into any `ExtensionSchema`; the certificate example exercises a custom schema without claiming extension-row decoding or mixed replay.                                                                                |
 | `Cordis.DeepSeekHarnessMixedReplay`                     | Tagged mixed JSON replay for arbitrary schemas: core rows use the stateful core decoder, custom log-only extension rows interleave with a phantom shadow clock, and exact sequence, surface/header, protocol, and typed rejection witnesses are retained; custom surface/core-kind extension rows are rejected.                                                                                     |
+| `Cordis.DeepSeekHarnessTransportContract`               | Injected transport composition for prepared requests: successful status, one retained response decoder, `acceptValidated` session admission, exact accepted-response/body equations, runner append endpoint, and typed transport/status/decode/session errors; local 200/tool-call and 503 fixtures are executable.                                                                                 |
 | `Cordis.DeepSeekHarnessEventText`                       | UTF-8/JSONL text and `ByteArray` ingress for the event-archive attachment, retaining exact source/decoded text and archive/session certificates before restoring a `ConversationRunner`; invalid UTF-8 and opaque/extension events fail closed.                                                                                                                                                     |
 | `Cordis.DeepSeekHarnessEventProcessOutcome`             | Carries restored text/byte event runners through complete-body rich outcomes and fuel-bounded streamed conversations, retaining prepared request, process/round, tool, endpoint, archive, session, projection, and completion/stop certificates; caller-supplied source and complete-body process boundaries remain explicit.                                                                       |
 | `Cordis.LoaderHMR`                                      | Definition 74 entry records, keyed configuration reconciliation, Algorithm 8 fixed-point accepted/declined classification with cycle fallback, declined-boundary stale detection, and Algorithm 10 indexed transactional reload with exact failure rollback; dynamic imports, filesystem watches, real fibers, and deployed loader equivalence remain external.                                     |

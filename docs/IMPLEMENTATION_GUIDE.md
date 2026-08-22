@@ -2175,6 +2175,14 @@ carry the exact row list and dependent endpoint, and the public validator should
 decode/refinement/surface/core-kind/sequence failures. Do not widen this helper into arbitrary
 custom surface edits, provider or persistence compatibility, or deployed Harness equivalence.
 
+`Cordis.DeepSeekHarnessTransportContract` is the next narrow execution seam. Keep the transport
+as an injected `DeepSeekApi.Transport`: `executePrepared` should preserve the prepared request,
+check the 2xx status, decode once, pass the same `ValidatedResponse` to `acceptValidated`, and
+construct a `TransportRound` whose endpoint is definitionally the existing `Runner.appendApi`
+endpoint. Keep request, transport, status, response, and session failures distinct. The fixture
+must demonstrate both a tool-call success and a 503 rejection; it must not be described as live
+network, credential, provider, TLS/retry, persistence, or deployed-Harness verification.
+
 `Cordis.DeepSeekToolSchema` is the next request-side type boundary. It validates the bounded
 schema vocabulary actually represented by the local DeepSeek API: an object parameter root,
 primitive property `type` tags, optional property descriptions, a duplicate-free `required`

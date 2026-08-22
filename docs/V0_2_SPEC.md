@@ -107,6 +107,14 @@ sequence, surface/header, and protocol-projection equations. Extension surface r
 extension encodings of core kinds reject explicitly. This is not arbitrary extension surface
 integration, provider/transport/persistence compatibility, or deployed equivalence.
 
+`Cordis.DeepSeekHarnessTransportContract` closes a separate local transport composition seam.
+`executePrepared` sends a prepared request through an injected `DeepSeekApi.Transport`, checks a
+successful HTTP status, decodes the body once, applies `acceptValidated` to that same certificate,
+and returns the exact appended runner endpoint. `TransportRound` retains body, decoder,
+acceptance, and endpoint equations, while fixtures cover a successful tool-call response and a
+typed 503 rejection. This does not establish live network, credential, provider, TLS/retry,
+persistence, or deployed Harness behavior.
+
 The slice closes two concrete gaps in the original objective:
 
 1. the runner becomes generic over a dependent tool catalog instead of importing the counter

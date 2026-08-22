@@ -11,6 +11,7 @@ import Cordis.DeepSeekCurlStream
 import Cordis.DeepSeekCurlSession
 import Cordis.DeepSeekHarnessProcess
 import Cordis.DeepSeekHarnessProcessOutcome
+import Cordis.DeepSeekHarnessTransportContract
 import Cordis.DeepSeekHarnessProcessSchema
 import Cordis.DeepSeekHarnessProcessSchemaPrefix
 import Cordis.DeepSeekHarnessProcessSchemaPrefixConversation
@@ -788,6 +789,15 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessMixedReplay.Example.protocol_exact
 #print axioms Cordis.DeepSeekHarnessMixedReplay.Example.surface_rejected
 #print axioms Cordis.DeepSeekHarnessMixedReplay.Example.stale_rejected
+#print axioms Cordis.DeepSeekApiSession.acceptValidated
+#print axioms Cordis.DeepSeekHarnessTransportContract.acceptValidated_validated
+#print axioms Cordis.DeepSeekHarnessTransportContract.TransportRound.validated_response_eq
+#print axioms Cordis.DeepSeekHarnessTransportContract.TransportRound.accepted_response_eq
+#print axioms Cordis.DeepSeekHarnessTransportContract.TransportRound.nextSeq
+#print axioms Cordis.DeepSeekHarnessTransportContract.executePrepared
+#print axioms Cordis.DeepSeekHarnessTransportContract.executeSource
+#print axioms Cordis.DeepSeekHarnessTransportContract.Example.round
+#print axioms Cordis.DeepSeekHarnessTransportContract.Example.statusFailure
 #print axioms Cordis.DeepSeekHarness.buildTypedCompleteRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan_source_stream
