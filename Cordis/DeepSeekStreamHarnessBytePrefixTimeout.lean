@@ -127,6 +127,126 @@ def executeConversationMultiTimedBytePrefixRound
   executeConversationTimedBytePrefixRound finishMulti maxReads chunkSize timeoutMs config baseUrl
     apiKey source cfg before runner sourceEventSeqs sourcesNodup sourcesEarlier
 
+abbrev TimedBytePrefixConversationWitness
+    {Model Capability : Type}
+    (cfg : GenericHarness.Config Model Capability) :=
+  Sigma fun before : Model => Sigma fun body : String =>
+    TimedBytePrefixConversationRoundResult cfg before body
+
+namespace TimedBytePrefixConversationWitness
+
+abbrev noToolCalls
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability} :
+    TimedBytePrefixConversationWitness cfg → Prop
+  | ⟨_, ⟨_, result⟩⟩ => result.round.finished.finished.view.rawToolCalls.length = 0
+
+end TimedBytePrefixConversationWitness
+
+inductive TimedBytePrefixConversationStop
+    {Model Capability : Type}
+    (cfg : GenericHarness.Config Model Capability) where
+  | completed (last : TimedBytePrefixConversationWitness cfg)
+      (noToolCalls : TimedBytePrefixConversationWitness.noToolCalls last)
+  | fuelExhausted
+  | prefixStopped (response : TimedBytePrefixResponse (LinePolicy.never))
+
+namespace TimedBytePrefixConversationStop
+
+def isCompleted
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability} :
+    TimedBytePrefixConversationStop cfg → Bool
+  | .completed _ _ => true
+  | .fuelExhausted | .prefixStopped _ => false
+
+end TimedBytePrefixConversationStop
+
+structure TimedBytePrefixConversationRunResult
+    {Model Capability : Type}
+    (cfg : GenericHarness.Config Model Capability) where
+  rounds : List (TimedBytePrefixConversationWitness cfg)
+  runner : ConversationRunner
+  finalModel : Model
+  stop : TimedBytePrefixConversationStop cfg
+
+def runConversationMultiTimedBytePrefixAux
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body))
+    (fuel : Nat)
+    (maxReads chunkSize : Nat)
+    (timeoutMs : UInt32)
+    (config : ProcessConfig)
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (source : RequestSource)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ current : ConversationRunner,
+      ∀ source ∈ sourceEventSeqs, source < current.session.nextSeq)
+    (before : Model)
+    (runner : ConversationRunner)
+    (history : List (TimedBytePrefixConversationWitness cfg)) :
+    IO (Except TimedBytePrefixConversationError
+      (TimedBytePrefixConversationRunResult cfg)) := do
+  match fuel with
+  | 0 =>
+      pure (.ok {
+        rounds := history
+        runner
+        finalModel := before
+        stop := .fuelExhausted
+      })
+  | fuel + 1 =>
+      match ← executeConversationTimedBytePrefixRound finish maxReads chunkSize timeoutMs config
+          baseUrl apiKey source cfg before runner sourceEventSeqs sourcesNodup
+          (sourcesEarlier runner) with
+      | .error (.prefixStop response) =>
+          pure (.ok {
+            rounds := history
+            runner
+            finalModel := before
+            stop := .prefixStopped response
+          })
+      | .error error => pure (.error error)
+      | .ok ⟨body, round⟩ =>
+          let witness : TimedBytePrefixConversationWitness cfg := ⟨before, ⟨body, round⟩⟩
+          let nextHistory := history ++ [witness]
+          if noTools : TimedBytePrefixConversationWitness.noToolCalls witness then
+            pure (.ok {
+              rounds := nextHistory
+              runner := round.round.runner
+              finalModel := round.round.finalModel
+              stop := .completed witness noTools
+            })
+          else
+            runConversationMultiTimedBytePrefixAux finish fuel maxReads chunkSize timeoutMs config
+              baseUrl apiKey source sourceEventSeqs sourcesNodup sourcesEarlier
+              round.round.finalModel round.round.runner nextHistory
+termination_by fuel
+
+def runConversationMultiTimedBytePrefix
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (fuel maxReads chunkSize : Nat)
+    (timeoutMs : UInt32)
+    (config : ProcessConfig)
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (source : RequestSource)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ current : ConversationRunner,
+      ∀ source ∈ sourceEventSeqs, source < current.session.nextSeq)
+    (before : Model)
+    (runner : ConversationRunner) :
+    IO (Except TimedBytePrefixConversationError
+      (TimedBytePrefixConversationRunResult cfg)) :=
+  runConversationMultiTimedBytePrefixAux finishMulti fuel maxReads chunkSize timeoutMs config
+    baseUrl apiKey source sourceEventSeqs sourcesNodup sourcesEarlier before runner []
+
 namespace Example
 
 theorem timeout_stop_is_not_completed

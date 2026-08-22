@@ -913,9 +913,9 @@ Blocked, delayed-prefix, and fast-completion fixtures are executable. This is lo
 evidence only; arbitrary descendant cleanup, fairness, backpressure, authenticity, durability,
 reconnects, and deployed Harness equivalence remain outside.
 `Cordis.DeepSeekStreamHarnessBytePrefixTimeout` composes completed timed prefixes with the dependent
-streamed conversation runner. Timeout, fuel, and cancellation stops remain explicit nonterminal
-prefix errors; no in-flight provider interruption, reconnect guarantee, or deployed asynchronous
-Harness equivalence is claimed.
+streamed conversation runner and its fuel-bounded multi-round endpoint trace. Timeout, fuel, and
+cancellation stops remain explicit nonterminal prefix errors; no in-flight provider interruption,
+reconnect guarantee, or deployed asynchronous Harness equivalence is claimed.
 
 When an adapter such as `ToolWire` is used, textual resolution, decoding, and admission can
 fail closed before an `AuthorizedCall` is constructed. The adapter still supplies its resolver,
@@ -979,7 +979,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1926
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1928
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.

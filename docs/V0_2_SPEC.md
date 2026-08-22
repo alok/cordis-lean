@@ -1260,10 +1260,10 @@ The bounded algebra/context/global layer now has forty-five explicit pieces:
     cleanup, fairness, backpressure, authenticity, durability, reconnects, and deployed semantics
     remain external.
 55. `Cordis.DeepSeekStreamHarnessBytePrefixTimeout` composes completed timed byte prefixes with
-    the existing dependent streamed conversation runner. Finish, assistant/tool append, and session
-    indexing occur only for `.completed`; timeout, fuel, and cancellation stops are explicit
-    nonterminal prefix errors. In-flight provider behavior, reconnects, and deployed asynchronous
-    Harness equivalence remain outside this local adapter.
+    the existing dependent streamed conversation runner and a fuel-bounded multi-round trace.
+    Finish, assistant/tool append, and session indexing occur only for `.completed`; timeout, fuel,
+    and cancellation stops are explicit nonterminal prefix errors. In-flight provider behavior,
+    reconnects, and deployed asynchronous Harness equivalence remain outside this local adapter.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a

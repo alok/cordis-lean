@@ -135,9 +135,10 @@ provider/executable authenticity, durability, reconnects, and deployed Harness e
 external.
 `Cordis.DeepSeekStreamHarnessBytePrefixTimeout` attaches that timed byte prefix to the existing
 dependent streamed conversation runner. Completed prefixes continue through finish, assistant/tool
-append, and session indexing; timeout, fuel, and cancellation stops remain explicit nonterminal
-errors rather than fabricated completions. The adapter does not claim in-flight provider semantics,
-reconnect behavior, or deployed asynchronous Harness equivalence.
+append, and session indexing; its fuel-bounded multi-round trace carries those exact endpoints,
+while timeout, fuel, and cancellation stops remain explicit nonterminal errors rather than fabricated
+completions. The adapter does not claim in-flight provider semantics, reconnect behavior, or deployed
+asynchronous Harness equivalence.
 `Cordis.DeepSeekStreamFailure` preserves the two provider terminal-failure tags
 currently decoded by the wire layer (`content_filter` and
 `insufficient_system_resource`) as a raw, typed failure certificate. It does

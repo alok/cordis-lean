@@ -2691,6 +2691,23 @@ private def testDeepSeekCurlBytePrefixTimeout : IO Unit := do
         result.round.finalModel 0
       assertEqual "timed byte-prefix streamed Harness appends the result"
         result.round.runner.session.nextSeq 3
+  match ← Cordis.DeepSeekStreamHarnessBytePrefixTimeout.runConversationMultiTimedBytePrefix
+      (cfg := Cordis.Harness.counterConfig)
+      1 4096 1 2000 completionProcess "https://fixture.invalid"
+      { value := "fixture-key" } DeepSeekHarness.counterRequestSource
+      [] (by simp) (by simp) 0 initialRunner with
+  | .error _ => fail "timed byte-prefix streamed Harness multi-round run failed"
+  | .ok result =>
+      assertEqual "timed byte-prefix streamed Harness keeps one timed round"
+        result.rounds.length 1
+      assertEqual "timed byte-prefix streamed Harness fuel stop is nonterminal"
+        result.stop.isCompleted false
+      match result.stop with
+      | .fuelExhausted => pure ()
+      | .completed _ _ | .prefixStopped _ =>
+          fail "timed byte-prefix streamed Harness multi-round stop mismatch"
+      assertEqual "timed byte-prefix streamed Harness fuel stop retains runner"
+        result.runner.session.nextSeq 3
 
   let delayedProcess : DeepSeekCurlTransport.ProcessConfig := {
     command := "sh"
