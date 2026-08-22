@@ -145,12 +145,114 @@ private def normalizeOccurrences (decisions : List ProjectionDecision) (localSeq
       let rest ← normalizeOccurrences decisions (localSeq + 1) tail
       .ok (normalized :: rest)
 
+private theorem normalizeOne_source
+    (decisions : List ProjectionDecision) (localSeq : Nat)
+    (occurrence : SupportedOccurrence) (normalized : NormalizedOccurrence)
+    (result : normalizeOne decisions localSeq occurrence = .ok normalized) :
+    normalized.source = occurrence := by
+  unfold normalizeOne at result
+  split at result
+  · contradiction
+  · rename_i raw rawResult
+    split at result
+    · contradiction
+    · rename_i event decoded
+      split at result
+      · cases result
+        rfl
+      · contradiction
+
+private theorem normalizeOne_position
+    (decisions : List ProjectionDecision) (localSeq : Nat)
+    (occurrence : SupportedOccurrence) (normalized : NormalizedOccurrence)
+    (result : normalizeOne decisions localSeq occurrence = .ok normalized) :
+    normalized.sourcePosition = occurrence.position := by
+  unfold normalizeOne at result
+  split at result
+  · contradiction
+  · rename_i raw rawResult
+    split at result
+    · contradiction
+    · rename_i event decoded
+      split at result
+      · cases result
+        rfl
+      · contradiction
+
+private theorem normalizeOccurrences_sources :
+    ∀ (decisions : List ProjectionDecision) (localSeq : Nat)
+      (occurrences : List SupportedOccurrence) (normalized : List NormalizedOccurrence),
+      normalizeOccurrences decisions localSeq occurrences = .ok normalized →
+        normalized.map NormalizedOccurrence.source = occurrences
+  | _, _, [], normalized, result => by
+      unfold normalizeOccurrences at result
+      have normalized_eq : normalized = [] := (Except.ok.inj result).symm
+      subst normalized
+      rfl
+  | decisions, localSeq, head :: tail, normalized, result => by
+      cases hHead : normalizeOne decisions localSeq head with
+      | error error =>
+          unfold normalizeOccurrences at result
+          rw [hHead] at result
+          cases result
+      | ok normalizedHead =>
+          cases hTail : normalizeOccurrences decisions (localSeq + 1) tail with
+          | error error =>
+              unfold normalizeOccurrences at result
+              rw [hHead, hTail] at result
+              cases result
+          | ok normalizedTail =>
+              unfold normalizeOccurrences at result
+              rw [hHead, hTail] at result
+              have normalized_eq : normalized = normalizedHead :: normalizedTail :=
+                (Except.ok.inj result).symm
+              subst normalized
+              simp [normalizeOne_source decisions localSeq head normalizedHead hHead,
+                normalizeOccurrences_sources decisions (localSeq + 1) tail normalizedTail hTail]
+
+private theorem normalizeOccurrences_positions :
+    ∀ (decisions : List ProjectionDecision) (localSeq : Nat)
+      (occurrences : List SupportedOccurrence) (normalized : List NormalizedOccurrence),
+      normalizeOccurrences decisions localSeq occurrences = .ok normalized →
+        normalized.map NormalizedOccurrence.sourcePosition =
+          occurrences.map SupportedOccurrence.position
+  | _, _, [], normalized, result => by
+      unfold normalizeOccurrences at result
+      have normalized_eq : normalized = [] := (Except.ok.inj result).symm
+      subst normalized
+      rfl
+  | decisions, localSeq, head :: tail, normalized, result => by
+      cases hHead : normalizeOne decisions localSeq head with
+      | error error =>
+          unfold normalizeOccurrences at result
+          rw [hHead] at result
+          cases result
+      | ok normalizedHead =>
+          cases hTail : normalizeOccurrences decisions (localSeq + 1) tail with
+          | error error =>
+              unfold normalizeOccurrences at result
+              rw [hHead, hTail] at result
+              cases result
+          | ok normalizedTail =>
+              unfold normalizeOccurrences at result
+              rw [hHead, hTail] at result
+              have normalized_eq : normalized = normalizedHead :: normalizedTail :=
+                (Except.ok.inj result).symm
+              subst normalized
+              simp [normalizeOne_position decisions localSeq head normalizedHead hHead,
+                normalizeOccurrences_positions decisions (localSeq + 1) tail normalizedTail hTail]
+
 def physicalSequences (decisions : List ProjectionDecision) : List Nat :=
   decisions.map (fun decision => decision.event.envelope.seq.value)
 
 structure NormalizedLog (input : List Lean.Json) where
   projection : SupportedProjection input
   occurrences : List NormalizedOccurrence
+  occurrences_sources_eq :
+    occurrences.map NormalizedOccurrence.source = projection.occurrences
+  occurrences_positions_eq :
+    occurrences.map NormalizedOccurrence.sourcePosition =
+      projection.occurrences.map SupportedOccurrence.position
   normalizedInput : List Lean.Json
   normalizedInput_eq : normalizedInput = occurrences.map NormalizedOccurrence.raw
   validated : SessionRefinement.ValidatedJsonLog normalizedInput
@@ -162,7 +264,7 @@ def normalize {input : List Lean.Json} (archive : ArchivedLog input) :
   | .error error => .error (.projection error)
   | .ok projection =>
       if _nodup : (physicalSequences projection.projection.decisions).Nodup then
-        match _occurrencesResult : normalizeOccurrences projection.projection.decisions 0
+        match occurrencesResult : normalizeOccurrences projection.projection.decisions 0
           projection.occurrences with
         | .error error => .error error
         | .ok occurrences =>
@@ -174,6 +276,12 @@ def normalize {input : List Lean.Json} (archive : ArchivedLog input) :
                 .ok {
                   projection
                   occurrences
+                  occurrences_sources_eq :=
+                    normalizeOccurrences_sources projection.projection.decisions 0
+                      projection.occurrences occurrences occurrencesResult
+                  occurrences_positions_eq :=
+                    normalizeOccurrences_positions projection.projection.decisions 0
+                      projection.occurrences occurrences occurrencesResult
                   normalizedInput
                   normalizedInput_eq := rfl
                   validated

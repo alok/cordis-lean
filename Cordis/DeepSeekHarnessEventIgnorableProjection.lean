@@ -150,6 +150,119 @@ structure SupportedProjection (input : List Lean.Json) where
   occurrences_eq :
     projectDecisions projection.decisions = .ok occurrences
 
+/-! The private classifier is exposed only through this positional ledger.  This keeps the
+semantic archive boundary constructive: every source decision is either an explicit ignorable
+drop or a supported occurrence, and no later replay layer has to recover that partition from raw
+JSON membership. -/
+
+inductive DecisionLedger : List ProjectionDecision → List SupportedOccurrence → Type where
+  | nil : DecisionLedger [] []
+  | drop
+      {position : Nat} {event : ArchivedEvent} {skippable : skippable event = true}
+      {rest : List ProjectionDecision} {occurrences : List SupportedOccurrence}
+      (tail : DecisionLedger rest occurrences) :
+      DecisionLedger (.drop position event skippable :: rest) occurrences
+  | keep
+      {position : Nat} {certificate : Supported}
+      {rest : List ProjectionDecision} {occurrences : List SupportedOccurrence}
+      (tail : DecisionLedger rest occurrences) :
+      DecisionLedger (.keep position (.supported certificate) :: rest)
+        ({ position, certificate } :: occurrences)
+
+namespace DecisionLedger
+
+def keptPositions {decisions : List ProjectionDecision} {occurrences : List SupportedOccurrence} :
+    DecisionLedger decisions occurrences → List Nat
+  | .nil => []
+  | @DecisionLedger.drop position event skippable rest occurrences tail => keptPositions tail
+  | @DecisionLedger.keep position certificate rest occurrences tail =>
+      position :: keptPositions tail
+
+def droppedPositions {decisions : List ProjectionDecision}
+    {occurrences : List SupportedOccurrence} :
+    DecisionLedger decisions occurrences → List Nat
+  | .nil => []
+  | @DecisionLedger.drop position event skippable rest occurrences tail =>
+      position :: droppedPositions tail
+  | @DecisionLedger.keep position certificate rest occurrences tail => droppedPositions tail
+
+def allPositions {decisions : List ProjectionDecision} {occurrences : List SupportedOccurrence} :
+    DecisionLedger decisions occurrences → List Nat
+  | .nil => []
+  | @DecisionLedger.drop position event skippable rest occurrences tail =>
+      position :: allPositions tail
+  | @DecisionLedger.keep position certificate rest occurrences tail =>
+      position :: allPositions tail
+
+theorem keptPositions_eq_sourcePositions
+    {decisions : List ProjectionDecision} {occurrences : List SupportedOccurrence}
+    (ledger : DecisionLedger decisions occurrences) :
+    ledger.keptPositions = occurrences.map SupportedOccurrence.position := by
+  induction ledger with
+  | nil => rfl
+  | drop tail ih => exact ih
+  | keep tail ih => simp [DecisionLedger.keptPositions, ih]
+
+theorem allPositions_eq_decisionPositions
+    {decisions : List ProjectionDecision} {occurrences : List SupportedOccurrence}
+    (ledger : DecisionLedger decisions occurrences) :
+    ledger.allPositions = decisions.map ProjectionDecision.position := by
+  induction ledger with
+  | nil => rfl
+  | drop tail ih => simp [DecisionLedger.allPositions, ProjectionDecision.position, ih]
+  | keep tail ih => simp [DecisionLedger.allPositions, ProjectionDecision.position, ih]
+
+end DecisionLedger
+
+private def projectDecisions_ledger :
+    ∀ (decisions : List ProjectionDecision) (occurrences : List SupportedOccurrence),
+      projectDecisions decisions = .ok occurrences → DecisionLedger decisions occurrences
+  | [], occurrences, result => by
+      cases occurrences with
+      | nil => exact .nil
+      | cons head tail => simp [projectDecisions] at result
+  | .drop position event skippable :: rest, occurrences, result => by
+      simp only [projectDecisions] at result
+      exact .drop (projectDecisions_ledger rest occurrences result)
+  | .keep position event :: rest, occurrences, result => by
+      cases event with
+      | supported certificate =>
+          cases occurrences with
+          | nil =>
+              cases h : projectDecisions rest with
+              | error error =>
+                  unfold projectDecisions at result
+                  rw [h] at result
+                  cases result
+              | ok tail =>
+                  unfold projectDecisions at result
+                  rw [h] at result
+                  cases result
+          | cons head tail =>
+              cases h : projectDecisions rest with
+              | error error =>
+                  unfold projectDecisions at result
+                  rw [h] at result
+                  cases result
+              | ok produced =>
+                  unfold projectDecisions at result
+                  rw [h] at result
+                  have entries := List.cons.inj (Except.ok.inj result)
+                  have headEq : head = { position, certificate } := entries.1.symm
+                  have tailEq : produced = tail := entries.2
+                  subst head
+                  subst produced
+                  exact .keep (projectDecisions_ledger rest tail h)
+      | knownOpaqueRequired known => simp [projectDecisions] at result
+      | knownOpaqueIgnorable known => simp [projectDecisions] at result
+      | extensionRequired envelope => simp [projectDecisions] at result
+      | extensionIgnorable envelope => simp [projectDecisions] at result
+
+def SupportedProjection.decision_ledger
+    {input : List Lean.Json} (projection : SupportedProjection input) :
+    DecisionLedger projection.projection.decisions projection.occurrences :=
+  projectDecisions_ledger _ _ projection.occurrences_eq
+
 def projectSupported {input : List Lean.Json} (archive : ArchivedLog input) :
     Except ProjectionError (SupportedProjection input) :=
   let projection := project archive

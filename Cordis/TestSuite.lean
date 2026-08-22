@@ -62,6 +62,7 @@ import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessEventIgnorableProjection
 import Cordis.DeepSeekHarnessEventIgnorableNormalization
+import Cordis.DeepSeekHarnessEventSimulation
 import Cordis.DeepSeekHarnessEventIgnorableRunner
 import Cordis.DeepSeekHarnessEventIgnorableTransport
 import Cordis.DeepSeekHarnessExtensionArchive
@@ -4720,6 +4721,32 @@ private def testDeepSeekHarnessEventIgnorableNormalization : IO Unit := do
         ]
       pure ()
 
+private def testDeepSeekHarnessEventSimulation : IO Unit := do
+  match DeepSeekHarnessEventSimulation.toolNormalizedSimulation with
+  | .error error => fail s!"ignorable source replay failed: {reprStr error}"
+  | .ok ⟨normalized, certificate⟩ =>
+      assertEqual "source replay keeps eight supported tool occurrences"
+        certificate.ledger.decisions.keptPositions.length 8
+      assertEqual "source replay drops one explicitly ignorable occurrence"
+        certificate.ledger.decisions.droppedPositions.length 1
+      assertEqual "source replay preserves the physical kept positions"
+        certificate.replay.2.sourcePositions [0, 1, 3, 4, 5, 6, 7, 8]
+      assertEqual "source replay preserves the physical source sequences"
+        certificate.replay.2.sourceSequences [0, 1, 3, 4, 5, 6, 7, 8]
+      assertEqual "source replay assigns contiguous local sequences"
+        certificate.replay.2.localSequences [0, 1, 2, 3, 4, 5, 6, 7]
+      assertEqual "source replay reaches the normalized session endpoint"
+        certificate.replay.1.session.nextSeq 8
+      assertEqual "source replay agrees with the normalized validator endpoint"
+        normalized.validated.final.session.nextSeq certificate.replay.1.session.nextSeq
+      let replay := certificate.replay.2
+      let _ledgerCertificate := certificate.ledger.kept_positions_eq
+      let _traceCertificate :=
+        DeepSeekHarnessEventSimulation.SourceReplay.protocolTrace_erase replay
+      let _projectionCertificate :=
+        DeepSeekHarnessEventSimulation.SourceReplay.sessionProjection_eq replay
+      pure ()
+
 private def testDeepSeekHarnessEventIgnorableRunner : IO Unit := do
   match DeepSeekHarnessEventIgnorableRunner.toolNormalizedRequest with
   | .error error => fail s!"ignorable normalized runner/request failed: {reprStr error}"
@@ -7315,6 +7342,7 @@ def run : IO Unit := do
   testDeepSeekHarnessEventArchive
   testDeepSeekHarnessEventIgnorableProjection
   testDeepSeekHarnessEventIgnorableNormalization
+  testDeepSeekHarnessEventSimulation
   testDeepSeekHarnessEventIgnorableRunner
   testDeepSeekHarnessEventIgnorableTransport
   testDeepSeekHarnessEventText

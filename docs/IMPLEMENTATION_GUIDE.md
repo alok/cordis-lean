@@ -1923,6 +1923,13 @@ and validates the rewritten JSON as a local session. Duplicate physical sequence
 references, malformed rewrites, and semantic failures reject. The nine-row archive fixture and its
 middle-row normalization witness are executable; opaque payload semantics and deployed Harness
 equivalence remain external.
+`Cordis.DeepSeekHarnessEventSimulation` is the next proof-bearing step rather than another endpoint
+wrapper. Its `DecisionLedger` is an occurrence-indexed keep/drop witness, and `SourceReplay` chains
+one `RefinedEvent` at the exact pre-state of each normalized occurrence. The resulting theorem
+surface retains physical positions, source sequences/times, local sequence renumbering, protocol
+erasure, and final session-projection equality for the finite supported subset. It deliberately
+does not model opaque payload behavior, provider execution, bytes, persistence, cancellation
+delivery, or complete deployed-Harness equivalence.
 `Cordis.DeepSeekHarnessEventIgnorableRunner` is the pure attachment above that normalized endpoint: it
 sets the `ConversationRunner` session to the validated final session, retains exact session/step and
 tool-call-count witnesses, and rebuilds a `ChatRequest` with a dependent request-build equality.

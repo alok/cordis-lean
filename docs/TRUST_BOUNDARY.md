@@ -516,7 +516,12 @@ continues the supported subset: it renumbers retained rows contiguously, remaps 
 `sourceEventSeqs`/`surfaceOp` references through the physical-to-local map, and validates the
 rewritten JSON into a local session. Duplicate physical sequences, missing references, malformed
 rewrites, and semantic failures return typed errors; opaque payload semantics and deployed Harness
-equivalence remain external. `DeepSeekHarnessEventIgnorableRunner` attaches the normalized final
+equivalence remain external. `DeepSeekHarnessEventSimulation` consumes the normalized occurrences
+with an occurrence-indexed `SourceReplay`: a typed `DecisionLedger` records every keep/drop
+decision and each retained `ReplayStep` carries the exact pre-state refinement. The finite replay
+proves source positions, local sequence renumbering, protocol erasure, and final
+session-projection equality. Provider behavior, bytes, persistence, cancellation delivery, and
+complete deployed-Harness equivalence remain external. `DeepSeekHarnessEventIgnorableRunner` attaches the normalized final
 session to `ConversationRunner` and rebuilds a typed `ChatRequest` with exact endpoint certificates;
 provider authenticity, transport, persistence, and deployed equivalence remain external.
 `DeepSeekHarnessEventIgnorableTransport` carries that same dependent runner through the existing
