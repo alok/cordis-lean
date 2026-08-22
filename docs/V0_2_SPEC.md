@@ -309,6 +309,11 @@ Current machine-checked evidence includes:
   the exact typed prefix before dispatch. Byte framing, backpressure, fairness, blocked-read
   interruption, reconnects, provider-complete assembly, authenticity, and deployed equivalence
   remain external;
+- `Cordis.DeepSeekHarnessLocalSseMultiToolBytePrefix`, driving the dependent continuation through
+  bounded curl byte chunks; completion retains raw/framed byte evidence and executes both tools,
+  while a one-read budget retains the typed raw prefix before dispatch. Byte-level backpressure,
+  blocked-read interruption, reconnects, provider-complete assembly, authenticity, and deployed
+  equivalence remain external;
 - `Cordis.DeepSeekStreamHarness`, composing complete-body terminal rich tool streams with the
   generic conversation runner, dependent tool execution, and certified typed-result append;
   streamed rounds use a request source/body certificate proving `stream: true`, and an executable
@@ -1397,6 +1402,11 @@ The bounded algebra/context/global layer now has sixty-seven explicit pieces:
     `LinePolicy.atLine` and a one-read budget return typed prefixes with no runner mutation. Byte
     framing, backpressure, fairness, blocked-read interruption, reconnects, provider-complete
     assembly, authenticity, and deployed Harness equivalence remain external.
+70. `Cordis.DeepSeekHarnessLocalSseMultiToolBytePrefix` drives bounded curl byte chunks across the
+    real loopback SSE boundary. Completion retains raw/framed byte evidence and executes both
+    dependent tools; a one-read budget returns the typed raw prefix before dispatch. Byte-level
+    backpressure, blocked-read interruption, reconnects, provider-complete assembly, authenticity,
+    and deployed Harness equivalence remain external.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a

@@ -50,6 +50,7 @@ import Cordis.DeepSeekHarnessLocalSseRetry
 import Cordis.DeepSeekHarnessLocalSseTimeout
 import Cordis.DeepSeekHarnessLocalSseMultiTool
 import Cordis.DeepSeekHarnessLocalSseMultiToolPrefix
+import Cordis.DeepSeekHarnessLocalSseMultiToolBytePrefix
 import Cordis.DeepSeekHarnessExtensions
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
@@ -3597,6 +3598,40 @@ private def testDeepSeekHarnessLocalSseMultiToolPrefix : IO Unit := do
           assertEqual "local SSE multi-tool prefix fuel stop retains the first frame"
             observed.state.frames.length 1
       | _ => fail "local SSE multi-tool prefix returned a non-exhausted outcome"
+
+private def testDeepSeekHarnessLocalSseMultiToolBytePrefix : IO Unit := do
+  match ← DeepSeekHarnessLocalSseMultiToolBytePrefix.Example.completeRun with
+  | .error error => fail s!"local SSE multi-tool byte prefix completion failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "local SSE multi-tool byte prefix validates one request"
+        result.requests 1
+      assertEqual "local SSE multi-tool byte prefix validates the request shape"
+        result.validRequests 1
+      match result.outcome with
+      | .ok ⟨_, round⟩ =>
+          assertEqual "local SSE multi-tool byte prefix executes both tools"
+            round.round.executions.length 2
+          assertEqual "local SSE multi-tool byte prefix reaches the tool endpoint"
+            round.round.runner.session.nextSeq 4
+      | .error error =>
+          let _ := error
+          fail "local SSE multi-tool byte prefix returned a typed round error"
+
+  match ← DeepSeekHarnessLocalSseMultiToolBytePrefix.Example.exhaustedRun with
+  | .error error => fail s!"local SSE multi-tool byte prefix exhaustion failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "local SSE multi-tool byte prefix exhaustion validates one request"
+        result.validRequests 1
+      match result.outcome with
+      | .error (.prefixStop response) =>
+          assertEqual "local SSE multi-tool byte prefix retains one raw chunk"
+            response.rawChunks.length 1
+          assertEqual "local SSE multi-tool byte prefix stops before a complete line"
+            response.state.typed.line 0
+      | .error error =>
+          let _ := error
+          fail "local SSE multi-tool byte prefix returned a typed round error"
+      | .ok _ => fail "local SSE multi-tool byte prefix unexpectedly completed"
 
 private def testDeepSeekHarnessPersistence : IO Unit := do
   match DeepSeekHarnessPersistence.persistedToolArchive with
@@ -7737,6 +7772,7 @@ def run : IO Unit := do
   testDeepSeekHarnessLocalSseTimeout
   testDeepSeekHarnessLocalSseMultiTool
   testDeepSeekHarnessLocalSseMultiToolPrefix
+  testDeepSeekHarnessLocalSseMultiToolBytePrefix
   testDeepSeekHarnessPersistence
   testDeepSeekHarnessPersistenceIO
   testDeepSeekHarnessOpaqueMetadata
