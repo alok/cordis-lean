@@ -1842,10 +1842,10 @@ semantics.
 
 The active `Cordis.RuntimeRefinement` module begins this work for a supported
 current-Harness `StreamChunk` subset. `Cordis.SessionRefinement` adds a stateful
-turn/step/tool subset plus text/reasoning user/assistant surface blocks and complete assistant
+turn/step/tool subset plus text/reasoning/image user/assistant surface blocks and complete assistant
 tool-call blocks. Accepted events carry rich Session witnesses; runtime events additionally carry intrinsic
 Protocol witnesses, while admitted surface IDs/provider metadata remain in the
-refinement state; text enters the smaller local message types and reasoning remains wire-visible.
+refinement state; text enters the smaller local message types and reasoning/image blocks remain wire-visible.
 Both start
 at `Lean.Json`, decode exact current field/tag shapes, and fail closed outside
 their stated language.
@@ -1901,7 +1901,7 @@ compression, filesystem durability, and crash recovery remain separate contracts
 thirteen pinned core `SessionEvent` tags, checks object-shaped payloads and forbids surface
 metadata on log-only tags, delegates accepted records to `SessionRefinement`, and preserves
 unsupported known payloads as raw typed opaque records. It deliberately does not invent payload
-types for assistant image blocks, provider usage/failure objects, tool-result `error`/
+semantic payload types beyond raw retention for assistant image blocks, provider usage/failure objects, tool-result `error`/
 `meta`, or future request configuration.
 `Cordis.DeepSeekHarnessEventArchive` is the next type-level seam rather than a second parser. Its
 `SupportedEventLog` requires both the lossless `ArchivedLog` and the stateful

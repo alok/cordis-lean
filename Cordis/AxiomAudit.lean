@@ -485,6 +485,7 @@ set_option format.width 200
 #print axioms Cordis.SessionRefinement.validate_message_example
 #print axioms Cordis.SessionRefinement.validate_message_example_retains_reasoning
 #print axioms Cordis.SessionRefinement.accept_assistantReasoningBlock
+#print axioms Cordis.SessionRefinement.accept_assistantImageBlock
 #print axioms Cordis.SessionRefinement.validate_tool_message_example
 #print axioms Cordis.SessionRefinement.validate_replacement_message_example
 #print axioms Cordis.SessionRefinement.validate_header_chunk_example

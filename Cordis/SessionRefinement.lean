@@ -20,8 +20,8 @@ The translation synthesizes only values fixed by the accepted prefix and named n
 
 The supported event vocabulary is turn/step boundaries, restricted request headers, route context,
 whole-list todo snapshots, empty session-seed markers, text/reasoning assistant chunks,
-text-only user messages, assistant messages with text, reasoning, and complete tool-call blocks,
-tool calls,
+text-only user messages, assistant messages with text, reasoning, image, and complete tool-call
+blocks, tool calls,
 and a restricted
 tool result whose three call-id occurrences agree and whose nested result content is exactly one
 text block. Every pinned upstream turn-end reason is decoded. The local session projects
@@ -34,8 +34,8 @@ tool schemas, and stop reason; the local `Session.RequestHeader` projection reta
 represents. Route context, todo items, and the empty seed boundary are retained as typed log-only
 payloads. Assistant chunks retain only text-delta blocks at index zero as log-only events.
 
-Assistant reasoning blocks inside surface `assistant/message` records are retained in the wire
-witness and omitted from the smaller local text/tool projection. Assistant replay state,
+Assistant reasoning and image blocks inside surface `assistant/message` records are retained in
+the wire witness and omitted from the smaller local text/tool projection. Assistant replay state,
 tool-result error identity/meta, multimodal tool results, unknown todo statuses, nonempty seed
 payloads, and all extension events are rejected.
 Complete assistant tool calls are allocated into the same provider-to-local
@@ -240,12 +240,17 @@ structure WireTextBlock where
   text : String
   deriving DecidableEq, Repr
 
-/-- The admitted assistant block subset retains text, reasoning, and complete tool-call blocks. -/
+instance : Repr Lean.Json where
+  reprPrec _json _ := Std.Format.text (Lean.Json.compress _json)
+
+/-- The admitted assistant block subset retains text, reasoning, image, and complete tool-call
+blocks. Image objects remain raw because the local session has no image semantics. -/
 inductive WireAssistantBlock where
   | text (text : String)
   | reasoning (text : String)
+  | image (raw : Lean.Json)
   | toolCall (providerId name arguments : String)
-  deriving DecidableEq, Repr
+  deriving Repr
 
 /-- The source-shaped fields preserved for an admitted user message. -/
 structure WireUserMessage where
@@ -269,20 +274,20 @@ structure WireAssistantMessage where
   model : String
   content : List WireAssistantBlock
   usage : Option WireUsage
-  deriving DecidableEq, Repr
+  deriving Repr
 
 /-- Surface messages retained separately from the smaller local session projection. -/
 inductive WireSurfaceMessage where
   | user (message : WireUserMessage)
   | assistant (message : WireAssistantMessage)
-  deriving DecidableEq, Repr
+  deriving Repr
 
 /-- A source surface message together with its optional upstream provenance references. -/
 structure WireSurfaceAppend where
   message : WireSurfaceMessage
   sourceEventSeqs : Option (List SafeNat)
   surfaceOp : WireSurfaceOp
-  deriving DecidableEq, Repr
+  deriving Repr
 
 /-- Supported payloads selected by the current upstream event `type`. -/
 inductive WirePayload where
@@ -300,14 +305,14 @@ inductive WirePayload where
   | assistantMessage (turn step : SafeNat) (append : WireSurfaceAppend)
   | toolCall (turn step : SafeNat) (providerCallId name arguments : String)
   | toolResult (result : WireToolResult)
-  deriving DecidableEq, Repr
+  deriving Repr
 
 /-- Current upstream outer event envelope with retained sequence and timestamp. -/
 structure WireEvent where
   seq : SafeNat
   time : SafeNat
   payload : WirePayload
-  deriving DecidableEq, Repr
+  deriving Repr
 
 private def jsonKind : Lean.Json → JsonKind
   | .null => .null
@@ -487,6 +492,7 @@ private def decodeAssistantBlock (path : List PathSegment) : Lean.Json →
       match kind with
       | "text" => .text <$> decodeRequiredString json path "text"
       | "reasoning" => .reasoning <$> decodeRequiredString json path "text"
+      | "image" => .ok (.image json)
       | "tool-call" =>
           .toolCall <$> decodeRequiredString json path "id"
             <*> decodeRequiredString json path "name"
@@ -1045,14 +1051,15 @@ private def allocateAssistantCalls (before : BindingState) :
 
 private def assistantBlockTriples : List WireAssistantBlock → List (String × String × String)
   | [] => []
-  | .text _ :: rest | .reasoning _ :: rest => assistantBlockTriples rest
+  | .text _ :: rest | .reasoning _ :: rest | .image _ :: rest => assistantBlockTriples rest
   | .toolCall providerId name arguments :: rest =>
       (providerId, name, arguments) :: assistantBlockTriples rest
 
 private def assistantBlockText : List WireAssistantBlock → String
   | [] => ""
   | .text text :: rest => text ++ assistantBlockText rest
-  | .reasoning _ :: rest | .toolCall _ _ _ :: rest => assistantBlockText rest
+  | .reasoning _ :: rest | .image _ :: rest | .toolCall _ _ _ :: rest =>
+      assistantBlockText rest
 
 private def toolAllocationsToSession : List ToolAllocation → List Session.ToolCall
   | [] => []
@@ -1634,6 +1641,10 @@ def messageExampleJson : List Lean.Json := [
             ("type", .str "reasoning"), ("text", .str "hidden")
           ],
           Lean.Json.mkObj [
+            ("type", .str "image"),
+            ("attachment", Lean.Json.mkObj [("id", .str "image-0")])
+          ],
+          Lean.Json.mkObj [
             ("type", .str "text"), ("text", .str "hi")
           ]
         ])
@@ -1976,6 +1987,13 @@ private def wireSurfaceAssistantBlocks : List WireSurfaceAppend → List WireAss
         | .assistant message => message.content
       blocks ++ wireSurfaceAssistantBlocks rest
 
+def assistantBlockTags : List WireAssistantBlock → List String
+  | [] => []
+  | .text _ :: rest => "text" :: assistantBlockTags rest
+  | .reasoning _ :: rest => "reasoning" :: assistantBlockTags rest
+  | .image _ :: rest => "image" :: assistantBlockTags rest
+  | .toolCall _ _ _ :: rest => "tool-call" :: assistantBlockTags rest
+
 structure SurfaceValidationSummary where
   protocol : SessionState
   messages : List Session.Message
@@ -2002,6 +2020,11 @@ def surfaceAssistantBlocks {input : List Lean.Json} :
       Option (List WireAssistantBlock)
   | .error _ => none
   | .ok validated => some (wireSurfaceAssistantBlocks validated.final.wireSurface)
+
+def surfaceAssistantBlockTags {input : List Lean.Json} :
+    Except (DecodeError ⊕ RefinementError) (ValidatedJsonLog input) → Option (List String)
+  | .error _ => none
+  | .ok validated => some (assistantBlockTags (wireSurfaceAssistantBlocks validated.final.wireSurface))
 
 /-- Proof-erased observation used only to state executable example outcomes compactly. -/
 structure ValidationSummary where
@@ -2223,7 +2246,35 @@ theorem accept_assistantReasoningBlock :
 
 theorem validate_message_example_retains_reasoning :
     surfaceAssistantBlocks (validateJsonLog messageExampleJson) =
-      some [.reasoning "hidden", .text "hi"] := by
+      some [.reasoning "hidden", .image (Lean.Json.mkObj [
+        ("type", .str "image"),
+        ("attachment", Lean.Json.mkObj [("id", .str "image-0")])
+      ]), .text "hi"] := by
+  rfl
+
+/-- Image surface blocks are retained as raw wire JSON while omitted from local text projection. -/
+theorem accept_assistantImageBlock :
+    assistantSurfaceBlockView (decodeEvent (Lean.Json.mkObj [
+      ("type", .str "assistant/message"), ("seq", .num 0), ("time", .num 0),
+      ("data", Lean.Json.mkObj [
+        ("turn", .num 1), ("step", .num 1),
+        ("message", Lean.Json.mkObj [
+          ("id", .str "assistant-image"), ("role", .str "assistant"),
+          ("source", Lean.Json.mkObj [
+            ("kind", .str "model"), ("provider", .str "deepseek"),
+            ("model", .str "deepseek-reasoner")
+          ]),
+          ("content", .arr #[Lean.Json.mkObj [
+            ("type", .str "image"),
+            ("attachment", Lean.Json.mkObj [("id", .str "image-0")])
+          ]])
+        ])
+      ]),
+      ("surfaceOp", .str "append")
+    ])) = some [.image (Lean.Json.mkObj [
+      ("type", .str "image"),
+      ("attachment", Lean.Json.mkObj [("id", .str "image-0")])
+    ])] := by
   rfl
 
 /-- Log-only boundary events cannot smuggle conditional surface metadata into the local log. -/

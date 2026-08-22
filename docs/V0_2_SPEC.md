@@ -1067,7 +1067,7 @@ terminal view with the same local numeric-ID assignment proof used by the smalle
 `Cordis.SessionRefinement` covers a separate stateful subset of current `SessionEvent` JSON:
 turn/step boundaries, selected request/header snapshots, route context, whole-list todo snapshots,
 empty seed markers, and text/reasoning index-zero assistant chunks,
-text/reasoning user/assistant blocks, complete assistant tool-call blocks, tool calls, restricted
+text/reasoning/image user/assistant blocks, complete assistant tool-call blocks, tool calls, restricted
 singleton-text tool results, and exact append/replacement surface operations. It retains source sequence/time values in wire witnesses, derives
 local zero-based steps and `turn/end.nextStep` only from the validated prefix, and assigns
 provider string call IDs to fresh numeric local IDs with uniqueness proofs, reusing those IDs in
@@ -1081,8 +1081,8 @@ remain in `State.wireSurface`, while the local session stores projected text plu
 Every admitted event passes the rich
 Session append validator; runtime events also pass the intrinsic Protocol validator. Unsupported
 header fields, unknown todo statuses, nonempty seed payloads, unsupported chunk kinds, replay state,
-reasoning surface blocks are retained in the wire witness while tool/image blocks, error/meta
-payloads, and extension events fail closed. The
+reasoning and image surface blocks are retained in the wire witness while multimodal tool-result
+blocks, error/meta payloads, and extension events fail closed. The
 structured cancellation/failure payload remains in wire/refinement state rather than being claimed
 as a local `TurnEndReason` variant.
 

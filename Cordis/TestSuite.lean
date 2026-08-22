@@ -4754,10 +4754,10 @@ private def testSessionRefinement : IO Unit := do
           .stepEnd 1 0,
           .turnEnd 1 1
         ]
-  assertEqual "assistant reasoning surface blocks remain in the wire witness"
-    (SessionRefinement.surfaceAssistantBlocks
+  assertEqual "assistant reasoning and image surface blocks remain in the wire witness"
+    (SessionRefinement.surfaceAssistantBlockTags
       (SessionRefinement.validateJsonLog SessionRefinement.messageExampleJson))
-    (some [.reasoning "hidden", .text "hi"])
+    (some ["reasoning", "image", "text"])
   match SessionRefinement.surfaceValidationSummary
       (SessionRefinement.validateJsonLog SessionRefinement.toolMessageExampleJson) with
   | none => fail "assistant tool-call surface example failed to validate"

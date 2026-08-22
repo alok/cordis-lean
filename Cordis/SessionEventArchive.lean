@@ -12,7 +12,7 @@ log-only tags, delegates the supported subset to `SessionRefinement`, and keeps 
 known payload as a typed opaque record with its exact source AST.
 
 The result is a wire/tag coverage certificate, not a full event-payload decoder.  In particular,
-assistant message blocks outside the admitted text/reasoning/tool-call subset, provider usage/failure
+assistant message blocks outside the admitted text/reasoning/image/tool-call subset, provider usage/failure
 objects, tool-result `error`/`meta`, future
 request configuration, extension records, replay behavior, timestamps, persistence durability,
 and whole-session equivalence remain outside this layer.
