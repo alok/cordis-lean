@@ -2155,6 +2155,14 @@ extension certificates over their exact projections. This proves source partitio
 indexed endpoints without pretending that extension surface edits, sparse global sequence
 numbers, or the two indexed sessions have already been fused into one arbitrary-schema replay.
 
+`Cordis.DeepSeekHarnessSchemaLift` is the next type-level seam. Start from a validated
+`Session.noExtensions` core session, map each dependent core kind/payload/intent explicitly,
+transport each `SurfaceTransition`, and induct over `ValidLog`. The resulting `liftSession`
+retains exact sequence, surface, header, and protocol-projection equations in a target
+`ExtensionSchema`; `SchemaLiftCertificate` packages those endpoint laws. Keep custom extension
+rows and mixed replay outside this helper until their source decoder and surface transport are
+separately specified.
+
 `Cordis.DeepSeekToolSchema` is the next request-side type boundary. It validates the bounded
 schema vocabulary actually represented by the local DeepSeek API: an object parameter root,
 primitive property `type` tags, optional property descriptions, a duplicate-free `required`

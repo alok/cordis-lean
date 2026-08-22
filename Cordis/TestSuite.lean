@@ -60,6 +60,7 @@ import Cordis.DeepSeekHarnessExtensionArchive
 import Cordis.DeepSeekHarnessExtensionRequest
 import Cordis.DeepSeekHarnessExtensionPersistence
 import Cordis.DeepSeekHarnessMixedPersistence
+import Cordis.DeepSeekHarnessSchemaLift
 import Cordis.DeepSeekHarnessEventText
 import Cordis.DeepSeekHarnessEventProcessOutcome
 import Cordis.LoaderHMR
@@ -3657,6 +3658,25 @@ private def testDeepSeekHarnessMixedPersistence : IO Unit := do
         DeepSeekHarnessMixedPersistence.MixedCertificate.extension_raw_exact certificate
       pure ()
 
+private def testDeepSeekHarnessSchemaLift : IO Unit := do
+  have _eventProtocol :=
+    DeepSeekHarnessSchemaLift.liftEvent_protocol
+      (schema := DeepSeekHarnessExtensions.exampleSchema)
+  have _sessionProtocol :=
+    DeepSeekHarnessSchemaLift.Example.certifiedLift_protocol_exact
+  assertEqual "arbitrary-schema core lift preserves the physical endpoint"
+    DeepSeekHarnessSchemaLift.Example.certifiedLift.target.nextSeq 5
+  assertEqual "arbitrary-schema core lift preserves the materialized surface"
+    DeepSeekHarnessSchemaLift.Example.certifiedLift.target.surface.length 3
+  assertEqual "arbitrary-schema core lift preserves the request header"
+    DeepSeekHarnessSchemaLift.Example.certifiedLift.target.latestHeader.isSome true
+  have _noCustom := DeepSeekHarnessSchemaLift.Example.lifted_extension_schema_is_not_custom
+  pure ()
+  assertEqual "arbitrary-schema core lift preserves the protocol trace"
+    (Session.protocolProjection
+      DeepSeekHarnessSchemaLift.Example.certifiedLift.target.events)
+    Session.certifiedToolTrace.erase
+
 private def testDeepSeekSchemaStreamConversation : IO Unit := do
   match DeepSeekToolSchema.weatherToolCertificate,
       DeepSeekSchemaRegistry.Example.clockToolCertificate with
@@ -6022,6 +6042,7 @@ def run : IO Unit := do
   testSessionExtensionRefinement
   testDeepSeekHarnessExtensionPersistence
   testDeepSeekHarnessMixedPersistence
+  testDeepSeekHarnessSchemaLift
   testDeepSeekSchemaStreamConversation
   testDeepSeekSchemaStreamPrefixConversation
   testDeepSeekSchemaStreamErrors

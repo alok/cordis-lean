@@ -92,6 +92,12 @@ projections are validated independently at their existing indexed endpoints. It 
 combined arbitrary-schema replay, extension surface integration with the core protocol, global
 sequence normalization, or deployed persistence equivalence.
 
+`Cordis.DeepSeekHarnessSchemaLift` supplies the exact adjacent transport: a validated core
+session indexed by `Session.noExtensions` can be lifted into any `ExtensionSchema` while
+retaining dependent kind/payload/intent indices, `ValidLog`, materialized surface, header, and
+protocol-projection equations. The example uses a custom schema. Custom-row decoding and a
+single mixed replay remain separate obligations.
+
 The slice closes two concrete gaps in the original objective:
 
 1. the runner becomes generic over a dependent tool catalog instead of importing the counter

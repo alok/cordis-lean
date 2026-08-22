@@ -771,6 +771,12 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessMixedPersistence.MixedCertificate.extension_final_nextSeq
 #print axioms Cordis.DeepSeekHarnessMixedPersistence.Example.mixed_summary
 #print axioms Cordis.DeepSeekHarnessMixedPersistence.Example.mixed_schedule_exact
+#print axioms Cordis.DeepSeekHarnessSchemaLift.liftEvent_protocol
+#print axioms Cordis.DeepSeekHarnessSchemaLift.liftTransition
+#print axioms Cordis.DeepSeekHarnessSchemaLift.liftValidLog
+#print axioms Cordis.DeepSeekHarnessSchemaLift.liftSession_protocolProjection
+#print axioms Cordis.DeepSeekHarnessSchemaLift.certify
+#print axioms Cordis.DeepSeekHarnessSchemaLift.Example.certifiedLift_protocol_exact
 #print axioms Cordis.DeepSeekHarness.buildTypedCompleteRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan_source_stream

@@ -129,6 +129,13 @@ dependent-extension projection certificates separately. The source partition is 
 executable; extension surface edits, global sequence renumbering, combined-schema replay, and
 provider/transport/deployed persistence claims remain outside.
 
+`Cordis.DeepSeekHarnessSchemaLift` proves the neighboring schema-index transport for the core:
+every validated `Session.noExtensions` event and `ValidLog` transition is lifted into an
+arbitrary `ExtensionSchema`, with exact sequence, surface, header, and protocol-projection
+equations. The custom-schema example is executable. It does not decode custom extension rows,
+merge extension surface edits into the core protocol, or establish provider/transport/deployed
+persistence equivalence.
+
 The local protocol has both typed erasure and witness-reconstructing validation:
 
 ```text
