@@ -347,6 +347,11 @@ Current machine-checked evidence includes:
   SSE body; the retry history, reused streaming plan, accepted wire/body certificate, and single
   appended runner endpoint remain linked; provider backoff, tool idempotency, arbitrary retry
   policy, blocked-read cancellation, and deployed retry equivalence remain external;
+- `Cordis.DeepSeekHarnessLocalSseRetryConversation`, lifting that retry boundary over two
+  dependent rounds. Each round retains its typed transient failure and accepted append, while the
+  second request is rebuilt from the first round's exact session endpoint; provider backoff,
+  idempotency, arbitrary retry policy, cancellation, persistence, external effects, and deployed
+  retry/conversation equivalence remain external;
 - `Cordis.DeepSeekHarnessLocalSseTimeout`, starting a loopback SSE fixture that flushes two valid
   lines and then stalls, racing a real asynchronous timer against the blocking curl read and
   retaining the dependent prefix after cleanup; a zero-delay sibling reaches strict completion and
@@ -1468,44 +1473,49 @@ The bounded algebra/context/global layer now has sixty-seven explicit pieces:
     the accepted terminal body advances the dependent runner. Provider backoff, tool idempotency,
     arbitrary retry policy, blocked-read cancellation, credentials/TLS, and deployed retry
     equivalence remain external.
-67. `Cordis.DeepSeekHarnessLocalSseTimeout` composes that local streaming boundary with a real
+67. `Cordis.DeepSeekHarnessLocalSseRetryConversation` lifts the retry boundary over two dependent
+    conversation rounds. Each round validates both requests, retains one typed 503 and one
+    accepted terminal append, and the second request is rebuilt from the first round's exact
+    session endpoint. Provider backoff, idempotency, arbitrary retry policy, cancellation,
+    persistence, external effects, and deployed retry/conversation equivalence remain external.
+68. `Cordis.DeepSeekHarnessLocalSseTimeout` composes that local streaming boundary with a real
     per-read timer. A delayed fixture flushes two valid lines, times out before the third, kills
     and waits the configured curl child, and retains the exact unfinished prefix; a zero-delay
     fixture completes through strict wire validation and appends one assistant. Arbitrary cleanup,
     fairness, backpressure, credential/TLS authenticity, provider-complete assembly, reconnect
     semantics, and deployed cancellation equivalence remain external.
-68. `Cordis.DeepSeekHarnessLocalSseMultiTool` crosses the local streaming boundary into the
+69. `Cordis.DeepSeekHarnessLocalSseMultiTool` crosses the local streaming boundary into the
     dependent multi-tool continuation. The one-shot fixture validates `stream: true`, emits two
     streamed function calls, and the actual curl response reaches local call-ID allocation,
     dependent execution, certified tool-result append, request/server evidence, and the exact final
     runner endpoint. Provider-complete assembly, backpressure, cancellation, reconnects,
     credential/TLS authenticity, process trust, and deployed Harness equivalence remain external.
-69. `Cordis.DeepSeekHarnessLocalSseMultiToolPrefix` lifts the line-prefix state over a real loopback
+70. `Cordis.DeepSeekHarnessLocalSseMultiToolPrefix` lifts the line-prefix state over a real loopback
     SSE response. Completion consumes all seven body lines and executes both dependent tools;
     `LinePolicy.atLine` and a one-read budget return typed prefixes with no runner mutation. Byte
     framing, backpressure, fairness, blocked-read interruption, reconnects, provider-complete
     assembly, authenticity, and deployed Harness equivalence remain external.
-70. `Cordis.DeepSeekHarnessLocalSseMultiToolBytePrefix` drives bounded curl byte chunks across the
+71. `Cordis.DeepSeekHarnessLocalSseMultiToolBytePrefix` drives bounded curl byte chunks across the
     real loopback SSE boundary. Completion retains raw/framed byte evidence and executes both
     dependent tools; a one-read budget returns the typed raw prefix before dispatch. Byte-level
     backpressure, blocked-read interruption, reconnects, provider-complete assembly, authenticity,
     and deployed Harness equivalence remain external.
-71. `Cordis.DeepSeekHarnessLocalSseRequestBytePrefixConversation` extends that loopback evidence to
+72. `Cordis.DeepSeekHarnessLocalSseRequestBytePrefixConversation` extends that loopback evidence to
     two request-indexed scoped rounds: the server selects the dual-tool body for request zero and
     terminal text for request one, while Lean retains exact request/body/session witnesses and a
     separate prefix-fuel stop. This is local HTTP/process evidence, not remote or deployed
     Harness equivalence.
-72. `Cordis.DeepSeekHarnessLocalSseProviderAssemblyTool` validates the typed streaming request at a
+73. `Cordis.DeepSeekHarnessLocalSseProviderAssemblyTool` validates the typed streaming request at a
     loopback server, emits the incremental provider tool body through real curl, and carries the
     provider assembly certificate into dependent execution and certified session append. The
     fixture reaches model `5` with one assembled call; provider obedience, byte/backpressure
     semantics, blocked-read cancellation, reconnects, authenticity, and deployed equivalence remain
     external.
-73. `Cordis.DeepSeekHarnessLocalSseBytePrefixProviderAssemblyTool` repeats that provider-complete
+74. `Cordis.DeepSeekHarnessLocalSseBytePrefixProviderAssemblyTool` repeats that provider-complete
     witness through real curl one-byte chunks. The loopback request, byte-prefix body, provider
     assembly, dependent execution, request counts, and server exit remain linked; timeout, fuel,
     cancellation, provider authenticity, and deployed equivalence remain external.
-74. `Cordis.DeepSeekSchemaLocalHttp` instantiates the heterogeneous schema conversation at the real
+75. `Cordis.DeepSeekSchemaLocalHttp` instantiates the heterogeneous schema conversation at the real
     local process/HTTP boundary. The fixture validates two declared tools and complete mode, sends
     the weather/clock tool response and terminal response through curl, and retains the prepared
     plan, one dependent tool round, terminal witness, final model/runner endpoint, request counts,

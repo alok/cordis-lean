@@ -65,6 +65,7 @@ import Cordis.DeepSeekHarnessLiveProbe
 import Cordis.DeepSeekHarnessLocalHttp
 import Cordis.DeepSeekHarnessLocalSse
 import Cordis.DeepSeekHarnessLocalSseRetry
+import Cordis.DeepSeekHarnessLocalSseRetryConversation
 import Cordis.DeepSeekHarnessLocalSseTimeout
 import Cordis.DeepSeekHarnessLocalSseMultiTool
 import Cordis.DeepSeekHarnessLocalSseMultiToolPrefix
@@ -3735,6 +3736,27 @@ private def testDeepSeekHarnessLocalSseRetry : IO Unit := do
           assertEqual "local SSE retry retains the transient HTTP status" status 503
           assertEqual "local SSE retry retains the transient response body" body "busy\n"
       | failures => fail s!"unexpected local SSE retry failure history: {reprStr failures}"
+
+private def testDeepSeekHarnessLocalSseRetryConversation : IO Unit := do
+  match ← DeepSeekHarnessLocalSseRetryConversation.Example.run with
+  | .error error => fail s!"local SSE retry conversation failed: {reprStr error}"
+  | .ok result =>
+      let summary := DeepSeekHarnessLocalSseRetryConversation.Example.summarize result
+      let expected := DeepSeekHarnessLocalSseRetryConversation.Example.expectedSummary
+      assertEqual "local SSE retry conversation receives two attempts per round"
+        (summary.firstRequests, summary.secondRequests) (expected.firstRequests, expected.secondRequests)
+      assertEqual "local SSE retry conversation validates every attempt"
+        (summary.firstValidRequests, summary.secondValidRequests)
+        (expected.firstValidRequests, expected.secondValidRequests)
+      assertEqual "local SSE retry conversation retains one transient failure per round"
+        (summary.firstFailures, summary.secondFailures) (expected.firstFailures, expected.secondFailures)
+      assertEqual "local SSE retry conversation rebuilds a distinct second request"
+        summary.requestBodiesDistinct expected.requestBodiesDistinct
+      assertEqual "local SSE retry conversation appends two terminal responses"
+        summary.finalNextSeq expected.finalNextSeq
+      assertEqual "local SSE retry conversation completes both accepted streams"
+        (summary.firstCompleted, summary.secondCompleted)
+        (expected.firstCompleted, expected.secondCompleted)
 
 private def testDeepSeekHarnessLocalSseTimeout : IO Unit := do
   match ← DeepSeekHarnessLocalSseTimeout.Example.timeoutRun with
@@ -8190,6 +8212,7 @@ def run : IO Unit := do
   testDeepSeekHarnessLocalHttp
   testDeepSeekHarnessLocalSse
   testDeepSeekHarnessLocalSseRetry
+  testDeepSeekHarnessLocalSseRetryConversation
   testDeepSeekHarnessLocalSseTimeout
   testDeepSeekHarnessLocalSseMultiTool
   testDeepSeekHarnessLocalSseProviderAssemblyTool

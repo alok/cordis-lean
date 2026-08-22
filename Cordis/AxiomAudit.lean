@@ -61,6 +61,7 @@ import Cordis.DeepSeekHarnessLiveProbe
 import Cordis.DeepSeekHarnessLocalHttp
 import Cordis.DeepSeekHarnessLocalSse
 import Cordis.DeepSeekHarnessLocalSseRetry
+import Cordis.DeepSeekHarnessLocalSseRetryConversation
 import Cordis.DeepSeekHarnessLocalSseTimeout
 import Cordis.DeepSeekHarnessLocalSseMultiTool
 import Cordis.DeepSeekHarnessLocalSseMultiToolPrefix
@@ -617,6 +618,11 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessLocalSseRetry.LocalSseRetryResult.accepted_streaming
 #print axioms Cordis.DeepSeekHarnessLocalSseRetry.LocalSseRetryResult.nextSeq
 #print axioms Cordis.DeepSeekHarnessLocalSseRetry.Example.expectedSummary_complete
+#print axioms Cordis.DeepSeekHarnessLocalSseRetryConversation.RetryConversationResult.first_attempts
+#print axioms Cordis.DeepSeekHarnessLocalSseRetryConversation.RetryConversationResult.second_attempts
+#print axioms Cordis.DeepSeekHarnessLocalSseRetryConversation.RetryConversationResult.final_endpoint
+#print axioms Cordis.DeepSeekHarnessLocalSseRetryConversation.RetryConversationResult.session_advance_twice
+#print axioms Cordis.DeepSeekHarnessLocalSseRetryConversation.Example.expectedSummary_complete
 #print axioms Cordis.DeepSeekHarnessLocalSseTimeout.PreparedTimeoutRequest.streaming_mode
 #print axioms Cordis.DeepSeekHarnessLocalSseTimeout.Completed.nextSeq
 #print axioms Cordis.DeepSeekHarnessLocalSseTimeout.Example.expectedTimeout_isTimedOut
