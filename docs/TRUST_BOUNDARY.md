@@ -357,6 +357,13 @@ to the restored `ConversationRunner` and to its request certificate; invalid UTF
 structured text error. This still does not turn backend acknowledgement into fsync, stable-media,
 locking, authenticity, or crash-recovery evidence.
 
+`DeepSeekHarnessPersistenceFileLocalSseRetryConversation` then feeds that temporary-file-origin
+runner into two real loopback retry rounds. Its dependent result retains the `ReadCertificate`,
+archive/session equality, one typed 503 per round, distinct rebuilt request bodies, and the
+executable `8 -> 10` endpoint. The file is scoped to `withTempFile`; fsync, stable media, crash
+recovery, provider authenticity, external effects, and deployed Harness equivalence remain
+outside.
+
 `DeepSeekHarnessPersistenceTransportRound` carries that exact restored runner through a complete
 typed request and injected transport. Its `PersistedRound` retains the single response decoder,
 `acceptValidated` equality, archive/session equality, typed tool executions, and final

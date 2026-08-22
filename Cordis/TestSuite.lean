@@ -66,6 +66,7 @@ import Cordis.DeepSeekHarnessLocalHttp
 import Cordis.DeepSeekHarnessLocalSse
 import Cordis.DeepSeekHarnessLocalSseRetry
 import Cordis.DeepSeekHarnessLocalSseRetryConversation
+import Cordis.DeepSeekHarnessPersistenceFileLocalSseRetryConversation
 import Cordis.DeepSeekHarnessLocalSseTimeout
 import Cordis.DeepSeekHarnessLocalSseMultiTool
 import Cordis.DeepSeekHarnessLocalSseMultiToolPrefix
@@ -2009,6 +2010,39 @@ private def testDeepSeekHarnessPersistenceFileStreamRetryCancellation : IO Unit 
         (DeepSeekHarnessPersistenceFileStreamRetryCancellation.summaryMatchesFixture summary) true
       let _sessionCertificate :=
         DeepSeekHarnessPersistenceFileStreamRetryCancellation.restored_session_eq_file_archive run
+      pure ()
+
+private def testDeepSeekHarnessPersistenceFileLocalSseRetryConversation : IO Unit := do
+  match ← DeepSeekHarnessPersistenceFileLocalSseRetryConversation.runFixture with
+  | .error error => fail s!"file-backed local SSE retry conversation failed: {reprStr error}"
+  | .ok run =>
+      let summary := DeepSeekHarnessPersistenceFileLocalSseRetryConversation.summary run
+      let expected := DeepSeekHarnessPersistenceFileLocalSseRetryConversation.expectedSummary
+      assertEqual "file-backed retry conversation restores the archive endpoint"
+        (run.restored.restored.runner.session.nextSeq) 8
+      assertEqual "file-backed retry conversation records temporary-file storage"
+        summary.storage expected.storage
+      assertEqual "file-backed retry conversation starts from the persisted session"
+        summary.initialNextSeq expected.initialNextSeq
+      assertEqual "file-backed retry conversation appends two terminal responses"
+        summary.finalNextSeq expected.finalNextSeq
+      assertEqual "file-backed retry conversation receives two attempts per round"
+        (summary.firstRequests, summary.secondRequests)
+        (expected.firstRequests, expected.secondRequests)
+      assertEqual "file-backed retry conversation retains one transient failure per round"
+        (summary.firstFailures, summary.secondFailures)
+        (expected.firstFailures, expected.secondFailures)
+      assertEqual "file-backed retry conversation rebuilds a distinct second request"
+        summary.requestBodiesDistinct expected.requestBodiesDistinct
+      assertEqual "file-backed retry conversation completes both accepted streams"
+        (summary.firstCompleted, summary.secondCompleted)
+        (expected.firstCompleted, expected.secondCompleted)
+      assertEqual "file-backed retry conversation executable projection agrees"
+        (DeepSeekHarnessPersistenceFileLocalSseRetryConversation.summaryMatches summary) true
+      let _sessionCertificate :=
+        DeepSeekHarnessPersistenceFileLocalSseRetryConversation.restored_session_eq_file_archive run
+      let _advanceCertificate :=
+        DeepSeekHarnessPersistenceFileLocalSseRetryConversation.final_session_advance run
       pure ()
 
 private def testDeepSeekHarnessPersistenceStreamBytePrefixTimeout : IO Unit := do
@@ -8164,6 +8198,7 @@ def run : IO Unit := do
   testDeepSeekHarnessPersistenceStreamRetry
   testDeepSeekHarnessPersistenceStreamRetryCancellation
   testDeepSeekHarnessPersistenceFileStreamRetryCancellation
+  testDeepSeekHarnessPersistenceFileLocalSseRetryConversation
   testDeepSeekHarnessProcessSchema
   testDeepSeekHarnessProcessSchemaPrefix
   testDeepSeekHarnessProcessSchemaPrefixConversation

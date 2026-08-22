@@ -352,6 +352,11 @@ Current machine-checked evidence includes:
   second request is rebuilt from the first round's exact session endpoint; provider backoff,
   idempotency, arbitrary retry policy, cancellation, persistence, external effects, and deployed
   retry/conversation equivalence remain external;
+- `Cordis.DeepSeekHarnessPersistenceFileLocalSseRetryConversation`, composing a temporary-file
+  `ReadCertificate` with those two dependent loopback retry rounds. The result retains the archive
+  session equality, one typed 503 per round, distinct rebuilt request bodies, and the executable
+  `8 -> 10` endpoint; `withTempFile` cleanup, fsync, stable media, crash recovery, provider
+  authenticity, external effects, and deployed Harness equivalence remain external;
 - `Cordis.DeepSeekHarnessLocalSseTimeout`, starting a loopback SSE fixture that flushes two valid
   lines and then stalls, racing a real asynchronous timer against the blocking curl read and
   retaining the dependent prefix after cleanup; a zero-delay sibling reaches strict completion and

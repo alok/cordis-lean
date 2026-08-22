@@ -233,6 +233,12 @@ conversation rounds: each round retains its transient failure and accepted appen
 second typed request is rebuilt from the first round's exact session endpoint. Provider backoff,
 idempotency, arbitrary retry policy, cancellation, persistence, external effects, and deployed
 retry/conversation equivalence remain outside.
+`Cordis.DeepSeekHarnessPersistenceFileLocalSseRetryConversation` composes the same two dependent
+rounds with a real temporary-file archive read. The returned result keeps the `ReadCertificate`
+beside the restored runner, retains the exact archive/session equality, and checks the executable
+`8 -> 10` progression, one typed 503 per round, and distinct rebuilt request bodies. The file is
+removed by `withTempFile`; fsync, stable media, crash recovery, provider authenticity, external
+effects, and deployed Harness equivalence remain outside.
 `Cordis.DeepSeekHarnessLocalSseTimeout` closes the adjacent in-flight boundary: a loopback server
 flushes two valid SSE lines and then stalls, while a real asynchronous timer races the blocking curl
 read and retains the exact typed prefix after cleanup. A fast fixture follows the same path to a
