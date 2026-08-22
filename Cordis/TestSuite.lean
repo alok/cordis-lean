@@ -110,6 +110,7 @@ import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalPaperTraceNormalizer
+import Cordis.GlobalPaperTraceConfluence
 import Cordis.GlobalProgress
 import Cordis.GlobalProgressTermination
 import Cordis.GlobalProgressRun
@@ -6221,6 +6222,15 @@ private def testGlobalPaperTraceNormalizer : IO Unit := do
   assertEqual "conditional trace normalizer consumes the executable zero-fuel authority"
     Cordis.GlobalPaperTraceNormalizer.Example.executableFuel 0
 
+private def testGlobalPaperTraceConfluence : IO Unit := do
+  let _join := Cordis.GlobalPaperTraceConfluence.global_join
+    Cordis.GlobalPaperTraceConfluence.boolSystem
+    Cordis.GlobalPaperTraceConfluence.boolLeftPath
+    Cordis.GlobalPaperTraceConfluence.boolRightPath
+  let _unique := Cordis.GlobalPaperTraceConfluence.bool_normal_forms_unique
+  assertEqual "conditional confluence witness has the expected normal endpoint"
+    Cordis.GlobalPaperTraceConfluence.boolLeftNormal.endpoint (false, false)
+
 private def testGlobalPaperProgressReplay : IO Unit := do
   let _stop := Cordis.GlobalPaperProgressReplay.Example.executable_stop
   let _related := Cordis.GlobalPaperProgressReplay.Example.executable_replay_related
@@ -6704,6 +6714,7 @@ def run : IO Unit := do
   testGlobalPaperTraceDeletion
   testGlobalPaperTraceNormalization
   testGlobalPaperTraceNormalizer
+  testGlobalPaperTraceConfluence
   testGlobalPaperProgressReplay
   testGlobalProgress
   testGlobalProgressTermination

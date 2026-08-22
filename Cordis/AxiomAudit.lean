@@ -110,6 +110,7 @@ import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalPaperTraceNormalizer
+import Cordis.GlobalPaperTraceConfluence
 import Cordis.GlobalProgress
 import Cordis.GlobalProgressTermination
 import Cordis.GlobalProgressRun
@@ -1794,6 +1795,12 @@ namespace Cordis.GlobalPaperTraceNormalizer
 #print axioms Result.actors_perm
 #print axioms Example.empty_normalizes
 end Cordis.GlobalPaperTraceNormalizer
+namespace Cordis.GlobalPaperTraceConfluence
+#print axioms measure_le_of_path
+#print axioms global_join
+#print axioms NormalForm.endpoint_eq
+#print axioms bool_normal_forms_unique
+end Cordis.GlobalPaperTraceConfluence
 namespace Cordis.GlobalPaperProgressReplay
 #print axioms ReplayedProgressRun
 #print axioms replayRun
