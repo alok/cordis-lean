@@ -2141,6 +2141,13 @@ not supply mixed-log replay, provider/transport semantics, or durable/deployed e
 schema validation and duplicate-name rejection are part of the type-level handoff from the
 restored extension runner. Keep provider obedience and transport as separate external contracts.
 
+`Cordis.DeepSeekHarnessExtensionPersistence` is the persistence-facing continuation of that
+schema-owned path. Its `ValidatedJson` certificate keeps the header and raw extension suffix
+indexed together, `validateText` and `validateBytes` preserve the parser/encoding witnesses,
+and the `DurableIO.Backend` adapter re-enters the same certificate after reads, replacements, and
+validated appends. Restore the runner only from this indexed endpoint; do not infer mixed-log
+replay, packed-row compatibility, fsync, crash repair, or deployed persistence semantics.
+
 `Cordis.DeepSeekToolSchema` is the next request-side type boundary. It validates the bounded
 schema vocabulary actually represented by the local DeepSeek API: an object parameter root,
 primitive property `type` tags, optional property descriptions, a duplicate-free `required`

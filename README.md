@@ -321,6 +321,13 @@ returns the request/build equation tied to the restored indexed session; the fix
 the positive path and duplicate-tool rejection. Provider-side obedience, credentials, transport,
 and deployed Harness equivalence remain external.
 
+`Cordis.DeepSeekHarnessExtensionPersistence` carries the same extension-only certificate through
+the logical JSONL header, canonical text, UTF-8 bytes, and `DurableIO.Backend` read/replace/append
+boundaries. A successful result retains the exact header/raw suffix, restores the indexed runner,
+and links a schema-certified request back to that persisted endpoint. Known core rows and
+ignorable rows reject; mixed core/extension replay, packed-row persistence, crash repair, fsync,
+and deployed persistence equivalence remain external.
+
 `Cordis.DeepSeekHarnessPersistence` now attaches that bounded runner to the logical JSONL
 persistence refinement. A successful archive restores a `ConversationRunner` with an exact
 equality to the archive's final session, and a proof-carrying request rebuilt from the restored
@@ -1263,6 +1270,7 @@ placeholders.
 | `Cordis.HarnessPersistenceBytes`                        | Pure `ByteArray` UTF-8/JSONL ingress retaining source bytes, decoded text, parsed rows, packed expansion, and the final Session/Protocol projection; positive and rejection fixtures run at the executable boundary.                                                                                                                                                                                |
 | `Cordis.DeepSeekHarnessEventArchive`                    | Certificate-gated attachment of a lossless current-Harness event archive plus stateful semantic validation to `ConversationRunner`; opaque/extension events reject restoration, and the tool-message fixture rebuilds a typed request.                                                                                                                                                              |
 | `Cordis.DeepSeekHarnessExtensionArchive`                | Schema-indexed attachment of a required-extension archive to `ExtensionRunner`; restoration derives the tool-call count, proves exact session equality, and rebuilds a typed request from the same indexed endpoint.                                                                                                                                                                                |
+| `Cordis.DeepSeekHarnessExtensionPersistence`            | Extension-only persistence composition across JSONL AST, text, UTF-8 bytes, and `DurableIO.Backend`; exact header/raw-row certificates restore the indexed runner and schema-certified request, while core/ignorable rows reject.                                                                                                                                                                   |
 | `Cordis.DeepSeekHarnessEventText`                       | UTF-8/JSONL text and `ByteArray` ingress for the event-archive attachment, retaining exact source/decoded text and archive/session certificates before restoring a `ConversationRunner`; invalid UTF-8 and opaque/extension events fail closed.                                                                                                                                                     |
 | `Cordis.DeepSeekHarnessEventProcessOutcome`             | Carries restored text/byte event runners through complete-body rich outcomes and fuel-bounded streamed conversations, retaining prepared request, process/round, tool, endpoint, archive, session, projection, and completion/stop certificates; caller-supplied source and complete-body process boundaries remain explicit.                                                                       |
 | `Cordis.LoaderHMR`                                      | Definition 74 entry records, keyed configuration reconciliation, Algorithm 8 fixed-point accepted/declined classification with cycle fallback, declined-boundary stale detection, and Algorithm 10 indexed transactional reload with exact failure rollback; dynamic imports, filesystem watches, real fibers, and deployed loader equivalence remain external.                                     |

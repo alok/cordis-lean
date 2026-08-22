@@ -80,6 +80,12 @@ certificate. `buildCertifiedRequest` accepts only a validated, duplicate-free to
 retains both its dependent proof and the exact request equation from the restored indexed session.
 This does not prove provider-side tool obedience or any live transport/deployed equivalence.
 
+`Cordis.DeepSeekHarnessExtensionPersistence` composes the extension archive with the persistence
+boundary: a header plus required extension suffix is validated at the JSON-AST, text, UTF-8, and
+`DurableIO.Backend` layers, with exact raw-row/header equations and a runner/request attachment.
+Known core and ignorable rows fail closed. Mixed current-Harness replay, packed-row persistence,
+crash repair, fsync, and deployed persistence equivalence are not claimed.
+
 The slice closes two concrete gaps in the original objective:
 
 1. the runner becomes generic over a dependent tool catalog instead of importing the counter

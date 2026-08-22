@@ -58,6 +58,7 @@ import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessExtensionArchive
 import Cordis.DeepSeekHarnessExtensionRequest
+import Cordis.DeepSeekHarnessExtensionPersistence
 import Cordis.DeepSeekHarnessEventText
 import Cordis.DeepSeekHarnessEventProcessOutcome
 import Cordis.LoaderHMR
@@ -3579,6 +3580,62 @@ private def testSessionExtensionRefinement : IO Unit := do
       | .error error => fail s!"duplicate tool source returned the wrong error: {reprStr error}"
       | .ok _ => fail "duplicate tool source was accepted"
 
+private def testDeepSeekHarnessExtensionPersistence : IO Unit := do
+  have _summary :=
+    DeepSeekHarnessExtensionPersistence.Example.validated_example_summary
+  have _rows := DeepSeekHarnessExtensionPersistence.Example.validated_example_rows_exact
+  have _empty := DeepSeekHarnessExtensionPersistence.Example.reject_empty
+  have _core := DeepSeekHarnessExtensionPersistence.Example.reject_known_core
+  have _badHeader := DeepSeekHarnessExtensionPersistence.Example.reject_bad_header
+  assertEqual "extension persistence text summary"
+    DeepSeekHarnessExtensionPersistence.Example.textExampleSummary (some (0, 2))
+  assertEqual "extension persistence byte summary"
+    DeepSeekHarnessExtensionPersistence.Example.bytesExampleSummary (some 2)
+  match DeepSeekHarnessExtensionPersistence.validate
+      SessionExtensionRefinement.Example.exampleCodec
+      (Session.Session.empty DeepSeekHarnessExtensions.exampleSchema)
+      DeepSeekHarnessExtensionPersistence.Example.persistenceInput with
+  | .error error => fail s!"extension persistence AST validation failed: {reprStr error}"
+  | .ok validated =>
+      assertEqual "extension persistence retains the header version"
+        validated.header.version 0
+      assertEqual "extension persistence retains the extension-row count"
+        validated.storageRows.length 2
+      assertEqual "extension persistence reaches the indexed endpoint"
+        validated.extension.validated.final.nextSeq 2
+      let restored := DeepSeekHarnessExtensionPersistence.restoreRunner
+        SessionExtensionRefinement.Example.exampleCodec
+        (Session.Session.empty DeepSeekHarnessExtensions.exampleSchema) validated 1
+      have _session :=
+        DeepSeekHarnessExtensionPersistence.RestoredRunner.session_eq_persisted restored
+      match DeepSeekHarnessExtensionPersistence.buildRequestCertificate restored
+          DeepSeekHarnessExtensionArchive.Example.exampleSource with
+      | .error error => fail s!"extension persistence request failed: {reprStr error}"
+      | .ok certificate =>
+          assertEqual "extension persistence request preserves the source model"
+            certificate.request.model "deepseek-chat"
+          have _names := certificate.tools.names_nodup
+          pure ()
+  match ← DeepSeekHarnessExtensionPersistence.Example.fixtureMemory with
+  | .error error => fail s!"extension persistence memory read failed: {reprStr error}"
+  | .ok certificate =>
+      assertEqual "extension persistence memory read reaches the endpoint"
+        certificate.validated.extension.validated.final.nextSeq 2
+  match ← DeepSeekHarnessExtensionPersistence.Example.fixtureAppend with
+  | .error error => fail s!"extension persistence append failed: {reprStr error}"
+  | .ok certificate =>
+      assertEqual "extension persistence append validates the new suffix"
+        certificate.validated.extension.validated.final.nextSeq 1
+  match ← DeepSeekHarnessExtensionPersistence.Example.fixtureFile with
+  | .error error => fail s!"extension persistence file read failed: {reprStr error}"
+  | .ok certificate =>
+      assertEqual "extension persistence file read preserves both rows"
+        certificate.validated.storageRows.length 2
+  match ← DeepSeekHarnessExtensionPersistence.Example.fixtureInvalidUtf8 with
+  | .error (.text .invalidUtf8) => pure ()
+  | .error error => fail s!"invalid extension persistence bytes returned {reprStr error}"
+  | .ok _ => fail "invalid extension persistence bytes were accepted"
+
 private def testDeepSeekSchemaStreamConversation : IO Unit := do
   match DeepSeekToolSchema.weatherToolCertificate,
       DeepSeekSchemaRegistry.Example.clockToolCertificate with
@@ -5942,6 +5999,7 @@ def run : IO Unit := do
   testDeepSeekScopedRegistry
   testDeepSeekHarnessExtensions
   testSessionExtensionRefinement
+  testDeepSeekHarnessExtensionPersistence
   testDeepSeekSchemaStreamConversation
   testDeepSeekSchemaStreamPrefixConversation
   testDeepSeekSchemaStreamErrors

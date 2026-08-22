@@ -117,6 +117,12 @@ result retains the validated tool-list/name proof and exact builder equation, wh
 tool names fail closed. Provider obedience, credentials, transport, and deployed equivalence are
 not inferred.
 
+`Cordis.DeepSeekHarnessExtensionPersistence` carries that extension-only certificate through the
+logical JSONL header, canonical text, UTF-8 bytes, and `DurableIO.Backend` read/replace/append
+surfaces. It retains the exact header/raw suffix and links the restored indexed runner/request
+back to the persisted endpoint. Known core and ignorable rows reject; mixed replay, packed-row
+persistence, fsync/crash guarantees, and deployed persistence equivalence remain external.
+
 The local protocol has both typed erasure and witness-reconstructing validation:
 
 ```text

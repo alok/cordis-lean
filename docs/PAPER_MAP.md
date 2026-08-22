@@ -713,6 +713,8 @@ retains its existing wire/projection/rich certificate rather than being normaliz
 common record. This is a complete-body dispatcher only; it does not establish session semantics or
 deployed provider behavior.
 
+| `DeepSeekHarnessExtensionPersistence.ValidatedJson`, `validate`, `validateText`, `validateBytes`, `readValidated`, `RestoredRunner` | **Checked/proved/exercised extension persistence composition:** a session header plus required extension suffix retains exact JSONL/text/UTF-8/backend representations, rejects known core and ignorable rows, restores the indexed extension runner, and links a schema-certified request to the persisted endpoint; memory, temporary-file, append, and invalid-UTF8 fixtures exercise the executable surfaces. | Extension-only persistence bridge above the schema-owned runner/request path. | Mixed current-Harness replay, packed-row persistence, fsync/crash repair, concurrent-writer safety, provider compatibility, transport trust, and deployed persistence equivalence remain external. |
+
 ## Paper claims not implemented by the mapped modules
 
 The following are intentionally not presented as completed formalization work.
