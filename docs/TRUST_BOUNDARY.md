@@ -387,6 +387,14 @@ followed by a no-tool terminal response. Completion and fuel exhaustion are dist
 certificates. Provider backoff, idempotency, cancellation, persistence, external effects,
 live-provider behavior, and deployed Harness equivalence remain external.
 
+`DeepSeekHarnessEndToEnd` composes that retry trace with the byte-backed persistence read. Its
+`PersistedRetryRun` retains the validated archive runner in the dependent trace index, the final
+runner/model, every retry-aware head, and the typed completion stop. The executable fixture
+projects archive `nextSeq = 8`, final `nextSeq = 11`, two rounds, one transient failure, and model
+`0`. This is an in-memory/injected-transport certificate only; it does not establish fsync, live
+provider reachability, backoff/idempotency, cancellation, external effects, or deployed Harness
+equivalence.
+
 `DeepSeekHarnessTransportRetryCancellation` composes that trace with a caller-controlled
 pre-round cancellation policy. Its cancellation fixture proves that no request is issued before
 round zero and retains the unchanged endpoint and typed reason; its success fixture retains the

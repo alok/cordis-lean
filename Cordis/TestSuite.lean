@@ -135,6 +135,7 @@ import Cordis.HarnessPersistenceArchive
 import Cordis.HarnessPersistenceIO
 import Cordis.DeepSeekHarnessPersistenceIO
 import Cordis.DeepSeekHarnessPersistenceTransportRound
+import Cordis.DeepSeekHarnessEndToEnd
 import Cordis.DeepSeekHarnessTransportConversation
 import Cordis.DeepSeekHarnessTransportRetry
 import Cordis.DeepSeekHarnessTransportRetryConversation
@@ -4029,6 +4030,25 @@ private def testDeepSeekHarnessTransportRetryConversation : IO Unit := do
             second.round.retryHistory.failures.length 0
       | _ => fail "retry-aware conversation returned the wrong trace shape"
 
+private def testDeepSeekHarnessEndToEnd : IO Unit := do
+  match ← DeepSeekHarnessEndToEnd.runSummary with
+  | .error _ => fail "persisted retry end-to-end fixture failed"
+  | .ok summary =>
+      assertEqual "persisted retry end-to-end restores the archive endpoint"
+        summary.initialNextSeq DeepSeekHarnessEndToEnd.executableInitialNextSeq
+      assertEqual "persisted retry end-to-end reaches the expected final session"
+        summary.finalNextSeq DeepSeekHarnessEndToEnd.executableFinalNextSeq
+      assertEqual "persisted retry end-to-end retains both retry-aware rounds"
+        summary.traceLength DeepSeekHarnessEndToEnd.executableTraceLength
+      assertEqual "persisted retry end-to-end retains the first transient failure"
+        summary.retryFailures DeepSeekHarnessEndToEnd.executableRetryFailures
+      assertEqual "persisted retry end-to-end preserves the typed final model"
+        summary.finalModel DeepSeekHarnessEndToEnd.executableFinalModel
+      assertEqual "persisted retry end-to-end reaches a typed completed stop"
+        summary.completed DeepSeekHarnessEndToEnd.executableCompleted
+      assertEqual "persisted retry end-to-end executable projection agrees"
+        (DeepSeekHarnessEndToEnd.summaryMatchesFixture summary) true
+
 private def testDeepSeekHarnessTransportRetryCancellation : IO Unit := do
   let cancelled ← DeepSeekHarnessTransportRetryCancellation.Example.cancellationRun
   match cancelled with
@@ -6665,6 +6685,7 @@ def run : IO Unit := do
   testDeepSeekHarnessTransportConversation
   testDeepSeekHarnessTransportRetry
   testDeepSeekHarnessTransportRetryConversation
+  testDeepSeekHarnessEndToEnd
   testDeepSeekHarnessTransportRetryCancellation
   testDeepSeekSchemaTransportRetryCancellation
   testDeepSeekSchemaProcessRetryCancellation

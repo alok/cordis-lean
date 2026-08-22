@@ -424,6 +424,14 @@ fuel-bounded dependent trace shape as the non-retrying conversation. Every head 
 previous retried round. The fixture retries the tool round once, then reaches a no-tool terminal
 round; completion and fuel exhaustion remain separate typed stops.
 
+`Cordis.DeepSeekHarnessEndToEnd` composes the byte-backed persistence fixture with that
+retry-aware conversation without erasing either dependent index. Its `PersistedRetryRun` keeps the
+validated archive runner, final runner/model, retry trace, and typed completion stop in one result;
+the executable projection reaches archive `nextSeq = 8`, final `nextSeq = 11`, two rounds, one
+transient failure, and model `0`. This remains an in-memory/injected-transport certificate: it
+does not claim fsync, live provider reachability, backoff/idempotency, cancellation, external
+effects, or deployed Harness equivalence.
+
 `Cordis.DeepSeekHarnessTransportRetryCancellation` composes that indexed injected-transport
 trace with the pre-round `CancellationPolicy`. A cancellation-first fixture retains an empty
 typed prefix, unchanged runner/model endpoint, round/reason decision, and no issued request; a
@@ -1458,6 +1466,7 @@ placeholders.
 | `Cordis.DeepSeekHarnessMetadataArchive`                 | Composes the full current-event envelope archive with the sanitized opaque-metadata runner seam, retaining raw envelopes, one known opaque event, exact metadata order, and a sanitized request projection without dropping the record.                                                                                                                                                             |
 | `Cordis.DeepSeekHarnessPersistenceIO`                   | Byte-backed UTF-8/JSONL read certificates attach memory- and temporary-file-backed persistence to a DeepSeek `ConversationRunner`, preserving exact session/request equalities and structured invalid-encoding failures without claiming fsync or crash durability.                                                                                                                                 |
 | `Cordis.DeepSeekHarnessPersistenceTransportRound`       | Composes a byte-backed restored runner with a complete typed request, one injected response decoder, `acceptValidated`, typed tool execution, and an exact final `ConversationRunner`; the executable fixture proves archive/session/request/assistant/tool endpoint alignment without claiming live or durable deployed behavior.                                                                  |
+| `Cordis.DeepSeekHarnessEndToEnd`                        | Proof-carrying composition of byte-backed restore and retry-aware conversation: `PersistedRetryRun` keeps the restored archive runner in the dependent trace index, while the executable fixture checks archive `nextSeq = 8`, final `nextSeq = 11`, two rounds, one transient failure, model `0`, and typed completion; memory/injected transport only.                                            |
 | `Cordis.DeepSeekToolSchema`                             | Bounded proof-carrying function-tool admission: object parameters, primitive property types, required-name and duplicate-name checks, proof-carrying argument objects, exact source JSON retention, and certified request construction.                                                                                                                                                             |
 | `Cordis.DeepSeekToolAdmission`                          | Ties a raw provider `FunctionCall` to one certified tool name and carries its `ValidatedArguments` proof before generic capability execution; provider obedience, call-ID authenticity, and capability correspondence remain external.                                                                                                                                                              |
 | `Cordis.DeepSeekGenericBridge`                          | Composes provider-schema admission with an explicit named `SchemaToolBinding` and generic dependent `Config.validate`, returning both certificates and an existentially indexed local call; schema semantic equivalence and execution remain external.                                                                                                                                              |

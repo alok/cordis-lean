@@ -906,7 +906,7 @@ relation whose union cycles, so the module requires `SupportOrder` directly. It 
 combined-edge well-founded recursion, proves uniqueness, and derives support-equals-active at
 quiescence under state-local provision totality, failure exclusion, and active-parent closure.
 
-The bounded algebra/context/global layer now has forty-three explicit pieces:
+The bounded algebra/context/global layer now has forty-four explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -1181,6 +1181,12 @@ The bounded algebra/context/global layer now has forty-three explicit pieces:
     endpoints. The nonempty activation/orchestration fixture exercises a real link and exposes
     its rewritten rule and actor ledgers. This remains a supplied finite confluence certificate,
     not a derived CORDIS strategy, global termination, Lemma 72, or Theorem 73.
+44. `Cordis.DeepSeekHarnessEndToEnd` composes the byte-backed validated restore with the
+    retry-aware indexed conversation without erasing the restored runner from the trace index.
+    Its executable memory/injected-transport fixture reaches archive `nextSeq = 8`, final
+    `nextSeq = 11`, two rounds, one transient failure, model `0`, and a typed completed stop.
+    This is a local composition certificate only: fsync, live provider behavior, backoff,
+    idempotency, cancellation, external effects, and deployed Harness equivalence remain open.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -1485,6 +1491,13 @@ runner/model endpoint of the previous round; the fixture retries a tool round on
 reaches a no-tool terminal response. Completion and fuel exhaustion remain distinct certificates,
 and the model does not add provider backoff, idempotency, cancellation, persistence, external
 effects, or deployed Harness equivalence.
+
+`Cordis.DeepSeekHarnessEndToEnd` composes that retry trace with the byte-backed persistence read.
+`PersistedRetryRun` keeps the restored archive runner, final runner/model, retry trace, and typed
+completion stop in one dependent result. The executable fixture checks archive `nextSeq = 8`,
+final `nextSeq = 11`, two rounds, one transient failure, and model `0`; it remains an
+in-memory/injected-transport certificate rather than a durability, provider, or deployed-Harness
+theorem.
 
 `Cordis.DeepSeekHarnessTransportRetryCancellation` composes that trace with a caller-controlled
 pre-round cancellation decision. The cancellation fixture stops before issuing a request and
