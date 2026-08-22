@@ -133,6 +133,7 @@ import Cordis.DeepSeekHarnessTransportRetry
 import Cordis.DeepSeekHarnessTransportRetryConversation
 import Cordis.DeepSeekHarnessTransportRetryCancellation
 import Cordis.DeepSeekSchemaTransportRetryCancellation
+import Cordis.DeepSeekSchemaProcessRetryCancellation
 import Cordis.DeepSeekHarnessOpaqueMetadata
 import Cordis.DeepSeekHarnessMetadataArchive
 import Cordis.Lifecycle
@@ -4093,6 +4094,55 @@ private def testDeepSeekSchemaTransportRetryCancellation : IO Unit := do
           | .fuelExhausted => fail "schema retry success exhausted"
           | .cancelled _ _ _ => fail "schema retry success was cancelled"
 
+private def testDeepSeekSchemaProcessRetryCancellation : IO Unit := do
+  match DeepSeekToolSchema.weatherToolCertificate,
+      DeepSeekSchemaRegistry.Example.clockToolCertificate with
+  | .error _, _ => fail "process schema retry weather certificate failed"
+  | _, .error _ => fail "process schema retry clock certificate failed"
+  | .ok weatherCertificate, .ok clockCertificate =>
+      let cancelled ← DeepSeekSchemaProcessRetryCancellation.Example.cancellationRun
+        weatherCertificate clockCertificate
+      match cancelled with
+      | .error _ => fail "process schema retry cancellation fixture failed"
+      | .ok ⟨finalRunner, ⟨finalModel, result⟩⟩ =>
+          assertEqual "process schema retry cancellation retains no tool rounds"
+            result.trace.length 0
+          assertEqual "process schema retry cancellation preserves the model" finalModel 0
+          assertEqual "process schema retry cancellation preserves the runner"
+            finalRunner.session.nextSeq
+            DeepSeekSchemaHarness.Example.counterRunner.session.nextSeq
+          match result.stop with
+          | .cancelled round reason _ =>
+              assertEqual "process schema retry cancellation stops before round zero" round 0
+              assertEqual "process schema retry cancellation retains the timeout reason"
+                reason .timeout
+          | .completed _ _ _ => fail "process schema retry cancellation unexpectedly completed"
+          | .fuelExhausted => fail "process schema retry cancellation unexpectedly exhausted"
+      let succeeded ← DeepSeekSchemaProcessRetryCancellation.Example.successRun
+        weatherCertificate clockCertificate
+      match succeeded with
+      | .error _ => fail "process schema retry success fixture failed"
+      | .ok ⟨finalRunner, ⟨finalModel, result⟩⟩ =>
+          assertEqual "process schema retry success records the heterogeneous tool round"
+            result.trace.length 1
+          assertEqual "process schema retry success preserves the final model" finalModel 0
+          assertEqual "process schema retry success appends tool and terminal assistants"
+            finalRunner.session.nextSeq
+            (DeepSeekSchemaHarness.Example.counterRunner.session.nextSeq + 4)
+          match result.stop with
+          | .completed terminal _ _ =>
+              match result.trace with
+              | .cons head _ =>
+                  assertEqual "process schema retry success retains one transient HTTP failure"
+                    head.round.retryHistory.failures.length 1
+                  assertEqual "process schema retry success executes both heterogeneous tools"
+                    head.round.batch.executions.length 2
+                  assertEqual "process schema retry success terminal response has no calls"
+                    terminal.accepted.validated.response.choices.head.message.toolCalls []
+              | _ => fail "process schema retry success returned no heterogeneous tool round"
+          | .fuelExhausted => fail "process schema retry success exhausted"
+          | .cancelled _ _ _ => fail "process schema retry success was cancelled"
+
 private def testDeepSeekSchemaStreamConversation : IO Unit := do
   match DeepSeekToolSchema.weatherToolCertificate,
       DeepSeekSchemaRegistry.Example.clockToolCertificate with
@@ -6537,6 +6587,7 @@ def run : IO Unit := do
   testDeepSeekHarnessTransportRetryConversation
   testDeepSeekHarnessTransportRetryCancellation
   testDeepSeekSchemaTransportRetryCancellation
+  testDeepSeekSchemaProcessRetryCancellation
   testDeepSeekSchemaStreamConversation
   testDeepSeekSchemaStreamPrefixConversation
   testDeepSeekSchemaStreamErrors

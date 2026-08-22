@@ -2348,6 +2348,19 @@ before send and 503-to-200 weather/clock execution followed by a no-tool termina
 silently add in-flight interruption, provider backoff/idempotency, persistence, external effects,
 or deployed Harness equivalence.
 
+`Cordis.DeepSeekSchemaProcessRetryCancellation` is the next executable adapter for that same
+surface. Keep `processRetryTransport` as a thin wrapper around
+`DeepSeekCurlTransport.processTransport`: the wrapper only chooses the fixture's attempt index,
+while the existing process adapter owns stdin delivery, status-trailer parsing, and typed
+transport failure conversion. The fixture emits 503 on attempt zero, the heterogeneous
+weather/clock response on attempt one, and the terminal no-tool body thereafter. Reuse
+`SchemaRetry.run` unchanged so the proof-carrying retry history, single decoder, dependent
+registry batch, and exact runner/model endpoints remain the authority. Add a cancellation-first
+call as well; it must make no process invocation because the policy is checked before
+`executeSchemaRetryStep`. This is process evidence only, not network, credential,
+provider-obedience, shell-trust, in-flight interruption, backoff/idempotency, persistence, or
+deployed-equivalence evidence.
+
 `Cordis.DeepSeekSchemaStreamConversation` is the corresponding complete-body streamed boundary.
 It derives the validated tool list from the heterogeneous registry, builds the typed request whose
 wire certificate proves `stream: true`, sends a process-backed SSE body through the existing

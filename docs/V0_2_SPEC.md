@@ -339,6 +339,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekSchemaTransportRetryCancellation`, composing that heterogeneous registry with
   single-decoder bounded retry and caller-controlled pre-round cancellation, retaining exact
   dependent tool-round endpoints and distinct completion/cancellation/exhaustion stops;
+- `Cordis.DeepSeekSchemaProcessRetryCancellation`, instantiating that dependent boundary with the
+  existing `IO.Process`/`sh` adapter and a 503→heterogeneous→terminal fixture while retaining the
+  same retry history and exact endpoints;
 - `Cordis.DeepSeekSchemaStreamConversation`, carrying the same registry through the typed
   `stream: true` SSE/rich-stream/session boundary, validating a complete streamed body before
   heterogeneous dispatch, and distinguishing a text terminal from caller-fuel exhaustion;
@@ -1340,6 +1343,13 @@ trace retains retry history and exact runner/model endpoints. The timeout-before
 200 fixtures are local injected-transport evidence only: in-flight interruption, backoff,
 idempotency, persistence, external effects, and deployed Harness retry/cancellation equivalence
 remain outside.
+
+`Cordis.DeepSeekSchemaProcessRetryCancellation` instantiates that exact dependent result through
+the existing process adapter. Its `sh` fixture returns one transient 503, then the heterogeneous
+weather/clock response, then a terminal no-tool response, so local process execution and retry
+history are observed together. Cancellation still happens before process dispatch. Network,
+credentials, provider obedience, shell/process trust, in-flight interruption, backoff/idempotency,
+persistence, external effects, and deployed Harness equivalence remain outside.
 
 `Cordis.DeepSeekSchemaStreamConversation` applies the same dependent registry to the existing
 complete-body SSE/rich-stream/session boundary. Its request certificate proves `stream: true`,
