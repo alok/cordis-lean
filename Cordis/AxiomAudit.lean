@@ -46,6 +46,7 @@ import Cordis.DeepSeekCurlProviderAssemblyToolConversation
 import Cordis.DeepSeekCurlBytePrefixProviderAssemblyTool
 import Cordis.DeepSeekAssemblerToolRound
 import Cordis.DeepSeekStreamToolRound
+import Cordis.DeepSeekScopedStreamToolRound
 import Cordis.DeepSeekProcessStreamToolRound
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
@@ -1001,6 +1002,15 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekStreamToolRound.appendRound_messages
 #print axioms Cordis.DeepSeekStreamToolRound.counterSummary
 #print axioms Cordis.DeepSeekStreamToolRound.counterSessionSummary
+#print axioms Cordis.DeepSeekScopedStreamToolRound.ScopedExecutionTrace.toExecutedTools_length
+#print axioms Cordis.DeepSeekScopedStreamToolRound.executeScopedCalls
+#print axioms Cordis.DeepSeekScopedStreamToolRound.executeBodyScopedTools
+#print axioms Cordis.DeepSeekScopedStreamToolRound.appendRound_messages
+#print axioms Cordis.DeepSeekScopedStreamToolRound.appendRound_nextSeq
+#print axioms Cordis.DeepSeekScopedStreamToolRound.Example.scopedDualRoundSummary
+#print axioms Cordis.DeepSeekScopedStreamToolRound.Example.scopedDualSessionSummary
+#print axioms Cordis.DeepSeekScopedStreamToolRound.Example.restrictedShadowRejected
+#print axioms Cordis.DeepSeekScopedStreamToolRound.Example.explicitApprovalRejected
 #print axioms Cordis.DeepSeekProcessStreamToolRound.executeWith
 #print axioms Cordis.DeepSeekProcessStreamToolRound.ProcessedRound.source_exact
 #print axioms Cordis.DeepSeekProcessStreamToolRound.ProcessedRound.execution_exact

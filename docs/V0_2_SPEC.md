@@ -246,6 +246,9 @@ Current machine-checked evidence includes:
   metadata and normalizing structured failure/abort causes;
 - `Cordis.DeepSeekStreamToolRound`, carrying the wire-backed result through dependent execution
   and certified assistant/tool-result session append, with a model-2-to-5 counter fixture;
+- `Cordis.DeepSeekScopedStreamToolRound`, resolving those assembled calls through nearest-first
+  scopes and typed approval before model-indexed dependent execution/session append, with a
+  dual-call fixture and explicit shadow/approval rejection witnesses;
 - `Cordis.DeepSeekProcessStreamToolRound`, placing a configured complete-body process adapter in
   front of that exact round and retaining status/SSE evidence before provider/dependent/session
   composition;
@@ -451,6 +454,9 @@ Current machine-checked evidence includes:
   execution, exact runner accounting, and typed unknown-name rejection;
 - `Cordis.DeepSeekScopedRegistry`, adding nearest-first lexical scopes, terminal shadowing
   restrictions, and typed automatic/review approval tickets before dependent provider execution;
+- `Cordis.DeepSeekScopedStreamToolRound`, composing that scoped router with the strict provider
+  stream and session append path, retaining a dependent execution trace with exact sequence
+  evidence while preserving typed restriction and approval failures;
 - `Cordis.DeepSeekSchemaConversation`, attaching registry-derived tool declarations to a typed
   complete-body transport request and validated response while retaining the exact plan, response,
   heterogeneous execution batch, and runner endpoint for one round;
@@ -1550,6 +1556,15 @@ image/tool-result schemas, and deployed TypeScript equivalence remain outside.
 dependent execution and session append path. Its executable fixture reaches model `5` from `2`
 and proves the assistant/tool-result message pair and sequence advancement. Network/authentication,
 external effects, persistence, retries/cancellation, and deployed Harness equivalence remain outside.
+
+`Cordis.DeepSeekScopedStreamToolRound` composes the same accepted assembly with
+`DeepSeekScopedRegistry`: each call is resolved in nearest-first scope order, a terminal
+restriction cannot fall through, and an automatic/review approval ticket is retained before the
+dependent provider view executes. `ScopedExecutionTrace` keeps the model-indexed dependent
+successors and converts them into the existing certified assistant/tool-result append. The
+dual-call fixture reaches the expected local session endpoint and separately checks restricted
+shadowing and denied explicit approval. Scope construction, authenticated policy, external
+effects, persistence, cancellation, and deployed Harness equivalence remain outside.
 
 `Cordis.DeepSeekProcessStreamToolRound` places the configured complete-body process adapter in
 front of that composition. Its local process result retains the exact response status and strict

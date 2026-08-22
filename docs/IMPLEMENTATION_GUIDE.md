@@ -2486,6 +2486,17 @@ and from exhaustion. Do not silently upgrade this to incremental delivery, backp
 cancellation, reconnect, provider-complete assembly, call-ID authenticity, persistence, external
 effects, or deployed Harness equivalence.
 
+`Cordis.DeepSeekScopedStreamToolRound` is the executable bridge when the stream's calls must use
+lexical routing and approval rather than one fixed registry binding. Start with the validated
+provider assembly, call `executeBodyScopedTools`, and keep its `ScopedExecutionTrace` as the
+dependent evidence: each head records the resolved scope entry, approval ticket, parsed call,
+reply, and successor model, while the tail starts at that exact successor. Feed the resulting
+round to `appendRound`; the existing append lemmas then establish the assistant message, one
+tool-result message per call, and `nextSeq = old.nextSeq + 1 + calls.length`. The fixture should
+exercise weather then clock, restricted terminal shadowing, and denied explicit approval. This is
+still complete-body local evidence; scope construction, policy authentication, external effects,
+persistence, cancellation, and deployed Harness equivalence require separate authorities.
+
 `Cordis.DeepSeekHarnessProcessSchema` is the provenance-preserving companion when the process
 boundary itself matters. It keeps the registry-certified streaming plan, processed body, schema
 step, and dependent runner endpoint in one dependent result. Use it for local executable evidence

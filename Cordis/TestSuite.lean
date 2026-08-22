@@ -50,6 +50,7 @@ import Cordis.DeepSeekCurlProviderAssemblyToolConversation
 import Cordis.DeepSeekCurlBytePrefixProviderAssemblyTool
 import Cordis.DeepSeekAssemblerToolRound
 import Cordis.DeepSeekStreamToolRound
+import Cordis.DeepSeekScopedStreamToolRound
 import Cordis.DeepSeekProcessStreamToolRound
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
@@ -3147,6 +3148,16 @@ private def testDeepSeekStreamToolRound : IO Unit := do
         round.execution.calls.length 1
       assertEqual "wire-backed dependent round retains one dependent reply"
         round.execution.executions.length 1
+
+private def testDeepSeekScopedStreamToolRound : IO Unit := do
+  assertEqual "scoped stream round resolves and executes both dependent tools"
+    DeepSeekScopedStreamToolRound.Example.scopedDualRoundSummary true
+  assertEqual "scoped stream round appends assistant plus two tool results"
+    DeepSeekScopedStreamToolRound.Example.scopedDualSessionSummary true
+  assertEqual "nearest restricted shadow is terminal"
+    DeepSeekScopedStreamToolRound.Example.restrictedShadowRejected true
+  assertEqual "explicit approval rejection remains typed"
+    DeepSeekScopedStreamToolRound.Example.explicitApprovalRejected true
 
 private def testDeepSeekProcessStreamToolRound : IO Unit := do
   match ← DeepSeekProcessStreamToolRound.counterRun with
@@ -8114,6 +8125,7 @@ def run : IO Unit := do
   testDeepSeekCurlProviderAssemblyToolConversation
   testDeepSeekCurlBytePrefixProviderAssemblyTool
   testDeepSeekStreamToolRound
+  testDeepSeekScopedStreamToolRound
   testDeepSeekProcessStreamToolRound
   testDeepSeekSessionBridge
   testDeepSeekSessionRunner
