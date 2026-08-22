@@ -397,6 +397,13 @@ assistant endpoint, typed executions, and final runner. The memory archive plus 
 transport exercise this path; live providers, durable commits, retries, cancellation, external
 effects, and deployed Harness equivalence remain outside.
 
+`Cordis.DeepSeekHarnessTransportConversation` composes those single-decoder rounds into a
+fuel-bounded dependent trace. Each cons cell is indexed by the preceding runner/model endpoint,
+retains the complete round certificate, and either terminates with a certified no-tool response
+or preserves an exact trace prefix at fuel exhaustion. The two-response counter fixture exercises
+both completion and exhaustion; this remains injected-transport evidence, not live-provider,
+durability, retry, cancellation, external-effect, or deployed-Harness equivalence evidence.
+
 `Cordis.DeepSeekHarnessEventArchive` attaches the broader current-Harness event vocabulary to
 the same runner only when both certificates are present: `SessionEventArchive` must preserve
 every envelope exactly and `SessionRefinement` must validate every event semantically. Known

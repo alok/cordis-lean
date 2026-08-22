@@ -2203,6 +2203,17 @@ the persisted archive session. Test this with the memory archive and determinist
 transport, while keeping durability, live-provider behavior, retries, cancellation, external
 effects, and deployed equivalence as explicit nonclaims.
 
+`Cordis.DeepSeekHarnessTransportConversation` is the continuation layer above that round.
+Define an indexed `TransportTrace` whose tail starts at `head.round.finalRunner` and
+`head.round.finalModel`; do not downgrade the endpoint to an unindexed list of round records.
+`runTransportAux` should call `executeSource` once per fuel unit, stop only when the retained
+validated response has no tool calls, and otherwise recurse from the exact typed endpoint.
+Expose a distinct `TransportStop.completed` carrying the no-tool proof and
+`TransportStop.fuelExhausted` carrying the retained prefix. The deterministic two-response
+fixture should assert the two-round endpoint and both stop branches. Keep transport injection and
+all live-provider, retry, cancellation, durability, external-effect, and deployed-equivalence
+boundaries explicit.
+
 `Cordis.DeepSeekToolSchema` is the next request-side type boundary. It validates the bounded
 schema vocabulary actually represented by the local DeepSeek API: an object parameter root,
 primitive property `type` tags, optional property descriptions, a duplicate-free `required`

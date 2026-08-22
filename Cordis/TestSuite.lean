@@ -125,6 +125,7 @@ import Cordis.HarnessPersistenceArchive
 import Cordis.HarnessPersistenceIO
 import Cordis.DeepSeekHarnessPersistenceIO
 import Cordis.DeepSeekHarnessPersistenceTransportRound
+import Cordis.DeepSeekHarnessTransportConversation
 import Cordis.DeepSeekHarnessOpaqueMetadata
 import Cordis.DeepSeekHarnessMetadataArchive
 import Cordis.Lifecycle
@@ -3804,6 +3805,91 @@ private def testDeepSeekHarnessPersistenceTransportRound : IO Unit := do
               (cfg := Cordis.Harness.counterConfig) (before := 0) round.round
           pure ()
 
+private def testDeepSeekHarnessTransportConversation : IO Unit := do
+  let requestBodies ← IO.mkRef ([] : List String)
+  let transport : Cordis.DeepSeekApi.Transport := {
+    send := fun request => do
+      requestBodies.modify (fun bodies => request.body :: bodies)
+      let bodies ← requestBodies.get
+      pure (.ok {
+        status := 200
+        body := if bodies.length = 1 then DeepSeekHarness.counterResponseBody
+          else DeepSeekHarness.counterFinalResponseBody
+      })
+  }
+  let initialRunner : DeepSeekHarness.ConversationRunner := {
+    session := DeepSeekHarness.counterSession
+    turn := 1
+    step := 0
+    nextCall := 0
+    toolCallCount_eq_nextCall := by rfl
+  }
+  let result ← (DeepSeekHarnessTransportConversation.runTransport
+      (Model := Nat) (Capability := Cordis.Examples.Counter.Capability)
+      (cfg := Cordis.Harness.counterConfig) 2 transport "https://fixture.invalid"
+      { value := "fixture-key" } DeepSeekHarness.counterRequestSource [] (by simp)
+      (by
+        intro current source sourceMem
+        cases sourceMem) 0 initialRunner :
+    IO (Except DeepSeekHarnessPersistenceTransportRound.RoundError
+      (Sigma fun finalRunner : DeepSeekHarness.ConversationRunner =>
+        Sigma fun finalModel : Nat =>
+          DeepSeekHarnessTransportConversation.TransportConversationRunResult
+            Cordis.Harness.counterConfig "https://fixture.invalid" { value := "fixture-key" }
+            DeepSeekHarness.counterRequestSource [] (by simp) (by simp) initialRunner 0
+            finalRunner finalModel)))
+  let resultOption : Option
+      (Sigma fun finalRunner : DeepSeekHarness.ConversationRunner =>
+        Sigma fun finalModel : Nat =>
+          DeepSeekHarnessTransportConversation.TransportConversationRunResult
+            Cordis.Harness.counterConfig "https://fixture.invalid" { value := "fixture-key" }
+            DeepSeekHarness.counterRequestSource [] (by simp) (by simp) initialRunner 0
+            finalRunner finalModel) := result.toOption
+  match resultOption with
+  | none => fail "single-decoder transport conversation failed"
+  | some ⟨finalRunner, ⟨finalModel, run⟩⟩ =>
+      assertEqual "single-decoder conversation retains both typed round endpoints"
+        run.trace.length 2
+      assertEqual "single-decoder conversation preserves the final model" finalModel 0
+      assertEqual "single-decoder conversation reaches the final session"
+        finalRunner.session.nextSeq 4
+      assertEqual "single-decoder conversation stops only after the final no-tool response"
+        (DeepSeekHarnessTransportConversation.TransportStop.isCompleted run.stop) true
+  let calls ← requestBodies.get
+  assertEqual "single-decoder conversation makes exactly one request per typed round"
+    calls.length 2
+
+  let exhaustedResult ← (DeepSeekHarnessTransportConversation.runTransport
+      (Model := Nat) (Capability := Cordis.Examples.Counter.Capability)
+      (cfg := Cordis.Harness.counterConfig) 1
+      (DeepSeekCurlTransport.fixtureTransport DeepSeekHarness.counterResponseBody)
+      "https://fixture.invalid" { value := "fixture-key" }
+      DeepSeekHarness.counterRequestSource [] (by simp)
+      (by
+        intro current source sourceMem
+        cases sourceMem) 0 initialRunner :
+    IO (Except DeepSeekHarnessPersistenceTransportRound.RoundError
+      (Sigma fun finalRunner : DeepSeekHarness.ConversationRunner =>
+        Sigma fun finalModel : Nat =>
+          DeepSeekHarnessTransportConversation.TransportConversationRunResult
+            Cordis.Harness.counterConfig "https://fixture.invalid" { value := "fixture-key" }
+            DeepSeekHarness.counterRequestSource [] (by simp) (by simp) initialRunner 0
+            finalRunner finalModel)))
+  let exhaustedOption : Option
+      (Sigma fun finalRunner : DeepSeekHarness.ConversationRunner =>
+        Sigma fun finalModel : Nat =>
+          DeepSeekHarnessTransportConversation.TransportConversationRunResult
+            Cordis.Harness.counterConfig "https://fixture.invalid" { value := "fixture-key" }
+            DeepSeekHarness.counterRequestSource [] (by simp) (by simp) initialRunner 0
+            finalRunner finalModel) := exhaustedResult.toOption
+  match exhaustedOption with
+  | none => fail "single-decoder exhaustion fixture failed"
+  | some ⟨_, ⟨_, run⟩⟩ =>
+      assertEqual "single-decoder exhaustion retains the exact completed prefix"
+        run.trace.length 1
+      assertEqual "single-decoder exhaustion reports its bounded stop"
+        (DeepSeekHarnessTransportConversation.TransportStop.isFuelExhausted run.stop) true
+
 private def testDeepSeekSchemaStreamConversation : IO Unit := do
   match DeepSeekToolSchema.weatherToolCertificate,
       DeepSeekSchemaRegistry.Example.clockToolCertificate with
@@ -6174,6 +6260,7 @@ def run : IO Unit := do
   testDeepSeekHarnessTransportContract
   testDeepSeekHarnessTransportToolRound
   testDeepSeekHarnessPersistenceTransportRound
+  testDeepSeekHarnessTransportConversation
   testDeepSeekSchemaStreamConversation
   testDeepSeekSchemaStreamPrefixConversation
   testDeepSeekSchemaStreamErrors

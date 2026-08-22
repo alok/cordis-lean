@@ -1367,6 +1367,14 @@ checks the archive, response, tool, sequence, and allocator projections. This is
 certificate: it does not establish filesystem durability, live provider behavior, retries,
 cancellation, external effect correctness, or deployed Harness equivalence.
 
+`Cordis.DeepSeekHarnessTransportConversation` is the corresponding multi-round composition.
+`TransportTrace` indexes every tail by the previous round's exact final runner and model;
+`runTransport` therefore retains a single-decoder certificate for each request/response/tool
+round, and its stop value distinguishes certified no-tool completion from fuel exhaustion. The
+deterministic two-response fixture exercises both branches. It remains a bounded injected
+transport model, not a live-provider, retry, cancellation, durability, external-effect, or
+deployed-Harness equivalence theorem.
+
 `Cordis.SessionPayloadArchive` moves one layer inward without inventing provider semantics. It
 classifies the five current content-block tags plus unknown block extensions, retains exact message
 content arrays and source objects, preserves assistant-chunk objects and raw usage, and retains

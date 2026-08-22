@@ -365,6 +365,13 @@ validated archive endpoint. The memory fixture is executable local evidence only
 prove live network reachability, credentials, provider obedience, durable writes, retries,
 cancellation, external effects, or deployed Harness equivalence.
 
+`DeepSeekHarnessTransportConversation` composes the same round certificate into a fuel-bounded
+`TransportTrace`. The dependent cons constructor forces the next round to start at the exact
+previous runner/model endpoint; `TransportStop.completed` carries the final no-tool proof, while
+`fuelExhausted` retains the certified prefix. The two-response fixture exercises both stops, but
+the model still has no live-provider, retry/cancellation, durability, external-effect, or
+deployed-Harness equivalence claim.
+
 `HarnessPersistenceBytes` is the pure immutable-`ByteArray` companion. Its dependent certificate
 retains the original bytes, decoded UTF-8 text, parsed JSONL rows, packed-row expansion, and the
 composed Session/Protocol projection. Runtime fixtures cover accepted, malformed, empty, and
@@ -837,7 +844,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1654
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1661
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.

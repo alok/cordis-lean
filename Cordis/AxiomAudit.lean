@@ -124,6 +124,7 @@ import Cordis.HarnessPersistenceArchive
 import Cordis.HarnessPersistenceIO
 import Cordis.DeepSeekHarnessPersistenceIO
 import Cordis.DeepSeekHarnessPersistenceTransportRound
+import Cordis.DeepSeekHarnessTransportConversation
 import Cordis.DeepSeekHarnessOpaqueMetadata
 import Cordis.DeepSeekHarnessMetadataArchive
 import Cordis.Lifecycle
@@ -870,6 +871,13 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessPersistenceTransportRound.PersistedRound.read_session
 #print axioms Cordis.DeepSeekHarnessPersistenceTransportRound.PersistedRound.plan_build_archive
 #print axioms Cordis.DeepSeekHarnessPersistenceTransportRound.executeRestored
+#print axioms Cordis.DeepSeekHarnessTransportConversation.TransportRoundBox.noToolCalls
+#print axioms Cordis.DeepSeekHarnessTransportConversation.TransportTrace.length
+#print axioms Cordis.DeepSeekHarnessTransportConversation.TransportTrace.length_cons
+#print axioms Cordis.DeepSeekHarnessTransportConversation.TransportStop.isCompleted
+#print axioms Cordis.DeepSeekHarnessTransportConversation.TransportStop.isFuelExhausted
+#print axioms Cordis.DeepSeekHarnessTransportConversation.runTransportAux
+#print axioms Cordis.DeepSeekHarnessTransportConversation.runTransport
 #print axioms Cordis.DeepSeekHarnessOpaqueMetadata.restoreRunner
 #print axioms Cordis.DeepSeekHarnessOpaqueMetadata.RestoredRunner.session_eq_log
 #print axioms Cordis.DeepSeekHarnessOpaqueMetadata.RestoredRunner.metadata_eq_source
