@@ -178,6 +178,7 @@ import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
 import Cordis.SessionRefinementCodec
+import Cordis.SessionRefinementTextCodec
 import Cordis.SessionExtensionRefinement
 import Cordis.SessionExtensionArchive
 import Cordis.SessionOpaqueMetadata
@@ -564,6 +565,8 @@ set_option format.width 200
 #print axioms Cordis.SessionRefinement.Codec.decode_encode
 #print axioms Cordis.SessionRefinement.Codec.mixedFixture_encodable
 #print axioms Cordis.SessionRefinement.Codec.mixedFixture_decode_encode
+#print axioms Cordis.SessionRefinement.Codec.encodeWireEventLine_eq_compress
+#print axioms Cordis.SessionRefinement.Codec.decodeWireEventLine_of_encoded
 #print axioms Cordis.SessionOpaqueMetadata.decodeEventRetainingMetadata
 #print axioms Cordis.SessionOpaqueMetadata.validateLogRetainingMetadata
 #print axioms Cordis.SessionOpaqueMetadata.metadata_example_valid

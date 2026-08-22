@@ -182,6 +182,7 @@ import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
 import Cordis.SessionRefinementCodec
+import Cordis.SessionRefinementTextCodec
 import Cordis.SessionExtensionRefinement
 import Cordis.SessionExtensionArchive
 import Cordis.SessionOpaqueMetadata

@@ -186,6 +186,7 @@ import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
 import Cordis.SessionRefinementCodec
+import Cordis.SessionRefinementTextCodec
 import Cordis.SessionExtensionRefinement
 import Cordis.SessionExtensionArchive
 import Cordis.SessionOpaqueMetadata
@@ -6425,6 +6426,25 @@ private def testSessionRefinementCodec : IO Unit := do
         ["turn/start", "step/start", "assistant/chunk", "tool/call"]
   pure ()
 
+private def testSessionRefinementTextCodec : IO Unit := do
+  match SessionRefinement.Codec.decodeWireEventLine
+      SessionRefinement.Codec.executableLine with
+  | .error error => fail s!"canonical text codec fixture failed: {reprStr error}"
+  | .ok event =>
+      match event.payload with
+      | .turnStart turn =>
+          assertEqual "canonical text codec seq" event.seq.value 1
+          assertEqual "canonical text codec time" event.time.value 100
+          assertEqual "canonical text codec turn" turn.value 1
+      | _ => fail "canonical text codec changed the executable turn/start tag"
+  match SessionRefinement.Codec.decodeWireEventLine "" with
+  | .error (.text .emptyInput) => pure ()
+  | result => fail s!"empty canonical text was not rejected distinctly: {reprStr result}"
+  match SessionRefinement.Codec.decodeWireEventLine "{}\n{}" with
+  | .error (.multiple 2) => pure ()
+  | result => fail s!"multiple canonical text lines were not rejected distinctly: {reprStr result}"
+  pure ()
+
 private def testSessionOpaqueMetadata : IO Unit := do
   match SessionOpaqueMetadata.decodeEventRetainingMetadata
       (List.getD SessionOpaqueMetadata.metadataExampleJson 5 .null) with
@@ -7423,6 +7443,7 @@ def run : IO Unit := do
   testOperationalEquivalence
   testSessionRefinement
   testSessionRefinementCodec
+  testSessionRefinementTextCodec
   testSessionOpaqueMetadata
   testSessionArchive
   testSessionEventArchive
