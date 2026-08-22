@@ -184,6 +184,7 @@ import Cordis.SessionRefinement
 import Cordis.SessionRefinementCodec
 import Cordis.SessionRefinementTextCodec
 import Cordis.SessionRefinementProcess
+import Cordis.SessionRefinementProcessConversation
 import Cordis.SessionExtensionRefinement
 import Cordis.SessionExtensionArchive
 import Cordis.SessionOpaqueMetadata

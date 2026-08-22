@@ -188,6 +188,7 @@ import Cordis.SessionRefinement
 import Cordis.SessionRefinementCodec
 import Cordis.SessionRefinementTextCodec
 import Cordis.SessionRefinementProcess
+import Cordis.SessionRefinementProcessConversation
 import Cordis.SessionExtensionRefinement
 import Cordis.SessionExtensionArchive
 import Cordis.SessionOpaqueMetadata
@@ -6494,6 +6495,21 @@ private def testSessionRefinementProcess : IO Unit := do
         SessionRefinementProcess.processResult_projection (result := result)
       pure ()
 
+private def testSessionRefinementProcessConversation : IO Unit := do
+  match ← SessionRefinementProcessConversation.runFixture with
+  | .error _ => fail "process/session conversation fixture failed"
+  | .ok run =>
+      assertEqual "process/session conversation summary"
+        (SessionRefinementProcessConversation.summary run)
+        SessionRefinementProcessConversation.expectedSummary
+      assertEqual "process/session conversation is completed"
+        (SessionRefinementProcessConversation.summary run).completed true
+      let _sessionCertificate :=
+        SessionRefinementProcessConversation.restored_session_eq_process run
+      let _projectionCertificate :=
+        SessionRefinementProcessConversation.restored_projection_eq_process run
+      pure ()
+
 private def testSessionOpaqueMetadata : IO Unit := do
   match SessionOpaqueMetadata.decodeEventRetainingMetadata
       (List.getD SessionOpaqueMetadata.metadataExampleJson 5 .null) with
@@ -7494,6 +7510,7 @@ def run : IO Unit := do
   testSessionRefinementCodec
   testSessionRefinementTextCodec
   testSessionRefinementProcess
+  testSessionRefinementProcessConversation
   testSessionOpaqueMetadata
   testSessionArchive
   testSessionEventArchive
