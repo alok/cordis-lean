@@ -2497,6 +2497,14 @@ exercise weather then clock, restricted terminal shadowing, and denied explicit 
 still complete-body local evidence; scope construction, policy authentication, external effects,
 persistence, cancellation, and deployed Harness equivalence require separate authorities.
 
+`Cordis.DeepSeekProcessScopedStreamToolRound` adds real local process provenance to that exact
+scoped path. Call `executeWith` with the configured `IO.Process` request and retain the resulting
+`ProcessedScopedRound`: its fields keep the validated SSE wire, scoped round, process/status
+boundary, and dependent session endpoint together. The fixture is deliberately complete-body: it
+checks three accepted frames, two scoped calls, and the assistant plus tool-result append, while
+network/authentication, process trust, incremental delivery, cancellation, persistence, external
+effects, and deployed Harness equivalence remain separate obligations.
+
 `Cordis.DeepSeekHarnessProcessSchema` is the provenance-preserving companion when the process
 boundary itself matters. It keeps the registry-certified streaming plan, processed body, schema
 step, and dependent runner endpoint in one dependent result. Use it for local executable evidence

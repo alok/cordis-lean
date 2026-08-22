@@ -252,6 +252,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekProcessStreamToolRound`, placing a configured complete-body process adapter in
   front of that exact round and retaining status/SSE evidence before provider/dependent/session
   composition;
+- `Cordis.DeepSeekProcessScopedStreamToolRound`, carrying that process/status and strict-wire
+  evidence through scoped approval, dependent execution, and certified session append for the
+  deterministic dual-call fixture;
 - `Cordis.DeepSeekCurlProviderAssemblyPrefix`, composing the line-oriented process prefix with
   the terminal provider assembly certificate while keeping fuel/cancellation outcomes typed;
   live provider-incremental semantics and deployed equivalence remain outside;
@@ -457,6 +460,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekScopedStreamToolRound`, composing that scoped router with the strict provider
   stream and session append path, retaining a dependent execution trace with exact sequence
   evidence while preserving typed restriction and approval failures;
+- `Cordis.DeepSeekProcessScopedStreamToolRound`, placing the configured complete-body process
+  adapter in front of that scoped composition and retaining status/SSE, approval, dependent
+  execution, and exact session-append evidence for the dual-call fixture;
 - `Cordis.DeepSeekSchemaConversation`, attaching registry-derived tool declarations to a typed
   complete-body transport request and validated response while retaining the exact plan, response,
   heterogeneous execution batch, and runner endpoint for one round;
@@ -1571,6 +1577,13 @@ front of that composition. Its local process result retains the exact response s
 SSE certificate before reusing provider assembly, dependent execution, and session append. This
 is deterministic process evidence rather than a claim of network reachability, credential
 validity, process trust, incremental delivery, cancellation, persistence, or deployed equivalence.
+
+`Cordis.DeepSeekProcessScopedStreamToolRound` is the scoped process-backed continuation. Its
+`executeWith` result retains process/status and strict-wire evidence before reusing scoped
+approval, model-indexed dependent execution, and certified assistant/tool-result append. The
+fixture validates three accepted frames, two calls, and the exact three-message endpoint. Network,
+authentication, process trust, incremental delivery, cancellation, persistence, external effects,
+and deployed Harness equivalence remain outside.
 
 `Cordis.SessionRefinement` covers a separate stateful subset of current `SessionEvent` JSON:
 turn/step boundaries, selected request/header snapshots, route context, whole-list todo snapshots,

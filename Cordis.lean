@@ -63,6 +63,7 @@ import Cordis.DeepSeekCurlBytePrefixProviderAssemblyTool
 import Cordis.DeepSeekAssemblerToolRound
 import Cordis.DeepSeekStreamToolRound
 import Cordis.DeepSeekScopedStreamToolRound
+import Cordis.DeepSeekProcessScopedStreamToolRound
 import Cordis.DeepSeekProcessStreamToolRound
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner

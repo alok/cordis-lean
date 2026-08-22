@@ -51,6 +51,7 @@ import Cordis.DeepSeekCurlBytePrefixProviderAssemblyTool
 import Cordis.DeepSeekAssemblerToolRound
 import Cordis.DeepSeekStreamToolRound
 import Cordis.DeepSeekScopedStreamToolRound
+import Cordis.DeepSeekProcessScopedStreamToolRound
 import Cordis.DeepSeekProcessStreamToolRound
 import Cordis.DeepSeekSessionBridge
 import Cordis.DeepSeekSessionRunner
@@ -3158,6 +3159,27 @@ private def testDeepSeekScopedStreamToolRound : IO Unit := do
     DeepSeekScopedStreamToolRound.Example.restrictedShadowRejected true
   assertEqual "explicit approval rejection remains typed"
     DeepSeekScopedStreamToolRound.Example.explicitApprovalRejected true
+
+private def testDeepSeekProcessScopedStreamToolRound : IO Unit := do
+  assertEqual "process-backed scoped stream reaches the dual-call endpoint"
+    (← DeepSeekProcessScopedStreamToolRound.Example.scopedDualProcessSummary) true
+  match DeepSeekToolSchema.weatherToolCertificate,
+      DeepSeekSchemaRegistry.Example.clockToolCertificate with
+  | .ok weatherCertificate, .ok clockCertificate =>
+      match ← DeepSeekProcessScopedStreamToolRound.Example.scopedDualRun
+          weatherCertificate clockCertificate with
+      | .error error => fail s!"process-backed scoped round was rejected: {reprStr error}"
+      | .ok ⟨body, ⟨after, processed⟩⟩ =>
+          assertEqual "process-backed scoped stream retains the exact body"
+            body DeepSeekSchemaStreamConversation.Example.dualToolStreamBody
+          assertEqual "process-backed scoped stream validates three SSE frames"
+            processed.wire.frames.length 3
+          assertEqual "process-backed scoped stream reaches exact successor" after 0
+          assertEqual "process-backed scoped stream appends three messages"
+            (DeepSeekScopedStreamToolRound.appendRound
+              (Session.Session.empty Session.noExtensions) 1 0 processed.round []
+              (by simp) (by simp)).messages.length 3
+  | _, _ => fail "process-backed scoped fixture certificates failed"
 
 private def testDeepSeekProcessStreamToolRound : IO Unit := do
   match ← DeepSeekProcessStreamToolRound.counterRun with
@@ -8126,6 +8148,7 @@ def run : IO Unit := do
   testDeepSeekCurlBytePrefixProviderAssemblyTool
   testDeepSeekStreamToolRound
   testDeepSeekScopedStreamToolRound
+  testDeepSeekProcessScopedStreamToolRound
   testDeepSeekProcessStreamToolRound
   testDeepSeekSessionBridge
   testDeepSeekSessionRunner
