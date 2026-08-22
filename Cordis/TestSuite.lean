@@ -29,6 +29,7 @@ import Cordis.DeepSeekStreamFailure
 import Cordis.DeepSeekTerminalOutcome
 import Cordis.DeepSeekStreamIncremental
 import Cordis.DeepSeekStreamByteFraming
+import Cordis.DeepSeekCurlByteFraming
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekRichMixedStream
@@ -2280,6 +2281,40 @@ private def testDeepSeekStreamByteFraming : IO Unit := do
       let _bodyCertificate := result.body_eq
       let _validatorCertificate :=
         DeepSeekStreamByteFraming.ValidatedByteStream.validateSseBytes_exact result
+
+private def testDeepSeekCurlByteFraming : IO Unit := do
+  match ← DeepSeekCurlByteFraming.fixtureResponse with
+  | .error _ => fail "process byte-framing ASCII fixture failed"
+  | .ok ⟨body, response⟩ =>
+      assertEqual "process byte-framing status is retained" response.status 200
+      assertEqual "process byte-framing reads multiple chunks"
+        (decide (response.chunks.length > 1)) true
+      assertEqual "process byte-framing body agrees with parser"
+        response.framed.text body
+      let _rawCertificate := response.rawDecoded
+      let _parsedCertificate := response.parsed
+      let _rawChunksCertificate := response.raw_chunks_eq
+      let _bodyCertificate := response.body_chunks_eq
+      let _framedCertificate := response.framed_text_eq
+      let _validatorCertificate :=
+        DeepSeekCurlByteFraming.ByteChunkResponse.validateSseBytes_exact response
+  match ← DeepSeekCurlByteFraming.unicodeFixtureResponse with
+  | .error _ => fail "process byte-framing UTF-8 fixture failed"
+  | .ok ⟨_, response⟩ =>
+      assertEqual "process byte-framing preserves split UTF-8 text"
+        (response.framed.text.contains "hé") true
+  match ← DeepSeekCurlByteFraming.executeSseBytes 8 0
+      (DeepSeekCurlByteFraming.fixtureProcess DeepSeekStream.exampleStreamBody)
+      DeepSeekCurlTransport.fixtureRequest.request with
+  | .error .chunkSize => pure ()
+  | .error _ => fail "process byte-framing zero chunk size returned wrong error"
+  | .ok _ => fail "process byte-framing accepted zero chunk size"
+  match ← DeepSeekCurlByteFraming.executeSseBytes 1 3
+      (DeepSeekCurlByteFraming.fixtureProcess DeepSeekStream.exampleStreamBody)
+      DeepSeekCurlTransport.fixtureRequest.request with
+  | .error (.readLimit 1) => pure ()
+  | .error _ => fail "process byte-framing read budget returned wrong error"
+  | .ok _ => fail "process byte-framing ignored the read budget"
 
 private def testDeepSeekRichStream : IO Unit := do
   match DeepSeekRichStream.validateTextStream DeepSeekRichStream.exampleTextStreamBody with
@@ -5462,6 +5497,7 @@ def run : IO Unit := do
   testDeepSeekTerminalOutcome
   testDeepSeekStreamIncremental
   testDeepSeekStreamByteFraming
+  testDeepSeekCurlByteFraming
   testDeepSeekRichStream
   testDeepSeekRichToolStream
   testDeepSeekRichMixedStream

@@ -104,6 +104,13 @@ canonical reconstruction. `finish` rejects an incomplete final line and
 bridges the reconstructed text to the strict SSE validator. Process-level
 reads, blocked-read interruption, backpressure, cancellation, reconnect, and
 deployed stream semantics remain external.
+`Cordis.DeepSeekCurlByteFraming` connects that pure layer to a real piped
+process fixture: stdout is read as bounded `ByteArray` chunks, the raw output
+and private HTTP status trailer are retained, and the observed body chunks are
+fed unchanged through the byte-framed validator. This is finite process
+evidence, not a proof of network reachability, credential validity, executable
+trust, blocked-read interruption, backpressure, cancellation, reconnects, or
+deployed Harness equivalence.
 `Cordis.DeepSeekStreamFailure` preserves the two provider terminal-failure tags
 currently decoded by the wire layer (`content_filter` and
 `insufficient_system_resource`) as a raw, typed failure certificate. It does

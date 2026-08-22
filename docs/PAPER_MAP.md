@@ -877,6 +877,11 @@ invalid UTF-8 and incomplete final lines remain typed errors; and `finish` bridg
 reconstructed text to strict SSE validation. This is not a process-level byte reader and does
 not prove blocked-read interruption, backpressure, cancellation, reconnect, provider-complete
 assembly, or deployed stream equivalence.
+`Cordis.DeepSeekCurlByteFraming` connects that pure seam to bounded piped-process stdout. It
+retains the observed `ByteArray` chunks, raw UTF-8 output, private status/body parse equation, and
+the exact body-chunk framing certificate before strict SSE validation. This is finite process
+evidence only: network, credential, executable-trust, blocked-read, backpressure, cancellation,
+reconnect, provider-complete assembly, and deployed stream equivalence remain external.
 
 [paper-tree]: https://github.com/cordiverse/paper/tree/948a07b369c62adb3b12e102458be5c18dfb69b9
 [paper-pdf]: https://raw.githubusercontent.com/cordiverse/paper/948a07b369c62adb3b12e102458be5c18dfb69b9/paper.pdf

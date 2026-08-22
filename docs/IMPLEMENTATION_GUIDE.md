@@ -1967,6 +1967,13 @@ reconstruction of complete LF-delimited lines plus pending bytes, decodes UTF-8 
 is complete, and feeds the existing typed prefix state. `finish` requires an empty pending suffix
 and bridges the reconstructed text to strict SSE validation. This is not a process byte reader or
 a theorem about blocked reads, backpressure, cancellation, reconnect, or deployed semantics.
+`Cordis.DeepSeekCurlByteFraming` is the process-backed companion. It reads stdout in bounded
+`ByteArray` chunks, preserves the raw concatenation and parsed private status trailer, clips the
+observed body at the parsed byte boundary, and feeds those same body chunks to
+`DeepSeekStreamByteFraming`. The returned dependent result carries the process/status equation,
+chunk list, body-chunk equality, and validated SSE certificate. Keep network, credential,
+executable-trust, blocked-read, backpressure, cancellation, reconnect, and deployed claims
+outside this finite fixture.
 `Cordis.DeepSeekCurlSession` takes the terminal text subset one step further: it retains the
 process-backed wire certificate, runs the accepted rich/session projection, and returns the
 proof-carrying append-only runner. Source-event evidence, numeric local-ID assignment, and all

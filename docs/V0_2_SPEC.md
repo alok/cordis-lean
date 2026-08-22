@@ -299,6 +299,11 @@ Current machine-checked evidence includes:
   before typed prefix parsing, and invalid UTF-8/incomplete final lines are typed errors; process
   reads, blocked-read interruption, backpressure, cancellation, reconnect, and deployed semantics
   remain external;
+- `Cordis.DeepSeekCurlByteFraming`, connecting that pure byte layer to bounded piped-process stdout:
+  observed chunks, raw UTF-8 output, private status parsing, and the exact body-chunk framing
+  certificate are retained, with typed process/status/read-limit failures; network, credentials,
+  executable trust, blocked-read interruption, backpressure, cancellation, reconnect, and deployed
+  semantics remain external;
 - `Cordis.DeepSeekCurlIncremental`, delivering complete response lines through a process callback
   under an explicit read budget before strict validation of the reconstructed SSE body; byte-level
   and cancellation semantics remain external;

@@ -655,6 +655,12 @@ reconstruction, decodes complete lines as UTF-8 before typed prefix parsing, and
 reconstruction to strict SSE validation. It does not prove process-level byte reads, blocked-read
 interruption, backpressure, cancellation, reconnect, provider-complete assembly, or deployed
 stream equivalence.
+`Cordis.DeepSeekCurlByteFraming` is the finite process-backed companion: bounded stdout reads
+retain raw `ByteArray` chunks and the private status/body parse equation, then feed the observed
+body chunks unchanged through the pure byte framer. It returns typed process/status/read-limit
+errors and a dependent strict-SSE certificate, but does not establish network reachability,
+credential validity, executable trust, blocked-read interruption, backpressure, cancellation,
+reconnect, provider-complete assembly, or deployed stream equivalence.
 
 When an adapter such as `ToolWire` is used, textual resolution, decoding, and admission can
 fail closed before an `AuthorizedCall` is constructed. The adapter still supplies its resolver,
