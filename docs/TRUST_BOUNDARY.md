@@ -424,6 +424,15 @@ and its executable summary records the temporary-file route. `withTempFile` remo
 return; fsync, stable media, crash recovery, in-flight interruption, process cleanup, external
 effects, and deployed Harness equivalence remain outside.
 
+`DeepSeekHarnessEventFileStreamRetryCancellation` applies that executable file route to the
+supported current-Harness event JSONL surface. It writes and reads the event bytes, checks exact
+source/read equality before restoring the event archive/session, and then feeds the restored
+runner to the process-backed streamed cancellation trace. The result retains the byte witness,
+archive/session equality, `8 -> 11` prefix, one round, two first-round calls, timeout reason, and
+model `0`. `withTempFile` cleanup is scoped; fsync, stable media, crash recovery, blocked-read
+interruption, process cleanup, provider authenticity, external effects, and deployed Harness
+equivalence remain outside.
+
 `DeepSeekHarnessTransportRetryCancellation` composes that trace with a caller-controlled
 pre-round cancellation policy. Its cancellation fixture proves that no request is issued before
 round zero and retains the unchanged endpoint and typed reason; its success fixture retains the
@@ -935,7 +944,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1839
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1855
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.

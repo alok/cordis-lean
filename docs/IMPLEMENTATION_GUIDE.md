@@ -2120,6 +2120,14 @@ the prepared first request, typed streamed rounds, final runner/model, and expli
 fuel-exhaustion stop, while the original event archive remains attached. This remains a
 complete-body process fixture boundary rather than blocked-read cancellation or deployed runtime
 equivalence.
+`Cordis.DeepSeekHarnessEventFileStreamRetryCancellation` is the next concrete composition seam.
+It writes the supported current-event JSONL fixture to a temporary file, reads it back as bytes,
+checks exact source/read equality before restoring the event archive/session, and feeds the
+restored runner to the existing process-backed streamed cancellation trace. The executable
+summary retains source/read byte equality, the `8 -> 11` prefix, one round, two first-round calls,
+timeout cancellation, and model `0`. Keep temporary-file cleanup separate from fsync, stable
+media, crash recovery, blocked-read interruption, process cleanup, provider authenticity,
+external effects, and deployed Harness equivalence.
 `Cordis.DeepSeekHarnessPayloadText` composes that result with
 `SessionPayloadArchive.PayloadLog`. The dependent payload index is aligned to the same parsed
 JSONL lines, retaining raw content-block tags, assistant usage, tool-result `error`/`meta`, and

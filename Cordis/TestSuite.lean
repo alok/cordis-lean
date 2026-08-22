@@ -140,6 +140,7 @@ import Cordis.DeepSeekHarnessPersistenceProcessOutcome
 import Cordis.DeepSeekHarnessPersistenceStreamRetry
 import Cordis.DeepSeekHarnessPersistenceStreamRetryCancellation
 import Cordis.DeepSeekHarnessPersistenceFileStreamRetryCancellation
+import Cordis.DeepSeekHarnessEventFileStreamRetryCancellation
 import Cordis.DeepSeekHarnessTransportConversation
 import Cordis.DeepSeekHarnessTransportRetry
 import Cordis.DeepSeekHarnessTransportRetryConversation
@@ -4538,6 +4539,48 @@ private def testDeepSeekHarnessEventProcessOutcome : IO Unit := do
       assertEqual "restored byte streamed conversation appends the tool result" nextSeq 10
       assertEqual "restored byte streamed conversation distinguishes fuel exhaustion" completed false
 
+private def testDeepSeekHarnessEventFileStreamRetryCancellation : IO Unit := do
+  match ← DeepSeekHarnessEventFileStreamRetryCancellation.runFixture with
+  | .error _ => fail "file-backed current-event cancellation fixture failed"
+  | .ok run =>
+      let summary := DeepSeekHarnessEventFileStreamRetryCancellation.summary run
+      assertEqual "file-backed current-event bytes are unchanged"
+        summary.readBytes summary.sourceBytes
+      assertEqual "file-backed current-event restore reaches the archive endpoint"
+        summary.initialNextSeq
+        DeepSeekHarnessEventFileStreamRetryCancellation.executableInitialNextSeq
+      assertEqual "file-backed current-event cancellation retains the prefix"
+        summary.finalNextSeq
+        DeepSeekHarnessEventFileStreamRetryCancellation.executableFinalNextSeq
+      assertEqual "file-backed current-event cancellation retains one round"
+        summary.traceLength
+        DeepSeekHarnessEventFileStreamRetryCancellation.executableTraceLength
+      assertEqual "file-backed current-event cancellation retains two tool calls"
+        summary.firstToolCalls
+        DeepSeekHarnessEventFileStreamRetryCancellation.executableFirstToolCalls
+      assertEqual "file-backed current-event cancellation has no transient failures"
+        summary.firstRetryFailures
+        DeepSeekHarnessEventFileStreamRetryCancellation.executableFirstRetryFailures
+      assertEqual "file-backed current-event cancellation reports cancellation"
+        summary.cancelled
+        DeepSeekHarnessEventFileStreamRetryCancellation.executableCancelled
+      assertEqual "file-backed current-event cancellation occurs before round one"
+        summary.cancelledRound
+        DeepSeekHarnessEventFileStreamRetryCancellation.executableCancelledRound
+      assertEqual "file-backed current-event cancellation retains its reason"
+        summary.cancelledReason
+        DeepSeekHarnessEventFileStreamRetryCancellation.executableCancelledReason
+      assertEqual "file-backed current-event cancellation preserves the model"
+        summary.finalModel
+        DeepSeekHarnessEventFileStreamRetryCancellation.executableFinalModel
+      assertEqual "file-backed current-event cancellation executable projection agrees"
+        (DeepSeekHarnessEventFileStreamRetryCancellation.summaryMatchesFixture summary) true
+      let _bytesCertificate :=
+        DeepSeekHarnessEventFileStreamRetryCancellation.file_bytes_eq_source run
+      let _sessionCertificate :=
+        DeepSeekHarnessEventFileStreamRetryCancellation.restored_session_eq_event_archive run
+      pure ()
+
 private def testLoaderHMR : IO Unit := do
   assertEqual "loader reconciliation dispatches config-only edits in place"
     (LoaderHMR.changeKind LoaderHMR.Example.entry LoaderHMR.Example.updatedEntry)
@@ -6832,6 +6875,7 @@ def run : IO Unit := do
   testDeepSeekHarnessEventArchive
   testDeepSeekHarnessEventText
   testDeepSeekHarnessEventProcessOutcome
+  testDeepSeekHarnessEventFileStreamRetryCancellation
   testLoaderHMR
   testDeepSeekHarnessPayloadText
   testDeepSeekHarnessPayloadPersistence

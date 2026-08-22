@@ -1210,6 +1210,14 @@ The bounded algebra/context/global layer now has forty-five explicit pieces:
     records the file-backed route beside the exact restored-session equality. `withTempFile`
     cleanup is real, but fsync, stable media, crash recovery, in-flight interruption, process
     cleanup, external effects, and deployed Harness equivalence remain open.
+49. `Cordis.DeepSeekHarnessEventFileStreamRetryCancellation` writes the supported current-Harness
+    event JSONL fixture to a temporary file, reads it back as bytes, proves byte equality before
+    restoring the event archive/session, and feeds that restored runner to the existing
+    process-backed streamed cancellation trace. Its executable projection checks source/read byte
+    equality, `8 -> 11`, one retained round, two first-round calls, timeout cancellation, and model
+    `0`. Scoped cleanup is real; fsync, stable media, crash recovery, blocked-read interruption,
+    process cleanup, provider authenticity, external effects, and deployed Harness equivalence
+    remain open.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
