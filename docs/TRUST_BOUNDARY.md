@@ -505,6 +505,10 @@ the parsed source and both archive/semantic certificates, while `restoreBytesRun
 the exact `ByteArray`/UTF-8 equality and then reuses the text path. Invalid encoding and opaque or
 extension events remain structured failures; this does not prove logger framing, transport,
 persistence, or deployed Harness equivalence.
+`DeepSeekHarnessEventPrefix` is the IO-free incremental target below that ingress. Its dependent
+`Cursor.push` appends one decoded/refined event to the current session state and snoc trace, and
+its fuel-bounded `run` can return an explicit cooperative stop with the unread JSON suffix. It
+does not claim JSONL framing, blocked-read interruption, crash durability, or deployed equivalence.
 
 `DeepSeekHarnessEventProcessOutcome` is the next local composition seam: it carries a restored
 event runner through a caller-supplied streaming request source and the complete process-backed

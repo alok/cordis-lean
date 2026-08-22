@@ -300,6 +300,10 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekHarnessEventText`, lifting that certificate-gated event attachment to exact
   UTF-8/JSONL text and `ByteArray` ingress while retaining source/decoded text and rejecting
   invalid encoding or opaque/extension events;
+- `Cordis.DeepSeekHarnessEventPrefix`, exposing the pure append-only dependent cursor beneath
+  that ingress: each accepted JSON object extends `SessionRefinement.State` and a snoc protocol
+  trace, while fuel/cooperative entry stops retain the unread suffix without claiming framing,
+  blocked-read interruption, durability, or deployed Harness equivalence;
 - `Cordis.DeepSeekHarnessPayloadText`, composing the same text/byte restore with the raw
   `SessionPayloadArchive.PayloadLog` so block tags, usage, and tool-result metadata remain aligned
   with the runner without inventing provider-owned semantics;
@@ -1218,6 +1222,11 @@ The bounded algebra/context/global layer now has forty-five explicit pieces:
     `0`. Scoped cleanup is real; fsync, stable media, crash recovery, blocked-read interruption,
     process cleanup, provider authenticity, external effects, and deployed Harness equivalence
     remain open.
+50. `Cordis.DeepSeekHarnessEventPrefix` exposes the stateful pure target beneath that text seam.
+    `Cursor.push` decodes and refines one JSON object at a time, while `PrefixSequence` retains
+    the exact snoc protocol trace, raw entries, and endpoint state. `run` adds explicit fuel and
+    cooperative entry cancellation, preserving the unread suffix; JSONL framing, blocked-read
+    interruption, crash durability, and deployed Harness equivalence remain open.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a

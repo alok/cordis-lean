@@ -493,6 +493,13 @@ certificates, restores the typed runner only when every event is semantically su
 exposes the same final-session/request equalities. Invalid UTF-8 and opaque/extension events
 remain structured failures; no logger, transport, or deployed Harness equivalence is inferred.
 
+`Cordis.DeepSeekHarnessEventPrefix` is the pure incremental target for that ingress. Its
+append-only dependent `Cursor` decodes and refines one JSON object at a time, retaining the raw
+entry, the `SessionRefinement.State`, and a snoc-shaped intrinsic protocol trace after every
+accepted event. A fuel-bounded `run` can stop before the next object for an explicit cooperative
+policy; this is not JSONL framing, blocked-read interruption, crash durability, or deployed
+Harness equivalence.
+
 `Cordis.DeepSeekHarnessEventProcessOutcome` carries that restored runner through the existing
 complete process-backed rich-outcome adapter. Its dependent result keeps the prepared streaming
 request, process/response certificate, optional dependent tool execution, final runner endpoint,

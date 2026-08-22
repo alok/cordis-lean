@@ -2108,6 +2108,12 @@ exact source text (or source bytes plus the UTF-8 decoding equality), parsed arc
 validation, and restored runner in one dependent result. The byte path delegates to the text path;
 invalid encoding and opaque/extension events remain structured failures rather than being dropped.
 This does not add logger framing, transport, persistence, or deployed-Harness equivalence.
+`Cordis.DeepSeekHarnessEventPrefix` is the pure stateful target immediately below that text path.
+`Cursor.push` consumes one already-framed JSON object, decodes it, refines it against the current
+`SessionRefinement.State`, and appends a dependent `PrefixSequence` node carrying the exact
+protocol delta. `run` adds a finite fuel bound and a cooperative before-entry stop with an explicit
+unread suffix. Keep framing, blocked-read interruption, crash durability, and deployed equivalence
+as separate later contracts; this module is deliberately IO-free.
 `Cordis.DeepSeekHarnessEventProcessOutcome` then carries the restored runner through the
 complete process-backed rich-outcome adapter. Its dependent result keeps the prepared streaming
 request, response and dependent-tool certificate, final runner endpoint, raw event archive,

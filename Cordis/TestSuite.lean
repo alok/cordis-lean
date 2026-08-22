@@ -66,6 +66,7 @@ import Cordis.DeepSeekHarnessMixedPersistence
 import Cordis.DeepSeekHarnessSchemaLift
 import Cordis.DeepSeekHarnessMixedReplay
 import Cordis.DeepSeekHarnessEventText
+import Cordis.DeepSeekHarnessEventPrefix
 import Cordis.DeepSeekHarnessEventProcessOutcome
 import Cordis.LoaderHMR
 import Cordis.DeepSeekHarnessPayloadText
@@ -4515,6 +4516,52 @@ private def testDeepSeekHarnessEventText : IO Unit := do
   | .error error => fail s!"invalid event UTF-8 returned the wrong error: {reprStr error}"
   | .ok _ => fail "invalid event UTF-8 was accepted"
 
+private def testDeepSeekHarnessEventPrefix : IO Unit := do
+  match DeepSeekHarnessEventPrefix.toolPrefixRun with
+  | .error error => fail s!"current event prefix failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "current event prefix consumes the supported tool log"
+        result.consumed 8
+      assertEqual "current event prefix retains no completed-log remainder"
+        result.remaining.length 0
+      assertEqual "current event prefix reports completion"
+        result.stop.isCompleted true
+      assertEqual "current event prefix retains all raw entries"
+        result.entries 8
+      assertEqual "current event prefix reaches the validated session endpoint"
+        result.cursor.final.session.nextSeq 8
+      let _protocolCertificate :=
+        DeepSeekHarnessEventPrefix.PrefixSequence.protocolTrace_erase
+          result.cursor.sequence
+      let _projectionCertificate :=
+        DeepSeekHarnessEventPrefix.PrefixSequence.sessionProjection_eq
+          result.cursor.sequence
+      pure ()
+  match DeepSeekHarnessEventPrefix.run DeepSeekHarnessEventPrefix.EntryPolicy.never 1
+      [.null] with
+  | .error (.decode _) => pure ()
+  | .error error =>
+      fail s!"current event prefix returned the wrong malformed-event error: {reprStr error}"
+  | .ok _ => fail "current event prefix accepted a malformed JSON object"
+  match DeepSeekHarnessEventPrefix.run
+      (DeepSeekHarnessEventPrefix.EntryPolicy.atEntry 0 "prefix-cancelled") 1
+      [.null] with
+  | .error error => fail s!"current event prefix cancellation failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "current event prefix stops before the first event"
+        result.consumed 0
+      assertEqual "current event prefix leaves the cancelled event unread"
+        result.remaining.length 1
+      match result.stop with
+      | .cancelled entry reason _ =>
+          assertEqual "current event prefix cancellation entry" entry 0
+          assertEqual "current event prefix cancellation reason"
+            reason "prefix-cancelled"
+      | .completed | .fuelExhausted =>
+          fail "current event prefix returned the wrong stop reason"
+      let _cancellationCertificate :=
+        DeepSeekHarnessEventPrefix.run_cancelled_before_first 0 .null []
+
 private def testDeepSeekHarnessEventProcessOutcome : IO Unit := do
   match ← DeepSeekHarnessEventProcessOutcome.Example.text with
   | .error error => fail s!"current event process outcome failed: {reprStr error}"
@@ -6874,6 +6921,7 @@ def run : IO Unit := do
   testDeepSeekSchemaStreamErrors
   testDeepSeekHarnessEventArchive
   testDeepSeekHarnessEventText
+  testDeepSeekHarnessEventPrefix
   testDeepSeekHarnessEventProcessOutcome
   testDeepSeekHarnessEventFileStreamRetryCancellation
   testLoaderHMR

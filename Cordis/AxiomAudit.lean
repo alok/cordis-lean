@@ -63,6 +63,7 @@ import Cordis.DeepSeekHarnessMixedPersistence
 import Cordis.DeepSeekHarnessSchemaLift
 import Cordis.DeepSeekHarnessMixedReplay
 import Cordis.DeepSeekHarnessEventText
+import Cordis.DeepSeekHarnessEventPrefix
 import Cordis.DeepSeekHarnessEventProcessOutcome
 import Cordis.LoaderHMR
 import Cordis.DeepSeekHarnessPayloadText
@@ -1115,6 +1116,17 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessEventText.buildRequestCertificate
 #print axioms Cordis.DeepSeekHarnessEventText.toolTextRestored
 #print axioms Cordis.DeepSeekHarnessEventText.toolBytesRestored
+#print axioms Cordis.DeepSeekHarnessEventPrefix.PrefixSequence.protocolTrace_erase
+#print axioms Cordis.DeepSeekHarnessEventPrefix.PrefixSequence.sessionProjection_eq
+#print axioms Cordis.DeepSeekHarnessEventPrefix.Cursor.pushDecoded
+#print axioms Cordis.DeepSeekHarnessEventPrefix.Cursor.push
+#print axioms Cordis.DeepSeekHarnessEventPrefix.Cursor.pushDecoded_final
+#print axioms Cordis.DeepSeekHarnessEventPrefix.Cursor.pushDecoded_sessionProjection
+#print axioms Cordis.DeepSeekHarnessEventPrefix.run
+#print axioms Cordis.DeepSeekHarnessEventPrefix.runText
+#print axioms Cordis.DeepSeekHarnessEventPrefix.run_completed_empty
+#print axioms Cordis.DeepSeekHarnessEventPrefix.run_cancelled_before_first
+#print axioms Cordis.DeepSeekHarnessEventPrefix.toolPrefixRun
 #print axioms Cordis.DeepSeekHarnessEventProcessOutcome.EventProcessRound.process_exact
 #print axioms Cordis.DeepSeekHarnessEventProcessOutcome.EventProcessRound.endpoint_exact
 #print axioms Cordis.DeepSeekHarnessEventProcessOutcome.EventProcessRound.request_build_eq_restored_session
