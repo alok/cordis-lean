@@ -182,6 +182,7 @@ import Cordis.SessionExtensionArchive
 import Cordis.SessionOpaqueMetadata
 import Cordis.SessionArchive
 import Cordis.SessionEventArchive
+import Cordis.DeepSeekHarnessEventIgnorableProjection
 import Cordis.SessionPayloadArchive
 import Cordis.SessionValidation
 import Cordis.SessionTheoremBridge
@@ -573,6 +574,14 @@ set_option format.width 200
 #print axioms Cordis.SessionEventArchive.reject_log_only_surface_metadata
 #print axioms Cordis.SessionEventArchive.reject_known_nonobject_data
 #print axioms Cordis.SessionEventArchive.extensions_remain_opaque
+#print axioms Cordis.DeepSeekHarnessEventIgnorableProjection.makeDecisions_length
+#print axioms Cordis.DeepSeekHarnessEventIgnorableProjection.makeDecisions_events
+#print axioms Cordis.DeepSeekHarnessEventIgnorableProjection.Projection.source_raw
+#print axioms Cordis.DeepSeekHarnessEventIgnorableProjection.Projection.source_length
+#print axioms Cordis.DeepSeekHarnessEventIgnorableProjection.SupportedOccurrence.decoded_raw
+#print axioms Cordis.DeepSeekHarnessEventIgnorableProjection.SupportedProjection.occurrence_decode
+#print axioms Cordis.DeepSeekHarnessEventIgnorableProjection.ignorable_fixture_summary
+#print axioms Cordis.DeepSeekHarnessEventIgnorableProjection.required_fixture_rejected
 #print axioms Cordis.SessionPayloadArchive.PayloadLog.raw_exact
 #print axioms Cordis.SessionPayloadArchive.PayloadLog.length_exact
 #print axioms Cordis.SessionPayloadArchive.enrichEvent_raw

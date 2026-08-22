@@ -186,6 +186,7 @@ import Cordis.SessionExtensionArchive
 import Cordis.SessionOpaqueMetadata
 import Cordis.SessionArchive
 import Cordis.SessionEventArchive
+import Cordis.DeepSeekHarnessEventIgnorableProjection
 import Cordis.SessionPayloadArchive
 import Cordis.SessionValidation
 import Cordis.SessionTheoremBridge

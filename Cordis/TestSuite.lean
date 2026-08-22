@@ -60,6 +60,7 @@ import Cordis.DeepSeekSchemaStreamPrefixConversation
 import Cordis.DeepSeekSchemaStreamErrors
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
+import Cordis.DeepSeekHarnessEventIgnorableProjection
 import Cordis.DeepSeekHarnessExtensionArchive
 import Cordis.DeepSeekHarnessExtensionRequest
 import Cordis.DeepSeekHarnessExtensionPersistence
@@ -4652,6 +4653,27 @@ private def testDeepSeekHarnessEventArchive : IO Unit := do
           let _supportCertificate := restored.log.supported
           pure ()
 
+private def testDeepSeekHarnessEventIgnorableProjection : IO Unit := do
+  assertEqual "ignorable event projection keeps the physical archive length"
+    DeepSeekHarnessEventIgnorableProjection.ignorableFixtureSummary
+    (some (9, 8, [0, 1, 2, 3, 4, 5, 6, 7]))
+  assertEqual "ignorable event projection rejects required opaque rows"
+    DeepSeekHarnessEventIgnorableProjection.requiredFixtureSummary
+    (some (.requiredOpaque 8 "vendor/future-event"))
+  assertEqual "ignorable event projection fixture archive has nine rows"
+    (match DeepSeekHarnessEventIgnorableProjection.ignorableFixtureProjection with
+    | .error _ => false
+    | .ok projection => projection.projection.archive.events.length = 9)
+    true
+  match DeepSeekHarnessEventIgnorableProjection.ignorableFixtureProjection with
+  | .error error => fail s!"ignorable projection certificate failed: {reprStr error}"
+  | .ok projection =>
+      let _sourceCertificate :=
+        DeepSeekHarnessEventIgnorableProjection.SupportedProjection.source_raw projection
+      let _decodeCertificate :=
+        DeepSeekHarnessEventIgnorableProjection.SupportedProjection.occurrence_decode projection
+      pure ()
+
 private def testDeepSeekHarnessEventText : IO Unit := do
   match DeepSeekHarnessEventText.toolTextRestored with
   | .error error => fail s!"current event text restoration failed: {reprStr error}"
@@ -7198,6 +7220,7 @@ def run : IO Unit := do
   testDeepSeekSchemaStreamPrefixConversation
   testDeepSeekSchemaStreamErrors
   testDeepSeekHarnessEventArchive
+  testDeepSeekHarnessEventIgnorableProjection
   testDeepSeekHarnessEventText
   testDeepSeekHarnessEventPrefix
   testDeepSeekHarnessEventProcessPrefix

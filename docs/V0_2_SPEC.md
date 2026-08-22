@@ -297,6 +297,10 @@ Current machine-checked evidence includes:
   stateful semantic validation certificate before attaching current-Harness events to a
   `ConversationRunner`; opaque known/extension events reject restoration, while the supported
   tool-message fixture rebuilds a typed request;
+- `Cordis.DeepSeekHarnessEventIgnorableProjection`, recording positional keep/drop decisions for
+  the explicit `ignorable: true` envelope marker, retaining supported wire/raw certificates and
+  rejecting required opaque rows without pretending that physical sequence gaps are already
+  normalized for local session replay;
 - `Cordis.DeepSeekHarnessEventText`, lifting that certificate-gated event attachment to exact
   UTF-8/JSONL text and `ByteArray` ingress while retaining source/decoded text and rejecting
   invalid encoding or opaque/extension events;
@@ -920,7 +924,7 @@ relation whose union cycles, so the module requires `SupportOrder` directly. It 
 combined-edge well-founded recursion, proves uniqueness, and derives support-equals-active at
 quiescence under state-local provision totality, failure exclusion, and active-parent closure.
 
-The bounded algebra/context/global layer now has forty-five explicit pieces:
+The bounded algebra/context/global layer now has fifty-seven explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -1271,6 +1275,11 @@ The bounded algebra/context/global layer now has forty-five explicit pieces:
     Finish, assistant/tool append, and session indexing occur only for `.completed`; timeout, fuel,
     and cancellation stops are explicit nonterminal prefix errors. In-flight provider behavior,
     reconnects, and deployed asynchronous Harness equivalence remain outside this local adapter.
+57. `Cordis.DeepSeekHarnessEventIgnorableProjection` adds the source-authorized archive exception
+    for explicit `ignorable: true` rows. Its indexed ledger drops only opaque ignorable entries,
+    retains supported wire/raw certificates and source positions, and rejects required opaque
+    rows. It stops before local replay: physical sequence renumbering and semantic normalization
+    remain separate obligations.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a
@@ -1371,6 +1380,12 @@ that every archived event is non-opaque. `RestoredRunner` then exposes exact equ
 runner session and the validated final session, preserves the archive's raw-event ledger, and
 supports a proof-carrying request rebuild. The fixture is executable; known opaque and extension
 events are rejection cases rather than silently ignored records.
+
+`Cordis.DeepSeekHarnessEventIgnorableProjection` is the intentionally smaller source-authorized
+exception. It retains the full archive and a positional keep/drop ledger, drops only opaque rows
+marked `ignorable: true`, retains supported wire/raw certificates and positions, and rejects a
+required opaque vendor row. It stops before local replay: dropping a physical row leaves a sequence
+gap, so renumbering and semantic normalization remain separate obligations.
 
 `Cordis.DeepSeekHarnessEventText` is the direct text/byte ingress for this seam. Its text result
 retains the parsed source, archive lines, validated session, and restored runner; its byte result
