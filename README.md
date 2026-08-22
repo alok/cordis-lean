@@ -126,6 +126,18 @@ through the rich/tool/session continuation and turns a prefix fuel stop into an 
 stop instead of a fabricated terminal response. The deterministic round and two-round loop retain
 the raw/framing/status evidence beside the runner endpoint; blocked-read interruption, backpressure,
 reconnects, and deployed Harness equivalence remain external.
+`Cordis.DeepSeekCurlBytePrefixTimeout` adds a real `Std.Async.Sleep` deadline around each
+blocking process-byte read. A timer winner kills the configured child and returns a typed timeout
+that retains the accepted byte-prefix state, raw chunks, pending fragment, stderr, exit observation,
+and timeout line; blocked, delayed-prefix, and fast-completion fixtures exercise the three outcomes.
+This is local configured-child evidence only: arbitrary descendant cleanup, fairness, backpressure,
+provider/executable authenticity, durability, reconnects, and deployed Harness equivalence remain
+external.
+`Cordis.DeepSeekStreamHarnessBytePrefixTimeout` attaches that timed byte prefix to the existing
+dependent streamed conversation runner. Completed prefixes continue through finish, assistant/tool
+append, and session indexing; timeout, fuel, and cancellation stops remain explicit nonterminal
+errors rather than fabricated completions. The adapter does not claim in-flight provider semantics,
+reconnect behavior, or deployed asynchronous Harness equivalence.
 `Cordis.DeepSeekStreamFailure` preserves the two provider terminal-failure tags
 currently decoded by the wire layer (`content_filter` and
 `insufficient_system_resource`) as a raw, typed failure certificate. It does

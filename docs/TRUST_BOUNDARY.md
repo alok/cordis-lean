@@ -906,6 +906,16 @@ completed prefix witnesses feed the existing rich/tool/session append path, and 
 remain explicit nonterminal Harness stops. The tests establish only deterministic process/framing
 and runner evidence; they do not establish blocked-read interruption, backpressure, reconnect,
 provider-complete assembly, credentials, executable trust, or deployed equivalence.
+`Cordis.DeepSeekCurlBytePrefixTimeout` adds a real `Std.Async.Sleep` race around each blocking byte
+read. When the configured child deadline wins, the process is killed and the typed result retains
+the accepted prefix state, raw chunks, pending fragment, stderr, exit observation, and timeout line.
+Blocked, delayed-prefix, and fast-completion fixtures are executable. This is local configured-child
+evidence only; arbitrary descendant cleanup, fairness, backpressure, authenticity, durability,
+reconnects, and deployed Harness equivalence remain outside.
+`Cordis.DeepSeekStreamHarnessBytePrefixTimeout` composes completed timed prefixes with the dependent
+streamed conversation runner. Timeout, fuel, and cancellation stops remain explicit nonterminal
+prefix errors; no in-flight provider interruption, reconnect guarantee, or deployed asynchronous
+Harness equivalence is claimed.
 
 When an adapter such as `ToolWire` is used, textual resolution, decoding, and admission can
 fail closed before an `AuthorizedCall` is constructed. The adapter still supplies its resolver,
@@ -969,7 +979,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1914
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 1926
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.

@@ -997,6 +997,16 @@ provider-complete assembly, and deployed Harness equivalence remain unproved.
 existing rich/tool/session runner. Completed prefixes retain the exact body/framing/status witness
 beside the assistant/tool endpoint, while read-budget prefix stops become explicit nonterminal
 Harness stops. This remains finite process evidence rather than deployed or blocked-read semantics.
+`Cordis.DeepSeekCurlBytePrefixTimeout` adds the checked timer-driven byte-read boundary below that
+continuation. A real `Std.Async.Sleep` races each synchronous stdout-byte read; a configured-child
+timeout retains the accepted prefix state, raw chunks, pending fragment, stderr, exit observation,
+and timeout line, with blocked, delayed-prefix, and fast-completion fixtures. This remains local
+configured-process evidence, not arbitrary cleanup, fairness, backpressure, authenticity,
+durability, reconnect, or deployed Harness semantics.
+`Cordis.DeepSeekStreamHarnessBytePrefixTimeout` composes completed timed prefixes with the existing
+dependent streamed conversation runner. It retains the prefix witness beside finish, tool
+execution, and session indexing, while timeout/fuel/cancellation stops remain explicit nonterminal
+errors. In-flight provider behavior and deployed asynchronous equivalence remain unproved.
 
 The indexed follow-up `Cordis.GlobalPaperTraceScopedConfluence` refines the conditional
 confluence bridge over an explicit finite package family. Its selected links carry exact

@@ -1994,6 +1994,16 @@ completed prefix it reuses the existing dependent finish, assistant append, tool
 tool-result append; on a prefix fuel stop it returns an explicit nonterminal Harness stop. This
 keeps the process/framing witness adjacent to the session endpoint without claiming deployed
 provider behavior or interruptible IO.
+`Cordis.DeepSeekCurlBytePrefixTimeout` is the byte-level interruption layer above that reader.
+It races every synchronous byte read against `Std.Async.Sleep`; a timer winner kills the configured
+child and returns the accepted prefix state, raw chunks, pending fragment, stderr, exit observation,
+and timeout line as one typed result. The blocked, delayed-prefix, and fast-completion process
+fixtures are executable. Keep arbitrary descendant cleanup, fairness, backpressure, authenticity,
+durability, reconnects, and deployed semantics as separate obligations.
+`Cordis.DeepSeekStreamHarnessBytePrefixTimeout` is the continuation layer above the timed reader.
+Only a completed byte prefix enters finish, assistant/tool append, and session indexing. Timeout,
+fuel, and cancellation stops return explicit nonterminal prefix errors, so this layer does not turn a
+partial process read into a fabricated Harness completion or claim deployed async behavior.
 `Cordis.DeepSeekCurlSession` takes the terminal text subset one step further: it retains the
 process-backed wire certificate, runs the accepted rich/session projection, and returns the
 proof-carrying append-only runner. Source-event evidence, numeric local-ID assignment, and all

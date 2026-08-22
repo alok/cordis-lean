@@ -34,6 +34,7 @@ import Cordis.DeepSeekStreamIncremental
 import Cordis.DeepSeekStreamByteFraming
 import Cordis.DeepSeekCurlByteFraming
 import Cordis.DeepSeekCurlBytePrefix
+import Cordis.DeepSeekCurlBytePrefixTimeout
 import Cordis.DeepSeekRichStream
 import Cordis.DeepSeekRichToolStream
 import Cordis.DeepSeekRichMixedStream
@@ -80,6 +81,7 @@ import Cordis.DeepSeekHarnessCancellation
 import Cordis.DeepSeekStreamHarness
 import Cordis.DeepSeekStreamHarnessByte
 import Cordis.DeepSeekStreamHarnessBytePrefix
+import Cordis.DeepSeekStreamHarnessBytePrefixTimeout
 import Cordis.DeepSeekStreamHarnessCancellation
 import Cordis.DeepSeekStreamHarnessPrefix
 import Cordis.DeepSeekStreamHarnessErrors
@@ -2602,6 +2604,115 @@ private def testDeepSeekCurlBytePrefix : IO Unit := do
             reason "cancelled:byte-prefix"
       | .completed _ => fail "process byte-prefix cancellation completed"
       | .fuelExhausted => fail "process byte-prefix cancellation exhausted"
+
+private def testDeepSeekCurlBytePrefixTimeout : IO Unit := do
+  match ← DeepSeekCurlBytePrefixTimeout.blockedBytePrefixProcessRun with
+  | .error (.process (.spawn message)) => fail ("timed byte-prefix blocked spawn: " ++ message)
+  | .error (.process (.exited code stderr)) =>
+      fail ("timed byte-prefix blocked exit " ++ toString code ++ ": " ++ stderr)
+  | .error (.process (.malformedOutput message)) =>
+      fail ("timed byte-prefix blocked malformed output: " ++ message)
+  | .error (.process (.malformedStatus message)) =>
+      fail ("timed byte-prefix blocked malformed status: " ++ message)
+  | .error (.httpStatus status body) =>
+      fail ("timed byte-prefix blocked status " ++ toString status ++ ": " ++ body)
+  | .error (.framing error) => fail "timed byte-prefix blocked framing error"
+  | .error (.readLimit reads) => fail ("timed byte-prefix blocked read limit " ++ toString reads)
+  | .error .chunkSize => fail "timed byte-prefix blocked chunk size"
+  | .error (.bodyMismatch expected actual) =>
+      fail ("timed byte-prefix blocked body mismatch " ++ expected ++ " / " ++ actual)
+  | .error .sourceMismatch => fail "timed byte-prefix blocked source mismatch"
+  | .error (.io message) => fail ("timed byte-prefix blocked IO: " ++ message)
+  | .ok response =>
+      assertEqual "timed byte-prefix blocked fixture is timed out"
+        response.isTimedOut true
+      assertEqual "timed byte-prefix blocked fixture retains no chunks"
+        response.rawChunks.length 0
+      match stop : response.stop with
+      | .timedOut line timeoutMs =>
+          assertEqual "timed byte-prefix blocked entry is current prefix line"
+            line response.state.typed.line
+          assertEqual "timed byte-prefix blocked duration" timeoutMs 100
+          let _certificate := response.timeout_line_eq_prefix stop
+      | .completed _ | .fuelExhausted | .cancelled .. =>
+          fail "timed byte-prefix blocked fixture returned the wrong stop"
+  match ← DeepSeekCurlBytePrefixTimeout.delayedBytePrefixProcessRun with
+  | .error (.process (.spawn _)) => fail "timed byte-prefix delayed fixture spawn error"
+  | .error (.process (.exited code stderr)) =>
+      fail ("timed byte-prefix delayed fixture exit " ++ toString code ++ ": " ++ stderr)
+  | .error (.process (.malformedOutput _)) =>
+      fail "timed byte-prefix delayed fixture malformed output"
+  | .error (.process (.malformedStatus _)) =>
+      fail "timed byte-prefix delayed fixture malformed status"
+  | .error (.httpStatus _ _) => fail "timed byte-prefix delayed fixture returned status error"
+  | .error (.framing _) => fail "timed byte-prefix delayed fixture returned framing error"
+  | .error (.readLimit _) => fail "timed byte-prefix delayed fixture hit read limit"
+  | .error .chunkSize => fail "timed byte-prefix delayed fixture rejected chunk size"
+  | .error (.bodyMismatch _ _) => fail "timed byte-prefix delayed fixture body mismatch"
+  | .error .sourceMismatch => fail "timed byte-prefix delayed fixture source mismatch"
+  | .error (.io _) => fail "timed byte-prefix delayed fixture returned IO error"
+  | .ok response =>
+      assertEqual "timed byte-prefix delayed fixture is timed out"
+        response.isTimedOut true
+      assertEqual "timed byte-prefix delayed fixture retains stderr"
+        response.stderr "timeout-stderr\n"
+      assertEqual "timed byte-prefix delayed fixture parsed a prefix"
+        (decide (response.state.typed.line > 0)) true
+      assertEqual "timed byte-prefix delayed fixture retains output chunks"
+        (decide (response.rawChunks.length > 0)) true
+  match ← DeepSeekCurlBytePrefixTimeout.fastBytePrefixProcessRun with
+  | .error _ => fail "timed byte-prefix completion fixture failed"
+  | .ok response =>
+      assertEqual "timed byte-prefix completion fixture completes"
+        response.isCompleted true
+      assertEqual "timed byte-prefix completion body is exact"
+        response.state.typed.body DeepSeekStream.exampleStreamBody
+      assertEqual "timed byte-prefix completion exits successfully"
+        response.exitCode (some (0 : UInt32))
+
+  let initialRunner : DeepSeekHarness.ConversationRunner := {
+    session := DeepSeekHarness.counterSession
+    turn := 1
+    step := 0
+    nextCall := 0
+    toolCallCount_eq_nextCall := by rfl
+  }
+  let completionProcess := DeepSeekStreamHarness.streamFlagFixtureProcess
+    DeepSeekStreamHarness.counterToolStreamBody
+  match ← DeepSeekStreamHarnessBytePrefixTimeout.executeConversationTimedBytePrefixRound
+      DeepSeekSessionRunner.finishTool 4096 1 2000 completionProcess "https://fixture.invalid"
+      { value := "fixture-key" } DeepSeekHarness.counterRequestSource
+      Cordis.Harness.counterConfig 0 initialRunner [] (by simp) (by simp) with
+  | .error _ => fail "timed byte-prefix streamed Harness completion failed"
+  | .ok ⟨body, result⟩ =>
+      assertEqual "timed byte-prefix streamed Harness body is exact"
+        body DeepSeekStreamHarness.counterToolStreamBody
+      assertEqual "timed byte-prefix streamed Harness executes the tool"
+        result.round.finalModel 0
+      assertEqual "timed byte-prefix streamed Harness appends the result"
+        result.round.runner.session.nextSeq 3
+
+  let delayedProcess : DeepSeekCurlTransport.ProcessConfig := {
+    command := "sh"
+    args := fun _ => #[
+      "-c",
+      "request=$(cat); printf '%s\\n__CORDIS_HTTP_STATUS__200\\n' \"$1\"; " ++
+        "printf 'timeout-stream-stderr\\n' >&2; exec sleep 2",
+      "cordis-timed-byte-prefix-stream-fixture",
+      DeepSeekStreamHarness.counterToolStreamBody
+    ]
+  }
+  match ← DeepSeekStreamHarnessBytePrefixTimeout.executeConversationTimedBytePrefixRound
+      DeepSeekSessionRunner.finishTool 32 4096 100 delayedProcess "https://fixture.invalid"
+      { value := "fixture-key" } DeepSeekHarness.counterRequestSource
+      Cordis.Harness.counterConfig 0 initialRunner [] (by simp) (by simp) with
+  | .error (.prefixStop response) =>
+      assertEqual "timed byte-prefix streamed Harness timeout is typed"
+        response.isTimedOut true
+      assertEqual "timed byte-prefix streamed Harness timeout retains stderr"
+        response.stderr "timeout-stream-stderr\n"
+  | .error _ => fail "timed byte-prefix streamed Harness returned the wrong error"
+  | .ok _ => fail "timed byte-prefix streamed Harness ignored timeout"
 
 private def testDeepSeekRichStream : IO Unit := do
   match DeepSeekRichStream.validateTextStream DeepSeekRichStream.exampleTextStreamBody with
@@ -6988,6 +7099,7 @@ def run : IO Unit := do
   testDeepSeekStreamByteFraming
   testDeepSeekCurlByteFraming
   testDeepSeekCurlBytePrefix
+  testDeepSeekCurlBytePrefixTimeout
   testDeepSeekRichStream
   testDeepSeekRichToolStream
   testDeepSeekRichMixedStream

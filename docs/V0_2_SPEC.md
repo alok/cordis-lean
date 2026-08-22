@@ -1253,6 +1253,17 @@ The bounded algebra/context/global layer now has forty-five explicit pieces:
     the exact entries, final state, and protocol projection without reparsing. This is
     noncomputable proof packaging above the executable timeout module; raw `decodeEvents` equality,
     byte framing, authenticity, persistence, and deployed Harness refinement remain external.
+54. `Cordis.DeepSeekCurlBytePrefixTimeout` races each blocking process-byte read against a real
+    `Std.Async.Sleep`. A configured-child timer winner returns a typed timeout retaining the accepted
+    byte-prefix state, raw chunks, pending fragment, stderr, exit observation, and timeout line;
+    blocked, delayed-prefix, and fast-completion fixtures are executable. Arbitrary descendant
+    cleanup, fairness, backpressure, authenticity, durability, reconnects, and deployed semantics
+    remain external.
+55. `Cordis.DeepSeekStreamHarnessBytePrefixTimeout` composes completed timed byte prefixes with
+    the existing dependent streamed conversation runner. Finish, assistant/tool append, and session
+    indexing occur only for `.completed`; timeout, fuel, and cancellation stops are explicit
+    nonterminal prefix errors. In-flight provider behavior, reconnects, and deployed asynchronous
+    Harness equivalence remain outside this local adapter.
 
 The displayed fixed point in Definition 32 is not declared as a Lean inductive: its recursive
 variable occurs negatively in `Gamma -> Gamma`. `Approximation Base Sigma depth` is therefore a

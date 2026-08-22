@@ -77,6 +77,8 @@ import Cordis.DeepSeekHarnessCancellation
 import Cordis.DeepSeekStreamHarness
 import Cordis.DeepSeekStreamHarnessByte
 import Cordis.DeepSeekStreamHarnessBytePrefix
+import Cordis.DeepSeekCurlBytePrefixTimeout
+import Cordis.DeepSeekStreamHarnessBytePrefixTimeout
 import Cordis.DeepSeekStreamHarnessCancellation
 import Cordis.DeepSeekStreamHarnessPrefix
 import Cordis.DeepSeekStreamHarnessErrors
@@ -768,6 +770,14 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekCurlBytePrefix.executeSseBytePrefix
 #print axioms Cordis.DeepSeekCurlBytePrefix.BytePrefixResponse.isCompleted
 #print axioms Cordis.DeepSeekCurlBytePrefix.fixtureResponse
+#print axioms Cordis.DeepSeekCurlBytePrefixTimeout.BytePrefixTimeoutStop.isCompleted
+#print axioms Cordis.DeepSeekCurlBytePrefixTimeout.BytePrefixTimeoutStop.isTimedOut
+#print axioms Cordis.DeepSeekCurlBytePrefixTimeout.TimedBytePrefixResponse.timeout_line_eq_prefix
+#print axioms Cordis.DeepSeekCurlBytePrefixTimeout.executeSseBytePrefixWithTimeout
+#print axioms Cordis.DeepSeekCurlBytePrefixTimeout.blockedBytePrefixProcessRun
+#print axioms Cordis.DeepSeekCurlBytePrefixTimeout.delayedBytePrefixProcessRun
+#print axioms Cordis.DeepSeekCurlBytePrefixTimeout.fastBytePrefixProcessRun
+#print axioms Cordis.DeepSeekCurlBytePrefixTimeout.timeout_entry_eq_prefix
 #print axioms Cordis.DeepSeekStream.validateSseBytes
 #print axioms Cordis.DeepSeekRichStream.projectFrames
 #print axioms Cordis.DeepSeekRichStream.validateTextStream
@@ -1239,6 +1249,10 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekStreamHarnessByte.executeConversationMultiByteStreamRound
 #print axioms Cordis.DeepSeekStreamHarnessByte.runConversationMultiByteStream
 #print axioms Cordis.DeepSeekStreamHarnessBytePrefix.executeConversationBytePrefixRound
+#print axioms Cordis.DeepSeekStreamHarnessBytePrefixTimeout.executeConversationTimedBytePrefixRound
+#print axioms Cordis.DeepSeekStreamHarnessBytePrefixTimeout.executeConversationMultiTimedBytePrefixRound
+#print axioms Cordis.DeepSeekStreamHarnessBytePrefixTimeout.Example.timeout_stop_is_not_completed
+#print axioms Cordis.DeepSeekStreamHarnessBytePrefixTimeout.Example.timeout_stop_preserves_prefix_line
 #print axioms Cordis.DeepSeekStreamHarnessBytePrefix.executeConversationMultiBytePrefixRound
 #print axioms Cordis.DeepSeekStreamHarnessBytePrefix.runConversationMultiBytePrefix
 #print axioms Cordis.DeepSeekStreamHarnessCancellation.runConversationMultiStreamCancellable
