@@ -318,6 +318,13 @@ certificates, restores the typed runner only when every event is semantically su
 exposes the same final-session/request equalities. Invalid UTF-8 and opaque/extension events
 remain structured failures; no logger, transport, or deployed Harness equivalence is inferred.
 
+`Cordis.DeepSeekHarnessEventProcessOutcome` carries that restored runner through the existing
+complete process-backed rich-outcome adapter. Its dependent result keeps the prepared streaming
+request, process/response certificate, optional dependent tool execution, final runner endpoint,
+raw event archive, restored-session equality, and exact protocol projection together. The caller
+still supplies the request source; provider/schema/credential authenticity, blocked-read
+cancellation, persistence, and deployed Harness equivalence remain outside.
+
 `Cordis.DeepSeekHarnessPayloadText` adds the raw payload ledger to that result. Every archived
 event retains its payload object and block-tag classification, including reasoning/image blocks,
 usage, tool-result `error`/`meta`, and unknown block extensions, while the runner continues to use

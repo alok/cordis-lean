@@ -337,6 +337,13 @@ the exact `ByteArray`/UTF-8 equality and then reuses the text path. Invalid enco
 extension events remain structured failures; this does not prove logger framing, transport,
 persistence, or deployed Harness equivalence.
 
+`DeepSeekHarnessEventProcessOutcome` is the next local composition seam: it carries a restored
+event runner through a caller-supplied streaming request source and the complete process-backed
+rich-outcome adapter. The result retains the restored-session/raw-archive certificates and the
+prepared request, response, dependent-tool, endpoint, and protocol-projection certificates. It
+does not turn the event log into authenticated provider configuration or prove deployed runtime
+equivalence.
+
 `DeepSeekHarnessPayloadText` composes the same text/byte restore with
 `SessionPayloadArchive.PayloadLog`. Its dependent indices force the payload ledger and runner to
 describe the same parsed lines, while raw message blocks, usage, tool-result `error`/`meta`, and

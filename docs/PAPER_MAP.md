@@ -841,6 +841,13 @@ The following are intentionally not presented as completed formalization work.
     granularity. The mapped modules do not prove OS isolation, credential confinement,
     network/filesystem policy, or correctness of irreversible external effects.
 
+`Cordis.DeepSeekHarnessEventProcessOutcome` now composes the current-Harness event text/byte
+refinement with the complete process-backed rich-outcome adapter. A successful value retains the
+prepared streaming request, process/response certificate, dependent tool outcome, final runner,
+raw event archive, restored-session equality, and exact protocol projection. The request source
+is caller-supplied; provider/schema/credential authenticity, blocked-read cancellation,
+persistence, and deployed Harness equivalence remain outside this composition.
+
 ## Harness claims not established by this map
 
 Even though the local wire, stream, policy, and Harness modules execute deterministic reference

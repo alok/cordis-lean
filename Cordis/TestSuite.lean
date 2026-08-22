@@ -55,6 +55,7 @@ import Cordis.DeepSeekSchemaStreamErrors
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessEventText
+import Cordis.DeepSeekHarnessEventProcessOutcome
 import Cordis.DeepSeekHarnessPayloadText
 import Cordis.DeepSeekHarnessPayloadPersistence
 import Cordis.DeepSeekHarnessErrors
@@ -3598,6 +3599,18 @@ private def testDeepSeekHarnessEventText : IO Unit := do
   | .error error => fail s!"invalid event UTF-8 returned the wrong error: {reprStr error}"
   | .ok _ => fail "invalid event UTF-8 was accepted"
 
+private def testDeepSeekHarnessEventProcessOutcome : IO Unit := do
+  match ← DeepSeekHarnessEventProcessOutcome.Example.text with
+  | .error error => fail s!"current event process outcome failed: {reprStr error}"
+  | .ok body =>
+      assertEqual "current event process outcome preserves the fixture body"
+        body DeepSeekRichStream.exampleTextStreamBody
+  match ← DeepSeekHarnessEventProcessOutcome.Example.bytes with
+  | .error error => fail s!"current event byte process outcome failed: {reprStr error}"
+  | .ok body =>
+      assertEqual "current event byte process outcome preserves the fixture body"
+        body DeepSeekRichStream.exampleTextStreamBody
+
 private def testDeepSeekHarnessPayloadText : IO Unit := do
   match DeepSeekHarnessPayloadText.toolPayloadRestored with
   | .error error => fail s!"current payload text restoration failed: {reprStr error}"
@@ -5686,6 +5699,7 @@ def run : IO Unit := do
   testDeepSeekSchemaStreamErrors
   testDeepSeekHarnessEventArchive
   testDeepSeekHarnessEventText
+  testDeepSeekHarnessEventProcessOutcome
   testDeepSeekHarnessPayloadText
   testDeepSeekHarnessPayloadPersistence
   testDeepSeekStreamHarness

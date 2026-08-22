@@ -53,6 +53,7 @@ import Cordis.DeepSeekSchemaStreamErrors
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessEventText
+import Cordis.DeepSeekHarnessEventProcessOutcome
 import Cordis.DeepSeekHarnessPayloadText
 import Cordis.DeepSeekHarnessPayloadPersistence
 import Cordis.DeepSeekHarnessErrors
@@ -837,6 +838,13 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessEventText.buildRequestCertificate
 #print axioms Cordis.DeepSeekHarnessEventText.toolTextRestored
 #print axioms Cordis.DeepSeekHarnessEventText.toolBytesRestored
+#print axioms Cordis.DeepSeekHarnessEventProcessOutcome.EventProcessRound.process_exact
+#print axioms Cordis.DeepSeekHarnessEventProcessOutcome.EventProcessRound.endpoint_exact
+#print axioms Cordis.DeepSeekHarnessEventProcessOutcome.EventProcessRound.request_build_eq_restored_session
+#print axioms Cordis.DeepSeekHarnessEventProcessOutcome.executeRestoredOutcome
+#print axioms Cordis.DeepSeekHarnessEventProcessOutcome.executeRestoredBytesOutcome
+#print axioms Cordis.DeepSeekHarnessEventProcessOutcome.Example.text
+#print axioms Cordis.DeepSeekHarnessEventProcessOutcome.Example.bytes
 #print axioms Cordis.DeepSeekHarnessPayloadText.restoreTextPayloadRunner
 #print axioms Cordis.DeepSeekHarnessPayloadText.restoreBytesPayloadRunner
 #print axioms Cordis.DeepSeekHarnessPayloadText.RestoredPayloadRunner.session_eq
