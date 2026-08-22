@@ -1994,7 +1994,27 @@ private def testDeepSeekHarnessPersistenceStreamBytePrefixTimeout : IO Unit := d
         (DeepSeekHarnessPersistenceStreamBytePrefixTimeout.summaryMatchesFixture summary) true
       let _sessionCertificate :=
         DeepSeekHarnessPersistenceStreamBytePrefixTimeout.restored_session_eq_archive run
-      pure ()
+      match ← DeepSeekHarnessPersistenceStreamBytePrefixTimeout.runCompletedFixture with
+      | .error _ => fail "persisted completed timed byte-prefix fixture failed"
+      | .ok completed =>
+          let completedSummary :=
+            DeepSeekHarnessPersistenceStreamBytePrefixTimeout.completedSummary completed
+          assertEqual "persisted completed timed byte-prefix reaches final endpoint"
+            completedSummary.finalNextSeq
+            DeepSeekHarnessPersistenceStreamBytePrefixTimeout.executableCompletedFinalNextSeq
+          assertEqual "persisted completed timed byte-prefix retains two rounds"
+            completedSummary.roundCount
+            DeepSeekHarnessPersistenceStreamBytePrefixTimeout.executableCompletedRoundCount
+          assertEqual "persisted completed timed byte-prefix is not fuel exhausted"
+            completedSummary.fuelExhausted
+            DeepSeekHarnessPersistenceStreamBytePrefixTimeout.executableCompletedFuelExhausted
+          assertEqual "persisted completed timed byte-prefix executable projection agrees"
+            (DeepSeekHarnessPersistenceStreamBytePrefixTimeout.completedSummaryMatchesFixture
+              completedSummary) true
+          let _completedSessionCertificate :=
+            DeepSeekHarnessPersistenceStreamBytePrefixTimeout.completed_restored_session_eq_archive
+              completed
+          pure ()
 
 private def testDeepSeekHarnessProcessSchema : IO Unit := do
   match DeepSeekToolSchema.weatherToolCertificate,

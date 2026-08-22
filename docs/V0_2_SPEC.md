@@ -1233,11 +1233,12 @@ The bounded algebra/context/global layer now has forty-five explicit pieces:
     process cleanup, provider authenticity, external effects, and deployed Harness equivalence
     remain open.
 50. `Cordis.DeepSeekHarnessPersistenceStreamBytePrefixTimeout` composes the memory-backed
-    validated archive reader with the timed byte-prefix process adapter. Its executable fixture
-    restores archive `nextSeq = 8`, accepts one streamed tool round, then stops on caller fuel at
-    final `nextSeq = 10`, retaining model `0`, the round witness, and restored-session equality.
-    Durable media, crash recovery, blocked-read interruption, provider/process authenticity,
-    cleanup, external effects, and deployed Harness equivalence remain open.
+    validated archive reader with the timed byte-prefix process adapter. Its fuel fixture restores
+    archive `nextSeq = 8`, accepts one streamed tool round, then stops at `nextSeq = 10`; the
+    terminal companion switches bodies after the first tool result and completes at `nextSeq = 11`
+    after two rounds. Both retain model `0` and restored-session equality. Durable media, crash
+    recovery, blocked-read interruption, provider/process authenticity, cleanup, external effects,
+    and deployed Harness equivalence remain open.
 51. `Cordis.DeepSeekHarnessEventPrefix` exposes the stateful pure target beneath that text seam.
     `Cursor.push` decodes and refines one JSON object at a time, while `PrefixSequence` retains
     the exact snoc protocol trace, raw entries, and endpoint state. `run` adds explicit fuel and

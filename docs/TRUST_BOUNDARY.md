@@ -434,11 +434,12 @@ interruption, process cleanup, provider authenticity, external effects, and depl
 equivalence remain outside.
 
 `DeepSeekHarnessPersistenceStreamBytePrefixTimeout` is the bounded persistence-plus-byte-prefix
-composition. A memory archive restores the exact runner session, a configured local process
-accepts one streamed tool round, and caller fuel then returns a typed nonterminal stop at
-`nextSeq = 10` from archive `nextSeq = 8`, with model `0` and one retained round. This is a local
-fixture only: stable media, crash recovery, blocked-read interruption, cleanup, provider/process
-authenticity, external effects, and deployed Harness equivalence remain separate obligations.
+composition. A memory archive restores the exact runner session; the fuel fixture accepts one
+streamed tool round and returns a typed nonterminal stop at `nextSeq = 10` from archive `nextSeq = 8`, while its companion switches to terminal text after the first tool result and completes at
+`nextSeq = 11` after two rounds. Both retain model `0` and restored-session equality. This is a
+local fixture only: stable media, crash recovery, blocked-read interruption, cleanup,
+provider/process authenticity, external effects, and deployed Harness equivalence remain separate
+obligations.
 
 `DeepSeekHarnessTransportRetryCancellation` composes that trace with a caller-controlled
 pre-round cancellation policy. Its cancellation fixture proves that no request is issued before

@@ -13,6 +13,9 @@ fabricating a terminal response.
 The fixture is local process evidence.  It does not claim fsync, stable media, crash recovery,
 arbitrary descendant cleanup, provider or executable authenticity, backpressure, reconnects,
 or deployed asynchronous Harness equivalence.
+
+The completed companion fixture switches from the tool body to terminal text after the first
+tool-result request, so the same timed prefix boundary also exercises a two-round completion.
 -/
 
 set_option autoImplicit false
@@ -21,6 +24,7 @@ namespace Cordis.DeepSeekHarnessPersistenceStreamBytePrefixTimeout
 
 open Cordis
 open Cordis.DeepSeekApi
+open Cordis.DeepSeekCurlTransport
 open Cordis.DeepSeekHarness
 open Cordis.DeepSeekHarnessPersistenceIO
 open Cordis.DeepSeekSessionRunner
@@ -108,5 +112,70 @@ def runSummary : IO (Except EndToEndError ExecutableSummary) := do
   match ← runFixture with
   | .error error => pure (.error error)
   | .ok run => pure (.ok (summary run))
+
+/-! ## Completed two-round companion -/
+
+def CompletedFixtureProcess : ProcessConfig where
+  command := "sh"
+  args := fun _ => #[
+    "-c",
+    "body=$(cat); case \"$body\" in " ++
+      "*'[true,0]'*) printf '%s\\n__CORDIS_HTTP_STATUS__200\\n' \"$2\" ;; " ++
+      "*) printf '%s\\n__CORDIS_HTTP_STATUS__200\\n' \"$1\" ;; esac",
+    "cordis-timed-persist-completion-fixture",
+    DeepSeekStreamHarness.counterToolStreamBody,
+    Cordis.DeepSeekRichStream.exampleTextStreamBody
+  ]
+
+structure CompletedPersistedTimedRun where
+  restored : RestoredRunner
+  timed : TimedBytePrefixConversationRunResult FixtureConfig
+
+def runCompletedRestored
+    (restored : RestoredRunner) :
+    IO (Except TimedBytePrefixConversationError
+      (TimedBytePrefixConversationRunResult FixtureConfig)) :=
+  runConversationMultiTimedBytePrefix
+    (cfg := FixtureConfig) 2 4096 1 2000 CompletedFixtureProcess FixtureBaseUrl FixtureApiKey
+    FixtureSource EmptySources emptySources_nodup emptySources_earlier 0
+    restored.restored.runner
+
+def runCompletedFixture : IO (Except EndToEndError CompletedPersistedTimedRun) := do
+  match ← fixtureMemory with
+  | .error error => pure (.error (.store error))
+  | .ok restored =>
+      match ← runCompletedRestored restored with
+      | .error error => pure (.error (.timed error))
+      | .ok timed => pure (.ok { restored, timed })
+
+theorem completed_restored_session_eq_archive (run : CompletedPersistedTimedRun) :
+    run.restored.restored.runner.session =
+      run.restored.read.validated.validated.final.session :=
+  RestoredRunner.session_eq_read run.restored
+
+def completedSummary (run : CompletedPersistedTimedRun) : ExecutableSummary :=
+  {
+    initialNextSeq := run.restored.restored.runner.session.nextSeq
+    finalNextSeq := run.timed.runner.session.nextSeq
+    roundCount := run.timed.rounds.length
+    fuelExhausted := run.timed.stop.isCompleted = false
+    finalModel := run.timed.finalModel
+  }
+
+def executableCompletedFinalNextSeq : Nat := 11
+def executableCompletedRoundCount : Nat := 2
+def executableCompletedFuelExhausted : Bool := false
+
+def completedSummaryMatchesFixture (value : ExecutableSummary) : Bool :=
+  value.initialNextSeq = executableInitialNextSeq &&
+    value.finalNextSeq = executableCompletedFinalNextSeq &&
+    value.roundCount = executableCompletedRoundCount &&
+    value.fuelExhausted = executableCompletedFuelExhausted &&
+    value.finalModel = executableFinalModel
+
+def runCompletedSummary : IO (Except EndToEndError ExecutableSummary) := do
+  match ← runCompletedFixture with
+  | .error error => pure (.error error)
+  | .ok run => pure (.ok (completedSummary run))
 
 end Cordis.DeepSeekHarnessPersistenceStreamBytePrefixTimeout
