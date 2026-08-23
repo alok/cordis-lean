@@ -29,6 +29,7 @@ import Cordis.DeepSeekAsyncStreamHarness
 import Cordis.DeepSeekAsyncStreamHarnessTimeout
 import Cordis.DeepSeekExternalToolProcess
 import Cordis.DeepSeekExternalToolRound
+import Cordis.DeepSeekExternalGenericRound
 import Cordis.DeepSeekAsyncStreamCancellation
 import Cordis.DeepSeekAsyncStreamRetryCancellation
 import Cordis.DeepSeekStream
@@ -2535,6 +2536,72 @@ private def testDeepSeekExternalToolRound : IO Unit := do
           fail "external tool round decoded an unexpected value"
       | .error _ =>
         fail "external tool round decoded an unexpected typed failure"
+
+private def testDeepSeekExternalGenericRound : IO Unit := do
+  match ← DeepSeekExternalToolProcess.observe
+      DeepSeekExternalGenericRound.counterReadBinding
+      DeepSeekExternalGenericRound.counterReadInvocation with
+  | .error error => fail s!"external generic success fixture failed: {reprStr error}"
+  | .ok observed =>
+      match result_eq : observed.result with
+      | .ok value =>
+        let typedValue : Nat := value
+        if value_eq : typedValue = 7 then
+          if exit_eq : observed.process.exitCode = 0 then
+            have result_eq' := DeepSeekExternalGenericRound.counterReadResult_eq
+              result_eq value_eq
+            have post : Cordis.Examples.Counter.readSpec.post
+                DeepSeekExternalGenericRound.counterReadInvocation.input
+                DeepSeekExternalGenericRound.counterReadInvocation.before
+                observed.result (7 : Nat) := by
+              rw [result_eq']
+              simp [Cordis.Examples.Counter.readSpec,
+                DeepSeekExternalGenericRound.counterReadInvocation,
+                DeepSeekExternalGenericRound.counterReadCall,
+                Cordis.Examples.Counter.readCall]
+            let accepted := DeepSeekExternalToolProcess.accept exit_eq 7 post
+            let attached := DeepSeekExternalGenericRound.counterReadAttached
+              accepted result_eq' rfl
+            assertEqual "external generic dispatch advances the call id"
+              attached.runner.nextCall 1
+            assertEqual "external generic dispatch retains the certified model"
+              attached.runner.model 7
+            assertEqual "external generic dispatch appends one record"
+              attached.runner.records.length 1
+            assertEqual "external generic dispatch appends four physical events"
+              attached.session.events.length 4
+            assertEqual "external generic dispatch exposes one model message"
+              attached.session.messages.length 1
+            pure ()
+          else
+            fail "external generic success fixture returned a nonzero exit code"
+        else
+          fail "external generic success fixture decoded an unexpected value"
+      | .error _ => fail "external generic success fixture decoded an unexpected failure"
+  match ← DeepSeekExternalToolProcess.observe
+      DeepSeekExternalGenericRound.counterReadFailBinding
+      DeepSeekExternalGenericRound.counterReadInvocation with
+  | .error error => fail s!"external generic failure fixture was not observable: {reprStr error}"
+  | .ok observed =>
+      assertEqual "external generic failure retains the nonzero exit code"
+        observed.process.exitCode 7
+      match result_eq : observed.result with
+      | .ok value =>
+        let typedValue : Nat := value
+        if value_eq : typedValue = 7 then
+          if exit_eq : observed.process.exitCode = 7 then
+            assertEqual "external generic failure still decodes typed stdout"
+              typedValue 7
+            have nonzero : observed.process.exitCode ≠ 0 := by
+              rw [exit_eq]
+              decide
+            let _noAccepted := DeepSeekExternalGenericRound.noAccepted_of_nonzero nonzero
+            pure ()
+          else
+            fail "external generic failure fixture returned an unexpected exit code"
+        else
+          fail "external generic failure decoded an unexpected value"
+      | .error _ => fail "external generic failure did not retain the typed result"
 
 private def testDeepSeekAsyncStreamCancellation : IO Unit := do
   let race ← DeepSeekAsyncStreamCancellation.exampleCancellationRace
@@ -8756,6 +8823,7 @@ def run : IO Unit := do
   testDeepSeekAsyncStreamHarnessTimeout
   testDeepSeekExternalToolProcess
   testDeepSeekExternalToolRound
+  testDeepSeekExternalGenericRound
   testDeepSeekAsyncStreamCancellation
   testDeepSeekAsyncStreamRetryCancellation
   testDeepSeekStream

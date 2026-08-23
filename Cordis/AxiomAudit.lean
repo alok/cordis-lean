@@ -469,6 +469,11 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekExternalGenericRound.dispatchAccepted
 #print axioms Cordis.DeepSeekExternalGenericRound.attach
 #print axioms Cordis.DeepSeekExternalGenericRound.counterReadValidation
+#print axioms Cordis.DeepSeekExternalGenericRound.counterReadResult_eq
+#print axioms Cordis.DeepSeekExternalGenericRound.noAccepted_of_nonzero
+#print axioms Cordis.DeepSeekExternalGenericRound.counterReadExecution_of_eq
+#print axioms Cordis.DeepSeekExternalGenericRound.counterReadDispatch
+#print axioms Cordis.DeepSeekExternalGenericRound.counterReadAttached
 #print axioms Cordis.DeepSeekAsyncStreamCancellation.ProcessJobResult.phase_terminal_of_result
 #print axioms Cordis.DeepSeekAsyncStreamCancellation.ProcessJobResult.cancelled_preserves_endpoint
 #print axioms Cordis.DeepSeekAsyncStreamCancellation.RaceResult.winner_mem
