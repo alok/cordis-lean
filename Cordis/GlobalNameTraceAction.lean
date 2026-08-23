@@ -176,6 +176,175 @@ theorem trace_actors_transport
   cases eq
   rfl
 
+def transportTraceAssignment
+    {dynamics : Dynamics sig catalog Ambient} {inertia : InertiaPolicy dynamics}
+    {source source' target : State catalog Ambient}
+    (eq : source = source')
+    (trace : GlobalCalculus.Trace dynamics inertia source' target)
+    (assignment : TraceProgramAssignment dynamics inertia trace) :
+    TraceProgramAssignment dynamics inertia (eq ▸ trace) := by
+  cases eq
+  exact assignment
+
+structure BackwardActivationAssignmentTransport
+    {action : NameAction sig Ambient} {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia) where
+  transport : ∀ {before actedAfter : State catalog Ambient}
+    (beforeWf : WellFormed before)
+    {step : Step dynamics inertia (actState action before) actedAfter}
+    (_activationRule : IsProgramActivationRule step.rule)
+    (_source : ProgramOccurrence step),
+    ProgramOccurrence (unactUnifiedStep assumptions beforeWf step).original
+
+noncomputable def unactStepAssignment
+    {action : NameAction sig Ambient} {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    (activationTransport : BackwardActivationAssignmentTransport assumptions)
+    {before actedAfter : State catalog Ambient} (beforeWf : WellFormed before)
+    {step : Step dynamics inertia (actState action before) actedAfter}
+    (assignment : StepProgramAssignment step) :
+    StepProgramAssignment (unactUnifiedStep assumptions beforeWf step).original := by
+  let result := unactUnifiedStep assumptions beforeWf step
+  by_cases activationRule : IsProgramActivationRule step.rule
+  · refine { occurrence := ?_ }
+    intro _
+    exact activationTransport.transport beforeWf activationRule
+      (assignment.occurrence activationRule)
+  · refine StepProgramAssignment.ofNotActivation _ ?_
+    intro originalActivation
+    apply activationRule
+    rw [← result.same_rule]
+    exact originalActivation
+
+structure BackwardAssignedTraceAction
+    {action : NameAction sig Ambient} {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    {before actedAfter : State catalog Ambient}
+    (beforeWf : WellFormed before)
+    (trace : GlobalCalculus.Trace dynamics inertia (actState action before) actedAfter)
+    (assignment : TraceProgramAssignment dynamics inertia trace) where
+  originalAfter : State catalog Ambient
+  original : GlobalCalculus.Trace dynamics inertia before originalAfter
+  endpoint_eq : actState action originalAfter = actedAfter
+  originalAfter_wellFormed : WellFormed originalAfter
+  originalAssignment : TraceProgramAssignment dynamics inertia original
+  rules_eq : original.rules = trace.rules
+  actors_eq : original.actors.map (mapActor action) = trace.actors
+
+noncomputable def unactTraceAssignment
+    {action : NameAction sig Ambient} {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    (activationTransport : BackwardActivationAssignmentTransport assumptions)
+    {before actedAfter : State catalog Ambient} (beforeWf : WellFormed before)
+    (trace : GlobalCalculus.Trace dynamics inertia (actState action before) actedAfter)
+    (assignment : TraceProgramAssignment dynamics inertia trace) :
+    BackwardAssignedTraceAction assumptions beforeWf trace assignment :=
+  @GlobalCalculus.Trace.rec sig catalog Ambient dynamics inertia
+    (fun source target trace =>
+      ∀ (original : State catalog Ambient)
+        (sourceEq : actState action original = source)
+        (originalWf : WellFormed original)
+        (assignment : TraceProgramAssignment dynamics inertia (sourceEq.symm ▸ trace)),
+        BackwardAssignedTraceAction (before := original) (actedAfter := target)
+          assumptions originalWf (sourceEq.symm ▸ trace) assignment)
+    (fun state original sourceEq originalWf assignment => by
+      cases sourceEq
+      cases assignment
+      exact {
+        originalAfter := original
+        original := .nil original
+        endpoint_eq := rfl
+        originalAfter_wellFormed := originalWf
+        originalAssignment := .nil original
+        rules_eq := rfl
+        actors_eq := rfl })
+    (fun {source middle target} head tail ih original sourceEq originalWf assignment => by
+      cases sourceEq
+      cases assignment with
+      | cons headAssignment tailAssignment =>
+          let headResult := unactUnifiedStep assumptions originalWf head
+          have actedMiddleWf : WellFormed middle :=
+            head.preservesWellFormed (wellFormed_act action originalWf)
+          have originalMiddleWf : WellFormed headResult.originalAfter := by
+            rw [← wellFormed_act_iff action headResult.originalAfter]
+            rw [headResult.endpoint_eq]
+            exact actedMiddleWf
+          let tailAssignment' := @transportTraceAssignment sig catalog Ambient dynamics inertia
+            (actState action headResult.originalAfter) middle target
+            headResult.endpoint_eq tail tailAssignment
+          let tailResult := ih headResult.originalAfter headResult.endpoint_eq
+            originalMiddleWf tailAssignment'
+          exact {
+            originalAfter := tailResult.originalAfter
+            original := .cons headResult.original tailResult.original
+            endpoint_eq := tailResult.endpoint_eq
+            originalAfter_wellFormed := tailResult.originalAfter_wellFormed
+            originalAssignment := .cons
+              (unactStepAssignment assumptions activationTransport originalWf headAssignment)
+              tailResult.originalAssignment
+            rules_eq := by
+              simp only [GlobalCalculus.Trace.rules]
+              rw [headResult.same_rule]
+              exact congrArg (List.cons head.rule)
+                (tailResult.rules_eq.trans
+                  (trace_rules_transport headResult.endpoint_eq.symm tail))
+            actors_eq := by
+              simp only [GlobalCalculus.Trace.actors, List.map_cons]
+              have headActor :
+                  mapActor action headResult.original.actor = head.actor := by
+                change Actor.fiber (action.name headResult.original.actedName) =
+                  Actor.fiber head.actedName
+                exact congrArg Actor.fiber headResult.acted_name
+              rw [headActor]
+              exact congrArg (List.cons head.actor)
+                (tailResult.actors_eq.trans
+                  (trace_actors_transport headResult.endpoint_eq.symm tail)) })
+    (actState action before) actedAfter trace before rfl beforeWf assignment
+
+theorem unactTraceAssignment_wellFormed
+    {action : NameAction sig Ambient} {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    (activationTransport : BackwardActivationAssignmentTransport assumptions)
+    {before actedAfter : State catalog Ambient} (beforeWf : WellFormed before)
+    (trace : GlobalCalculus.Trace dynamics inertia (actState action before) actedAfter)
+    (assignment : TraceProgramAssignment dynamics inertia trace) :
+    WellFormed
+      (unactTraceAssignment assumptions activationTransport beforeWf trace
+        assignment).originalAfter :=
+by
+  exact (unactTraceAssignment assumptions activationTransport beforeWf trace
+    assignment).originalAfter_wellFormed
+
+theorem unactTraceAssignment_rules
+    {action : NameAction sig Ambient} {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    (activationTransport : BackwardActivationAssignmentTransport assumptions)
+    {before actedAfter : State catalog Ambient} (beforeWf : WellFormed before)
+    (trace : GlobalCalculus.Trace dynamics inertia (actState action before) actedAfter)
+    (assignment : TraceProgramAssignment dynamics inertia trace) :
+    (unactTraceAssignment assumptions activationTransport beforeWf trace
+      assignment).original.rules =
+      trace.rules :=
+  (unactTraceAssignment assumptions activationTransport beforeWf trace assignment).rules_eq
+
+theorem unactTraceAssignment_actors
+    {action : NameAction sig Ambient} {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    (activationTransport : BackwardActivationAssignmentTransport assumptions)
+    {before actedAfter : State catalog Ambient} (beforeWf : WellFormed before)
+    (trace : GlobalCalculus.Trace dynamics inertia (actState action before) actedAfter)
+    (assignment : TraceProgramAssignment dynamics inertia trace) :
+    (unactTraceAssignment assumptions activationTransport beforeWf trace
+      assignment).original.actors.map (mapActor action) = trace.actors :=
+  (unactTraceAssignment assumptions activationTransport beforeWf trace assignment).actors_eq
+
 structure BackwardTraceAction
     {action : NameAction sig Ambient} {dynamics : Dynamics sig catalog Ambient}
     {inertia : InertiaPolicy dynamics}

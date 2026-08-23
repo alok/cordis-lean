@@ -3041,6 +3041,12 @@ end Cordis.EffectContext
 #print axioms Cordis.GlobalNameTraceAction.unactTraceWithProjections_wellFormed
 #print axioms Cordis.GlobalNameTraceAction.unactTraceWithProjections_rules
 #print axioms Cordis.GlobalNameTraceAction.unactTraceWithProjections_actors
+#print axioms Cordis.GlobalNameTraceAction.transportTraceAssignment
+#print axioms Cordis.GlobalNameTraceAction.unactStepAssignment
+#print axioms Cordis.GlobalNameTraceAction.unactTraceAssignment
+#print axioms Cordis.GlobalNameTraceAction.unactTraceAssignment_wellFormed
+#print axioms Cordis.GlobalNameTraceAction.unactTraceAssignment_rules
+#print axioms Cordis.GlobalNameTraceAction.unactTraceAssignment_actors
 #print axioms Cordis.GlobalNameTraceAction.actTrace_preservesWellFormed
 #print axioms Cordis.GlobalNameTraceAction.actProgram
 #print axioms Cordis.GlobalNameTraceAction.actStepAssignment
