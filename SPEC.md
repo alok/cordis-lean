@@ -300,8 +300,8 @@ proof-carrying agent-harness executions. The delivered implementation combines:
 - exact and observational recovery for modeled state;
 - a certified pure two-call reordering theorem;
 - proof-carrying `Lean.Json` AST codecs for inputs and dependent results;
-- a checked reverse surface codec for text-only user messages and singleton-text tool results,
-  composed across canonical JSON AST, JSONL text, and UTF-8 bytes;
+- a checked reverse surface codec for text-only user messages, text/reasoning assistant messages,
+  and singleton-text tool results, composed across canonical JSON AST, JSONL text, and UTF-8 bytes;
 - indexed session, policy, stream, and lifecycle transitions;
 - raw event validation that reconstructs intrinsic typed traces;
 - a deterministic counter harness supporting finite steps and turns;

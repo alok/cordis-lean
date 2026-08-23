@@ -7477,6 +7477,61 @@ private def testSessionRefinementSurfaceCodec : IO Unit := do
   match SessionRefinement.SurfaceCodec.decodeWireEventsBytes (ByteArray.mk #[255]) with
   | .error (.text .invalidUtf8) => pure ()
   | result => fail s!"surface byte codec did not reject invalid UTF-8: {reprStr result}"
+  match SessionRefinement.SurfaceCodec.encodeWireEvent
+      SessionRefinement.SurfaceCodec.executableAssistantEvent with
+  | .error error => fail s!"assistant surface AST encoding failed: {reprStr error}"
+  | .ok json =>
+      match SessionRefinement.decodeEvent json with
+      | .error error => fail s!"assistant surface AST round trip failed: {reprStr error}"
+      | .ok event =>
+          match event.payload with
+          | .assistantMessage turn step append =>
+              assertEqual "assistant surface AST retains turn" turn.value 1
+              assertEqual "assistant surface AST retains step" step.value 2
+              match append.message with
+              | .assistant message =>
+                  assertEqual "assistant surface AST retains id" message.id
+                    "assistant-surface"
+                  assertEqual "assistant surface AST retains provider" message.provider
+                    "fixture-provider"
+                  assertEqual "assistant surface AST retains model" message.model
+                    "fixture-model"
+                  let tags := message.content.map fun block =>
+                    match block with
+                    | .text text => "text:" ++ text
+                    | .reasoning text => "reasoning:" ++ text
+                    | .image _ => "image"
+                    | .toolCall _ _ _ => "tool-call"
+                  assertEqual "assistant surface AST retains text/reasoning blocks" tags
+                    ["text:forecast", "reasoning:checked"]
+                  match message.usage with
+                  | some usage =>
+                      assertEqual "assistant surface AST retains input usage"
+                        usage.inputTokens.value 11
+                      assertEqual "assistant surface AST retains output usage"
+                        usage.outputTokens.value 7
+                      assertEqual "assistant surface AST retains cache usage"
+                        (usage.cacheReadTokens.map (fun value => value.value)) (some 3)
+                      assertEqual "assistant surface AST retains reasoning usage"
+                        (usage.reasoningTokens.map (fun value => value.value)) (some 2)
+                  | none => fail "assistant surface AST lost usage"
+              | .user _ => fail "assistant surface AST changed assistant role"
+              assertEqual "assistant surface AST retains append operation"
+                append.surfaceOp .append
+              assertEqual "assistant surface AST rejects source refs on output"
+                append.sourceEventSeqs none
+          | _ => fail "assistant surface AST changed assistant event payload"
+  match SessionRefinement.SurfaceCodec.encodeWireEventsText
+      [SessionRefinement.SurfaceCodec.executableAssistantEvent] with
+  | .error error => fail s!"assistant surface text encoding failed: {reprStr error}"
+  | .ok text =>
+      match SessionRefinement.SurfaceCodec.decodeWireEventsText text with
+      | .error error => fail s!"assistant surface text round trip failed: {reprStr error}"
+      | .ok [event] =>
+          match event.payload with
+          | .assistantMessage _ _ _ => pure ()
+          | _ => fail "assistant surface text changed event tag"
+      | .ok events => fail s!"assistant surface text changed event count: {events.length}"
   pure ()
 
 private def testSessionRefinementProcess : IO Unit := do

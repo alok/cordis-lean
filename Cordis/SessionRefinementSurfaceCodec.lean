@@ -10,10 +10,11 @@ fixtures.  The encoder emits the exact outer metadata required by the decoder, p
 typed safe-integer witnesses, and retains `isError` as data rather than translating it to a local
 success flag.
 
-Assistant surface messages, image blocks, request metadata, and provider/tool-owned opaque
-fields remain fail-closed.  A successful AST round trip is proved, then composed with the existing
-JSONL parser and UTF-8 renderer.  This is a source-shaped local codec, not a claim of deployed
-logger compatibility, provider obedience, or complete future event-union coverage.
+Assistant text/reasoning surface messages are now encoded as well as decoded.  Image and tool-call
+blocks, request metadata, source-event references, replacement operations, and provider/tool-owned
+opaque fields remain fail-closed.  A successful AST round trip is proved, then composed with the
+existing JSONL parser and UTF-8 renderer.  This is a source-shaped local codec, not a claim of
+deployed logger compatibility, provider obedience, or complete future event-union coverage.
 -/
 
 set_option autoImplicit false
@@ -26,6 +27,7 @@ open Cordis.SessionRefinement
 inductive EncodeError where
   | unsupportedPayload (tag : String)
   | unsupportedMessage (tag : String)
+  | unsupportedAssistantBlock (tag : String)
   deriving DecidableEq, Repr
 
 def rawObj (fields : List (String × Lean.Json)) : Lean.Json :=
@@ -60,6 +62,50 @@ def textBlockJson (block : WireTextBlock) : Lean.Json :=
 
 def textBlocksJson (blocks : List WireTextBlock) : Lean.Json :=
   .arr (blocks.map textBlockJson).toArray
+
+def assistantBlockJson : WireAssistantBlock → Except EncodeError Lean.Json
+  | .text text => .ok (rawObj [("type", .str "text"), ("text", .str text)])
+  | .reasoning text => .ok (rawObj [("type", .str "reasoning"), ("text", .str text)])
+  | .image _ => .error (.unsupportedAssistantBlock "image")
+  | .toolCall _ _ _ => .error (.unsupportedAssistantBlock "tool-call")
+
+def assistantBlocksJson (blocks : List WireAssistantBlock) :
+    Except EncodeError Lean.Json := do
+  let encoded ← blocks.mapM assistantBlockJson
+  .ok (.arr encoded.toArray)
+
+def wireUsageJson (usage : WireUsage) : Lean.Json :=
+  rawObj ([("inputTokens", safeNatJson usage.inputTokens),
+    ("outputTokens", safeNatJson usage.outputTokens)] ++
+    (match usage.cacheReadTokens with
+    | none => []
+    | some value => [("cacheReadTokens", safeNatJson value)]) ++
+    (match usage.cacheWriteTokens with
+    | none => []
+    | some value => [("cacheWriteTokens", safeNatJson value)]) ++
+    (match usage.reasoningTokens with
+    | none => []
+    | some value => [("reasoningTokens", safeNatJson value)]))
+
+def wireUsageFields (usage : Option WireUsage) : List (String × Lean.Json) :=
+  match usage with
+  | none => []
+  | some value => [("usage", wireUsageJson value)]
+
+def assistantSourceJson (message : WireAssistantMessage) : Lean.Json :=
+  rawObj [("kind", .str "model"), ("provider", .str message.provider),
+    ("model", .str message.model)]
+
+def assistantMessageJson (message : WireAssistantMessage) (content : Lean.Json) : Lean.Json :=
+  rawObj [("id", .str message.id), ("role", .str "assistant"),
+    ("source", assistantSourceJson message), ("content", content)]
+
+def assistantEventJson (seq time turn step : SafeNat) (message : WireAssistantMessage)
+    (content : Lean.Json) : Lean.Json :=
+  eventObj seq time "assistant/message"
+    (rawObj ([ ("turn", safeNatJson turn), ("step", safeNatJson step),
+      ("message", assistantMessageJson message content)] ++ wireUsageFields message.usage))
+    (surfaceFields none .append)
 
 def userMessageJson (message : WireUserMessage) : Lean.Json :=
   rawObj [("id", .str message.id), ("role", .str "user"),
@@ -101,6 +147,19 @@ def encodeToolResult (seq time : SafeNat) (result : WireToolResult) :
     Except EncodeError Lean.Json :=
   .ok (toolResultEvent seq time result)
 
+def encodeAssistantMessage (seq time turn step : SafeNat) (append : WireSurfaceAppend) :
+    Except EncodeError Lean.Json := do
+  let message ← match append.message with
+    | .assistant value => .ok value
+    | .user _ => .error (.unsupportedMessage "user/message")
+  let content ← assistantBlocksJson message.content
+  if append.sourceEventSeqs.isSome then
+    .error (.unsupportedPayload "assistant/sourceEventSeqs")
+  else
+    match append.surfaceOp with
+    | .append => .ok (assistantEventJson seq time turn step message content)
+    | .replace _ _ => .error (.unsupportedPayload "assistant/surfaceOp")
+
 def scalarError : Cordis.SessionRefinement.Codec.EncodeError → EncodeError
   | .unsupportedPayload tag => .unsupportedPayload tag
 
@@ -108,7 +167,8 @@ def encodeWireEvent (event : WireEvent) : Except EncodeError Lean.Json :=
   match event.payload with
   | .userMessage append => encodeUserMessage event.seq event.time append
   | .toolResult result => encodeToolResult event.seq event.time result
-  | .assistantMessage _ _ _ => .error (.unsupportedPayload "assistant/message")
+  | .assistantMessage turn step append =>
+      encodeAssistantMessage event.seq event.time turn step append
   | _ =>
       (Cordis.SessionRefinement.Codec.encodeWireEvent event).mapError scalarError
 
@@ -162,6 +222,71 @@ private theorem textBlocks_decode (path : List PathSegment) (blocks : List WireT
   change decodeTextBlocks.loop path 0 (blocks.map textBlockJson) = .ok blocks
   exact textBlocks_loop_decode path 0 blocks
 
+private theorem assistantBlock_decode (path : List PathSegment)
+    (block : WireAssistantBlock) {json : Lean.Json}
+    (encoded : assistantBlockJson block = .ok json) :
+    decodeAssistantBlock path json = .ok block := by
+  cases block with
+  | text text =>
+      cases encoded
+      simp_all (maxSteps := 1000000) [rawObj,
+        decodeAssistantBlock, decodeRequiredString, requireField, field?] <;> rfl
+  | reasoning text =>
+      cases encoded
+      simp_all (maxSteps := 1000000) [rawObj,
+        decodeAssistantBlock, decodeRequiredString, requireField, field?] <;> rfl
+  | image raw =>
+      simp [assistantBlockJson] at encoded
+  | toolCall providerId name arguments =>
+      simp [assistantBlockJson] at encoded
+
+private theorem assistantBlocks_loop_decode
+    (path : List PathSegment) (start : Nat) :
+    ∀ {blocks : List WireAssistantBlock} {jsons : List Lean.Json},
+      blocks.mapM assistantBlockJson = .ok jsons →
+      decodeAssistantBlocks.loop path start jsons = .ok blocks := by
+  intro blocks
+  induction blocks generalizing start with
+  | nil =>
+      intro jsons encoded
+      rw [List.mapM_nil] at encoded
+      cases encoded
+      rfl
+  | cons block blocks ih =>
+      intro jsons encoded
+      rw [List.mapM_cons] at encoded
+      cases headEncoded : assistantBlockJson block with
+      | error error =>
+          simp [headEncoded] at encoded
+          contradiction
+      | ok headJson =>
+          rw [headEncoded] at encoded
+          cases tailEncoded : List.mapM assistantBlockJson blocks with
+          | error error =>
+              simp [tailEncoded] at encoded
+              contradiction
+          | ok tailJsons =>
+              rw [tailEncoded] at encoded
+              cases encoded
+              simp [decodeAssistantBlocks.loop, Bind.bind, Except.bind,
+                assistantBlock_decode (indexPath path start) block headEncoded,
+                ih (start + 1) tailEncoded]
+
+private theorem assistantBlocks_decode_of_encoded
+    (path : List PathSegment) (blocks : List WireAssistantBlock)
+    {json : Lean.Json} (encoded : assistantBlocksJson blocks = .ok json) :
+    decodeAssistantBlocks path json = .ok blocks := by
+  unfold assistantBlocksJson at encoded
+  cases encodedList : List.mapM assistantBlockJson blocks with
+  | error error =>
+      simp [encodedList] at encoded
+      contradiction
+  | ok jsons =>
+      rw [encodedList] at encoded
+      cases encoded
+      change decodeAssistantBlocks.loop path 0 jsons = .ok blocks
+      exact assistantBlocks_loop_decode path 0 encodedList
+
 private theorem safeNatList_loop_decode (path : List PathSegment) (start : Nat)
     (values : List SafeNat) :
     decodeSafeNatList.loop path start (values.map safeNatJson) = .ok values := by
@@ -183,6 +308,32 @@ private theorem safeNat_decode (path : List PathSegment) (value : SafeNat) :
     decodeSafeNat path (safeNatJson value) = .ok value := by
   change decodeSafeNat path (Canonical.safeNatJson value) = .ok value
   exact Canonical.decodeSafeNat_safeNat path value
+
+private theorem wireUsage_decode (path : List PathSegment) (usage : WireUsage) :
+    decodeWireUsage path (wireUsageJson usage) = .ok usage := by
+  cases usage with
+  | mk inputTokens outputTokens cacheReadTokens cacheWriteTokens reasoningTokens =>
+      cases cacheReadTokens <;> cases cacheWriteTokens <;> cases reasoningTokens <;>
+        simp_all (maxSteps := 1000000) [Bind.bind, Except.bind, wireUsageJson, rawObj,
+          decodeWireUsage, decodeRequiredNat, decodeOptionalNat, requireField, field?,
+          safeNat_decode] <;> rfl
+
+private theorem assistantMessage_decode
+    (path : List PathSegment) (message : WireAssistantMessage)
+    {content : Lean.Json}
+    (encodedContent : assistantBlocksJson message.content = .ok content) :
+    decodeAssistantMessage path (assistantMessageJson message content) = .ok {
+      id := message.id
+      provider := message.provider
+      model := message.model
+      content := message.content
+      usage := none } := by
+  have decodedContent := assistantBlocks_decode_of_encoded
+    (fieldPath path "content") message.content encodedContent
+  unfold decodeAssistantMessage
+  simp_all (maxSteps := 1000000) [Bind.bind, Except.bind, assistantMessageJson,
+    assistantSourceJson, rawObj, decodeRequiredString, requireField, rejectPresent,
+    decodeOptionalWireUsage, field?] <;> rfl
 
 private theorem userMessage_decode (path : List PathSegment) (message : WireUserMessage) :
     decodeUserMessage path (userMessageJson message) = .ok message := by
@@ -380,6 +531,88 @@ theorem decode_userMessage (seq time : SafeNat) (message : WireUserMessage)
             textBlocks_loop_decode, safeNat_decode,
             safeNatList_decode] <;> rfl
 
+theorem decode_assistantMessage
+    (seq time turn step : SafeNat) (message : WireAssistantMessage)
+    {content : Lean.Json}
+    (encodedContent : assistantBlocksJson message.content = .ok content) :
+    decodeEvent (assistantEventJson seq time turn step message content) = .ok {
+      seq, time, payload := .assistantMessage turn step {
+        message := .assistant message
+        sourceEventSeqs := none
+        surfaceOp := .append } } := by
+  cases message with
+  | mk id provider model blocks usage =>
+      cases usage with
+      | none =>
+          let sourceMessage : WireAssistantMessage := {
+            id := id
+            provider := provider
+            model := model
+            content := blocks
+            usage := none }
+          have decodedMessage :
+              decodeAssistantMessage [.field "data", .field "message"]
+                (assistantMessageJson sourceMessage content) = .ok sourceMessage :=
+            assistantMessage_decode [.field "data", .field "message"] sourceMessage
+              encodedContent
+          simp only [assistantEventJson, eventObj, assistantMessageJson, assistantSourceJson,
+            rawObj, wireUsageFields, surfaceFields, surfaceOpJson, sourceEventSeqsFields,
+            decodeEvent]
+          unfold Cordis.SessionRefinement.decodeEventAt
+          simp only [Bind.bind, Except.bind,
+            Cordis.SessionRefinement.decodePayload,
+            Cordis.SessionRefinement.decodeAssistantMessageData,
+            Cordis.SessionRefinement.decodeSurfaceMetadata,
+            Cordis.SessionRefinement.decodeRequiredString,
+            Cordis.SessionRefinement.decodeRequiredNat,
+            Cordis.SessionRefinement.decodeOptionalWireUsage,
+            Cordis.SessionRefinement.requireField,
+            Cordis.SessionRefinement.rejectPresent,
+            Cordis.SessionRefinement.fieldPath,
+            Cordis.SessionRefinement.decodeString]
+          have decodedMessage' := decodedMessage
+          simp only [assistantMessageJson, assistantSourceJson, rawObj] at decodedMessage'
+          dsimp [sourceMessage] at decodedMessage'
+          simp_all (maxSteps := 1000000) [safeNat_decode]
+          rfl
+      | some usage =>
+          let sourceMessage : WireAssistantMessage := {
+            id := id
+            provider := provider
+            model := model
+            content := blocks
+            usage := none }
+          have decodedMessage :
+              decodeAssistantMessage [.field "data", .field "message"]
+                (assistantMessageJson sourceMessage content) = .ok sourceMessage :=
+            assistantMessage_decode [.field "data", .field "message"] sourceMessage
+              encodedContent
+          have decodedUsage :
+              decodeWireUsage [.field "data", .field "usage"] (wireUsageJson usage) = .ok usage :=
+            wireUsage_decode [.field "data", .field "usage"] usage
+          simp only [assistantEventJson, eventObj, assistantMessageJson, assistantSourceJson,
+            rawObj, wireUsageFields, surfaceFields, surfaceOpJson, sourceEventSeqsFields,
+            decodeEvent]
+          unfold Cordis.SessionRefinement.decodeEventAt
+          simp_all (maxSteps := 1000000) [Bind.bind, Except.bind,
+            Cordis.SessionRefinement.decodePayload,
+            Cordis.SessionRefinement.decodeAssistantMessageData,
+            Cordis.SessionRefinement.decodeSurfaceMetadata,
+            Cordis.SessionRefinement.decodeRequiredString,
+            Cordis.SessionRefinement.decodeRequiredNat,
+            Cordis.SessionRefinement.decodeOptionalWireUsage,
+            Cordis.SessionRefinement.requireField,
+            Cordis.SessionRefinement.rejectPresent,
+            Cordis.SessionRefinement.field?, Cordis.SessionRefinement.fieldPath,
+            Cordis.SessionRefinement.decodeString]
+          have decodedMessage' := decodedMessage
+          simp only [assistantMessageJson, assistantSourceJson, rawObj] at decodedMessage'
+          dsimp [sourceMessage] at decodedMessage'
+          have decodedUsage' := decodedUsage
+          simp only [wireUsageJson, rawObj] at decodedUsage'
+          simp_all (maxSteps := 1000000) [wireUsageJson, rawObj, safeNat_decode]
+          rfl
+
 theorem decode_encode {event : WireEvent} {json : Lean.Json}
     (encoded : encodeWireEvent event = .ok json) :
     decodeEvent json = .ok event := by
@@ -399,7 +632,33 @@ theorem decode_encode {event : WireEvent} {json : Lean.Json}
           cases encoded
           exact decode_toolResult seq time result
       | assistantMessage turn step append =>
-          simp [encodeWireEvent] at encoded
+          cases append with
+          | mk message sourceEventSeqs surfaceOp =>
+              cases message with
+              | user message =>
+                  simp_all [encodeWireEvent, encodeAssistantMessage, Bind.bind, Except.bind]
+              | assistant message =>
+                  cases sourceEventSeqs with
+                  | some sourceEventSeqs =>
+                      cases hContent : assistantBlocksJson message.content <;>
+                        simp [encodeWireEvent, encodeAssistantMessage, Bind.bind, Except.bind,
+                          hContent] at encoded
+                  | none =>
+                      cases surfaceOp with
+                      | replace start endSeq =>
+                          cases hContent : assistantBlocksJson message.content <;>
+                            simp [encodeWireEvent, encodeAssistantMessage, Bind.bind, Except.bind,
+                              hContent] at encoded
+                      | append =>
+                          cases hContent : assistantBlocksJson message.content with
+                          | error error =>
+                              simp_all [encodeWireEvent, encodeAssistantMessage, Bind.bind, Except.bind]
+                          | ok content =>
+                              simp only [encodeWireEvent, encodeAssistantMessage, Bind.bind, Except.bind]
+                                at encoded
+                              rw [hContent] at encoded
+                              cases encoded
+                              exact decode_assistantMessage seq time turn step message hContent
       | turnStart turn =>
           have scalar :
               Cordis.SessionRefinement.Codec.encodeWireEvent
@@ -663,6 +922,43 @@ theorem executableSurfaceEvents_encodable :
       executableToolResult], ?_⟩
   simp only [executableSurfaceEvents, List.mapM_cons, List.mapM_nil, encodeWireEvent,
     encodeUserMessage, encodeToolResult]
+  rfl
+
+def executableAssistantMessage : WireAssistantMessage := {
+  id := "assistant-surface"
+  provider := "fixture-provider"
+  model := "fixture-model"
+  content := [.text "forecast", .reasoning "checked"]
+  usage := some {
+    inputTokens := { value := 11, safe := by decide }
+    outputTokens := { value := 7, safe := by decide }
+    cacheReadTokens := some { value := 3, safe := by decide }
+    cacheWriteTokens := none
+    reasoningTokens := some { value := 2, safe := by decide }
+  }
+}
+
+def executableAssistantEvent : WireEvent := {
+  seq := { value := 8, safe := by decide }
+  time := { value := 108, safe := by decide }
+  payload := .assistantMessage { value := 1, safe := by decide } { value := 2, safe := by decide } {
+    message := .assistant executableAssistantMessage
+    sourceEventSeqs := none
+    surfaceOp := .append
+  }
+}
+
+theorem executableAssistantEvent_encodable :
+    ∃ json, encodeWireEvent executableAssistantEvent = .ok json := by
+  let content : Lean.Json := .arr #[
+    rawObj [("type", .str "text"), ("text", .str "forecast")],
+    rawObj [("type", .str "reasoning"), ("text", .str "checked")]]
+  refine ⟨assistantEventJson { value := 8, safe := by decide }
+    { value := 108, safe := by decide } { value := 1, safe := by decide }
+    { value := 2, safe := by decide } executableAssistantMessage content, ?_⟩
+  simp only [executableAssistantEvent, encodeWireEvent, encodeAssistantMessage,
+    executableAssistantMessage, assistantBlocksJson, assistantBlockJson, List.mapM_cons,
+    List.mapM_nil, Bind.bind, Except.bind, content]
   rfl
 
 end Cordis.SessionRefinement.SurfaceCodec
