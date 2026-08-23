@@ -12,9 +12,10 @@ token limit, response format, tool choice, and error-tool policy) remain adapter
 than being guessed from the generic session header.
 
 The resulting `PreparedRequest` retains the exact `ChatRequest`, the successful builder equation,
-the source/header agreement, and the session-message reconstruction equation.  Theorems recover
-the model, system, and tool metadata seen by the wire request.  No transport, credential, remote
-provider, or schema compatibility claim is made here.
+the source/header agreement, and the session-message reconstruction equation.  It can be lifted to
+raw, complete, or streaming request plans; the mode-indexed variants carry their `stream` flag in
+the type.  Theorems recover the model, system, and tool metadata seen by the wire request.  No
+transport, credential, remote provider, or schema compatibility claim is made here.
 -/
 
 set_option autoImplicit false
@@ -222,6 +223,111 @@ theorem buildRequestPlan_source
     (apiKey : ApiKey)
     (prepared : PreparedRequest request source encoder) :
     (buildRequestPlan baseUrl apiKey prepared).source = prepared.chat := rfl
+
+/-! ## Mode-indexed transport plans
+
+The raw `RequestPlan` above is useful for inspecting the JSON body, but it does not prevent a
+caller from handing a complete-response request to a streaming decoder (or the reverse).  The
+mode-indexed builders below reuse the same certified chat request and add only the existing
+`TypedRequestPlan` stream witness.  They still stop before transport, credentials, and provider
+behavior.
+-/
+
+def buildCompletePlan
+    {schema : Session.ExtensionSchema}
+    {session : Session.Session schema}
+    {request : Session.ModelRequest session}
+    {source : RequestSource}
+    {encoder : ToolSchemaEncoder}
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (prepared : PreparedRequest request source encoder) :
+    TypedRequestPlan .complete :=
+  DeepSeekApi.buildTypedCompleteRequest baseUrl apiKey prepared.chat
+
+def buildStreamingPlan
+    {schema : Session.ExtensionSchema}
+    {session : Session.Session schema}
+    {request : Session.ModelRequest session}
+    {source : RequestSource}
+    {encoder : ToolSchemaEncoder}
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (prepared : PreparedRequest request source encoder) :
+    TypedRequestPlan .streaming :=
+  DeepSeekApi.buildTypedStreamingRequest baseUrl apiKey prepared.chat
+
+theorem buildCompletePlan_source
+    {schema : Session.ExtensionSchema}
+    {session : Session.Session schema}
+    {request : Session.ModelRequest session}
+    {source : RequestSource}
+    {encoder : ToolSchemaEncoder}
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (prepared : PreparedRequest request source encoder) :
+    (buildCompletePlan baseUrl apiKey prepared).source = prepared.chat.asComplete := rfl
+
+theorem buildStreamingPlan_source
+    {schema : Session.ExtensionSchema}
+    {session : Session.Session schema}
+    {request : Session.ModelRequest session}
+    {source : RequestSource}
+    {encoder : ToolSchemaEncoder}
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (prepared : PreparedRequest request source encoder) :
+    (buildStreamingPlan baseUrl apiKey prepared).source = prepared.chat.asStreaming := rfl
+
+theorem buildCompletePlan_model
+    {schema : Session.ExtensionSchema}
+    {session : Session.Session schema}
+    {request : Session.ModelRequest session}
+    {source : RequestSource}
+    {encoder : ToolSchemaEncoder}
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (prepared : PreparedRequest request source encoder) :
+    (buildCompletePlan baseUrl apiKey prepared).source.model = request.header.model := by
+  rw [buildCompletePlan_source]
+  exact prepared.chat_model_eq_header
+
+theorem buildStreamingPlan_model
+    {schema : Session.ExtensionSchema}
+    {session : Session.Session schema}
+    {request : Session.ModelRequest session}
+    {source : RequestSource}
+    {encoder : ToolSchemaEncoder}
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (prepared : PreparedRequest request source encoder) :
+    (buildStreamingPlan baseUrl apiKey prepared).source.model = request.header.model := by
+  rw [buildStreamingPlan_source]
+  exact prepared.chat_model_eq_header
+
+theorem buildCompletePlan_is_complete
+    {schema : Session.ExtensionSchema}
+    {session : Session.Session schema}
+    {request : Session.ModelRequest session}
+    {source : RequestSource}
+    {encoder : ToolSchemaEncoder}
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (prepared : PreparedRequest request source encoder) :
+    (buildCompletePlan baseUrl apiKey prepared).source.stream = false :=
+  TypedRequestPlan.complete_source_stream _
+
+theorem buildStreamingPlan_is_streaming
+    {schema : Session.ExtensionSchema}
+    {session : Session.Session schema}
+    {request : Session.ModelRequest session}
+    {source : RequestSource}
+    {encoder : ToolSchemaEncoder}
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (prepared : PreparedRequest request source encoder) :
+    (buildStreamingPlan baseUrl apiKey prepared).source.stream = true :=
+  TypedRequestPlan.streaming_source_stream _
 
 /-! A deliberately structural encoder for fixtures with no tools.  Real deployments should
 provide a parser-backed encoder and prove the `ToolSchema` input-schema contract separately. -/

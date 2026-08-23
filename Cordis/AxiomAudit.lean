@@ -1226,6 +1226,10 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekSessionRequest.PreparedRequest.source_system_eq_header
 #print axioms Cordis.DeepSeekSessionRequest.PreparedRequest.chat_tools_eq_header
 #print axioms Cordis.DeepSeekSessionRequest.buildRequestPlan
+#print axioms Cordis.DeepSeekSessionRequest.buildCompletePlan
+#print axioms Cordis.DeepSeekSessionRequest.buildStreamingPlan
+#print axioms Cordis.DeepSeekSessionRequest.buildCompletePlan_is_complete
+#print axioms Cordis.DeepSeekSessionRequest.buildStreamingPlan_is_streaming
 #print axioms Cordis.DeepSeekHarnessExtensions.buildRequestPlanFor
 #print axioms Cordis.DeepSeekHarnessExtensions.buildTypedRequestPlanFor
 #print axioms Cordis.DeepSeekHarnessExtensions.buildStreamingRequestPlanFor

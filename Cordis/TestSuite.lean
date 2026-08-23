@@ -2744,6 +2744,24 @@ private def testDeepSeekSessionRequest : IO Unit := do
               let _request_builder_certificate :=
                 DeepSeekSessionRequest.buildRequestPlan_source
                   "http://127.0.0.1:0" { value := "test-key" } certified
+              let completePlan := DeepSeekSessionRequest.buildCompletePlan
+                "http://127.0.0.1:0" { value := "test-key" } certified
+              assertEqual "indexed DeepSeek complete plan is non-streaming"
+                completePlan.source.stream false
+              assertEqual "indexed DeepSeek complete plan preserves the model"
+                completePlan.source.model request.header.model
+              let _complete_mode_certificate :=
+                DeepSeekSessionRequest.buildCompletePlan_is_complete
+                  "http://127.0.0.1:0" { value := "test-key" } certified
+              let streamingPlan := DeepSeekSessionRequest.buildStreamingPlan
+                "http://127.0.0.1:0" { value := "test-key" } certified
+              assertEqual "indexed DeepSeek streaming plan is streaming"
+                streamingPlan.source.stream true
+              assertEqual "indexed DeepSeek streaming plan preserves the model"
+                streamingPlan.source.model request.header.model
+              let _stream_mode_certificate :=
+                DeepSeekSessionRequest.buildStreamingPlan_is_streaming
+                  "http://127.0.0.1:0" { value := "test-key" } certified
               let _request_certificate :=
                 GenericSessionHarness.RunnerState.prepareRequestStep_modelRequest
                   (state := state) (prepared := prepared) prepared_eq

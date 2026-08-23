@@ -77,8 +77,10 @@ or Harness equivalence.
 `Cordis.DeepSeekSessionRequest` consumes the resulting indexed `Session.ModelRequest`: its
 `SourceAgreement` requires exact model, system-prompt, and encoded tool-schema equalities before
 `PreparedRequest` can retain the successful schema-generic `ChatRequest` build and an exact
-`RequestPlan`. Optional DeepSeek controls stay explicit adapter policy; provider behavior,
-parser-backed tool-schema validity, credentials, and transport remain external.
+`RequestPlan`. The prepared request can also be lifted to a complete or streaming
+`TypedRequestPlan`, with the mode-specific `stream` flag carried in the type. Optional DeepSeek
+controls stay explicit adapter policy; provider behavior, parser-backed tool-schema validity,
+credentials, and transport remain external.
 `Cordis.DeepSeekAsyncStreamCancellation` carries the typed pre-round cancellation policy through
 that race. Its fixture cancels one child before dispatch while the other remains a real streamed
 tool/text continuation; the accepted cancellation result preserves its reason, unchanged
@@ -372,9 +374,10 @@ Current machine-checked evidence includes:
   certificates, a schema-preserving assistant append, and an indexed terminal-response runner
   are included;
 - `Cordis.DeepSeekSessionRequest`, which requires a `SourceAgreement` between an indexed
-  `Session.ModelRequest` and the DeepSeek source before retaining the successful `ChatRequest` and
-  exact `RequestPlan`; model/system/tool-schema metadata is explicit, while provider controls and
-  parser-backed schema validity remain adapter obligations;
+  `Session.ModelRequest` and the DeepSeek source before retaining the successful `ChatRequest`, an
+  exact raw `RequestPlan`, and mode-indexed complete/streaming plans; model/system/tool-schema
+  metadata is explicit, while provider controls and parser-backed schema validity remain adapter
+  obligations;
 - `Cordis.DeepSeekHarnessProcessOutcome`, retaining a typed `stream: true` request plan through
   complete-body provider-failure or rich terminal classification, dependent tool execution, and
   the final `ConversationRunner` endpoint;
