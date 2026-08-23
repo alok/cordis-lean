@@ -2634,6 +2634,12 @@ response and callback-visible lines, classifies the reconstructed body through
 the local runner. The failure branch intentionally leaves the runner unchanged; retry,
 `isError`-message, cancellation, reconnect, credential, provider-complete assembly, and deployed
 equivalence policies remain caller/deployment obligations.
+`Cordis.DeepSeekHarnessLocalSseOutcome` is the loopback HTTP/SSE counterpart: reuse the typed
+request plan and one-shot fixture, run real curl through `executeOutcome`, and retain the body,
+wire certificate, terminal outcome, dispatch endpoint, request report, and server exit together.
+The failure branch must remain a runner no-op; successful rich branches may append only after the
+existing dependent finisher succeeds. Do not infer byte framing, cancellation, reconnect,
+credential authenticity, provider completeness, or deployed equivalence from this fixture.
 `Cordis.DeepSeekCurlPrefix` is the typed process counterpart: it advances `PrefixState` before
 requesting the next complete line, retains the raw process body separately from the normalized
 prefix certificate, and uses the same line policy for synchronous fuel/cancellation stops. Its

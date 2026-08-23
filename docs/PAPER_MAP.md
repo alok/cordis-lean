@@ -405,6 +405,7 @@ Local sources: [`Cordis/RichStream.lean`](../Cordis/RichStream.lean),
 [`Cordis/DeepSeekCurlSession.lean`](../Cordis/DeepSeekCurlSession.lean),
 [`Cordis/DeepSeekCurlIncremental.lean`](../Cordis/DeepSeekCurlIncremental.lean),
 [`Cordis/DeepSeekCurlIncrementalOutcome.lean`](../Cordis/DeepSeekCurlIncrementalOutcome.lean),
+[`Cordis/DeepSeekHarnessLocalSseOutcome.lean`](../Cordis/DeepSeekHarnessLocalSseOutcome.lean),
 [`Cordis/DeepSeekStream.lean`](../Cordis/DeepSeekStream.lean), and
 [`Cordis/DeepSeekRichStream.lean`](../Cordis/DeepSeekRichStream.lean), and
 [`Cordis/DeepSeekRichToolStream.lean`](../Cordis/DeepSeekRichToolStream.lean), and

@@ -73,6 +73,7 @@ import Cordis.DeepSeekHarnessLiveProbe
 import Cordis.DeepSeekHarnessLiveStreamProbe
 import Cordis.DeepSeekHarnessLocalHttp
 import Cordis.DeepSeekHarnessLocalSse
+import Cordis.DeepSeekHarnessLocalSseOutcome
 import Cordis.DeepSeekHarnessLocalSseIndexed
 import Cordis.DeepSeekHarnessLocalSseIndexedLoop
 import Cordis.DeepSeekHarnessLocalSseRetry
@@ -2379,6 +2380,47 @@ private def testDeepSeekCurlIncrementalOutcome : IO Unit := do
       assertEqual "incremental outcome text dispatch stores the assistant"
         runner.session.messages [.assistant "Hello world" []]
   | .ok _ => fail "incremental outcome text dispatch did not append an assistant"
+
+private def testDeepSeekHarnessLocalSseOutcome : IO Unit := do
+  match ← Cordis.DeepSeekHarnessLocalSseOutcome.Example.failureRun with
+  | .error error => fail s!"loopback SSE terminal failure failed: {reprStr error}"
+  | .ok ⟨body, result⟩ =>
+      assertEqual "loopback SSE terminal failure preserves the exact body"
+        body Cordis.DeepSeekHarnessLocalSseOutcome.Example.failureBody
+      assertEqual "loopback SSE terminal failure validates one request"
+        (result.requests, result.validRequests) (1, 1)
+      assertEqual "loopback SSE terminal failure retains all failure frames"
+        result.response.wire.frames.length 3
+      assertEqual "loopback SSE terminal failure classifies provider failure"
+        (DeepSeekTerminalOutcome.TerminalOutcome.kind result.processed.outcome)
+        .providerFailure
+      match result.dispatch with
+      | .providerFailure validated runner =>
+          assertEqual "loopback SSE terminal failure preserves content-filter reason"
+            validated.view.reason .contentFilter
+          assertEqual "loopback SSE terminal failure leaves the runner sequence unchanged"
+            runner.session.nextSeq Cordis.DeepSeekHarnessLocalSseOutcome.Example.runner.session.nextSeq
+      | .appended _ _ => fail "loopback SSE terminal failure appended an assistant"
+      let _exact := result.outcome_exact
+      let _serverExit := result.server_exited_successfully
+  match ← Cordis.DeepSeekHarnessLocalSseOutcome.Example.textRun with
+  | .error error => fail s!"loopback SSE terminal text failed: {reprStr error}"
+  | .ok ⟨body, result⟩ =>
+      assertEqual "loopback SSE terminal text preserves the exact body"
+        body Cordis.DeepSeekHarnessLocalSseOutcome.Example.textBody
+      assertEqual "loopback SSE terminal text validates one request"
+        (result.requests, result.validRequests) (1, 1)
+      assertEqual "loopback SSE terminal text retains the exact text frames"
+        result.response.wire.frames.length 3
+      assertEqual "loopback SSE terminal text classifies successful text"
+        (DeepSeekTerminalOutcome.TerminalOutcome.kind result.processed.outcome) .text
+      match result.dispatch with
+      | .providerFailure _ _ => fail "loopback SSE terminal text remained a provider failure"
+      | .appended _ runner =>
+          assertEqual "loopback SSE terminal text appends an assistant"
+            runner.session.nextSeq (Cordis.DeepSeekHarnessLocalSseOutcome.Example.runner.session.nextSeq + 1)
+      let _exact := result.outcome_exact
+      let _serverExit := result.server_exited_successfully
 
 private def testDeepSeekCurlPrefix : IO Unit := do
   match ← DeepSeekCurlPrefix.fixtureResponse with
@@ -9550,6 +9592,7 @@ def run : IO Unit := do
   testDeepSeekHarnessProcessSchemaPrefixConversation
   testDeepSeekCurlIncremental
   testDeepSeekCurlIncrementalOutcome
+  testDeepSeekHarnessLocalSseOutcome
   testDeepSeekCurlPrefix
   testDeepSeekCurlPrefixSession
   testDeepSeekAsyncHarness

@@ -309,6 +309,12 @@ cancellation, and deployment semantics remain explicit runtime obligations.
 sum and local session runner: provider failures retain their exact certificate and unchanged
 runner, while successful rich outcomes finish and append. Byte-level framing, backpressure,
 cancellation, reconnects, provider-complete assembly, and deployed equivalence remain external.
+`Cordis.DeepSeekHarnessLocalSseOutcome` carries that outcome sum across the real loopback HTTP/SSE
+boundary: the typed streaming request is checked by the one-shot server, curl lines are retained
+with the strict wire certificate, provider failures leave the indexed runner unchanged, and
+successful text/tool/mixed/multi outcomes append through the dependent conversation runner. This
+remains local process/HTTP evidence; byte framing, backpressure, cancellation, reconnects,
+provider obedience, credential/TLS authenticity, and deployed equivalence remain external.
 `Cordis.DeepSeekCurlPrefix` connects that process boundary to the proof-carrying
 prefix state: each accepted process line updates the typed body/frame state,
 and a line policy can stop before the next read while cleanup kills and waits

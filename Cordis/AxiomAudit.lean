@@ -63,6 +63,7 @@ import Cordis.DeepSeekHarnessLiveProbe
 import Cordis.DeepSeekHarnessLiveStreamProbe
 import Cordis.DeepSeekHarnessLocalHttp
 import Cordis.DeepSeekHarnessLocalSse
+import Cordis.DeepSeekHarnessLocalSseOutcome
 import Cordis.DeepSeekHarnessLocalSseIndexed
 import Cordis.DeepSeekHarnessLocalSseIndexedLoop
 import Cordis.DeepSeekHarnessLocalSseRetry
@@ -699,6 +700,11 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessLocalSse.PreparedStreamingRequest.body_eq_source
 #print axioms Cordis.DeepSeekHarnessLocalSse.LocalSseResult.nextSeq
 #print axioms Cordis.DeepSeekHarnessLocalSse.Example.expectedSummary_complete
+#print axioms Cordis.DeepSeekHarnessLocalSseOutcome.PreparedOutcomeRequest.streaming_mode
+#print axioms Cordis.DeepSeekHarnessLocalSseOutcome.PreparedOutcomeRequest.body_eq_source
+#print axioms Cordis.DeepSeekHarnessLocalSseOutcome.OutcomeResult.streaming_mode
+#print axioms Cordis.DeepSeekHarnessLocalSseOutcome.OutcomeResult.outcome_exact
+#print axioms Cordis.DeepSeekHarnessLocalSseOutcome.OutcomeResult.server_exited_successfully
 #print axioms Cordis.DeepSeekHarnessLocalSseRetry.LocalSseRetryResult.retry_count
 #print axioms Cordis.DeepSeekHarnessLocalSseRetry.LocalSseRetryResult.accepted_streaming
 #print axioms Cordis.DeepSeekHarnessLocalSseRetry.LocalSseRetryResult.nextSeq

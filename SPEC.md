@@ -1101,6 +1101,12 @@ claim:
    dispatch; failures preserve the runner, while successes append. It adds no
    byte-level, backpressure, cancellation, reconnect, provider-complete, or
    deployed-equivalence guarantee.
+   `Cordis.DeepSeekHarnessLocalSseOutcome` carries that outcome sum through the
+   real loopback HTTP/SSE server and curl process. Its dependent result retains
+   the typed request, line observations, reconstructed body, wire/outcome proof,
+   dispatch endpoint, request report, and clean server exit; it remains local
+   process/HTTP evidence rather than a remote, byte-framed, cancellable,
+   reconnecting, provider-complete, or deployed-equivalence theorem.
 1. **Production streaming.** Extend the bounded text model with transport,
    backpressure, cancellation, tool-call payload assembly, provider-complete
    parser state, and a live HTTP reader; the current `DeepSeekStream` module is

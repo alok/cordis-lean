@@ -693,6 +693,9 @@ Current machine-checked evidence includes:
   failure or successful rich terminal outcome and dispatching it into the local runner; failures
   remain unchanged-runner results, and byte-level/backpressure, cancellation, reconnect,
   credential, provider-complete assembly, and deployed Harness semantics remain external;
+- `Cordis.DeepSeekHarnessLocalSseOutcome`, carrying that terminal outcome through the real one-shot
+  loopback HTTP/SSE server and curl process; failure remains a typed runner no-op, while successful
+  text/tool/mixed/multi outcomes append with request, wire, body, report, and clean-exit evidence;
 - `Cordis.DeepSeekCurlPrefix`, connecting the process line reader to the proof-carrying prefix
   state: each accepted line is parsed before the next read, synchronous fuel/cancellation stops
   clean up the child, and terminal success retains raw output plus normalized frame certificates;
