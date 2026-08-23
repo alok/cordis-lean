@@ -341,6 +341,11 @@ bisimulation to this exact replay layer. The adapter requires an explicit
 `BisimulationAssignmentTransport` for each matched step; it therefore packages the reusable
 bisimulation without pretending that equal rules and actors determine dependent assignments.
 
+`Cordis.GlobalRuleRelatedDetailedReplay` adds the extra constructor-sensitive `detailedRule`
+equation required to distinguish L-DivertAbort from L-DivertLand. Its trace theorem keeps exact
+shadow steps and assignments, weakening the relation only when packaging the birth-erased paper
+output.
+
 `Cordis.GlobalPaperShiftedLifecycle` adds a concrete non-reflexive allocator-clock replay: it
 shifts only `nextBirth`, rebuilds the dependent L-Leave/L-Unload pair, and transports the exact
 assigned trace while preserving endpoint well-formedness, rules, actors, and birth-erased

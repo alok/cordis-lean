@@ -3289,6 +3289,10 @@ the base dynamics or from the birth-erased theorem.
 conditional `WellFormedRuleBisimulation`, derives the exact actor wrapper equation, and requires
 `BisimulationAssignmentTransport` as the explicit dependent-assignment proof. Then call
 `replayFromWellFormedBisimulation`; do not replace that transport with a rule/actor equality.
+When the caller must preserve the operational distinction between L-DivertAbort and
+L-DivertLand, use `GlobalRuleRelatedDetailedReplay.DetailedForwardStepSimulation` and supply
+`same_detailedRule` in addition to the exact match. Its `replay` theorem produces the paper trace
+package without erasing the exact shadow assignments.
 `GlobalPaperFullLifecycleReplay` packages the existing heterogeneous fixture as one exact
 six-record dependent path (`L-Begin`, `L-Iter`, `L-Finish`, `O-Retire`, `L-Leave`, `L-Unload`).
 Its first three records carry actual fixed-program activation assignments, while the remaining

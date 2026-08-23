@@ -186,6 +186,7 @@ import Cordis.GlobalPaperLandingReplay
 import Cordis.GlobalPaperFullLifecycleReplay
 import Cordis.GlobalRuleRelatedTraceReplay
 import Cordis.GlobalRuleRelatedBisimulationReplay
+import Cordis.GlobalRuleRelatedDetailedReplay
 import Cordis.GlobalPaperShiftedLifecycle
 import Cordis.GlobalPaperShiftedFullLifecycle
 import Cordis.GlobalPaperNonReflexiveRewrite
@@ -9642,6 +9643,15 @@ private def testGlobalRuleRelatedBisimulationReplay : IO Unit := do
       "exact-rule-related-replay-adapter"
     ]
 
+private def testGlobalRuleRelatedDetailedReplay : IO Unit := do
+  assertEqual "exact replay keeps constructor-sensitive lifecycle tags"
+    GlobalRuleRelatedDetailedReplay.executableSummary
+    [
+      "exact-rule-related-input",
+      "detailed-lifecycle-tag-preservation",
+      "birth-erased-paper-replay-output"
+    ]
+
 private def testGlobalPaperShiftedLifecycle : IO Unit := do
   let _nonreflexive := GlobalPaperShiftedLifecycle.shiftedRetired_ne_source
   let _related := GlobalPaperShiftedLifecycle.replay_final_related
@@ -10456,6 +10466,7 @@ def run : IO Unit := do
   testGlobalPaperFullLifecycleReplay
   testGlobalRuleRelatedTraceReplay
   testGlobalRuleRelatedBisimulationReplay
+  testGlobalRuleRelatedDetailedReplay
   testGlobalPaperShiftedLifecycle
   testGlobalPaperShiftedFullLifecycle
   testGlobalPaperNonReflexiveRewrite

@@ -1250,6 +1250,11 @@ well-formed unified-rule bisimulation to exact replay. It consumes an explicit
 `BisimulationAssignmentTransport` for dependent program assignments and then reuses the exact
 all-keep induction; assignment provenance is not inferred from rule or actor equality.
 
+`Cordis.GlobalRuleRelatedDetailedReplay` records constructor-sensitive `detailedRule` equality,
+so the two operational L-Divert constructors cannot be exchanged through the coarse global rule
+tag. Its output packages the exact shadow trace and assignments under the birth-erased paper
+relation.
+
 `Cordis.GlobalPaperShiftedFullLifecycle` uses the same six-record fixture with a peer obtained by
 shifting only the allocator clock in every state. It reconstructs the six dependent peer
 transitions and their assignments, then applies the occurrence-indexed forward replay theorem.
