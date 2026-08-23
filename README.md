@@ -1575,6 +1575,14 @@ surface mutation, while user, assistant, and tool-result events must. A model
 request cannot substitute a history or header assembled independently of that
 log.
 
+`Cordis.DeepSeekSessionRequest` closes the next seam: a `Session.ModelRequest`
+can feed a DeepSeek `ChatRequest` only alongside an explicit `SourceAgreement`
+for the model, system prompt, and encoded tool schemas. The prepared request
+retains the successful builder equation and can be lifted to an exact
+`RequestPlan`. Optional DeepSeek controls remain adapter policy; provider
+behavior, parser-backed schema validity, credentials, and transport are not
+inferred here.
+
 There is no public generic runner event emitter. Non-tool events use a private
 emitter that requires proof that the event is not a call boundary. A private
 settlement transition validates and appends one adjacent call/result pair and

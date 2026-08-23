@@ -82,6 +82,7 @@ import Cordis.DeepSeekHarnessLocalSseProviderAssemblyTool
 import Cordis.DeepSeekHarnessLocalSseBytePrefixProviderAssemblyTool
 import Cordis.DeepSeekHarnessLocalSseMultiToolBytePrefix
 import Cordis.DeepSeekHarnessExtensions
+import Cordis.DeepSeekSessionRequest
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
 import Cordis.DeepSeekGenericBridge
@@ -2704,6 +2705,51 @@ private def testGenericSessionRequestReady : IO Unit := do
         GenericSessionHarness.RunnerState.prepareRequestStep_modelRequest
           (state := state) (prepared := prepared) prepared_eq
       pure ()
+
+private def testDeepSeekSessionRequest : IO Unit := do
+  let state : GenericSessionHarness.RunnerState
+      DeepSeekExternalGenericSession.counterSessionConfig := {
+    phase := .step 0 0 []
+    runner := DeepSeekExternalGenericRound.counterReadRunner
+    session := DeepSeekExternalGenericRound.counterReadSession
+    projection_eq := DeepSeekExternalGenericRound.counterReadSession_aligned
+  }
+  match prepared_eq : GenericSessionHarness.RunnerState.prepareRequestStep state with
+  | .error error =>
+      fail s!"indexed DeepSeek request preparation failed before handoff: {reprStr error}"
+  | .ok prepared =>
+      match request_eq : prepared.modelRequest with
+      | none => fail "indexed DeepSeek request lost the ModelRequest certificate"
+      | some request =>
+          let options : DeepSeekSessionRequest.RequestOptions := {}
+          match plan_eq : DeepSeekSessionRequest.prepareFromHeader request
+              DeepSeekSessionRequest.structuralToolSchemaEncoder options with
+          | .error error =>
+              fail s!"indexed DeepSeek request builder rejected the certified surface: {reprStr error}"
+          | .ok certified =>
+              assertEqual "indexed DeepSeek request preserves the header model"
+                certified.chat.model request.header.model
+              assertEqual "indexed DeepSeek request preserves the message surface"
+                certified.chat.messages.toList.length prepared.session.messages.length
+              assertEqual "indexed DeepSeek request preserves the empty tool header"
+                certified.chat.tools.length request.header.toolSchemas.length
+              let _model_certificate :=
+                DeepSeekSessionRequest.PreparedRequest.chat_model_eq_header certified
+              let _tool_certificate :=
+                DeepSeekSessionRequest.PreparedRequest.chat_tools_eq_header certified
+              let requestPlan := DeepSeekSessionRequest.buildRequestPlan
+                "http://127.0.0.1:0" { value := "test-key" } certified
+              assertEqual "indexed DeepSeek request plan keeps the certified source"
+                requestPlan.source.model request.header.model
+              let _request_builder_certificate :=
+                DeepSeekSessionRequest.buildRequestPlan_source
+                  "http://127.0.0.1:0" { value := "test-key" } certified
+              let _request_certificate :=
+                GenericSessionHarness.RunnerState.prepareRequestStep_modelRequest
+                  (state := state) (prepared := prepared) prepared_eq
+              let _ := request_eq
+              let _ := plan_eq
+              pure ()
 
 private def testDeepSeekAsyncStreamCancellation : IO Unit := do
   let race ← DeepSeekAsyncStreamCancellation.exampleCancellationRace
@@ -8929,6 +8975,7 @@ def run : IO Unit := do
   testDeepSeekExternalGenericConversation
   testDeepSeekExternalGenericSession
   testGenericSessionRequestReady
+  testDeepSeekSessionRequest
   testDeepSeekAsyncStreamCancellation
   testDeepSeekAsyncStreamRetryCancellation
   testDeepSeekStream

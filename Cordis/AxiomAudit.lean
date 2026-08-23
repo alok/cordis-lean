@@ -72,6 +72,7 @@ import Cordis.DeepSeekHarnessLocalSseProviderAssemblyTool
 import Cordis.DeepSeekHarnessLocalSseBytePrefixProviderAssemblyTool
 import Cordis.DeepSeekHarnessLocalSseMultiToolBytePrefix
 import Cordis.DeepSeekHarnessExtensions
+import Cordis.DeepSeekSessionRequest
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
 import Cordis.DeepSeekGenericBridge
@@ -1219,6 +1220,12 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekApiSession.Runner.appendApi_session_messages
 #print axioms Cordis.DeepSeekHarness.buildChatRequest
 #print axioms Cordis.DeepSeekHarnessExtensions.buildChatRequestFor
+#print axioms Cordis.DeepSeekSessionRequest.prepare
+#print axioms Cordis.DeepSeekSessionRequest.prepareFromHeader
+#print axioms Cordis.DeepSeekSessionRequest.PreparedRequest.chat_model_eq_header
+#print axioms Cordis.DeepSeekSessionRequest.PreparedRequest.source_system_eq_header
+#print axioms Cordis.DeepSeekSessionRequest.PreparedRequest.chat_tools_eq_header
+#print axioms Cordis.DeepSeekSessionRequest.buildRequestPlan
 #print axioms Cordis.DeepSeekHarnessExtensions.buildRequestPlanFor
 #print axioms Cordis.DeepSeekHarnessExtensions.buildTypedRequestPlanFor
 #print axioms Cordis.DeepSeekHarnessExtensions.buildStreamingRequestPlanFor
