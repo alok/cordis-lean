@@ -4,6 +4,7 @@ import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.DeepSeekApi
+import Cordis.DeepSeekApiBytes
 import Cordis.DeepSeekApiErrorEnvelope
 import Cordis.DeepSeekRequestMode
 import Cordis.DeepSeekCurlTransport
@@ -772,6 +773,11 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekApi.decodeResponseJson
 #print axioms Cordis.DeepSeekApi.validateResponse
 #print axioms Cordis.DeepSeekApi.execute
+#print axioms Cordis.DeepSeekApiBytes.buildRequest_bodyBytes_eq
+#print axioms Cordis.DeepSeekApiBytes.buildStreamingRequest_bodyBytes_eq
+#print axioms Cordis.DeepSeekApiBytes.ValidatedResponseBytes.parsed_exact
+#print axioms Cordis.DeepSeekApiBytes.execute
+#print axioms Cordis.DeepSeekApiBytes.exampleRun
 #print axioms Cordis.DeepSeekApiErrorEnvelope.validateApiError
 #print axioms Cordis.DeepSeekApiErrorEnvelope.validateApiError_decoded
 #print axioms Cordis.DeepSeekCurlTransport.parseOutput

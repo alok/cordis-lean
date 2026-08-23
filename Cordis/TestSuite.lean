@@ -4,6 +4,7 @@ import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.DeepSeekApi
+import Cordis.DeepSeekApiBytes
 import Cordis.DeepSeekApiErrorEnvelope
 import Cordis.DeepSeekCurlTransport
 import Cordis.DeepSeekCurlStream
@@ -1502,6 +1503,36 @@ private def testDeepSeekApi : IO Unit := do
   match ← DeepSeekApi.execute failingTransport plan with
   | .error (.transport "offline") => pure ()
   | _ => fail "transport failure was not preserved"
+
+private def testDeepSeekApiBytes : IO Unit := do
+  let plan := DeepSeekApiBytes.exampleRequest
+  assertEqual "byte-backed request retains the canonical UTF-8 body"
+    plan.bodyBytes.toList plan.plan.request.body.toUTF8.toList
+  assertEqual "byte-backed request preserves complete-mode source"
+    plan.plan.source.stream false
+  match ← DeepSeekApiBytes.execute DeepSeekApiBytes.exampleTransport plan with
+  | .error _ => fail "byte-backed DeepSeek fixture failed"
+  | .ok ⟨body, validated⟩ =>
+      assertEqual "byte-backed response retains raw UTF-8 bytes"
+        body.toList DeepSeekApiBytes.exampleResponseBytes.toList
+      assertEqual "byte-backed response decodes the typed id"
+        validated.validated.response.id "chatcmpl-example"
+      assertEqual "byte-backed response retains the typed tool call"
+        validated.validated.response.choices.head.message.toolCalls.length 1
+      let _decodedCertificate := validated.decoded
+      let _parsedCertificate := validated.validated.parsed
+      let _responseCertificate := validated.validated.decoded
+  match DeepSeekApiBytes.validateResponseBytes (ByteArray.mk #[255]) with
+  | .error .invalidUtf8 => pure ()
+  | .error _ => fail "invalid byte response returned the wrong error"
+  | .ok _ => fail "invalid UTF-8 byte response was accepted"
+  let invalidTransport : DeepSeekApiBytes.Transport := {
+    send := fun _request => pure <| .ok { status := 200, body := ByteArray.mk #[255] }
+  }
+  match ← DeepSeekApiBytes.execute invalidTransport plan with
+  | .error (.invalidUtf8 200 _) => pure ()
+  | .error _ => fail "invalid UTF-8 transport returned the wrong error"
+  | .ok _ => fail "invalid UTF-8 transport response was accepted"
 
 private def testDeepSeekCurlTransport : IO Unit := do
   match ← DeepSeekCurlTransport.fixtureResponse with
@@ -8538,6 +8569,7 @@ def run : IO Unit := do
   testHarnessPersistenceArchive
   testHarnessPersistenceIO
   testDeepSeekApi
+  testDeepSeekApiBytes
   testDeepSeekCurlTransport
   testDeepSeekCurlStream
   testDeepSeekCurlOutcome

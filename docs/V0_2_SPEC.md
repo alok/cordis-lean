@@ -120,6 +120,12 @@ acceptance, and endpoint equations, while fixtures cover a successful tool-call 
 typed 503 rejection. This does not establish live network, credential, provider, TLS/retry,
 persistence, or deployed Harness behavior.
 
+`Cordis.DeepSeekApiBytes` supplies the adjacent raw-byte certificate: request plans retain exact
+UTF-8 body bytes, successful responses retain source bytes plus decoded text and the existing
+parse/decode certificate, and invalid UTF-8/non-2xx responses stay distinct. Its injected byte
+transport fixture is executable; deployed network, credential, provider, and Harness claims remain
+external.
+
 `Cordis.DeepSeekHarnessTransportToolRound` composes the retained `TransportRound` with the
 dependent tool executor. The response certificate is consumed directly, without a second decode
 or session admission, and the resulting runner retains exact assistant-plus-tool-result sequence
@@ -334,6 +340,9 @@ Current machine-checked evidence includes:
   logging it, retaining a complete-mode request plan beside a bounded conversation result, and
   exercising the same API with an injected two-response fixture; credential validity, network
   reachability, process trust, provider behavior, and deployed equivalence remain external;
+- `Cordis.DeepSeekApiBytes`, retaining exact UTF-8 request bytes and successful response bytes,
+  decoded text, and typed parse/decode certificates over an injected byte transport; invalid
+  UTF-8 and non-2xx bodies remain distinct, while deployed byte compatibility remains external;
 - `Cordis.DeepSeekHarnessLocalHttp`, starting a one-shot loopback HTTP fixture and sending the
   actual complete request through curl, with request method/route/authorization/model/stream-mode
   checks and server request-count evidence retained beside the typed conversation result; remote
