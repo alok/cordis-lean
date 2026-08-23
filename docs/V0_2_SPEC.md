@@ -419,6 +419,10 @@ Current machine-checked evidence includes:
   streaming-plan and indexed-append equations; the executable example checks one valid request,
   three frames, and the `2 -> 3` endpoint. Returned-body provenance and remote/deployed claims
   remain outside;
+- `Cordis.DeepSeekHarnessLocalSseIndexedLoop`, rebuilding a dependent request from the first
+  indexed append and executing a second real loopback SSE round. Its `TwoRoundResult` carries both
+  append certificates and the exact `2 -> 4` sequence equation; it remains local process/HTTP
+  evidence rather than remote-provider or deployed-Harness equivalence;
 - `Cordis.DeepSeekHarnessLocalSseRetry`, starting a two-attempt loopback SSE fixture whose first
   valid request returns a typed transient HTTP 503 and whose second request returns the flushed
   SSE body; the retry history, reused streaming plan, accepted wire/body certificate, and single

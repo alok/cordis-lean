@@ -63,6 +63,7 @@ import Cordis.DeepSeekHarnessLiveStreamProbe
 import Cordis.DeepSeekHarnessLocalHttp
 import Cordis.DeepSeekHarnessLocalSse
 import Cordis.DeepSeekHarnessLocalSseIndexed
+import Cordis.DeepSeekHarnessLocalSseIndexedLoop
 import Cordis.DeepSeekHarnessLocalSseRetry
 import Cordis.DeepSeekHarnessLocalSseRetryConversation
 import Cordis.DeepSeekHarnessPersistenceFileLocalSseRetryConversation
@@ -1258,6 +1259,9 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessLocalSseIndexed.IndexedLocalSseResult.append_endpoint_exact
 #print axioms Cordis.DeepSeekHarnessLocalSseIndexed.runWithKey
 #print axioms Cordis.DeepSeekHarnessLocalSseIndexed.Example.summaryIO
+#print axioms Cordis.DeepSeekHarnessLocalSseIndexedLoop.Example.second_endpoint_exact
+#print axioms Cordis.DeepSeekHarnessLocalSseIndexedLoop.Example.final_nextSeq
+#print axioms Cordis.DeepSeekHarnessLocalSseIndexedLoop.Example.run
 #print axioms Cordis.DeepSeekHarnessExtensions.buildRequestPlanFor
 #print axioms Cordis.DeepSeekHarnessExtensions.buildTypedRequestPlanFor
 #print axioms Cordis.DeepSeekHarnessExtensions.buildStreamingRequestPlanFor

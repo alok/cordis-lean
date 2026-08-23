@@ -1074,6 +1074,12 @@ request, three frames, and the `2 -> 3` endpoint. Returned-body provenance, remo
 authenticity, persistence, blocked reads, reconnects, and deployed Harness equivalence remain
 outside.
 
+`DeepSeekHarnessLocalSseIndexedLoop` extends that attachment to two dependent rounds. The first
+append supplies the exact session index used to rebuild the second `Session.ModelRequest`; the
+result retains both loopback wire certificates and proves the final sequence is the initial
+sequence plus two. This remains local process/HTTP evidence, not a provider or deployment
+equivalence theorem.
+
 [paper-pdf]: https://raw.githubusercontent.com/cordiverse/paper/948a07b369c62adb3b12e102458be5c18dfb69b9/paper.pdf
 [cordis-tree]: https://github.com/cordiverse/cordis/tree/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4
 [cordis-context]: https://github.com/cordiverse/cordis/blob/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4/packages/core/src/context.ts#L21-L77

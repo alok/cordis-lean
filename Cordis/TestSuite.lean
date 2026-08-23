@@ -73,6 +73,7 @@ import Cordis.DeepSeekHarnessLiveStreamProbe
 import Cordis.DeepSeekHarnessLocalHttp
 import Cordis.DeepSeekHarnessLocalSse
 import Cordis.DeepSeekHarnessLocalSseIndexed
+import Cordis.DeepSeekHarnessLocalSseIndexedLoop
 import Cordis.DeepSeekHarnessLocalSseRetry
 import Cordis.DeepSeekHarnessLocalSseRetryConversation
 import Cordis.DeepSeekHarnessPersistenceFileLocalSseRetryConversation
@@ -4311,6 +4312,37 @@ private def testDeepSeekHarnessLocalSseIndexed : IO Unit := do
         DeepSeekHarnessLocalSseIndexed.IndexedLocalSseResult.indexed_plan_exact result
       let _append_certificate :=
         DeepSeekHarnessLocalSseIndexed.IndexedLocalSseResult.append_endpoint_exact result
+
+private def testDeepSeekHarnessLocalSseIndexedLoop : IO Unit := do
+  match ← DeepSeekHarnessLocalSseIndexedLoop.Example.run with
+  | .error error => fail s!"indexed two-round local SSE failed: {reprStr error}"
+  | .ok result =>
+      let summary := DeepSeekHarnessLocalSseIndexedLoop.Example.summarize result
+      let expected := DeepSeekHarnessLocalSseIndexedLoop.Example.expectedSummary
+      assertEqual "indexed two-round fixture receives the first request"
+        summary.firstRequests expected.firstRequests
+      assertEqual "indexed two-round fixture receives the second request"
+        summary.secondRequests expected.secondRequests
+      assertEqual "indexed two-round fixture validates the first request"
+        summary.firstValidRequests expected.firstValidRequests
+      assertEqual "indexed two-round fixture validates the second request"
+        summary.secondValidRequests expected.secondValidRequests
+      assertEqual "indexed two-round fixture retains the first SSE frames"
+        summary.firstFrames expected.firstFrames
+      assertEqual "indexed two-round fixture retains the second SSE frames"
+        summary.secondFrames expected.secondFrames
+      assertEqual "indexed two-round fixture starts at the certified endpoint"
+        summary.initialNextSeq expected.initialNextSeq
+      assertEqual "indexed two-round fixture proves the dependent final endpoint"
+        summary.finalNextSeq expected.finalNextSeq
+      assertEqual "indexed two-round fixture preserves the first runner tool-count index"
+        result.first.after.nextCall 0
+      assertEqual "indexed two-round fixture preserves the final runner tool-count index"
+        result.second.after.nextCall 0
+      let _second_endpoint :=
+        DeepSeekHarnessLocalSseIndexedLoop.Example.second_endpoint_exact result
+      let _final_endpoint :=
+        DeepSeekHarnessLocalSseIndexedLoop.Example.final_nextSeq result
 
 private def testDeepSeekHarnessLocalSseRetry : IO Unit := do
   match ← DeepSeekHarnessLocalSseRetry.runWithRetry DeepSeekHarness.counterRequestSource
@@ -9215,6 +9247,7 @@ def run : IO Unit := do
   testDeepSeekHarnessLocalHttp
   testDeepSeekHarnessLocalSse
   testDeepSeekHarnessLocalSseIndexed
+  testDeepSeekHarnessLocalSseIndexedLoop
   testDeepSeekHarnessLocalSseRetry
   testDeepSeekHarnessLocalSseRetryConversation
   testDeepSeekHarnessLocalSseTimeout
