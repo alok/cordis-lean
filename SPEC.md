@@ -329,6 +329,13 @@ retains its endpoint, well-formedness, detailed rule and actor ledgers, six deci
 assignment. It is a concrete full-path certificate only: it does not infer arbitrary provenance,
 match an unrelated peer lifecycle, or close Lemma 72/Theorem 73.
 
+`Cordis.GlobalRuleRelatedTraceReplay` supplies the stricter exact-relation all-keep bridge. A
+local step match states exact rule/actor equations, both endpoint `WellFormed` proofs, successor
+`RuleRelated`, and a `StepProgramAssignment` transporter. The recursive trace theorem constructs
+the shadow trace and assignment, proving final `RuleRelated`, rule/actor equality, and a
+birth-erased corollary. Its reflexive six-step fixture is executable; arbitrary lifecycle matching
+remains a supplied certificate rather than a consequence of base dynamics.
+
 `Cordis.GlobalPaperShiftedLifecycle` adds a concrete non-reflexive allocator-clock replay: it
 shifts only `nextBirth`, rebuilds the dependent L-Leave/L-Unload pair, and transports the exact
 assigned trace while preserving endpoint well-formedness, rules, actors, and birth-erased

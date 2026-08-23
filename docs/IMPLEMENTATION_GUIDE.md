@@ -3277,6 +3277,14 @@ and backward orientations. `GlobalPaperTraceNormalization` now composes a finite
 connected list of those supplied adjacent-rewrite certificates and proves endpoint relatedness
 plus rule/actor permutations. It is certificate composition only: no rewrite strategy,
 canonical form, termination, Lemma 72, or confluence is derived.
+`GlobalRuleRelatedTraceReplay` is the exact-relation companion. Use its
+`ForwardStepMatch`/`BackwardStepMatch` records when a peer step must preserve the stricter
+`RuleRelated` observation: the record itself is the API contract for exact rule/actor identity,
+both endpoint `WellFormed` proofs, successor relation, and dependent assignment transport.
+`StepSimulation.replay` performs the all-keep induction and `TraceReplay` exposes final relation,
+rule/actor projections, and assignment transport. The diagonal six-step fixture is the smoke
+test; a non-reflexive caller must still supply lifecycle evidence rather than assuming it from
+the base dynamics or from the birth-erased theorem.
 `GlobalPaperFullLifecycleReplay` packages the existing heterogeneous fixture as one exact
 six-record dependent path (`L-Begin`, `L-Iter`, `L-Finish`, `O-Retire`, `L-Leave`, `L-Unload`).
 Its first three records carry actual fixed-program activation assignments, while the remaining

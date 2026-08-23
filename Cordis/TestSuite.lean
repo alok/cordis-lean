@@ -184,6 +184,7 @@ import Cordis.GlobalPaperRelation
 import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalPaperLandingReplay
 import Cordis.GlobalPaperFullLifecycleReplay
+import Cordis.GlobalRuleRelatedTraceReplay
 import Cordis.GlobalPaperShiftedLifecycle
 import Cordis.GlobalPaperShiftedFullLifecycle
 import Cordis.GlobalPaperNonReflexiveRewrite
@@ -9617,6 +9618,20 @@ private def testGlobalPaperFullLifecycleReplay : IO Unit := do
   assertEqual "full lifecycle replay retains six acting names"
     GlobalPaperFullLifecycleReplay.Example.executableActors [0, 0, 0, 0, 0, 0]
 
+private def testGlobalRuleRelatedTraceReplay : IO Unit := do
+  let _related := GlobalRuleRelatedTraceReplay.Example.reflexive_final_related
+  let _rules := GlobalRuleRelatedTraceReplay.Example.reflexive_rules
+  let _actors := GlobalRuleRelatedTraceReplay.Example.reflexive_actors
+  let _assignment := GlobalRuleRelatedTraceReplay.Example.reflexive_assignment_exists
+  assertEqual "exact RuleRelated replay exposes the six-step assignment path"
+    GlobalRuleRelatedTraceReplay.Example.executableSummary
+    [
+      "exact-rule-related-replay",
+      "six-step-assignment-preserving-diagonal",
+      "rule-related-final-endpoint",
+      "dependent-assignment-transport"
+    ]
+
 private def testGlobalPaperShiftedLifecycle : IO Unit := do
   let _nonreflexive := GlobalPaperShiftedLifecycle.shiftedRetired_ne_source
   let _related := GlobalPaperShiftedLifecycle.replay_final_related
@@ -10429,6 +10444,7 @@ def run : IO Unit := do
   testGlobalPaperTraceSimulation
   testGlobalPaperLandingReplay
   testGlobalPaperFullLifecycleReplay
+  testGlobalRuleRelatedTraceReplay
   testGlobalPaperShiftedLifecycle
   testGlobalPaperShiftedFullLifecycle
   testGlobalPaperNonReflexiveRewrite

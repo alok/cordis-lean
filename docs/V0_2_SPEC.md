@@ -1238,6 +1238,13 @@ non-activation assignments cover the remaining records. An all-keep self-replay 
 well-formedness, detailed rules, actors, six decisions, and the complete assignment. It does not
 infer arbitrary program provenance, match an unrelated peer lifecycle, or close Lemma 72/Theorem 73.
 
+`Cordis.GlobalRuleRelatedTraceReplay` adds the exact-relation counterpart to the birth-erased
+trace layer. Its local forward/backward match records carry exact rule and actor equations,
+endpoint well-formedness, successor `RuleRelated`, and dependent assignment transport. The
+all-keep induction constructs an intrinsically adjacent shadow trace and derives final exact
+relatedness, rule/actor ledgers, and a complete shadow assignment; the diagonal six-step fixture
+exercises the API. A non-reflexive lifecycle match is still supplied occurrence by occurrence.
+
 `Cordis.GlobalPaperShiftedFullLifecycle` uses the same six-record fixture with a peer obtained by
 shifting only the allocator clock in every state. It reconstructs the six dependent peer
 transitions and their assignments, then applies the occurrence-indexed forward replay theorem.
