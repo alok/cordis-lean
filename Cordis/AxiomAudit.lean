@@ -170,6 +170,7 @@ import Cordis.GlobalPaperLandingReplay
 import Cordis.GlobalPaperFullLifecycleReplay
 import Cordis.GlobalPaperShiftedLifecycle
 import Cordis.GlobalPaperShiftedFullLifecycle
+import Cordis.GlobalPaperNonReflexiveRewrite
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalPaperTraceNormalizer
@@ -2526,6 +2527,26 @@ namespace Cordis.GlobalPaperShiftedFullLifecycle.Example
 #print axioms shiftedTrace_global_rules
 #print axioms shiftedTrace_actors
 end Cordis.GlobalPaperShiftedFullLifecycle.Example
+namespace Cordis.GlobalPaperNonReflexiveRewrite.BirthGapRewrite
+#print axioms normalPair
+#print axioms swappedPair
+#print axioms sourceTrace
+#print axioms occurrence
+#print axioms assignedOccurrence
+#print axioms swap
+#print axioms source_endpoint_not_swapped_endpoint
+#print axioms source_endpoint_not_current_rule_related
+#print axioms source_and_swapped_are_paper_related
+#print axioms result
+#print axioms result_final_related
+#print axioms result_final_wellFormed
+#print axioms result_assignment
+#print axioms result_assignment_exists
+#print axioms result_rules_perm
+#print axioms result_actors_perm
+#print axioms source_trace_rules
+#print axioms source_trace_actors
+end Cordis.GlobalPaperNonReflexiveRewrite.BirthGapRewrite
 namespace Cordis.GlobalPaperTraceDeletion
 #print axioms detailedRule_eq_of_orchestration
 #print axioms replay_detailedRules_eq

@@ -328,6 +328,13 @@ well-formedness, final birth-erased relatedness, exact detailed-rule and actor l
 decisions, and equality with the explicitly constructed peer assignment. This is still one
 finite assigned replay; it does not derive arbitrary lifecycle matching or Lemma 72/Theorem 73.
 
+`Cordis.GlobalPaperNonReflexiveRewrite` instantiates the related-endpoint adjacent rewrite
+surface with opposite-order inserts. Its normal and swapped windows begin at the same state,
+end at distinct states that are birth-erased-related but not current-`RuleRelated`, and replay a
+trailing `O-Retire` from the related endpoint. The assigned result retains well-formedness,
+transported assignment, and rule/actor permutations. This is a concrete relation-aware rewrite
+witness, not a global lifecycle simulator, normalization strategy, or Lemma 72/Theorem 73.
+
 The progress layer proves that printed Theorem 66 also needs stronger executable premises. A
 configured oracle may reject a registration that the raw relation can admit through another
 oracle, while finite Boolean name exhaustion produces a well-formed nonquiescent state with no raw

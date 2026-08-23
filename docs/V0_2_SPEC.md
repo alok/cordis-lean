@@ -767,6 +767,8 @@ Current machine-checked evidence includes:
 - `Cordis.GlobalPaperShiftedFullLifecycle`, extending that allocator-only peer to the full
   assigned six-step path and proving shifted endpoint/WF, final birth-erased relatedness, exact
   six-rule/actor ledgers, keep decisions, and the explicit peer assignment;
+- `Cordis.GlobalPaperNonReflexiveRewrite`, instantiating the related-endpoint adjacent rewrite
+  surface with opposite-order inserts and a replayed trailing O-Retire;
 - `Cordis.GlobalPaperTraceNormalization`, packaging a finite certificate-driven chain of
   birth-erased adjacent trace rewrites with transported assignments and final rule/actor
   permutation facts, while leaving automatic normal-form search and confluence external;
@@ -1233,6 +1235,12 @@ The result is a genuinely non-reflexive finite certificate retaining endpoint we
 final birth-erased relatedness, exact detailed rules and actors, six keep decisions, and equality
 with the constructed peer assignment. It does not provide arbitrary lifecycle simulation,
 episode deletion, Lemma 72, or Theorem 73.
+
+`Cordis.GlobalPaperNonReflexiveRewrite` instantiates the related-endpoint adjacent rewrite API
+with the opposite-order insertion gap. The two windows share a predecessor and have distinct
+birth-erased-related endpoints; a trailing O-Retire is replayed from the swapped endpoint. The
+certificate retains endpoint well-formedness, assignment transport, and rule/actor permutations.
+It does not derive global lifecycle simulation, normalization, Lemma 72, or Theorem 73.
 
 The corrected progress slice is specified in
 [`GLOBAL_PROGRESS_SPEC.md`](GLOBAL_PROGRESS_SPEC.md) and implemented by `Cordis.GlobalProgress`.

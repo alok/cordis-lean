@@ -3265,6 +3265,12 @@ assigned fixture. It is the useful next manual pattern: build each peer transiti
 dependent replay theorem. The resulting non-reflexive certificate retains the peer endpoint/WF,
 final relation, exact rule/actor ledgers, six keep decisions, and complete assignment. It remains
 finite occurrence evidence rather than a derived global lifecycle simulator.
+`GlobalPaperNonReflexiveRewrite` applies the next dependent pattern concretely: construct two
+opposite-order insert windows from one predecessor, package their birth-erased relation and
+transported assignments, then replay a trailing O-Retire from the related endpoint. The resulting
+`RelatedAdjacentRewrite` proves the final relation/WF and ledger permutations without casting a
+suffix across unequal states. It is a concrete orchestration-suffix witness, not global lifecycle
+simulation or normalization.
 `GlobalPaperRelation` now supplies that finite relation: it erases only allocator clock/birth from
 current rule control, relates the opposite insertion endpoints, and proves bidirectional
 well-formed orchestration replay with assignment transport. From a well-formed source carrying

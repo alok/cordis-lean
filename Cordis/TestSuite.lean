@@ -176,6 +176,7 @@ import Cordis.GlobalPaperLandingReplay
 import Cordis.GlobalPaperFullLifecycleReplay
 import Cordis.GlobalPaperShiftedLifecycle
 import Cordis.GlobalPaperShiftedFullLifecycle
+import Cordis.GlobalPaperNonReflexiveRewrite
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalPaperTraceNormalizer
@@ -9414,6 +9415,30 @@ private def testGlobalPaperShiftedFullLifecycle : IO Unit := do
   assertEqual "shifted full lifecycle replay changes only the allocator clock"
     Cordis.GlobalPaperShiftedFullLifecycle.Example.executableClockPair (1, 2)
 
+private def testGlobalPaperNonReflexiveRewrite : IO Unit := do
+  let _notEqual :=
+    Cordis.GlobalPaperNonReflexiveRewrite.BirthGapRewrite.source_endpoint_not_swapped_endpoint
+  let _notExact :=
+    Cordis.GlobalPaperNonReflexiveRewrite.BirthGapRewrite.source_endpoint_not_current_rule_related
+  let _related :=
+    Cordis.GlobalPaperNonReflexiveRewrite.BirthGapRewrite.source_and_swapped_are_paper_related
+  let _finalRelated :=
+    Cordis.GlobalPaperNonReflexiveRewrite.BirthGapRewrite.result_final_related
+  let _finalWellFormed :=
+    Cordis.GlobalPaperNonReflexiveRewrite.BirthGapRewrite.result_final_wellFormed
+  let _assignment :=
+    Cordis.GlobalPaperNonReflexiveRewrite.BirthGapRewrite.result_assignment_exists
+  let _rulesPerm :=
+    Cordis.GlobalPaperNonReflexiveRewrite.BirthGapRewrite.result_rules_perm
+  let _actorsPerm :=
+    Cordis.GlobalPaperNonReflexiveRewrite.BirthGapRewrite.result_actors_perm
+  assertEqual "non-reflexive related rewrite exposes its source rule ledger"
+    Cordis.GlobalPaperNonReflexiveRewrite.BirthGapRewrite.executableSourceRules
+    [.oInsert, .oInsert, .oRetire]
+  assertEqual "non-reflexive related rewrite exposes its source actor ledger"
+    Cordis.GlobalPaperNonReflexiveRewrite.BirthGapRewrite.executableSourceActors
+    [1, 2, 1]
+
 private def testGlobalPaperTraceDeletion : IO Unit := do
   assertEqual "assigned deletion replay retains the concrete detailed rule"
     GlobalPaperTraceDeletion.Example.executableDetailedRules
@@ -10038,6 +10063,7 @@ def run : IO Unit := do
   testGlobalPaperFullLifecycleReplay
   testGlobalPaperShiftedLifecycle
   testGlobalPaperShiftedFullLifecycle
+  testGlobalPaperNonReflexiveRewrite
   testGlobalPaperTraceDeletion
   testGlobalPaperTraceNormalization
   testGlobalPaperTraceNormalizer
