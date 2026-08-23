@@ -324,6 +324,11 @@ valid request is retained as a typed 429/API-error envelope, the second returns 
 and only that accepted outcome advances the dependent runner. The request/valid-request counts and
 clean process exit are proved; backoff, idempotency, cancellation, reconnect, and deployed retry
 semantics remain external.
+`Cordis.DeepSeekHarnessLocalSseApiErrorRetryConversation` repeats that certified retry from the
+first accepted runner: both rounds retain their own typed 429 envelope, strict success body, and
+append endpoint, while the second request is indexed by the first round's actual session. The
+fixture proves two-round sequence growth; provider policy, persistence, and deployed equivalence
+remain external.
 `Cordis.DeepSeekCurlPrefix` connects that process boundary to the proof-carrying
 prefix state: each accepted process line updates the typed body/frame state,
 and a line policy can stop before the next read while cleanup kills and waits

@@ -86,6 +86,7 @@ import Cordis.DeepSeekHarnessLocalSse
 import Cordis.DeepSeekHarnessLocalSseOutcome
 import Cordis.DeepSeekHarnessLocalSseApiError
 import Cordis.DeepSeekHarnessLocalSseApiErrorRetry
+import Cordis.DeepSeekHarnessLocalSseApiErrorRetryConversation
 import Cordis.DeepSeekHarnessLocalSseIndexed
 import Cordis.DeepSeekHarnessLocalSseIndexedLoop
 import Cordis.DeepSeekHarnessLocalSseRetry

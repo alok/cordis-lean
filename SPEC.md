@@ -1116,6 +1116,11 @@ claim:
    returns strict SSE success, and only the accepted second outcome advances the dependent runner.
    It proves two valid attempts, the exact accepted outcome, and clean process exit; backoff,
    idempotency, cancellation, reconnect, and deployed retry semantics remain external.
+   `Cordis.DeepSeekHarnessLocalSseApiErrorRetryConversation` composes that result twice. The second
+   loopback request is indexed by the first accepted `ConversationRunner`, and the result retains
+   both typed 429 envelopes, both accepted append endpoints, and the exact two-round sequence
+   equation. Provider retry policy, persistence, cancellation, reconnect, and deployed equivalence
+   remain external.
 1. **Production streaming.** Extend the bounded text model with transport,
    backpressure, cancellation, tool-call payload assembly, provider-complete
    parser state, and a live HTTP reader; the current `DeepSeekStream` module is

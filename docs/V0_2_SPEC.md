@@ -705,6 +705,11 @@ Current machine-checked evidence includes:
   success, and only the accepted outcome advances the dependent runner; request counts, accepted
   outcome, and clean exit are proved, while backoff, idempotency, cancellation, reconnect, and
   deployed retry semantics remain external;
+- `Cordis.DeepSeekHarnessLocalSseApiErrorRetryConversation`, repeating that certified retry from the
+  first accepted runner: the second request is indexed by the first round's actual session, and both
+  rounds retain typed 429 envelopes, strict success bodies, append endpoints, request counts, and a
+  two-round sequence equation; provider policy, persistence, cancellation, reconnect, and deployed
+  equivalence remain external;
 - `Cordis.DeepSeekCurlPrefix`, connecting the process line reader to the proof-carrying prefix
   state: each accepted line is parsed before the next read, synchronous fuel/cancellation stops
   clean up the child, and terminal success retains raw output plus normalized frame certificates;

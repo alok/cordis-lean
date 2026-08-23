@@ -2650,6 +2650,11 @@ request twice, retain the first 429 as a typed API-error envelope, validate the 
 success, and dispatch only that accepted result into the dependent runner. Prove the two valid
 attempts, accepted endpoint, and clean process exit together. Keep backoff, idempotency,
 cancellation, reconnect, provider authenticity, and deployed retry semantics outside this fixture.
+`Cordis.DeepSeekHarnessLocalSseApiErrorRetryConversation` applies that composition to two rounds:
+match the first accepted dispatch, use its exact runner as the second request's index, and retain
+both typed first-attempt envelopes plus both append endpoints. The dependent proof should expose
+the exact two-round `nextSeq` equation; do not silently reuse the first request or infer deployed
+retry policy from the deterministic loopback server.
 `Cordis.DeepSeekCurlPrefix` is the typed process counterpart: it advances `PrefixState` before
 requesting the next complete line, retains the raw process body separately from the normalized
 prefix certificate, and uses the same line policy for synchronous fuel/cancellation stops. Its
