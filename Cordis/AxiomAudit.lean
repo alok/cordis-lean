@@ -3063,9 +3063,13 @@ end Cordis.EffectContext
 #print axioms Cordis.GlobalNamePaperRelation.assignedTracePaperEndpoint_acted_eq
 #print axioms Cordis.GlobalNamePaperRelation.nonActivationTracePaperEndpoint
 #print axioms Cordis.GlobalNamePaperRelation.nonActivationTracePaperEndpoint_acted_eq
+#print axioms Cordis.GlobalNamePaperRelation.unactNonActivationTraceAssignment
+#print axioms Cordis.GlobalNamePaperRelation.backwardNonActivationTracePaperEndpoint
 #print axioms Cordis.GlobalNamePaperRelation.Example.actedRaise_related
 #print axioms Cordis.GlobalNamePaperRelation.Example.actedRaiseTrace_related
 #print axioms Cordis.GlobalNamePaperRelation.Example.actedRaiseTrace_rules
+#print axioms Cordis.GlobalNamePaperRelation.Example.unactedRaiseTrace_related
+#print axioms Cordis.GlobalNamePaperRelation.Example.unactedRaiseTrace_endpoint
 #print axioms Cordis.DeepSeekStreamHarnessErrors.executeConversationMultiStreamRoundRecoverable
 #print axioms Cordis.DeepSeekStreamHarnessErrors.runConversationMultiStreamRecoverable
 #print axioms Cordis.DeepSeekStreamHarnessRetry.executeWithRetry

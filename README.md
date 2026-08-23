@@ -1682,9 +1682,10 @@ analogue, not an unconditional property of arbitrary `Dynamics`.
 dependent active-context values and paper fiber controls through the name permutation, proves a
 renamed well-formed endpoint is related to its source under the birth-erased paper observation,
 and exposes the same fact for finite trace endpoints. `NonActivationTracePaperEndpoint` packages an
-actual assigned raise/error-style trace without requiring a lifecycle-activation transport, while
-the activation-bearing package keeps that transport as an explicit proof obligation. It does not
-turn the observation bridge into unconditional lifecycle bisimulation; the primitive semantic laws
+actual assigned raise/error-style trace without requiring a lifecycle-activation transport, and its
+backward counterpart reconstructs the original assigned trace from the renamed endpoint. The
+activation-bearing package keeps that transport as an explicit proof obligation. It does not turn
+the observation bridge into unconditional lifecycle bisimulation; the primitive semantic laws
 remain explicit.
 
 `Cordis.GlobalVestigial` proves the effect-observation sentence of Lemma 57 exactly and then

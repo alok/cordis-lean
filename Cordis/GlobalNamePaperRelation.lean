@@ -221,6 +221,126 @@ theorem nonActivationTracePaperEndpoint_acted_eq
     endpoint.acted =
       actTrace assumptions beforeWf trace := rfl
 
+def transportNonActivationTrace
+    {dynamics : Dynamics sig catalog Ambient} {inertia : InertiaPolicy dynamics}
+    {middle middle' after : State catalog Ambient}
+    (eq : middle = middle')
+    (trace : GlobalCalculus.Trace dynamics inertia middle' after)
+    (evidence : NonActivationTrace trace) :
+    NonActivationTrace (eq ▸ trace) := by
+  cases eq
+  exact evidence
+
+structure BackwardNonActivationTraceAction
+    {action : NameAction sig Ambient} {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    {before actedAfter : State catalog Ambient} (beforeWf : WellFormed before)
+    (trace : GlobalCalculus.Trace dynamics inertia (actState action before) actedAfter)
+    (evidence : NonActivationTrace trace)
+    (assignment : TraceProgramAssignment dynamics inertia trace) where
+  originalAfter : State catalog Ambient
+  original : GlobalCalculus.Trace dynamics inertia before originalAfter
+  endpoint_eq : actState action originalAfter = actedAfter
+  originalAfter_wellFormed : WellFormed originalAfter
+  originalAssignment : TraceProgramAssignment dynamics inertia original
+
+noncomputable def unactNonActivationTraceAssignment
+    {action : NameAction sig Ambient} {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    {before actedAfter : State catalog Ambient} (beforeWf : WellFormed before)
+    (trace : GlobalCalculus.Trace dynamics inertia (actState action before) actedAfter)
+    (evidence : NonActivationTrace trace)
+    (assignment : TraceProgramAssignment dynamics inertia trace) :
+    BackwardNonActivationTraceAction assumptions beforeWf trace evidence assignment :=
+  @GlobalCalculus.Trace.rec sig catalog Ambient dynamics inertia
+    (fun source target trace =>
+      ∀ (original : State catalog Ambient)
+        (sourceEq : actState action original = source)
+        (originalWf : WellFormed original)
+        (evidence : NonActivationTrace (sourceEq.symm ▸ trace))
+        (assignment : TraceProgramAssignment dynamics inertia (sourceEq.symm ▸ trace)),
+        BackwardNonActivationTraceAction (before := original) (actedAfter := target)
+          assumptions originalWf (sourceEq.symm ▸ trace) evidence assignment)
+    (fun state original sourceEq originalWf evidence assignment => by
+      cases sourceEq
+      cases evidence
+      cases assignment
+      exact {
+        originalAfter := original
+        original := .nil original
+        endpoint_eq := rfl
+        originalAfter_wellFormed := originalWf
+        originalAssignment := .nil original })
+    (fun {source middle target} head tail ih original sourceEq originalWf evidence assignment => by
+      cases sourceEq
+      cases evidence with
+      | cons headEvidence tailEvidence =>
+          cases assignment with
+          | cons headAssignment tailAssignment =>
+              let headResult := unactUnifiedStep assumptions originalWf head
+              have actedMiddleWf : WellFormed middle :=
+                head.preservesWellFormed (wellFormed_act action originalWf)
+              have originalMiddleWf : WellFormed headResult.originalAfter := by
+                rw [← wellFormed_act_iff action headResult.originalAfter]
+                rw [headResult.endpoint_eq]
+                exact actedMiddleWf
+              have originalNotActivation :
+                  ¬IsProgramActivationRule headResult.original.rule := by
+                intro originalActivation
+                apply headEvidence
+                rw [← headResult.same_rule]
+                exact originalActivation
+              have tailEvidence' :
+                  NonActivationTrace (headResult.endpoint_eq ▸ tail) := by
+                exact @transportNonActivationTrace sig catalog Ambient dynamics inertia
+                  (actState action headResult.originalAfter) middle target
+                  headResult.endpoint_eq tail tailEvidence
+              have tailAssignment' := @transportTraceAssignment sig catalog Ambient
+                dynamics inertia (actState action headResult.originalAfter) middle target
+                headResult.endpoint_eq tail tailAssignment
+              let tailResult := ih headResult.originalAfter headResult.endpoint_eq
+                originalMiddleWf tailEvidence' tailAssignment'
+              exact {
+                originalAfter := tailResult.originalAfter
+                original := .cons headResult.original tailResult.original
+                endpoint_eq := tailResult.endpoint_eq
+                originalAfter_wellFormed := tailResult.originalAfter_wellFormed
+                originalAssignment := .cons
+                  (StepProgramAssignment.ofNotActivation _ originalNotActivation)
+                  tailResult.originalAssignment })
+    (actState action before) actedAfter trace before rfl beforeWf evidence assignment
+
+structure BackwardNonActivationTracePaperEndpoint
+    (action : NameAction sig Ambient) (values : ValueSetoids sig)
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    {before actedAfter : State catalog Ambient} (beforeWf : WellFormed before)
+    (trace : GlobalCalculus.Trace dynamics inertia (actState action before) actedAfter)
+    (evidence : NonActivationTrace trace)
+    (assignment : TraceProgramAssignment dynamics inertia trace) where
+  backward : BackwardNonActivationTraceAction assumptions beforeWf trace evidence assignment
+  paperRelated : NameActionPaperRelated action values backward.originalAfter
+    (actState action backward.originalAfter)
+
+noncomputable def backwardNonActivationTracePaperEndpoint
+    (action : NameAction sig Ambient) (values : ValueSetoids sig)
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    {before actedAfter : State catalog Ambient} (beforeWf : WellFormed before)
+    (trace : GlobalCalculus.Trace dynamics inertia (actState action before) actedAfter)
+    (evidence : NonActivationTrace trace)
+    (assignment : TraceProgramAssignment dynamics inertia trace) :
+    BackwardNonActivationTracePaperEndpoint action values assumptions beforeWf trace evidence
+      assignment :=
+  let backward := unactNonActivationTraceAssignment assumptions beforeWf trace evidence assignment
+  { backward := backward
+    paperRelated := nameActionPaperRelated_actState action values
+      backward.originalAfter_wellFormed }
+
 /-! ## Exact acted traces with paper-visible endpoint evidence -/
 
 structure AssignedTracePaperEndpoint
@@ -315,6 +435,35 @@ noncomputable def actedRaiseTrace :
     GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed
     raiseTrace raiseTraceEvidence raiseTraceAssignment
 
+def actedRaiseTraceEvidence : NonActivationTrace
+    (actTrace raiseAssumptions
+      GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed raiseTrace) :=
+  .cons (by
+    intro evidence
+    apply raiseStep_not_activation
+    rw [← actStep_rule raiseAssumptions
+      GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed raiseStep]
+    exact evidence) (.nil _)
+
+noncomputable def actedRaiseTraceAssignment : TraceProgramAssignment raiseDynamics raiseInertia
+    (actTrace raiseAssumptions
+      GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed raiseTrace) :=
+  actNonactivationTraceAssignment raiseAssumptions
+    GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed raiseTraceEvidence
+    raiseTraceAssignment
+
+noncomputable def unactedRaiseTrace :
+    BackwardNonActivationTracePaperEndpoint swapAction values raiseAssumptions
+      GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed
+      (actTrace raiseAssumptions
+        GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed raiseTrace)
+      actedRaiseTraceEvidence actedRaiseTraceAssignment :=
+  backwardNonActivationTracePaperEndpoint swapAction values raiseAssumptions
+    GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed
+    (actTrace raiseAssumptions
+      GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed raiseTrace)
+    actedRaiseTraceEvidence actedRaiseTraceAssignment
+
 theorem actedRaiseTrace_related :
     NameActionPaperRelated swapAction values raiseAfter (actState swapAction raiseAfter) :=
   actedRaiseTrace.paperRelated
@@ -325,6 +474,17 @@ theorem actedRaiseTrace_rules : actedRaiseTrace.acted.rules = raiseTrace.rules :
     raiseTrace.rules
   exact actTrace_rules raiseAssumptions
     GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed raiseTrace
+
+theorem unactedRaiseTrace_related :
+    NameActionPaperRelated swapAction values
+      unactedRaiseTrace.backward.originalAfter
+      (actState swapAction unactedRaiseTrace.backward.originalAfter) :=
+  unactedRaiseTrace.paperRelated
+
+theorem unactedRaiseTrace_endpoint :
+    actState swapAction unactedRaiseTrace.backward.originalAfter =
+      actState swapAction raiseAfter :=
+  unactedRaiseTrace.backward.endpoint_eq
 
 end Example
 
