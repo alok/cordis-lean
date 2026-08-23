@@ -1162,3 +1162,10 @@ retaining envelope/block tags, assistant usage, tool-result error/meta JSON, unk
 raw/length projections; malformed known payloads remain opaque archive entries. The map is finite
 payload-shape evidence only, not provider-schema semantics, opaque replay, transport, persistence,
 cancellation, or deployed Harness equivalence.
+
+`Cordis.DeepSeekHarnessPayloadPersistenceProcessOutcome` carries that payload ledger through the
+deterministic `IO.Process` complete-body outcome adapter. The dependent result retains expanded
+payload rows and typed count beside the streaming request, body, rich/tool execution, and exact
+endpoint; the fixture checks `8 -> 10`, body length `523`, and eight typed rows. This is local
+process/payload-shape evidence only, not provider/schema authenticity, durability, cancellation,
+external effects, or deployed Harness equivalence.

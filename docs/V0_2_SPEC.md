@@ -2189,6 +2189,13 @@ execution, and exact endpoint, and its deterministic shell fixture reaches `8 ->
 of length `523`. This is an executable local process boundary, not provider authenticity,
 incremental-stream, blocked-read, durability, external-effect, or deployed-Harness evidence.
 
+`Cordis.DeepSeekHarnessPayloadPersistenceProcessOutcome` carries the payload ledger through the
+same deterministic process outcome. Expanded payload rows and typed count remain indexed beside
+the streaming request, process body, rich/tool execution, and exact endpoint; the fixture checks
+`8 -> 10`, body length `523`, and eight typed rows. This remains local process/payload-shape
+evidence, not provider/schema authenticity, durability, blocked-read cancellation, external
+effects, or deployed Harness equivalence.
+
 `Cordis.DeepSeekHarnessPersistenceStreamRetry` composes that actual process outcome with the
 fuel-bounded streamed conversation loop. The restored runner remains the initial trace index; the
 fixture emits two counter calls, executes them through the dependent generic configuration, then

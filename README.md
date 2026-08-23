@@ -688,6 +688,13 @@ streaming body of length `523`. Process/credential trust, incremental delivery, 
 cancellation, durable persistence, external effects, and deployed Harness equivalence remain
 explicitly outside.
 
+`Cordis.DeepSeekHarnessPayloadPersistenceProcessOutcome` carries the persisted payload ledger
+through that same deterministic process outcome. Its dependent result keeps the expanded payload
+rows, typed payload count, streaming request, process body, rich/tool execution, and final runner
+endpoint together; the fixture checks `8 -> 10`, body length `523`, and eight retained typed rows.
+This is local process plus payload-shape evidence, not provider/schema authenticity, durability,
+blocked-read cancellation, external effects, or deployed Harness equivalence.
+
 `Cordis.DeepSeekHarnessPersistenceStreamRetry` extends that actual process boundary to a
 two-round continuation from the restored archive runner. The shell fixture emits the two-call
 counter stream first, then switches to terminal text after the first tool result appears in the

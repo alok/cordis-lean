@@ -422,6 +422,13 @@ projects archive `nextSeq = 8`, endpoint `nextSeq = 10`, and body length `523`. 
 process boundary only: process/credential trust, incremental delivery, blocked-read cancellation,
 durability, external effects, and deployed Harness equivalence remain outside.
 
+`DeepSeekHarnessPayloadPersistenceProcessOutcome` adds the payload ledger without loosening that
+boundary. The persisted expanded-event rows, typed payload count, streaming request, process body,
+dependent rich/tool execution, and final endpoint share one source runner index; its deterministic
+fixture reaches `8 -> 10` with body length `523` and eight typed payload rows. This remains local
+process/payload-shape evidence, not provider/schema authenticity, durability, blocked-read
+cancellation, external effects, or deployed equivalence.
+
 `DeepSeekHarnessPersistenceStreamRetry` extends that process boundary to a dependent two-round
 continuation from the restored runner. Its shell fixture emits the two-call counter stream, runs
 the typed tool executions, and emits terminal text after the first tool result is serialized into

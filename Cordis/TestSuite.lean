@@ -117,6 +117,7 @@ import Cordis.DeepSeekHarnessEventIgnorableNormalization
 import Cordis.DeepSeekHarnessEventSimulation
 import Cordis.DeepSeekHarnessCompleteSimulation
 import Cordis.DeepSeekHarnessPayloadSimulation
+import Cordis.DeepSeekHarnessPayloadPersistenceProcessOutcome
 import Cordis.DeepSeekHarnessEventArchiveReplay
 import Cordis.DeepSeekHarnessEventIgnorableRunner
 import Cordis.DeepSeekHarnessEventIgnorableTransport
@@ -6716,6 +6717,28 @@ private def testDeepSeekHarnessPayloadSimulation : IO Unit := do
       let _projection := DeepSeekHarnessPayloadSimulation.sessionProjection_eq simulation
       pure ()
 
+private def testDeepSeekHarnessPayloadPersistenceProcessOutcome : IO Unit := do
+  match ← DeepSeekHarnessPayloadPersistenceProcessOutcome.runSummary with
+  | .error error =>
+      fail s!"payload persistence process summary failed: {reprStr error}"
+  | .ok summary =>
+      assertEqual "payload persistence process fixture reaches its executable summary"
+        (DeepSeekHarnessPayloadPersistenceProcessOutcome.summaryMatchesFixture summary) true
+      assertEqual "payload persistence process fixture retains eight typed payload rows"
+        summary.typedPayloadCount 8
+  match ← DeepSeekHarnessPayloadPersistenceProcessOutcome.runFixture with
+  | .error error => fail s!"payload persistence process fixture failed: {reprStr error}"
+  | .ok run =>
+      let _session :=
+        DeepSeekHarnessPayloadPersistenceProcessOutcome.restored_session_eq_archive run
+      let _raw := DeepSeekHarnessPayloadPersistenceProcessOutcome.payload_raw_eq_expanded run
+      let _length := DeepSeekHarnessPayloadPersistenceProcessOutcome.payload_length_eq run
+      let _request :=
+        DeepSeekHarnessPayloadPersistenceProcessOutcome.request_build_eq_archive run
+      let _stream := DeepSeekHarnessPayloadPersistenceProcessOutcome.stream_plan_true run
+      let _endpoint := DeepSeekHarnessPayloadPersistenceProcessOutcome.process_endpoint run
+      pure ()
+
 private def testDeepSeekHarnessEventArchiveReplay : IO Unit := do
   match DeepSeekHarnessEventArchiveReplay.toolArchiveReplay with
   | .error error => fail s!"archive-aware replay failed: {reprStr error}"
@@ -10055,6 +10078,7 @@ def run : IO Unit := do
   testDeepSeekHarnessEventSimulation
   testDeepSeekHarnessCompleteSimulation
   testDeepSeekHarnessPayloadSimulation
+  testDeepSeekHarnessPayloadPersistenceProcessOutcome
   testDeepSeekHarnessEventArchiveReplay
   testDeepSeekHarnessEventIgnorableRunner
   testDeepSeekHarnessEventIgnorableTransport
