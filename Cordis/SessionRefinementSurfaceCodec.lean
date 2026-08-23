@@ -5,13 +5,15 @@ import Cordis.SessionRefinementTextCodec
 
 `SessionRefinement` already decodes the current source-shaped `user/message` and `tool/result`
 records, but the smaller scalar codec intentionally left those payloads one-way.  This module
-closes that gap for the text-user and single-text-tool-result subset used by the local Harness
-fixtures.  The encoder emits the exact outer metadata required by the decoder, preserves the
+closes that gap for the text-user, assistant-surface, and single-text-tool-result subset used by
+the local Harness fixtures.  The encoder emits the exact outer metadata required by the decoder,
+preserves the
 typed safe-integer witnesses, and retains `isError` as data rather than translating it to a local
 success flag.
 
-Assistant text/reasoning surface messages are now encoded as well as decoded.  Image and tool-call
-blocks, request metadata, source-event references, replacement operations, and provider/tool-owned
+Assistant text/reasoning and complete tool-call surface messages are now encoded as well as decoded.
+Image blocks, request metadata, source-event references, replacement operations, and
+provider/tool-owned
 opaque fields remain fail-closed.  A successful AST round trip is proved, then composed with the
 existing JSONL parser and UTF-8 renderer.  This is a source-shaped local codec, not a claim of
 deployed logger compatibility, provider obedience, or complete future event-union coverage.
@@ -67,7 +69,9 @@ def assistantBlockJson : WireAssistantBlock → Except EncodeError Lean.Json
   | .text text => .ok (rawObj [("type", .str "text"), ("text", .str text)])
   | .reasoning text => .ok (rawObj [("type", .str "reasoning"), ("text", .str text)])
   | .image _ => .error (.unsupportedAssistantBlock "image")
-  | .toolCall _ _ _ => .error (.unsupportedAssistantBlock "tool-call")
+  | .toolCall providerId name arguments =>
+      .ok (rawObj [("type", .str "tool-call"), ("id", .str providerId),
+        ("name", .str name), ("arguments", .str arguments)])
 
 def assistantBlocksJson (blocks : List WireAssistantBlock) :
     Except EncodeError Lean.Json := do
@@ -238,7 +242,9 @@ private theorem assistantBlock_decode (path : List PathSegment)
   | image raw =>
       simp [assistantBlockJson] at encoded
   | toolCall providerId name arguments =>
-      simp [assistantBlockJson] at encoded
+      cases encoded
+      simp_all (maxSteps := 1000000) [rawObj,
+        decodeAssistantBlock, decodeRequiredString, requireField, field?] <;> rfl
 
 private theorem assistantBlocks_loop_decode
     (path : List PathSegment) (start : Nat) :
@@ -928,7 +934,8 @@ def executableAssistantMessage : WireAssistantMessage := {
   id := "assistant-surface"
   provider := "fixture-provider"
   model := "fixture-model"
-  content := [.text "forecast", .reasoning "checked"]
+  content := [.text "forecast", .reasoning "checked",
+    .toolCall "call-weather" "weather" "{\"city\":\"Cupertino\"}"]
   usage := some {
     inputTokens := { value := 11, safe := by decide }
     outputTokens := { value := 7, safe := by decide }
@@ -952,7 +959,9 @@ theorem executableAssistantEvent_encodable :
     ∃ json, encodeWireEvent executableAssistantEvent = .ok json := by
   let content : Lean.Json := .arr #[
     rawObj [("type", .str "text"), ("text", .str "forecast")],
-    rawObj [("type", .str "reasoning"), ("text", .str "checked")]]
+    rawObj [("type", .str "reasoning"), ("text", .str "checked")],
+    rawObj [("type", .str "tool-call"), ("id", .str "call-weather"),
+      ("name", .str "weather"), ("arguments", .str "{\"city\":\"Cupertino\"}")]]
   refine ⟨assistantEventJson { value := 8, safe := by decide }
     { value := 108, safe := by decide } { value := 1, safe := by decide }
     { value := 2, safe := by decide } executableAssistantMessage content, ?_⟩

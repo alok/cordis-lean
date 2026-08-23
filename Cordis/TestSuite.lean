@@ -7502,8 +7502,17 @@ private def testSessionRefinementSurfaceCodec : IO Unit := do
                     | .reasoning text => "reasoning:" ++ text
                     | .image _ => "image"
                     | .toolCall _ _ _ => "tool-call"
-                  assertEqual "assistant surface AST retains text/reasoning blocks" tags
-                    ["text:forecast", "reasoning:checked"]
+                  assertEqual "assistant surface AST retains text/reasoning/tool-call blocks" tags
+                    ["text:forecast", "reasoning:checked", "tool-call"]
+                  match message.content with
+                  | [_text, _reasoning, .toolCall providerId name arguments] =>
+                      assertEqual "assistant surface AST retains tool-call provider ID"
+                        providerId "call-weather"
+                      assertEqual "assistant surface AST retains tool-call name"
+                        name "weather"
+                      assertEqual "assistant surface AST retains raw tool-call arguments"
+                        arguments "{\"city\":\"Cupertino\"}"
+                  | _ => fail "assistant surface AST lost typed tool-call fields"
                   match message.usage with
                   | some usage =>
                       assertEqual "assistant surface AST retains input usage"
