@@ -1958,6 +1958,13 @@ fixtures expose executable archive/known/keep/drop, endpoint, source-position, a
 summaries, while malformed replacement rejects. Keep this as a finite source-honest fixture
 surface: it does not derive opaque/provider/transport/persistence/cancellation semantics or
 complete deployed-Harness equivalence.
+`Cordis.DeepSeekHarnessCompleteRequest` is the next implementation checkpoint. `prepare` composes
+`simulate` with `prepareValidated`, so its `PreparedSimulation` carries the archive, keep/drop
+ledger, normalized occurrence replay, exact validator endpoint, dependent `ModelRequest`,
+source/header agreement, and request-build equality. The seven-row ignorable-header fixture is
+an executable positive path, and a required opaque row rejects before request preparation. The
+request is indexed by the validator endpoint, but replay/validator endpoint determinism is kept
+as a named future theorem rather than introduced by an unsafe cast.
 `Cordis.DeepSeekHarnessPayloadSimulation` is the next adjacent composition: build it only after
 the complete result succeeds, then call `SessionPayloadArchive.enrich` on its archive. Keep the
 payload ledger indexed by the same input and expose raw/length equations, envelope/block tags,

@@ -643,6 +643,12 @@ compaction-style replacement fixtures expose archive/known/keep/drop, endpoint, 
 and source-time summaries, while malformed replacement rejects. This is a finite source-honest
 subset bridge only; opaque/provider/transport/persistence/cancellation behavior and complete
 deployed-Harness equivalence remain external.
+`DeepSeekHarnessCompleteRequest` composes a successful complete simulation with the typed request
+handoff. `PreparedSimulation` retains the exact normalized validator endpoint, archive, keep/drop
+ledger, occurrence replay, dependent request, source/header agreement, and request-build equality;
+the seven-row ignorable-header fixture succeeds, while required opaque input fails before request
+preparation. Replay/validator endpoint determinism is deliberately not asserted until a separate
+theorem proves it.
 `DeepSeekHarnessPayloadSimulation` composes successful complete simulations with the typed payload
 archive over the same input. Envelope/block tags, assistant usage, tool-result error/meta JSON,
 unknown blocks, and exact raw/length projections remain beside the semantic replay; malformed

@@ -118,6 +118,7 @@ import Cordis.DeepSeekHarnessEventIgnorableProjection
 import Cordis.DeepSeekHarnessEventIgnorableNormalization
 import Cordis.DeepSeekHarnessEventSimulation
 import Cordis.DeepSeekHarnessCompleteSimulation
+import Cordis.DeepSeekHarnessCompleteRequest
 import Cordis.DeepSeekHarnessPayloadSimulation
 import Cordis.DeepSeekHarnessPayloadPersistenceProcessOutcome
 import Cordis.DeepSeekHarnessPayloadPersistenceStreamRetry
@@ -6752,6 +6753,29 @@ private def testDeepSeekHarnessCompleteSimulation : IO Unit := do
       let _projection := DeepSeekHarnessCompleteSimulation.sessionProjection_eq simulation
       pure ()
 
+private def testDeepSeekHarnessCompleteRequest : IO Unit := do
+  match DeepSeekHarnessCompleteRequest.ignorableHeaderPrepared with
+  | .error error =>
+      fail s!"complete request composition failed: {reprStr error}"
+  | .ok ⟨simulation, prepared⟩ =>
+      assertEqual "complete request composition preserves the seven-row archive"
+        simulation.archive.events.length 7
+      assertEqual "complete request composition records the explicit ignorable row"
+        simulation.certificate.ledger.decisions.droppedPositions [1]
+      assertEqual "complete request composition keeps the certified request model"
+        prepared.request.request.header.model "deepseek-reasoner"
+      let _log := prepared.request_log_eq_validated
+      let _messages :=
+        DeepSeekHarnessCompleteRequest.PreparedSimulation.request_messages_eq_final prepared
+      let _projection :=
+        DeepSeekHarnessCompleteRequest.PreparedSimulation.request_protocol_projection_eq_replay
+          prepared
+      let _source :=
+        DeepSeekHarnessCompleteRequest.PreparedSimulation.request_source_model_eq_header prepared
+      pure ()
+  assertEqual "required opaque rows fail before request preparation"
+    DeepSeekHarnessCompleteRequest.requiredOpaqueRejected true
+
 private def testDeepSeekHarnessPayloadSimulation : IO Unit := do
   match DeepSeekHarnessPayloadSimulation.textSummary with
   | .error error => fail s!"payload text simulation summary failed: {reprStr error}"
@@ -10390,6 +10414,7 @@ def run : IO Unit := do
   testDeepSeekHarnessEventIgnorableNormalization
   testDeepSeekHarnessEventSimulation
   testDeepSeekHarnessCompleteSimulation
+  testDeepSeekHarnessCompleteRequest
   testDeepSeekHarnessPayloadSimulation
   testDeepSeekHarnessPayloadPersistenceProcessOutcome
   testDeepSeekHarnessPayloadPersistenceStreamRetry

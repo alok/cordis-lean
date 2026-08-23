@@ -1195,6 +1195,14 @@ checks `8 -> 11`, eight payload rows, one round, two first-round calls, and mode
 local process/payload evidence only, not blocked-read interruption, cleanup, durable recovery,
 external effects, or deployed cancellation equivalence.
 
+`Cordis.DeepSeekHarnessCompleteRequest` is the certified request composition above the complete
+current-event replay. `prepare` retains a `CompleteSimulation` alongside a `PreparedLogRequest`
+indexed by the exact normalized validator endpoint; the archive, keep/drop ledger, occurrence
+replay, source/header agreement, and request-build equality remain available together. The
+seven-row ignorable-header fixture succeeds and required opaque input rejects before preparation.
+Replay/validator endpoint determinism remains a separate theorem obligation; no opaque/provider,
+transport, persistence, cancellation, or deployed Harness equivalence is claimed.
+
 `Cordis.DeepSeekHarnessPayloadPersistenceFileStreamRetryCancellation` repeats that boundary after
 an actual temporary-file read. The dependent result retains source/read-byte equality, restored
 session/payload equations, the completed tool round, and typed timeout endpoint; the fixture checks

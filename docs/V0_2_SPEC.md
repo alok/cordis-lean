@@ -2024,6 +2024,12 @@ and compaction-style replacement fixtures expose executable archive/known/keep/d
 source-position, and source-time summaries, while malformed replacement rejects. This remains a
 finite source-honest subset bridge; opaque/provider/transport/persistence/cancellation behavior
 and complete deployed-Harness equivalence remain external.
+`Cordis.DeepSeekHarnessCompleteRequest` composes that result with the typed request handoff. Its
+`PreparedSimulation` is indexed by the exact normalized `ValidatedJsonLog`, retains the archive,
+keep/drop ledger, normalized replay, dependent request, source/header agreement, and request-build
+equality, and is exercised by the seven-row ignorable-header fixture. A required opaque row fails
+closed before request preparation. The replay endpoint is retained separately because its
+determinism with the validator is not yet a proved equality.
 
 `Cordis.DeepSeekHarnessPayloadSimulation` composes that complete result with the typed payload
 archive over the same input. It retains envelope and block tags, assistant usage, tool-result
