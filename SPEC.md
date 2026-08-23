@@ -344,7 +344,9 @@ bisimulation without pretending that equal rules and actors determine dependent 
 `Cordis.GlobalRuleRelatedDetailedReplay` adds the extra constructor-sensitive `detailedRule`
 equation required to distinguish L-DivertAbort from L-DivertLand. Its trace theorem keeps exact
 shadow steps and assignments, weakening the relation only when packaging the birth-erased paper
-output.
+output. `DetailedAssignedStepSimulation` supplies the symmetric backward contract as well, and
+`replayBackward` constructs the reverse-oriented birth-erased package without identifying the
+two Divert constructors through the coarse global rule.
 
 `Cordis.GlobalPaperShiftedLifecycle` adds a concrete non-reflexive allocator-clock replay: it
 shifts only `nextBirth`, rebuilds the dependent L-Leave/L-Unload pair, and transports the exact

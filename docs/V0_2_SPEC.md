@@ -1252,8 +1252,8 @@ all-keep induction; assignment provenance is not inferred from rule or actor equ
 
 `Cordis.GlobalRuleRelatedDetailedReplay` records constructor-sensitive `detailedRule` equality,
 so the two operational L-Divert constructors cannot be exchanged through the coarse global rule
-tag. Its output packages the exact shadow trace and assignments under the birth-erased paper
-relation.
+tag. Its forward and backward assigned replay contracts package exact shadow traces and
+assignments under the birth-erased paper relation.
 
 `Cordis.GlobalPaperShiftedFullLifecycle` uses the same six-record fixture with a peer obtained by
 shifting only the allocator clock in every state. It reconstructs the six dependent peer

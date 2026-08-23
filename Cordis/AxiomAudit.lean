@@ -2646,6 +2646,10 @@ namespace Cordis.GlobalRuleRelatedDetailedReplay
 #print axioms DetailedForwardStepSimulation
 #print axioms ForwardDetailedStepMatch.toRetainedStep
 #print axioms DetailedForwardStepSimulation.replay
+#print axioms BackwardDetailedStepMatch
+#print axioms DetailedAssignedStepSimulation
+#print axioms BackwardDetailedStepMatch.toRetainedStep
+#print axioms DetailedAssignedStepSimulation.replayBackward
 end Cordis.GlobalRuleRelatedDetailedReplay
 namespace Cordis.GlobalPaperShiftedLifecycle
 #print axioms shift_wellFormed

@@ -3292,7 +3292,9 @@ conditional `WellFormedRuleBisimulation`, derives the exact actor wrapper equati
 When the caller must preserve the operational distinction between L-DivertAbort and
 L-DivertLand, use `GlobalRuleRelatedDetailedReplay.DetailedForwardStepSimulation` and supply
 `same_detailedRule` in addition to the exact match. Its `replay` theorem produces the paper trace
-package without erasing the exact shadow assignments.
+package without erasing the exact shadow assignments. If the traversal is reverse-oriented, use
+`DetailedAssignedStepSimulation` with its backward match and call `replayBackward`; the
+constructor-sensitive tag proof remains a separate obligation in that direction too.
 `GlobalPaperFullLifecycleReplay` packages the existing heterogeneous fixture as one exact
 six-record dependent path (`L-Begin`, `L-Iter`, `L-Finish`, `O-Retire`, `L-Leave`, `L-Unload`).
 Its first three records carry actual fixed-program activation assignments, while the remaining

@@ -9649,7 +9649,8 @@ private def testGlobalRuleRelatedDetailedReplay : IO Unit := do
     [
       "exact-rule-related-input",
       "detailed-lifecycle-tag-preservation",
-      "birth-erased-paper-replay-output"
+      "birth-erased-paper-replay-output",
+      "backward-detailed-replay-contract"
     ]
 
 private def testGlobalPaperShiftedLifecycle : IO Unit := do
