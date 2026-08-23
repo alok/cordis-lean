@@ -3063,6 +3063,8 @@ end Cordis.EffectContext
 #print axioms Cordis.GlobalNamePaperRelation.assignedTracePaperEndpoint_acted_eq
 #print axioms Cordis.GlobalNamePaperRelation.nonActivationTracePaperEndpoint
 #print axioms Cordis.GlobalNamePaperRelation.nonActivationTracePaperEndpoint_acted_eq
+#print axioms Cordis.GlobalNamePaperRelation.actPaperFiberControl_trans
+#print axioms Cordis.GlobalNamePaperRelation.actPaperFiberControl_symm_apply
 #print axioms Cordis.GlobalNamePaperRelation.unactNonActivationTraceAssignment
 #print axioms Cordis.GlobalNamePaperRelation.backwardNonActivationTracePaperEndpoint
 #print axioms Cordis.GlobalNamePaperRelation.Example.actedRaise_related

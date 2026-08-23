@@ -41,6 +41,51 @@ def actPaperFiberControl
   retired := control.retired
   phase := actPhase action control.phase
 
+@[simp]
+theorem actPaperFiberControl_trans
+    (first second : NameAction sig Ambient)
+    (control : PaperFiberControl catalog) :
+    actPaperFiberControl (first.trans second) control =
+      actPaperFiberControl second (actPaperFiberControl first control) := by
+  cases control with
+  | mk component parent retired phase =>
+      cases parent with
+      | none =>
+          change PaperFiberControl.mk component none retired
+              (actPhase (first.trans second) phase) =
+            PaperFiberControl.mk component none retired
+              (actPhase second (actPhase first phase))
+          rw [actPhase_trans]
+      | some parent =>
+          change PaperFiberControl.mk component
+              (some ((first.trans second).name parent)) retired
+              (actPhase (first.trans second) phase) =
+            PaperFiberControl.mk component (some (second.name (first.name parent))) retired
+              (actPhase second (actPhase first phase))
+          rw [actPhase_trans]
+          rfl
+
+@[simp]
+theorem actPaperFiberControl_symm_apply
+    (action : NameAction sig Ambient)
+    (control : PaperFiberControl catalog) :
+    actPaperFiberControl action.symm (actPaperFiberControl action control) = control := by
+  cases control with
+  | mk component parent retired phase =>
+      cases parent with
+      | none =>
+          change PaperFiberControl.mk component none retired
+              (actPhase action.symm (actPhase action phase)) =
+            PaperFiberControl.mk component none retired phase
+          rw [actPhase_symm_apply]
+      | some parent =>
+          change PaperFiberControl.mk component
+              (some (action.name.symm (action.name parent))) retired
+              (actPhase action.symm (actPhase action phase)) =
+            PaperFiberControl.mk component (some parent) retired phase
+          rw [actPhase_symm_apply]
+          simp
+
 /-- Look up a left paper control at the name corresponding to a right name. -/
 def actPaperControlAt
     (action : NameAction sig Ambient)
