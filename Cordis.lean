@@ -193,6 +193,7 @@ import Cordis.GlobalPaperShiftedLifecycle
 import Cordis.GlobalPaperShiftedFullLifecycle
 import Cordis.GlobalPaperNonReflexiveRewrite
 import Cordis.GlobalPaperTraceBackwardRewrite
+import Cordis.GlobalPaperTraceBackwardNormalization
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalPaperTraceNormalizer

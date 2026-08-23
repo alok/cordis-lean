@@ -172,6 +172,7 @@ import Cordis.GlobalPaperShiftedLifecycle
 import Cordis.GlobalPaperShiftedFullLifecycle
 import Cordis.GlobalPaperNonReflexiveRewrite
 import Cordis.GlobalPaperTraceBackwardRewrite
+import Cordis.GlobalPaperTraceBackwardNormalization
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalPaperTraceNormalizer
@@ -2683,6 +2684,27 @@ namespace Example
 #print axioms backward_actors_perm
 end Example
 end Cordis.GlobalPaperTraceBackwardRewrite
+namespace Cordis.GlobalPaperTraceBackwardNormalization
+#print axioms AnyRewriteWitness.target
+#print axioms RewriteChain.single
+#print axioms RewriteChain.single_terminal
+#print axioms chain_final_related
+#print axioms chain_rules_perm
+#print axioms chain_actors_perm
+namespace Example
+#print axioms sourcePackage
+#print axioms witness
+#print axioms chain
+#print axioms terminal
+#print axioms terminal_eq_target
+#print axioms terminal_final_related
+#print axioms terminal_wellFormed
+#print axioms terminal_assignment_exists
+#print axioms terminal_rules_perm
+#print axioms terminal_actors_perm
+#print axioms executableActorNames_eq
+end Example
+end Cordis.GlobalPaperTraceBackwardNormalization
 namespace Cordis.GlobalPaperTraceDeletion
 #print axioms detailedRule_eq_of_orchestration
 #print axioms replay_detailedRules_eq

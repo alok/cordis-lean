@@ -184,6 +184,7 @@ import Cordis.GlobalPaperShiftedLifecycle
 import Cordis.GlobalPaperShiftedFullLifecycle
 import Cordis.GlobalPaperNonReflexiveRewrite
 import Cordis.GlobalPaperTraceBackwardRewrite
+import Cordis.GlobalPaperTraceBackwardNormalization
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalPaperTraceNormalizer
@@ -9634,6 +9635,24 @@ private def testGlobalPaperTraceBackwardRewrite : IO Unit := do
     Cordis.GlobalPaperTraceBackwardRewrite.Example.executableActors
     [2, 1, 1]
 
+private def testGlobalPaperTraceBackwardNormalization : IO Unit := do
+  let _related :=
+    Cordis.GlobalPaperTraceBackwardNormalization.Example.terminal_final_related
+  let _wellFormed :=
+    Cordis.GlobalPaperTraceBackwardNormalization.Example.terminal_wellFormed
+  let _assignment :=
+    Cordis.GlobalPaperTraceBackwardNormalization.Example.terminal_assignment_exists
+  let _rulesPerm :=
+    Cordis.GlobalPaperTraceBackwardNormalization.Example.terminal_rules_perm
+  let _actorsPerm :=
+    Cordis.GlobalPaperTraceBackwardNormalization.Example.terminal_actors_perm
+  assertEqual "backward rewrite chain exposes one composed certificate link"
+    Cordis.GlobalPaperTraceBackwardNormalization.Example.executableLinkCount
+    1
+  assertEqual "backward rewrite chain exposes its reversed actor ledger"
+    Cordis.GlobalPaperTraceBackwardNormalization.Example.executableActorNames
+    [2, 1, 1]
+
 private def testGlobalPaperTraceNormalization : IO Unit := do
   let _related := GlobalPaperTraceNormalization.Example.empty_chain_related
   let _rules := GlobalPaperTraceNormalization.Example.empty_chain_rules
@@ -10255,6 +10274,7 @@ def run : IO Unit := do
   testGlobalPaperShiftedFullLifecycle
   testGlobalPaperNonReflexiveRewrite
   testGlobalPaperTraceBackwardRewrite
+  testGlobalPaperTraceBackwardNormalization
   testGlobalPaperTraceDeletion
   testGlobalPaperTraceNormalization
   testGlobalPaperTraceNormalizer
