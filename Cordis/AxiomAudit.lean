@@ -3036,10 +3036,13 @@ end Cordis.EffectContext
 #print axioms Cordis.GlobalNameTraceAction.actTrace
 #print axioms Cordis.GlobalNameTraceAction.actTrace_rules
 #print axioms Cordis.GlobalNameTraceAction.actTrace_actors
+#print axioms Cordis.GlobalNameTraceAction.unactTrace
 #print axioms Cordis.GlobalNameTraceAction.actTrace_preservesWellFormed
 #print axioms Cordis.GlobalNameTraceAction.actProgram
 #print axioms Cordis.GlobalNameTraceAction.actStepAssignment
 #print axioms Cordis.GlobalNameTraceAction.actTraceAssignment
+#print axioms Cordis.GlobalNameTraceAction.actNonactivationTraceAssignment
+#print axioms Cordis.GlobalNameTraceAction.actNonactivationTraceAssignment_exists
 #print axioms Cordis.GlobalNameTraceAction.assignedForwardTrace
 #print axioms Cordis.DeepSeekStreamHarnessErrors.executeConversationMultiStreamRoundRecoverable
 #print axioms Cordis.DeepSeekStreamHarnessErrors.runConversationMultiStreamRecoverable

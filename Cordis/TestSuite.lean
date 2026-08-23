@@ -9904,9 +9904,26 @@ private def testGlobalNameTraceAction : IO Unit := do
       GlobalNameLifecycle.NonidentityRaiseExample.raiseAfter :=
     .cons (.lifecycle GlobalNameLifecycle.NonidentityRaiseExample.raiseTransition)
       (.nil GlobalNameLifecycle.NonidentityRaiseExample.raiseAfter)
+  let evidence : GlobalNameTraceAction.NonActivationTrace trace :=
+    .cons (by intro impossible; cases impossible) (.nil _)
+  let assignment : GlobalTraceRewrite.TraceProgramAssignment
+      GlobalNameLifecycle.NonidentityRaiseExample.dynamics
+      GlobalNameLifecycle.NonidentityRaiseExample.inertia trace :=
+    .cons
+      (GlobalTraceRewrite.StepProgramAssignment.ofNonactivationLifecycle
+        GlobalNameLifecycle.NonidentityRaiseExample.raiseTransition
+        (by intro impossible; cases impossible))
+      (.nil _)
+  let _assignmentWitness := GlobalNameTraceAction.actNonactivationTraceAssignment_exists
+    GlobalNameLifecycle.NonidentityRaiseExample.assumptions
+    GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed evidence assignment
   let acted := GlobalNameTraceAction.actTrace
     GlobalNameLifecycle.NonidentityRaiseExample.assumptions
     GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed trace
+  let _backwardEndpoint :=
+    (GlobalNameTraceAction.unactTrace
+      GlobalNameLifecycle.NonidentityRaiseExample.assumptions
+      GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed acted).endpoint_eq
   assertEqual "trace name action preserves the raise rule projection"
     acted.rules [.lRaise]
   match acted.actors with

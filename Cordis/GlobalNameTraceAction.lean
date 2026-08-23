@@ -112,6 +112,54 @@ theorem actTrace_actors
       simp only [actTrace, Cordis.GlobalCalculus.Trace.actors, List.map_cons]
       rw [actStep_actor assumptions beforeWf head, ih]
 
+structure UnactedTrace
+    {action : NameAction sig Ambient} {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    {before actedAfter : State catalog Ambient}
+    (beforeWf : WellFormed before) where
+  originalAfter : State catalog Ambient
+  original : GlobalCalculus.Trace dynamics inertia before originalAfter
+  endpoint_eq : actState action originalAfter = actedAfter
+
+noncomputable def unactTrace
+    {action : NameAction sig Ambient} {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    {before actedAfter : State catalog Ambient}
+    (beforeWf : WellFormed before)
+    (trace : GlobalCalculus.Trace dynamics inertia (actState action before) actedAfter) :
+    UnactedTrace (actedAfter := actedAfter) assumptions beforeWf :=
+  @GlobalCalculus.Trace.rec sig catalog Ambient dynamics inertia
+    (fun source target trace =>
+      ∀ (original : State catalog Ambient)
+        (sourceEq : actState action original = source)
+        (originalWf : WellFormed original),
+        UnactedTrace (before := original) (actedAfter := target) assumptions originalWf)
+    (fun state original sourceEq originalWf => {
+      originalAfter := original
+      original := .nil original
+      endpoint_eq := sourceEq })
+    (fun {source middle target} head tail ih original sourceEq originalWf => by
+      have head' : Step dynamics inertia (actState action original) middle :=
+        sourceEq.symm ▸ head
+      let result := unactUnifiedStep assumptions originalWf head'
+      have actedMiddleWf : WellFormed middle :=
+        head'.preservesWellFormed (wellFormed_act action originalWf)
+      have originalMiddleWf : WellFormed result.originalAfter := by
+        rw [← wellFormed_act_iff action result.originalAfter]
+        rw [result.endpoint_eq]
+        exact actedMiddleWf
+      let tailAtOriginal : GlobalCalculus.Trace dynamics inertia
+          (actState action result.originalAfter) target :=
+        result.endpoint_eq.symm ▸ tail
+      let tailResult := ih result.originalAfter result.endpoint_eq originalMiddleWf
+      exact {
+        originalAfter := tailResult.originalAfter
+        original := .cons result.original tailResult.original
+        endpoint_eq := tailResult.endpoint_eq })
+    (actState action before) actedAfter trace before rfl beforeWf
+
 def actProgram
     {action : NameAction sig Ambient} {dynamics : Dynamics sig catalog Ambient}
     (equivariant : DynamicsNameEquivariant action dynamics)
@@ -236,6 +284,55 @@ noncomputable def actTraceAssignment
             (actStepAssignment assumptions activationTransport beforeWf headAssignment)
             (actTraceAssignment assumptions activationTransport
               (head.preservesWellFormed beforeWf) tailAssignment)
+
+inductive NonActivationTrace
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics} :
+    {before after : State catalog Ambient} →
+      GlobalCalculus.Trace dynamics inertia before after → Type (u + 1) where
+  | nil (state : State catalog Ambient) : NonActivationTrace (.nil state)
+  | cons
+      {before middle after : State catalog Ambient}
+      {head : Step dynamics inertia before middle}
+      {tail : GlobalCalculus.Trace dynamics inertia middle after}
+      (notActivation : ¬IsProgramActivationRule head.rule)
+      (tailEvidence : NonActivationTrace tail) :
+      NonActivationTrace (.cons head tail)
+
+noncomputable def actNonactivationTraceAssignment
+    {action : NameAction sig Ambient} {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    {before after : State catalog Ambient} (beforeWf : WellFormed before)
+    {trace : GlobalCalculus.Trace dynamics inertia before after}
+    (evidence : NonActivationTrace trace)
+    (assignment : TraceProgramAssignment dynamics inertia trace) :
+    TraceProgramAssignment dynamics inertia (actTrace assumptions beforeWf trace) := by
+  induction evidence with
+  | nil state => exact .nil _
+  | @cons before middle after head tail notActivation tailEvidence ih =>
+      cases assignment with
+      | cons headAssignment tailAssignment =>
+          have targetNotActivation : ¬IsProgramActivationRule
+              (actStep assumptions beforeWf head).rule := by
+            intro targetRule
+            apply notActivation
+            rw [← actStep_rule assumptions beforeWf head]
+            exact targetRule
+          exact .cons
+            (StepProgramAssignment.ofNotActivation _ targetNotActivation)
+            (ih (head.preservesWellFormed beforeWf) tailAssignment)
+
+theorem actNonactivationTraceAssignment_exists
+    {action : NameAction sig Ambient} {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    {before after : State catalog Ambient} (beforeWf : WellFormed before)
+    {trace : GlobalCalculus.Trace dynamics inertia before after}
+    (evidence : NonActivationTrace trace)
+    (assignment : TraceProgramAssignment dynamics inertia trace) :
+    Nonempty (TraceProgramAssignment dynamics inertia (actTrace assumptions beforeWf trace)) :=
+  ⟨actNonactivationTraceAssignment assumptions beforeWf evidence assignment⟩
 
 structure AssignedForwardTrace
     {action : NameAction sig Ambient} {dynamics : Dynamics sig catalog Ambient}
