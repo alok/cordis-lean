@@ -2218,7 +2218,9 @@ cancellation, external effects, and deployed equivalence remain separate obligat
 It writes the supported current-event JSONL fixture to a temporary file, reads it back as bytes,
 checks exact source/read equality before restoring the event archive/session, rebuilds a dependent
 streaming request plan from that endpoint with exact plan/body equations, and feeds the restored
-runner to the existing process-backed streamed cancellation trace. The executable summary retains
+runner to the existing process-backed streamed cancellation trace. Its
+`runRestoredWithFinish`/`runFixtureWithFinish` APIs carry a caller-supplied certified finisher
+through the file/event layer while the default fixture selects multi-tool. The executable summary retains
 source/read byte equality, the `8 -> 11` prefix, one round, two first-round calls, timeout
 cancellation, and model `0`. Keep temporary-file cleanup separate from fsync, stable media, crash
 recovery, blocked-read interruption, process cleanup, provider authenticity, external effects, and

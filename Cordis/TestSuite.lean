@@ -1991,7 +1991,8 @@ private def testDeepSeekHarnessPersistenceStreamRetry : IO Unit := do
       pure ()
 
 private def testDeepSeekHarnessPersistenceStreamRetryCancellation : IO Unit := do
-  match ← DeepSeekHarnessPersistenceStreamRetryCancellation.runFixture with
+  match ← DeepSeekHarnessPersistenceStreamRetryCancellation.runFixtureWithFinish
+      (finish := DeepSeekSessionRunner.finishMulti) with
   | .error _ => fail "persisted process stream-retry cancellation fixture failed"
   | .ok run =>
       let summary := DeepSeekHarnessPersistenceStreamRetryCancellation.summary run
@@ -2022,10 +2023,14 @@ private def testDeepSeekHarnessPersistenceStreamRetryCancellation : IO Unit := d
         (DeepSeekHarnessPersistenceStreamRetryCancellation.summaryMatchesFixture summary) true
       let _sessionCertificate :=
         DeepSeekHarnessPersistenceStreamRetryCancellation.restored_session_eq_archive run
-      pure ()
+      match ← DeepSeekHarnessPersistenceStreamRetryCancellation.runFixtureWithFinish
+          (finish := DeepSeekSessionRunner.finishText) with
+      | .error _ => pure ()
+      | .ok _ => fail "text finisher accepted the persisted multi-tool fixture"
 
 private def testDeepSeekHarnessPersistenceFileStreamRetryCancellation : IO Unit := do
-  match ← DeepSeekHarnessPersistenceFileStreamRetryCancellation.runFixture with
+  match ← DeepSeekHarnessPersistenceFileStreamRetryCancellation.runFixtureWithFinish
+      (finish := DeepSeekSessionRunner.finishMulti) with
   | .error _ => fail "file-backed persisted process cancellation fixture failed"
   | .ok run =>
       let summary := DeepSeekHarnessPersistenceFileStreamRetryCancellation.summary run
@@ -6652,7 +6657,8 @@ private def testDeepSeekHarnessEventProcessSchema : IO Unit := do
           pure ()
 
 private def testDeepSeekHarnessEventFileStreamRetryCancellation : IO Unit := do
-  match ← DeepSeekHarnessEventFileStreamRetryCancellation.runFixture with
+  match ← DeepSeekHarnessEventFileStreamRetryCancellation.runFixtureWithFinish
+      (finish := DeepSeekSessionRunner.finishMulti) with
   | .error _ => fail "file-backed current-event cancellation fixture failed"
   | .ok run =>
       let summary := DeepSeekHarnessEventFileStreamRetryCancellation.summary run

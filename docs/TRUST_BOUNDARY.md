@@ -426,13 +426,17 @@ external effects, and deployed Harness equivalence remain external.
 `DeepSeekHarnessPersistenceStreamRetryCancellation` adds a pre-round cancellation decision to
 that same persisted process trace. It retains the first accepted tool round and decides before
 round one, projecting `8 -> 11`, one round, two first-round calls, timeout reason, model `0`, and
-the exact cancellation boundary. This proves no later request is selected after the decision; it
+the exact cancellation boundary. `runRestoredWithFinish` and `runFixtureWithFinish` carry a
+caller-supplied certified finisher through the persisted layer, while the default fixture selects
+multi-tool. This proves no later request is selected after the decision; it
 does not interrupt a blocked read or establish process cleanup, durability, external-effect, or
 deployed cancellation equivalence.
 
 `DeepSeekHarnessPersistenceFileStreamRetryCancellation` executes the same dependent cancellation
 path after `DurableIO.FileBackend` writes and reads the archive in a temporary file. The returned
-certificate still proves exact restored-session equality and the `8 -> 11` cancellation prefix,
+certificate still proves exact restored-session equality and the `8 -> 11` cancellation prefix;
+`runRestoredWithFinish` and `runFixtureWithFinish` preserve caller finisher choice through the file
+layer, while the default fixture selects multi-tool. The returned
 and its executable summary records the temporary-file route. `withTempFile` removes the file on
 return; fsync, stable media, crash recovery, in-flight interruption, process cleanup, external
 effects, and deployed Harness equivalence remain outside.
@@ -442,7 +446,9 @@ supported current-Harness event JSONL surface. It writes and reads the event byt
 source/read equality before restoring the event archive/session, and then feeds the restored
 runner to the process-backed streamed cancellation trace. The result retains the byte witness,
 archive/session equality, `8 -> 11` prefix, one round, two first-round calls, timeout reason, and
-model `0`. It also retains a dependent streaming request plan rebuilt from the restored session,
+model `0`. The `runRestoredWithFinish` and `runFixtureWithFinish` seams preserve a caller-supplied
+finisher through the event-file layer, while the default fixture selects multi-tool. It also
+retains a dependent streaming request plan rebuilt from the restored session,
 with exact plan-build and serialized-body equations. This is request reconstruction evidence, not
 an assertion that the process adapter exposes or authenticates its internally consumed request.
 `withTempFile` cleanup is scoped; fsync, stable media, crash recovery, blocked-read interruption,

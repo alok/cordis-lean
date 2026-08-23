@@ -33,6 +33,7 @@ open Cordis.DeepSeekHarnessCancellation
 open Cordis.DeepSeekHarnessEventText
 open Cordis.DeepSeekHarnessPersistenceIO
 open Cordis.DeepSeekHarnessPersistenceStreamRetry
+open Cordis.DeepSeekSessionRunner
 open Cordis.DeepSeekStreamHarness
 open Cordis.DeepSeekStreamHarnessRetry
 open Cordis.DeepSeekStreamHarnessRetryCancellation
@@ -100,6 +101,23 @@ structure FileEventCancellationRun where
     emptySources_nodup emptySources_earlier
     file.restored.restored.restored.runner 0 finalRunner finalModel
 
+def runRestoredWithFinish
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body))
+    (file : FileRestored) :
+    IO (Except (ConversationError FixtureRetry)
+      (Sigma fun finalRunner : ConversationRunner =>
+        Sigma fun finalModel : Nat =>
+          RetryCancellableRunResult FixtureCancellation (retryPolicy := FixtureRetry)
+            FixtureConfig FixtureProcess FixtureBaseUrl FixtureApiKey FixtureSource EmptySources
+            emptySources_nodup emptySources_earlier
+            file.restored.restored.restored.runner 0 finalRunner finalModel)) :=
+  DeepSeekStreamHarnessRetryCancellation.runWithFinish finish
+    (policy := FixtureCancellation) (retryPolicy := FixtureRetry) 2 FixtureProcess
+    FixtureBaseUrl FixtureApiKey FixtureSource FixtureConfig EmptySources
+    emptySources_nodup emptySources_earlier
+    0 file.restored.restored.restored.runner
+
 def runRestored
     (file : FileRestored) :
     IO (Except (ConversationError FixtureRetry)
@@ -109,13 +127,12 @@ def runRestored
             FixtureConfig FixtureProcess FixtureBaseUrl FixtureApiKey FixtureSource EmptySources
             emptySources_nodup emptySources_earlier
             file.restored.restored.restored.runner 0 finalRunner finalModel)) :=
-  DeepSeekStreamHarnessRetryCancellation.run
-    (policy := FixtureCancellation) (retryPolicy := FixtureRetry) 2 FixtureProcess
-    FixtureBaseUrl FixtureApiKey FixtureSource FixtureConfig EmptySources
-    emptySources_nodup emptySources_earlier
-    0 file.restored.restored.restored.runner
+  runRestoredWithFinish (finish := finishMulti) file
 
-def runFixture : IO (Except EndToEndError FileEventCancellationRun) := do
+def runFixtureWithFinish
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body)) :
+    IO (Except EndToEndError FileEventCancellationRun) := do
   match ← restoreFile with
   | .error error => pure (.error (.file error))
   | .ok file =>
@@ -123,7 +140,7 @@ def runFixture : IO (Except EndToEndError FileEventCancellationRun) := do
           file.restored.restored.restored.runner.session with
       | .error error => pure (.error (.request error))
       | .ok request =>
-          match ← runRestored file with
+          match ← runRestoredWithFinish finish file with
           | .error error => pure (.error (.retry error))
           | .ok ⟨finalRunner, ⟨finalModel, cancellation⟩⟩ =>
               pure (.ok {
@@ -134,6 +151,9 @@ def runFixture : IO (Except EndToEndError FileEventCancellationRun) := do
                 finalModel
                 cancellation
               })
+
+def runFixture : IO (Except EndToEndError FileEventCancellationRun) :=
+  runFixtureWithFinish (finish := finishMulti)
 
 theorem file_bytes_eq_source (run : FileEventCancellationRun) :
     run.file.bytes = SourceBytes :=

@@ -27,6 +27,7 @@ open Cordis.DeepSeekHarness
 open Cordis.DeepSeekHarnessCancellation
 open Cordis.DeepSeekHarnessPersistenceIO
 open Cordis.DeepSeekHarnessPersistenceStreamRetry
+open Cordis.DeepSeekSessionRunner
 open Cordis.DeepSeekStreamHarness
 open Cordis.DeepSeekStreamHarnessRetry
 open Cordis.DeepSeekStreamHarnessRetryCancellation
@@ -65,6 +66,23 @@ structure FilePersistedCancellationRun where
     FixtureConfig FixtureProcess FixtureBaseUrl FixtureApiKey FixtureSource EmptySources
     emptySources_nodup emptySources_earlier restored.restored.runner 0 finalRunner finalModel
 
+def runRestoredWithFinish
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body))
+    (restored : RestoredRunner) :
+    IO (Except (ConversationError FixtureRetry)
+      (Sigma fun finalRunner : ConversationRunner =>
+        Sigma fun finalModel : Nat =>
+          RetryCancellableRunResult FixtureCancellation (retryPolicy := FixtureRetry)
+            FixtureConfig FixtureProcess FixtureBaseUrl FixtureApiKey FixtureSource EmptySources
+            emptySources_nodup emptySources_earlier
+            restored.restored.runner 0 finalRunner finalModel)) :=
+  DeepSeekStreamHarnessRetryCancellation.runWithFinish finish
+    (policy := FixtureCancellation) (retryPolicy := FixtureRetry) 2 FixtureProcess
+    FixtureBaseUrl FixtureApiKey FixtureSource FixtureConfig EmptySources
+    emptySources_nodup emptySources_earlier
+    0 restored.restored.runner
+
 def runRestored
     (restored : RestoredRunner) :
     IO (Except (ConversationError FixtureRetry)
@@ -74,20 +92,22 @@ def runRestored
             FixtureConfig FixtureProcess FixtureBaseUrl FixtureApiKey FixtureSource EmptySources
             emptySources_nodup emptySources_earlier
             restored.restored.runner 0 finalRunner finalModel)) :=
-  DeepSeekStreamHarnessRetryCancellation.run
-    (policy := FixtureCancellation) (retryPolicy := FixtureRetry) 2 FixtureProcess
-    FixtureBaseUrl FixtureApiKey FixtureSource FixtureConfig EmptySources
-    emptySources_nodup emptySources_earlier
-    0 restored.restored.runner
+  runRestoredWithFinish (finish := finishMulti) restored
 
-def runFixture : IO (Except EndToEndError FilePersistedCancellationRun) := do
+def runFixtureWithFinish
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body)) :
+    IO (Except EndToEndError FilePersistedCancellationRun) := do
   match ← DeepSeekHarnessPersistenceIO.fixtureFile with
   | .error error => pure (.error (.store error))
   | .ok restored =>
-      match ← runRestored restored with
+      match ← runRestoredWithFinish finish restored with
       | .error error => pure (.error (.retry error))
       | .ok ⟨finalRunner, ⟨finalModel, cancellation⟩⟩ =>
           pure (.ok { restored, finalRunner, finalModel, cancellation })
+
+def runFixture : IO (Except EndToEndError FilePersistedCancellationRun) :=
+  runFixtureWithFinish (finish := finishMulti)
 
 /-! ## The file-backed read remains the exact logical archive endpoint -/
 

@@ -1494,19 +1494,24 @@ The bounded algebra/context/global layer now has sixty-eight explicit pieces:
 47. `Cordis.DeepSeekHarnessPersistenceStreamRetryCancellation` adds a pre-round cancellation
     certificate to that process-backed continuation. It accepts the first tool round, decides
     cancellation before round one, and checks `8 -> 11`, one retained round, two first-round calls,
-    timeout reason, model `0`, and an exact cancellation stop. In-flight interruption, process
+    timeout reason, model `0`, and an exact cancellation stop. Its `runRestoredWithFinish` and
+    `runFixtureWithFinish` APIs preserve a caller-supplied certified finisher while the default
+    fixture selects multi-tool. In-flight interruption, process
     cleanup, durability, external effects, and deployed cancellation equivalence remain open.
 48. `Cordis.DeepSeekHarnessPersistenceFileStreamRetryCancellation` reruns that dependent
     cancellation path after writing and reading the archive through a temporary-file
     `DurableIO.FileBackend`. Its executable projection checks the same `8 -> 11` prefix and
     records the file-backed route beside the exact restored-session equality. `withTempFile`
     cleanup is real, but fsync, stable media, crash recovery, in-flight interruption, process
-    cleanup, external effects, and deployed Harness equivalence remain open.
+    cleanup, external effects, and deployed Harness equivalence remain open. Its finisher-indexed
+    `runRestoredWithFinish`/`runFixtureWithFinish` seams carry the caller choice through the file
+    layer; the default fixture selects multi-tool.
 49. `Cordis.DeepSeekHarnessEventFileStreamRetryCancellation` writes the supported current-Harness
     event JSONL fixture to a temporary file, reads it back as bytes, proves byte equality before
     restoring the event archive/session, rebuilds a dependent streaming request plan from that
     endpoint with exact plan/body equations, and feeds the restored runner to the existing
-    process-backed streamed cancellation trace. Its executable projection checks source/read byte
+    process-backed streamed cancellation trace through a caller-supplied finisher; the default
+    fixture selects multi-tool. Its executable projection checks source/read byte
     equality, `8 -> 11`, one retained round, two first-round calls, timeout cancellation, and model
     `0`. Scoped cleanup is real; fsync, stable media, crash recovery, blocked-read interruption,
     process cleanup, provider authenticity, external effects, and deployed Harness equivalence

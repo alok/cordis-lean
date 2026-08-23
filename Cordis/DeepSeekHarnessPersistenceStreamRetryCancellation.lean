@@ -27,6 +27,7 @@ open Cordis.DeepSeekHarness
 open Cordis.DeepSeekHarnessCancellation
 open Cordis.DeepSeekHarnessPersistenceIO
 open Cordis.DeepSeekHarnessPersistenceStreamRetry
+open Cordis.DeepSeekSessionRunner
 open Cordis.DeepSeekStreamHarness
 open Cordis.DeepSeekStreamHarnessRetry
 open Cordis.DeepSeekStreamHarnessRetryCancellation
@@ -70,6 +71,23 @@ structure PersistedCancellationRun where
 
 /-! ## Process-backed continuation with a pre-round cancellation boundary -/
 
+def runRestoredWithFinish
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body))
+    (restored : RestoredRunner) :
+    IO (Except (ConversationError FixtureRetry)
+      (Sigma fun finalRunner : ConversationRunner =>
+        Sigma fun finalModel : Nat =>
+          RetryCancellableRunResult FixtureCancellation (retryPolicy := FixtureRetry) FixtureConfig
+            FixtureProcess FixtureBaseUrl FixtureApiKey FixtureSource emptySourceEventSeqs
+            emptySourceEventSeqs_nodup emptySourceEventSeqs_earlier
+            restored.restored.runner 0 finalRunner finalModel)) :=
+  DeepSeekStreamHarnessRetryCancellation.runWithFinish finish
+    (policy := FixtureCancellation) (retryPolicy := FixtureRetry) 2 FixtureProcess
+    FixtureBaseUrl FixtureApiKey FixtureSource FixtureConfig emptySourceEventSeqs
+    emptySourceEventSeqs_nodup emptySourceEventSeqs_earlier
+    0 restored.restored.runner
+
 def runRestored
     (restored : RestoredRunner) :
     IO (Except (ConversationError FixtureRetry)
@@ -79,17 +97,16 @@ def runRestored
             FixtureProcess FixtureBaseUrl FixtureApiKey FixtureSource emptySourceEventSeqs
             emptySourceEventSeqs_nodup emptySourceEventSeqs_earlier
             restored.restored.runner 0 finalRunner finalModel)) :=
-  DeepSeekStreamHarnessRetryCancellation.run
-    (policy := FixtureCancellation) (retryPolicy := FixtureRetry) 2 FixtureProcess
-    FixtureBaseUrl FixtureApiKey FixtureSource FixtureConfig emptySourceEventSeqs
-    emptySourceEventSeqs_nodup emptySourceEventSeqs_earlier
-    0 restored.restored.runner
+  runRestoredWithFinish (finish := finishMulti) restored
 
-def runFixture : IO (Except EndToEndError PersistedCancellationRun) := do
+def runFixtureWithFinish
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body)) :
+    IO (Except EndToEndError PersistedCancellationRun) := do
   match ← DeepSeekHarnessPersistenceIO.fixtureMemory with
   | .error error => pure (.error (.store error))
   | .ok restored =>
-      match ← runRestored restored with
+      match ← runRestoredWithFinish finish restored with
       | .error error => pure (.error (.retry error))
       | .ok ⟨finalRunner, ⟨finalModel, cancellation⟩⟩ =>
           pure (.ok {
@@ -98,6 +115,9 @@ def runFixture : IO (Except EndToEndError PersistedCancellationRun) := do
             finalModel
             cancellation
           })
+
+def runFixture : IO (Except EndToEndError PersistedCancellationRun) :=
+  runFixtureWithFinish (finish := finishMulti)
 
 /-! ## Proof projections -/
 
