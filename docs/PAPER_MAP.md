@@ -1200,8 +1200,9 @@ current-event replay. `prepare` retains a `CompleteSimulation` alongside a `Prep
 indexed by the exact normalized validator endpoint; the archive, keep/drop ledger, occurrence
 replay, source/header agreement, and request-build equality remain available together. The
 seven-row ignorable-header fixture succeeds and required opaque input rejects before preparation.
-Replay/validator endpoint determinism remains a separate theorem obligation; no opaque/provider,
-transport, persistence, cancellation, or deployed Harness equivalence is claimed.
+The indexed decoder/replay certificate proves replay/validator endpoint equality for this finite
+supported subset; no opaque/provider, transport, persistence, cancellation, or deployed Harness
+equivalence is claimed.
 
 `Cordis.DeepSeekHarnessPayloadPersistenceFileStreamRetryCancellation` repeats that boundary after
 an actual temporary-file read. The dependent result retains source/read-byte equality, restored

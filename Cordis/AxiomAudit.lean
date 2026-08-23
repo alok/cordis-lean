@@ -844,6 +844,8 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessEventSimulation.SourceReplay.sessionProjection_eq
 #print axioms Cordis.DeepSeekHarnessEventSimulation.sourceLedger
 #print axioms Cordis.DeepSeekHarnessEventSimulation.replayOccurrences
+#print axioms Cordis.DeepSeekHarnessEventSimulation.validated_events_eq_occurrences
+#print axioms Cordis.DeepSeekHarnessEventSimulation.replay_endpoint_eq_validated
 #print axioms Cordis.DeepSeekHarnessEventSimulation.simulateNormalized
 #print axioms Cordis.DeepSeekHarnessCompleteSimulation.CompleteSimulation
 #print axioms Cordis.DeepSeekHarnessCompleteSimulation.simulate
@@ -866,6 +868,7 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessCompleteRequest.PreparedSimulation.request_log_eq_validated
 #print axioms Cordis.DeepSeekHarnessCompleteRequest.PreparedSimulation.request_messages_eq_final
 #print axioms Cordis.DeepSeekHarnessCompleteRequest.PreparedSimulation.request_protocol_projection_eq_replay
+#print axioms Cordis.DeepSeekHarnessCompleteRequest.PreparedSimulation.replay_endpoint_eq_validated
 #print axioms Cordis.DeepSeekHarnessCompleteRequest.PreparedSimulation.request_source_model_eq_header
 #print axioms Cordis.DeepSeekHarnessCompleteRequest.ignorableHeaderPrepared_is_ok
 #print axioms Cordis.DeepSeekHarnessCompleteRequest.ignorableHeaderPrepared_request_header

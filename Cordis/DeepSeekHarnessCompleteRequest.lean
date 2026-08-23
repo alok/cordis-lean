@@ -10,10 +10,9 @@ semantic replay, and a header-indexed DeepSeek request certificate.  The request
 the exact `NormalizedLog.validated` endpoint, so it cannot be built from a stale or independently
 reparsed session.
 
-The source replay is retained in the same result, but this module deliberately does not assert
-that its existential endpoint is definitionally equal to the validator's endpoint.  Establishing
-that equality would require a separate replay/validator determinism theorem; the two certificates
-are therefore exposed without silently strengthening the claim.  Opaque payload semantics,
+The source replay is retained in the same result, and its endpoint is now tied to the validator's
+endpoint by the indexed decoder and replay certificates.  This proves alignment for the modeled
+supported subset, not behavioral equivalence for arbitrary upstream inputs.  Opaque payload semantics,
 provider behavior, transport, persistence, cancellation delivery, and equivalence to the complete
 deployed TypeScript Harness remain outside this finite source-honest slice.
 -/
@@ -112,6 +111,15 @@ theorem request_protocol_projection_eq_replay
       prepared.request.log.sequence.protocolTrace.erase := by
   rw [← prepared.request_log_eq]
   exact prepared.request.protocol_projection_eq_replay
+
+theorem replay_endpoint_eq_validated
+    {input : List Lean.Json}
+    {simulation : CompleteSimulation input}
+    {encoder : ToolSchemaEncoder}
+    {options : RequestOptions}
+    (_prepared : PreparedSimulation simulation encoder options) :
+    simulation.certificate.replay.1 = simulation.normalized.validated.final := by
+  exact simulation.certificate.replay_endpoint_eq
 
 theorem request_source_model_eq_header
     {input : List Lean.Json}

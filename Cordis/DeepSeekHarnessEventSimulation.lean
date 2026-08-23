@@ -157,7 +157,7 @@ def sourceLedger {input : List Lean.Json} (normalized : NormalizedLog input) :
       exact normalized.occurrences_positions_eq.symm
   }
 
-private def replayOne (before : State) (occurrence : NormalizedOccurrence) :
+def replayOne (before : State) (occurrence : NormalizedOccurrence) :
     Except SimulationError (ReplayStep before occurrence) :=
   match refineEvent before occurrence.event with
   | .error error => .error (.refinement occurrence.sourcePosition error)
@@ -175,17 +175,158 @@ def replayOccurrences (seed : State) (occurrences : List NormalizedOccurrence) :
           | .error error => .error error
           | .ok ⟨final, tail⟩ => .ok ⟨final, .cons head tail⟩
 
+private theorem decodeOccurrencesAt :
+    ∀ (index : Nat) (occurrences : List NormalizedOccurrence),
+      occurrences.map NormalizedOccurrence.localPosition =
+          (List.range occurrences.length).map (· + index) →
+      SessionRefinement.decodeEventsAt index
+          (occurrences.map NormalizedOccurrence.raw) =
+        .ok (occurrences.map NormalizedOccurrence.event)
+  | index, [], positions => by
+      rfl
+  | index, head :: tail, positions => by
+      have headPosition : head.localPosition = index := by
+        simp only [List.length_cons, List.range_succ_eq_map, List.map_cons] at positions
+        simpa using congrArg List.head? positions
+      have tailPositions :
+          tail.map NormalizedOccurrence.localPosition =
+            (List.range tail.length).map (· + (index + 1)) := by
+        simp only [List.length_cons, List.range_succ_eq_map, List.map_cons] at positions
+        have tailEq := congrArg List.tail? positions
+        simpa [Function.comp_def, Nat.add_comm, Nat.add_left_comm, Nat.add_assoc] using tailEq
+      cases hTail : SessionRefinement.decodeEventsAt (index + 1)
+          (tail.map NormalizedOccurrence.raw) with
+      | error error =>
+          change (do
+            let event ← SessionRefinement.decodeEventAt [.index index] head.raw
+            let events ← SessionRefinement.decodeEventsAt (index + 1)
+              (tail.map NormalizedOccurrence.raw)
+            .ok (event :: events)) =
+            .ok (head.event :: tail.map NormalizedOccurrence.event)
+          have headDecoded : SessionRefinement.decodeEventAt [.index index] head.raw =
+              .ok head.event := by
+            simpa [headPosition] using head.decoded
+          have tailDecoded := decodeOccurrencesAt (index + 1) tail tailPositions
+          rw [tailDecoded] at hTail
+          cases hTail
+      | ok events =>
+          change (do
+            let event ← SessionRefinement.decodeEventAt [.index index] head.raw
+            let events ← SessionRefinement.decodeEventsAt (index + 1)
+              (tail.map NormalizedOccurrence.raw)
+            .ok (event :: events)) =
+            .ok (head.event :: tail.map NormalizedOccurrence.event)
+          have headDecoded : SessionRefinement.decodeEventAt [.index index] head.raw =
+              .ok head.event := by
+            simpa [headPosition] using head.decoded
+          simp [headDecoded, hTail]
+          have tailDecoded := decodeOccurrencesAt (index + 1) tail tailPositions
+          rw [tailDecoded] at hTail
+          cases hTail
+          rfl
+
+private theorem decodeOccurrences {occurrences : List NormalizedOccurrence}
+    (positions : occurrences.map NormalizedOccurrence.localPosition =
+      List.range occurrences.length) :
+    SessionRefinement.decodeEvents (occurrences.map NormalizedOccurrence.raw) =
+      .ok (occurrences.map NormalizedOccurrence.event) := by
+  unfold SessionRefinement.decodeEvents
+  simpa using decodeOccurrencesAt 0 occurrences (by simpa using positions)
+
+theorem validated_events_eq_occurrences {input : List Lean.Json}
+    (normalized : NormalizedLog input) :
+    normalized.validated.events = normalized.occurrences.map NormalizedOccurrence.event := by
+  have decoded := decodeOccurrences (occurrences := normalized.occurrences)
+    normalized.occurrences_localPositions_eq
+  have inputDecoded : SessionRefinement.decodeEvents normalized.normalizedInput =
+      .ok (normalized.occurrences.map NormalizedOccurrence.event) := by
+    rw [normalized.normalizedInput_eq]
+    exact decoded
+  have both : (.ok normalized.validated.events :
+      Except SessionRefinement.DecodeError (List WireEvent)) =
+      .ok (normalized.occurrences.map NormalizedOccurrence.event) :=
+    normalized.validated.decode_eq.symm.trans inputDecoded
+  exact Except.ok.inj both
+
+private theorem replay_final_of_validate
+    (seed : State)
+    : ∀ (occurrences : List NormalizedOccurrence) (final : State)
+      (sequence : ValidatedSequence seed
+        (occurrences.map NormalizedOccurrence.event) final),
+      SessionRefinement.validateSequence seed
+          (occurrences.map NormalizedOccurrence.event) = .ok ⟨final, sequence⟩ →
+        ∃ replay : SourceReplay seed occurrences final,
+          replayOccurrences seed occurrences = .ok ⟨final, replay⟩
+  | [], final, sequence, result => by
+      cases sequence
+      exact ⟨.nil seed, rfl⟩
+  | occurrence :: rest, final, sequence, result => by
+      cases headResult : SessionRefinement.refineEvent seed occurrence.event with
+      | error error =>
+          simp only [SessionRefinement.validateSequence, List.map] at result
+          simp only [headResult, Except.bind, Bind.bind] at result
+          cases result
+      | ok head =>
+          cases tailResult : SessionRefinement.validateSequence head.after
+              (rest.map NormalizedOccurrence.event) with
+          | error error =>
+              simp only [SessionRefinement.validateSequence, List.map] at result
+              simp only [headResult, tailResult, Except.bind, Bind.bind] at result
+              cases result
+          | ok tail =>
+              cases sequence with
+              | cons sequenceHead sequenceTail =>
+                simp only [SessionRefinement.validateSequence, List.map] at result
+                simp only [headResult, tailResult, Except.bind, Bind.bind] at result
+                have resultEq := Except.ok.inj result
+                cases resultEq
+                have tailReplay := replay_final_of_validate head.after rest tail.1
+                  tail.2 tailResult
+                rcases tailReplay with ⟨replay, replayResult⟩
+                refine ⟨.cons { refinement := head } replay, ?_⟩
+                simp [ReplayStep.after, replayOccurrences, replayOne, headResult, replayResult]
+
+private theorem replay_final_of_validate_events
+    (seed : State)
+    (occurrences : List NormalizedOccurrence) (events : List WireEvent) (final : State)
+    (sequence : ValidatedSequence seed events final)
+    (eventsEq : events = occurrences.map NormalizedOccurrence.event)
+    (result : SessionRefinement.validateSequence seed events = .ok ⟨final, sequence⟩) :
+    ∃ replay : SourceReplay seed occurrences final,
+      replayOccurrences seed occurrences = .ok ⟨final, replay⟩ := by
+  cases eventsEq
+  exact replay_final_of_validate seed occurrences final sequence result
+
+theorem replay_endpoint_eq_validated {input : List Lean.Json}
+    (normalized : NormalizedLog input)
+    {replay : Sigma (fun final => SourceReplay State.initial normalized.occurrences final)}
+    (result : replayOccurrences State.initial normalized.occurrences = .ok replay) :
+    replay.1 = normalized.validated.final := by
+  have eventsEq := validated_events_eq_occurrences normalized
+  rcases replay with ⟨final, replay⟩
+  have aligned := replay_final_of_validate_events State.initial normalized.occurrences
+    normalized.validated.events normalized.validated.final normalized.validated.sequence
+    eventsEq normalized.validated.validate_eq
+  rcases aligned with ⟨replay', replayResult'⟩
+  have resultEq := Except.ok.inj (result.symm.trans replayResult')
+  exact congrArg Sigma.fst resultEq
+
 structure SimulationCertificate {input : List Lean.Json}
     (normalized : NormalizedLog input) where
   ledger : SourceLedger normalized
   replay : Σ final,
     SourceReplay State.initial normalized.occurrences final
+  replay_endpoint_eq : replay.1 = normalized.validated.final
 
 def simulateNormalized {input : List Lean.Json} (normalized : NormalizedLog input) :
     Except SimulationError (SimulationCertificate normalized) :=
-  match replayOccurrences State.initial normalized.occurrences with
+  match replayResult : replayOccurrences State.initial normalized.occurrences with
   | .error error => .error error
-  | .ok replay => .ok { ledger := sourceLedger normalized, replay }
+  | .ok replay => .ok {
+      ledger := sourceLedger normalized
+      replay
+      replay_endpoint_eq := replay_endpoint_eq_validated normalized replayResult
+    }
 
 /-! ## Deterministic executable evidence -/
 

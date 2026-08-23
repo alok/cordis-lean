@@ -1963,8 +1963,9 @@ complete deployed-Harness equivalence.
 ledger, normalized occurrence replay, exact validator endpoint, dependent `ModelRequest`,
 source/header agreement, and request-build equality. The seven-row ignorable-header fixture is
 an executable positive path, and a required opaque row rejects before request preparation. The
-request is indexed by the validator endpoint, but replay/validator endpoint determinism is kept
-as a named future theorem rather than introduced by an unsafe cast.
+indexed decoder and replay certificate now prove replay/validator endpoint equality directly;
+this is still limited to the supported source-shaped subset and does not claim deployed-Harness
+equivalence.
 `Cordis.DeepSeekHarnessPayloadSimulation` is the next adjacent composition: build it only after
 the complete result succeeds, then call `SessionPayloadArchive.enrich` on its archive. Keep the
 payload ledger indexed by the same input and expose raw/length equations, envelope/block tags,

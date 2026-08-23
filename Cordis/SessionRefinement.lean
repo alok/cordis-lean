@@ -1296,7 +1296,7 @@ theorem decode_toolCall (seq time turn step : SafeNat)
 
 end Canonical
 
-private def decodeEventsAt : Nat → List Lean.Json → Except DecodeError (List WireEvent)
+def decodeEventsAt : Nat → List Lean.Json → Except DecodeError (List WireEvent)
   | _, [] => .ok []
   | index, json :: rest => do
       let event ← decodeEventAt [.index index] json
@@ -1913,6 +1913,7 @@ structure ValidatedJsonLog (input : List Lean.Json) where
   decode_eq : decodeEvents input = .ok events
   final : State
   sequence : ValidatedSequence State.initial events final
+  validate_eq : validateSequence State.initial events = .ok ⟨final, sequence⟩
 
 namespace ValidatedJsonLog
 
@@ -1932,9 +1933,10 @@ def validateJsonLog (input : List Lean.Json) :
   match decoded : decodeEvents input with
   | .error error => .error (.inl error)
   | .ok events =>
-      match validateSequence State.initial events with
+      match validated : validateSequence State.initial events with
       | .error error => .error (.inr error)
-      | .ok ⟨final, sequence⟩ => .ok { events, decode_eq := decoded, final, sequence }
+      | .ok ⟨final, sequence⟩ =>
+          .ok { events, decode_eq := decoded, final, sequence, validate_eq := validated }
 
 /-! ## Executable current-shape example and rejection witnesses -/
 

@@ -647,8 +647,9 @@ deployed-Harness equivalence remain external.
 handoff. `PreparedSimulation` retains the exact normalized validator endpoint, archive, keep/drop
 ledger, occurrence replay, dependent request, source/header agreement, and request-build equality;
 the seven-row ignorable-header fixture succeeds, while required opaque input fails before request
-preparation. Replay/validator endpoint determinism is deliberately not asserted until a separate
-theorem proves it.
+preparation. The indexed decoder and replay certificate prove replay/validator endpoint equality
+for this supported source-shaped subset; opaque semantics and deployed-Harness equivalence remain
+external.
 `DeepSeekHarnessPayloadSimulation` composes successful complete simulations with the typed payload
 archive over the same input. Envelope/block tags, assistant usage, tool-result error/meta JSON,
 unknown blocks, and exact raw/length projections remain beside the semantic replay; malformed

@@ -113,7 +113,8 @@ structure NormalizedOccurrence where
   source : SupportedOccurrence
   raw : Lean.Json
   event : WireEvent
-  decoded : SessionRefinement.decodeEvent raw = .ok event
+  /-- The occurrence is decoded at the exact list path used by `decodeEvents`. -/
+  decoded : SessionRefinement.decodeEventAt [.index localPosition] raw = .ok event
   seq_eq : event.seq.value = localPosition
 
 private def normalizeOne (decisions : List ProjectionDecision) (localSeq : Nat)
@@ -121,7 +122,7 @@ private def normalizeOne (decisions : List ProjectionDecision) (localSeq : Nat)
   match _rawResult : normalizedRaw decisions occurrence.position localSeq occurrence with
   | .error error => .error (.rawRewrite occurrence.position error)
   | .ok raw =>
-      match decoded : SessionRefinement.decodeEvent raw with
+      match decoded : SessionRefinement.decodeEventAt [.index localSeq] raw with
       | .error error => .error (.decode occurrence.position error)
       | .ok event =>
           if sequence : event.seq.value = localSeq then
@@ -167,6 +168,23 @@ private theorem normalizeOne_position
     (occurrence : SupportedOccurrence) (normalized : NormalizedOccurrence)
     (result : normalizeOne decisions localSeq occurrence = .ok normalized) :
     normalized.sourcePosition = occurrence.position := by
+  unfold normalizeOne at result
+  split at result
+  · contradiction
+  · rename_i raw rawResult
+    split at result
+    · contradiction
+    · rename_i event decoded
+      split at result
+      · cases result
+        rfl
+      · contradiction
+
+private theorem normalizeOne_localPosition
+    (decisions : List ProjectionDecision) (localSeq : Nat)
+    (occurrence : SupportedOccurrence) (normalized : NormalizedOccurrence)
+    (result : normalizeOne decisions localSeq occurrence = .ok normalized) :
+    normalized.localPosition = localSeq := by
   unfold normalizeOne at result
   split at result
   · contradiction
@@ -242,6 +260,54 @@ private theorem normalizeOccurrences_positions :
               simp [normalizeOne_position decisions localSeq head normalizedHead hHead,
                 normalizeOccurrences_positions decisions (localSeq + 1) tail normalizedTail hTail]
 
+private theorem range_shift_positions (length offset : Nat) :
+    offset :: (List.range length).map (· + (offset + 1)) =
+      (List.range (length + 1)).map (· + offset) := by
+  induction length with
+  | zero => simp
+  | succ length inductionHypothesis =>
+      simp only [List.range_succ, List.map_append, List.map_cons, List.map_nil]
+      rw [← List.cons_append, inductionHypothesis]
+      rw [List.range_succ]
+      simp [Nat.add_comm, Nat.add_left_comm]
+
+private theorem normalizeOccurrences_localPositions :
+    ∀ (decisions : List ProjectionDecision) (localSeq : Nat)
+      (occurrences : List SupportedOccurrence) (normalized : List NormalizedOccurrence),
+      normalizeOccurrences decisions localSeq occurrences = .ok normalized →
+        normalized.map NormalizedOccurrence.localPosition =
+          (List.range normalized.length).map (· + localSeq)
+  | _, localSeq, [], normalized, result => by
+      unfold normalizeOccurrences at result
+      have normalized_eq : normalized = [] := (Except.ok.inj result).symm
+      subst normalized
+      rfl
+  | decisions, localSeq, head :: tail, normalized, result => by
+      cases hHead : normalizeOne decisions localSeq head with
+      | error error =>
+          unfold normalizeOccurrences at result
+          rw [hHead] at result
+          cases result
+      | ok normalizedHead =>
+          cases hTail : normalizeOccurrences decisions (localSeq + 1) tail with
+          | error error =>
+              unfold normalizeOccurrences at result
+              rw [hHead, hTail] at result
+              cases result
+          | ok normalizedTail =>
+              unfold normalizeOccurrences at result
+              rw [hHead, hTail] at result
+              have normalized_eq : normalized = normalizedHead :: normalizedTail :=
+                (Except.ok.inj result).symm
+              subst normalized
+              have headPosition := normalizeOne_localPosition decisions localSeq head
+                normalizedHead hHead
+              have tailPositions := normalizeOccurrences_localPositions decisions (localSeq + 1)
+                tail normalizedTail hTail
+              simp only [List.length_cons, List.map_cons, headPosition]
+              rw [tailPositions]
+              exact range_shift_positions normalizedTail.length localSeq
+
 def physicalSequences (decisions : List ProjectionDecision) : List Nat :=
   decisions.map (fun decision => decision.event.envelope.seq.value)
 
@@ -253,6 +319,8 @@ structure NormalizedLog (input : List Lean.Json) where
   occurrences_positions_eq :
     occurrences.map NormalizedOccurrence.sourcePosition =
       projection.occurrences.map SupportedOccurrence.position
+  occurrences_localPositions_eq :
+    occurrences.map NormalizedOccurrence.localPosition = List.range occurrences.length
   normalizedInput : List Lean.Json
   normalizedInput_eq : normalizedInput = occurrences.map NormalizedOccurrence.raw
   validated : SessionRefinement.ValidatedJsonLog normalizedInput
@@ -282,6 +350,11 @@ def normalize {input : List Lean.Json} (archive : ArchivedLog input) :
                   occurrences_positions_eq :=
                     normalizeOccurrences_positions projection.projection.decisions 0
                       projection.occurrences occurrences occurrencesResult
+                  occurrences_localPositions_eq := by
+                    have positions := normalizeOccurrences_localPositions
+                      projection.projection.decisions 0 projection.occurrences occurrences
+                      occurrencesResult
+                    simpa using positions
                   normalizedInput
                   normalizedInput_eq := rfl
                   validated

@@ -2028,8 +2028,8 @@ and complete deployed-Harness equivalence remain external.
 `PreparedSimulation` is indexed by the exact normalized `ValidatedJsonLog`, retains the archive,
 keep/drop ledger, normalized replay, dependent request, source/header agreement, and request-build
 equality, and is exercised by the seven-row ignorable-header fixture. A required opaque row fails
-closed before request preparation. The replay endpoint is retained separately because its
-determinism with the validator is not yet a proved equality.
+closed before request preparation. The indexed decoder and replay certificate also prove that
+the replay endpoint is exactly the validator endpoint for this supported subset.
 
 `Cordis.DeepSeekHarnessPayloadSimulation` composes that complete result with the typed payload
 archive over the same input. It retains envelope and block tags, assistant usage, tool-result

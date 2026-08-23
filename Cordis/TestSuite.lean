@@ -6770,6 +6770,8 @@ private def testDeepSeekHarnessCompleteRequest : IO Unit := do
       let _projection :=
         DeepSeekHarnessCompleteRequest.PreparedSimulation.request_protocol_projection_eq_replay
           prepared
+      let _endpoint :=
+        DeepSeekHarnessCompleteRequest.PreparedSimulation.replay_endpoint_eq_validated prepared
       let _source :=
         DeepSeekHarnessCompleteRequest.PreparedSimulation.request_source_model_eq_header prepared
       pure ()
