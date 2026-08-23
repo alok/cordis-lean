@@ -2682,6 +2682,29 @@ private def testDeepSeekExternalGenericSession : IO Unit := do
           fail s!"session-indexed captured the wrong observation error: {reprStr error}"
       | none => fail "session-indexed captured error lost its observation error"
 
+private def testGenericSessionRequestReady : IO Unit := do
+  let state : GenericSessionHarness.RunnerState
+      DeepSeekExternalGenericSession.counterSessionConfig := {
+    phase := .step 0 0 []
+    runner := DeepSeekExternalGenericRound.counterReadRunner
+    session := DeepSeekExternalGenericRound.counterReadSession
+    projection_eq := DeepSeekExternalGenericRound.counterReadSession_aligned
+  }
+  match prepared_eq : GenericSessionHarness.RunnerState.prepareRequestStep state with
+  | .error error =>
+      fail s!"request-ready session preparation failed: {reprStr error}"
+  | .ok prepared =>
+      assertEqual "request-ready session keeps the generic runner endpoint"
+        prepared.runner.log DeepSeekExternalGenericRound.counterReadRunner.log
+      assertEqual "request-ready session retains the exact user/assistant surface"
+        prepared.session.messages [.user "", .assistant "" []]
+      assertEqual "request-ready session exposes a reconstructible model request"
+        prepared.modelRequest.isSome true
+      let _requestCertificate :=
+        GenericSessionHarness.RunnerState.prepareRequestStep_modelRequest
+          (state := state) (prepared := prepared) prepared_eq
+      pure ()
+
 private def testDeepSeekAsyncStreamCancellation : IO Unit := do
   let race ← DeepSeekAsyncStreamCancellation.exampleCancellationRace
   assertEqual "async streamed cancellation race returns an accepted result"
@@ -8905,6 +8928,7 @@ def run : IO Unit := do
   testDeepSeekExternalGenericRound
   testDeepSeekExternalGenericConversation
   testDeepSeekExternalGenericSession
+  testGenericSessionRequestReady
   testDeepSeekAsyncStreamCancellation
   testDeepSeekAsyncStreamRetryCancellation
   testDeepSeekStream

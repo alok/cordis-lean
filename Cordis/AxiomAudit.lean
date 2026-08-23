@@ -334,6 +334,10 @@ set_option format.width 200
 #print axioms Cordis.GenericHarness.Runner.finishStep_log
 #print axioms Cordis.GenericHarness.Runner.finishTurn_log
 #print axioms Cordis.GenericSessionHarness.RunnerState.protocolProjection_replays
+#print axioms Cordis.GenericSessionHarness.RunnerState.prepareRequestStep
+#print axioms Cordis.GenericSessionHarness.RunnerState.prepareRequestStep_modelRequest
+#print axioms Cordis.GenericSessionHarness.RunnerState.modelRequest_isSome_iff
+#print axioms Cordis.GenericSessionHarness.RunnerState.attachCompletedDispatch_modelRequest
 #print axioms Cordis.GenericSessionHarness.RunnerState.records_length_eq_nextCall
 #print axioms Cordis.GenericSessionHarness.RunnerState.models_threaded
 #print axioms Cordis.GenericSessionHarness.RunnerState.leases_threaded

@@ -129,6 +129,106 @@ def modelRequest
     (state : RunnerState cfg) : Option (Session.ModelRequest state.session) :=
   Session.mkRequest state.session
 
+/-!
+## Request-ready external steps
+
+An external process/tool round needs a model-facing request before it can be dispatched.  The
+ordinary local `runStep` operation records the same header and surface messages, but immediately
+settles the step.  `prepareRequestStep` stops at the empty-pending step instead: it is the indexed
+handoff used by an external adapter.  The generic runner log is unchanged because request/header
+and surface-message events are deliberately log-only from the protocol's point of view.
+-/
+
+private def recordRequestHeader
+    {Model Capability : Type u}
+    {cfg : SessionConfig Model Capability}
+    (state : RunnerState cfg) : RunnerState cfg :=
+  let nextSession := state.session.appendLogOnly .requestHeader cfg.requestHeader
+  {
+    state with
+    session := nextSession
+    projection_eq := by
+      simpa [nextSession] using state.projection_eq
+  }
+
+private def recordUserMessage
+    {Model Capability : Type u}
+    {cfg : SessionConfig Model Capability}
+    (state : RunnerState cfg)
+    (content : String) : RunnerState cfg :=
+  let nextSession := state.session.appendSurface .userMessage { content } [] (by simp) (by simp)
+  {
+    state with
+    session := nextSession
+    projection_eq := by
+      simpa [nextSession] using state.projection_eq
+  }
+
+private def recordAssistantMessage
+    {Model Capability : Type u}
+    {cfg : SessionConfig Model Capability}
+    (state : RunnerState cfg)
+    (content : String)
+    (calls : List RawCall) : RunnerState cfg :=
+  let rawToolCalls := sessionToolCalls state.nextCall calls
+  let nextSession := state.session.appendSurface .assistantMessage {
+    turn := match state.phase with
+      | .step turn _ _ => turn
+      | _ => 0
+    step := match state.phase with
+      | .step _ step _ => step
+      | _ => 0
+    content
+    rawToolCalls
+  } [] (by simp) (by simp)
+  {
+    state with
+    session := nextSession
+    projection_eq := by
+      simpa [nextSession] using state.projection_eq
+  }
+
+def prepareRequestStep
+    {Model Capability : Type u}
+    {cfg : SessionConfig Model Capability} :
+    RunnerState cfg -> Except RunnerError (RunnerState cfg)
+  | state@⟨.step _ _ [], _, _, _⟩ =>
+      let withHeader := recordRequestHeader state
+      let withUser := recordUserMessage withHeader cfg.userPrompt
+      .ok (recordAssistantMessage withUser cfg.assistantPrompt [])
+  | ⟨.step _ _ pending, _, _, _⟩ => .error (.pendingCalls pending)
+  | ⟨phase, _, _, _⟩ => .error (.notInStep (eraseState phase))
+
+theorem prepareRequestStep_modelRequest
+    {Model Capability : Type u}
+    {cfg : SessionConfig Model Capability}
+    {state prepared : RunnerState cfg}
+    (prepared_eq : prepareRequestStep state = .ok prepared) :
+    (prepared.modelRequest).isSome := by
+  cases state with
+  | mk phase runner session aligned =>
+      cases phase with
+      | ready turn => simp [prepareRequestStep] at prepared_eq
+      | turn turn step => simp [prepareRequestStep] at prepared_eq
+      | step turn step pending =>
+          cases pending with
+          | nil =>
+              simp only [prepareRequestStep] at prepared_eq
+              cases prepared_eq
+              simp [RunnerState.modelRequest, recordRequestHeader, recordUserMessage,
+                recordAssistantMessage, Session.mkRequest, Session.Session.appendSurface,
+                Session.Session.appendLogOnly, Session.Session.append,
+                Session.LoggedEvent.updateHeader, Session.Kind.projectHeader]
+          | cons call rest => simp [prepareRequestStep] at prepared_eq
+
+theorem modelRequest_isSome_iff
+    {Model Capability : Type u}
+    {cfg : SessionConfig Model Capability}
+    (state : RunnerState cfg) :
+    state.modelRequest.isSome = state.session.latestHeader.isSome := by
+  unfold modelRequest Session.mkRequest
+  split <;> simp_all
+
 theorem protocolProjection_eq_log
     {Model Capability : Type u}
     {cfg : SessionConfig Model Capability}
@@ -180,55 +280,6 @@ theorem callBoundaries_eq_records
     GenericHarness.callBoundaries state.log =
       GenericHarness.recordBoundaries state.records :=
   state.runner.callBoundaries_eq_records
-
-private def recordRequestHeader
-    {Model Capability : Type u}
-    {cfg : SessionConfig Model Capability}
-    (state : RunnerState cfg) : RunnerState cfg :=
-  let nextSession := state.session.appendLogOnly .requestHeader cfg.requestHeader
-  {
-    state with
-    session := nextSession
-    projection_eq := by
-      simpa [nextSession] using state.projection_eq
-  }
-
-private def recordUserMessage
-    {Model Capability : Type u}
-    {cfg : SessionConfig Model Capability}
-    (state : RunnerState cfg)
-    (content : String) : RunnerState cfg :=
-  let nextSession := state.session.appendSurface .userMessage { content } [] (by simp) (by simp)
-  {
-    state with
-    session := nextSession
-    projection_eq := by
-      simpa [nextSession] using state.projection_eq
-  }
-
-private def recordAssistantMessage
-    {Model Capability : Type u}
-    {cfg : SessionConfig Model Capability}
-    (state : RunnerState cfg)
-    (content : String)
-    (calls : List RawCall) : RunnerState cfg :=
-  let rawToolCalls := sessionToolCalls state.nextCall calls
-  let nextSession := state.session.appendSurface .assistantMessage {
-    turn := match state.phase with
-      | .step turn _ _ => turn
-      | _ => 0
-    step := match state.phase with
-      | .step _ step _ => step
-      | _ => 0
-    content
-    rawToolCalls
-  } [] (by simp) (by simp)
-  {
-    state with
-    session := nextSession
-    projection_eq := by
-      simpa [nextSession] using state.projection_eq
-  }
 
 def beginTurn
     {Model Capability : Type u}
@@ -370,6 +421,35 @@ def attachCompletedDispatch
           RuntimeEvent.toolCall turn step result.record.id,
           RuntimeEvent.toolResult turn step result.record.id]) aligned
   }
+
+theorem attachCompletedDispatch_modelRequest
+    {Model Capability : Type u}
+    {cfg : SessionConfig Model Capability}
+    {turn step : Nat}
+    {runner : GenericHarness.Runner cfg.core (.step turn step [])}
+    {session : Session.Session Session.noExtensions}
+    {aligned : Session.protocolProjection session.events = runner.log}
+    {result : GenericHarness.Runner.DispatchResult runner}
+    (header_present : session.latestHeader.isSome) :
+    (modelRequest (attachCompletedDispatch runner session aligned result)).isSome := by
+  cases header_eq : session.latestHeader with
+  | none => simp [header_eq] at header_present
+  | some header =>
+      have attached_header :
+          (attachCompletedDispatch runner session aligned result).session.latestHeader =
+            some header := by
+        simp [attachCompletedDispatch, header_eq, Session.LoggedEvent.updateHeader,
+          Session.Kind.projectHeader, Session.Session.appendSurface,
+          Session.Session.appendLogOnly, Session.Session.append]
+      change (Session.mkRequest (attachCompletedDispatch runner session aligned result).session).isSome =
+        true
+      have request_some :
+          (Session.mkRequest (attachCompletedDispatch runner session aligned result).session).isSome =
+            (attachCompletedDispatch runner session aligned result).session.latestHeader.isSome := by
+        unfold Session.mkRequest
+        split <;> simp_all
+      rw [request_some, attached_header]
+      simp
 
 def dispatchAll
     {Model Capability : Type u}

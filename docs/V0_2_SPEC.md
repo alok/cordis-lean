@@ -68,7 +68,11 @@ deployed Harness equivalence remain external.
 state and its protocol-projection proof. Accepted dispatches append one typed tool-call/tool-result
 pair exactly once, while completion, fuel exhaustion, uncertified observations, and observation
 errors retain the current rich prefix. Its counter fixtures cover both a completed endpoint and a
-later malformed-observation stop; this remains a finite local adapter rather than deployed process
+later malformed-observation stop. `GenericSessionHarness.RunnerState.prepareRequestStep` also
+provides the request handoff immediately before such a dispatch: it records the exact request
+header and surface prompt at an empty-pending endpoint, and the indexed proof shows that
+`Session.mkRequest` is present; the append certificate preserves that request reconstruction across
+an accepted call/result pair. This remains a finite local adapter rather than deployed process
 or Harness equivalence.
 `Cordis.DeepSeekAsyncStreamCancellation` carries the typed pre-round cancellation policy through
 that race. Its fixture cancels one child before dispatch while the other remains a real streamed
@@ -764,8 +768,9 @@ Current machine-checked evidence includes:
   logical persistence/session certificate while retaining source bytes, decoded text, parsed rows,
   packed expansion, and the final Session/Protocol projection;
 - `Cordis.GenericSessionHarness`, factoring the rich Session/request/projection wrapper over an
-  arbitrary `GenericHarness.Config`; the counter and dependent-choice configurations are both
-  executable fixtures;
+  arbitrary `GenericHarness.Config`, with generic call/lifecycle append transitions and a
+  request-ready `prepareRequestStep` handoff whose model-request presence is proved; the counter
+  and dependent-choice configurations are both executable fixtures;
 - `Cordis.ParallelSchedule`, composing arbitrary finite pure windows and exclusive barriers while
   preserving endpoint/recovery equality, model-order reports, and global task-ID uniqueness;
 - `Cordis.AsyncHarness`, proving indexed pending/running/terminal fiber transitions, explicit
@@ -802,6 +807,8 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekExternalGenericSession`, providing the session-indexed refinement of that script:
   the exact runner/session/projection index is preserved, accepted dispatches append one typed
   call/result pair, and completed plus malformed-observation fixtures retain their rich prefixes;
+  the generic bridge also has a request-ready counter fixture with an indexed present
+  `Session.ModelRequest` before dispatch;
 - `Cordis.DeepSeekAsyncStreamCancellation`, exercising a real cancellation-first streamed child
   alongside a process-backed sibling and checking the typed stop/endpoint evidence;
 - `Cordis.DeepSeekAsyncStreamRetryCancellation`, exercising the same cancellation-first race over
