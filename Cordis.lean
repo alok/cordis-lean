@@ -186,6 +186,7 @@ import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
 import Cordis.GlobalNameLifecycle
 import Cordis.GlobalNameTraceAction
+import Cordis.GlobalNamePaperRelation
 import Cordis.GlobalPaperRelation
 import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalPaperLandingReplay

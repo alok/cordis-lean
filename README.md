@@ -1678,6 +1678,12 @@ stored error exactly; entry-code, success-only error mapping, and constant-error
 show why the primitive laws matter. The theorem is a conditional fixed-catalog finite Lemma 56
 analogue, not an unconditional property of arbitrary `Dynamics`.
 
+`Cordis.GlobalNamePaperRelation` is the observation bridge above those exact actions. It maps
+dependent active-context values and paper fiber controls through the name permutation, proves a
+renamed well-formed endpoint is related to its source under the birth-erased paper observation,
+and exposes the same fact for finite trace endpoints. It does not turn the observation bridge
+into unconditional lifecycle bisimulation; the primitive semantic laws remain explicit.
+
 `Cordis.GlobalVestigial` proves the effect-observation sentence of Lemma 57 exactly and then
 mechanizes the corrected orchestration fragment. Removing a retired, successful-inactive,
 empty-table, childless entry is `EffectRelated`; safe foreign insert/retire/remove steps form exact

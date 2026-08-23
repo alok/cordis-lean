@@ -177,6 +177,7 @@ import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
 import Cordis.GlobalNameLifecycle
 import Cordis.GlobalNameTraceAction
+import Cordis.GlobalNamePaperRelation
 import Cordis.GlobalPaperRelation
 import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalPaperLandingReplay
@@ -9943,6 +9944,16 @@ private def testGlobalNameTraceAction : IO Unit := do
       GlobalNameLifecycle.NonidentityRaiseExample.raiseAfter).registry true).isSome
     true
 
+private def testGlobalNamePaperRelation : IO Unit := do
+  let _related := GlobalNamePaperRelation.Example.actedRaise_related
+  let _control := GlobalNamePaperRelation.nameActionPaperRelated_control
+    GlobalNameAction.Example.swapAction GlobalNamePaperRelation.Example.values
+    GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed false
+  assertEqual "renamed endpoint retains a paper-visible control witness"
+    ((GlobalNameAction.actState GlobalNameAction.Example.swapAction
+      GlobalNameLifecycle.NonidentityRaiseExample.raiseState).registry true).isSome
+    true
+
 private def testHarnessPhaseFailures : IO Unit := do
   let initial := Harness.RunnerState.initial 0
   match initial.beginStep with
@@ -10379,6 +10390,7 @@ def run : IO Unit := do
   testGlobalNameAction
   testGlobalNameLifecycle
   testGlobalNameTraceAction
+  testGlobalNamePaperRelation
   testHarnessPhaseFailures
   testCounterAdmission
   testDependentChoiceSessionHarness

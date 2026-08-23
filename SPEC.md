@@ -161,6 +161,12 @@ codes, those semantics now derive registration/oracle/execute-one/Landing/recove
 bidirectional equivariance for all lifecycle and unified rules over well-formed states. This is a
 conditional fixed-catalog Lemma 56 analogue, not a base-Dynamics theorem.
 
+`Cordis.GlobalNamePaperRelation` now connects that executable action to the paper-visible
+observation layer: dependent active-context values and paper fiber controls are reindexed by the
+name permutation, and every well-formed acted state (including a finite trace endpoint) is related
+to its source after allocator birth artifacts are erased. The bridge remains observational; it does
+not supply the missing unconditional lifecycle bisimulation.
+
 The active line now also includes an oracle-specific finite partial/Kleisli analogue of paper
 Definition 60. Reachable iterator codes are generated from successful continuation yields; their closures
 contain the reachable partial forwards and actually yielded totalized inverses; and exact plus

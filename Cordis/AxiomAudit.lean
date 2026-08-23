@@ -165,6 +165,7 @@ import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
 import Cordis.GlobalNameLifecycle
 import Cordis.GlobalNameTraceAction
+import Cordis.GlobalNamePaperRelation
 import Cordis.GlobalPaperRelation
 import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalPaperLandingReplay
@@ -3054,6 +3055,11 @@ end Cordis.EffectContext
 #print axioms Cordis.GlobalNameTraceAction.actNonactivationTraceAssignment
 #print axioms Cordis.GlobalNameTraceAction.actNonactivationTraceAssignment_exists
 #print axioms Cordis.GlobalNameTraceAction.assignedForwardTrace
+#print axioms Cordis.GlobalNamePaperRelation.activeValue_act_iff
+#print axioms Cordis.GlobalNamePaperRelation.activeContext_act_eq
+#print axioms Cordis.GlobalNamePaperRelation.nameActionPaperRelated_actState
+#print axioms Cordis.GlobalNamePaperRelation.nameActionPaperRelated_trace_endpoint
+#print axioms Cordis.GlobalNamePaperRelation.Example.actedRaise_related
 #print axioms Cordis.DeepSeekStreamHarnessErrors.executeConversationMultiStreamRoundRecoverable
 #print axioms Cordis.DeepSeekStreamHarnessErrors.runConversationMultiStreamRecoverable
 #print axioms Cordis.DeepSeekStreamHarnessRetry.executeWithRetry
