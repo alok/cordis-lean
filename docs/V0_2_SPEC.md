@@ -2203,6 +2203,13 @@ runner/model; the executable fixture checks `8 -> 12`, eight payload rows, and t
 local process/payload evidence, not durable recovery, backoff/idempotency, blocked-read
 cancellation, external effects, or deployed Harness equivalence.
 
+`Cordis.DeepSeekHarnessPayloadPersistenceStreamRetryCancellation` carries that ledger through the
+same pre-round cancellation boundary. The accepted first process-backed tool round and all eight
+payload rows remain dependent evidence while a typed timeout stop prevents the next request; the
+fixture checks `8 -> 11`, one round, two first-round calls, and model `0`. This does not claim
+blocked-read interruption, cleanup, durability, external effects, or deployed cancellation
+equivalence.
+
 `Cordis.DeepSeekHarnessPersistenceStreamRetry` composes that actual process outcome with the
 fuel-bounded streamed conversation loop. The restored runner remains the initial trace index; the
 fixture emits two counter calls, executes them through the dependent generic configuration, then

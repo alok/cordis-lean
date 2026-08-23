@@ -436,6 +436,13 @@ the fixture reaches `8 -> 12` with eight payload rows and two rounds. This is lo
 process/payload evidence only, not durable recovery, backoff/idempotency, blocked-read
 cancellation, external effects, or deployed Harness equivalence.
 
+`DeepSeekHarnessPayloadPersistenceStreamRetryCancellation` carries the same ledger through the
+pre-round cancellation boundary. It retains the eight payload rows and the completed first tool
+round, then returns a typed timeout stop before selecting the next request; the fixture checks
+`8 -> 11`, one round, two first-round calls, and model `0`. It does not interrupt a blocked read or
+HTTP request, establish process cleanup or durable recovery, or establish external/deployed
+cancellation equivalence.
+
 `DeepSeekHarnessPersistenceStreamRetry` extends that process boundary to a dependent two-round
 continuation from the restored runner. Its shell fixture emits the two-call counter stream, runs
 the typed tool executions, and emits terminal text after the first tool result is serialized into

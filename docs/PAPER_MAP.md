@@ -1176,3 +1176,10 @@ session/payload equations, both typed rounds, tool execution, terminal completio
 runner/model; its fixture checks `8 -> 12`, eight payload rows, and two rounds. This remains local
 process/payload evidence only, not durable recovery, retry policy equivalence, cancellation,
 external effects, or deployed Harness equivalence.
+
+`Cordis.DeepSeekHarnessPayloadPersistenceStreamRetryCancellation` carries the ledger through a
+certified pre-round cancellation prefix. Its dependent result retains the restored session/payload
+equations beside the completed first process-backed tool round and typed timeout stop; the fixture
+checks `8 -> 11`, eight payload rows, one round, two first-round calls, and model `0`. It remains
+local process/payload evidence only, not blocked-read interruption, cleanup, durable recovery,
+external effects, or deployed cancellation equivalence.
