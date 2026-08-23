@@ -14,8 +14,9 @@ than being guessed from the generic session header.
 The resulting `PreparedRequest` retains the exact `ChatRequest`, the successful builder equation,
 the source/header agreement, and the session-message reconstruction equation.  It can be lifted to
 raw, complete, or streaming request plans; the mode-indexed variants carry their `stream` flag in
-the type.  Theorems recover the model, system, and tool metadata seen by the wire request.  No
-transport, credential, remote provider, or schema compatibility claim is made here.
+the type.  A complete plan may also be sent through an injected `DeepSeekApi.Transport`, retaining
+the API's dependent response validation.  No credential, remote provider, or schema compatibility
+claim is made here.
 -/
 
 set_option autoImplicit false
@@ -328,6 +329,20 @@ theorem buildStreamingPlan_is_streaming
     (prepared : PreparedRequest request source encoder) :
     (buildStreamingPlan baseUrl apiKey prepared).source.stream = true :=
   TypedRequestPlan.streaming_source_stream _
+
+def executeComplete
+    {schema : Session.ExtensionSchema}
+    {session : Session.Session schema}
+    {request : Session.ModelRequest session}
+    {source : RequestSource}
+    {encoder : ToolSchemaEncoder}
+    (transport : Transport)
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (prepared : PreparedRequest request source encoder) :
+    IO (Except ClientError (Sigma fun body : String => ValidatedResponse body)) :=
+  DeepSeekApi.execute transport
+    (buildCompletePlan baseUrl apiKey prepared).requestPlan
 
 /-! A deliberately structural encoder for fixtures with no tools.  Real deployments should
 provide a parser-backed encoder and prove the `ToolSchema` input-schema contract separately. -/

@@ -2762,6 +2762,25 @@ private def testDeepSeekSessionRequest : IO Unit := do
               let _stream_mode_certificate :=
                 DeepSeekSessionRequest.buildStreamingPlan_is_streaming
                   "http://127.0.0.1:0" { value := "test-key" } certified
+              match certified_request_eq : Session.mkRequest Session.certifiedSession with
+              | none => fail "indexed DeepSeek transport fixture lost its certified request"
+              | some certifiedRequest =>
+                  match preparedCertified_eq : DeepSeekSessionRequest.prepareFromHeader
+                      certifiedRequest DeepSeekSessionRequest.structuralToolSchemaEncoder options with
+                  | .error error =>
+                      fail s!"indexed DeepSeek transport fixture could not prepare: {reprStr error}"
+                  | .ok preparedCertified =>
+                      match ← DeepSeekSessionRequest.executeComplete DeepSeekApi.exampleTransport
+                          "https://fixture.invalid" { value := "fixture-key" } preparedCertified with
+                      | .error error =>
+                          fail s!"indexed DeepSeek injected transport failed: {reprStr error}"
+                      | .ok ⟨body, validated⟩ =>
+                          assertEqual "indexed DeepSeek injected transport retains the body"
+                            body DeepSeekApi.exampleResponseBody
+                          assertEqual "indexed DeepSeek injected transport validates choice zero"
+                            validated.response.choices.head.index 0
+                      let _ := certified_request_eq
+                      let _ := preparedCertified_eq
               let _request_certificate :=
                 GenericSessionHarness.RunnerState.prepareRequestStep_modelRequest
                   (state := state) (prepared := prepared) prepared_eq
