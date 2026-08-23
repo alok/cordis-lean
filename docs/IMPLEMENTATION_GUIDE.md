@@ -2680,6 +2680,11 @@ configured process, stdout/stderr, exit code, parsed JSON, and typed decoded res
 observation untrusted: `AcceptedResult.certified` must receive an explicit `ToolSpec.post` proof
 before constructing `ToolSpec.CertifiedOutcome`. Do not infer command identity, sandboxing,
 authentication, exactly-once effects, cleanup, or deployed Harness equivalence from the fixture.
+`Cordis.DeepSeekExternalToolRound` then packages the accepted result with the exact append-only
+session transition: a log-only tool-call event followed by a surface tool-result event citing that
+call. Its dependent endpoint proves the sequence increment, materialized message, and structural
+protocol projection; rendering is an explicit caller-supplied seam rather than an inferred wire
+contract.
 `Cordis.DeepSeekAsyncStreamCancellation` carries `CancellationPolicy` and
 `CancellableRunResult` through the same process-backed race. The executable cancellation-first
 fixture proves that a child can stop before round zero while retaining its typed reason, unchanged

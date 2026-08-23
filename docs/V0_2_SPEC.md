@@ -766,6 +766,10 @@ Current machine-checked evidence includes:
   stdout/stderr, exit code, parsed JSON, and typed decoded output; only an explicit `ToolSpec.post`
   proof can construct `AcceptedResult.certified`, so process identity, sandboxing, authentication,
   exactly-once effects, cleanup, and deployed Harness equivalence remain external;
+- `Cordis.DeepSeekExternalToolRound`, indexing an accepted process result into an exact two-event
+  `Session` append (log-only tool call plus cited surface tool result) with sequence, message, and
+  protocol-projection theorems; the result renderer is supplied and provider/deployment semantics
+  remain external;
 - `Cordis.DeepSeekAsyncStreamCancellation`, exercising a real cancellation-first streamed child
   alongside a process-backed sibling and checking the typed stop/endpoint evidence;
 - `Cordis.DeepSeekAsyncStreamRetryCancellation`, exercising the same cancellation-first race over

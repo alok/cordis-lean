@@ -28,6 +28,7 @@ import Cordis.DeepSeekAsyncHarness
 import Cordis.DeepSeekAsyncStreamHarness
 import Cordis.DeepSeekAsyncStreamHarnessTimeout
 import Cordis.DeepSeekExternalToolProcess
+import Cordis.DeepSeekExternalToolRound
 import Cordis.DeepSeekAsyncStreamCancellation
 import Cordis.DeepSeekAsyncStreamRetryCancellation
 import Cordis.DeepSeekStream
@@ -2482,6 +2483,58 @@ private def testDeepSeekExternalToolProcess : IO Unit := do
           assertEqual "external tool failure fixture still decodes its untrusted stdout"
             typedValue "hello from cordis"
       | .error _ => fail "external tool failure fixture decoded an unexpected typed failure"
+
+private def testDeepSeekExternalToolRound : IO Unit := do
+  match ← DeepSeekExternalToolProcess.observe
+      DeepSeekExternalToolProcess.successfulEchoBinding
+      DeepSeekExternalToolProcess.echoInvocation with
+  | .error error => fail s!"external tool round fixture failed: {reprStr error}"
+  | .ok observed =>
+      match result_eq : observed.result with
+      | .ok value =>
+        let typedValue : String := value
+        if value_eq : typedValue = "hello from cordis" then
+          if exit_eq : observed.process.exitCode = 0 then
+            have value_eq' : value = "hello from cordis" := by
+              change String at value
+              change value = "hello from cordis"
+              exact value_eq
+            have post : DeepSeekExternalToolProcess.echoSpec.post
+                DeepSeekExternalToolProcess.echoInvocation.input
+                DeepSeekExternalToolProcess.echoInvocation.before observed.result 7 := by
+              rw [result_eq, value_eq']
+              simp [DeepSeekExternalToolProcess.echoSpec,
+                DeepSeekExternalToolProcess.echoInvocation]
+            let accepted := DeepSeekExternalToolProcess.accept exit_eq 7 post
+            let round : DeepSeekExternalToolRound.ExternalToolRound accepted := {
+              before := Session.Session.empty Session.noExtensions
+              turn := 0
+              step := 0
+              call := DeepSeekExternalToolRound.echoCall
+              call_name := DeepSeekExternalToolRound.echoCall_name
+              surface := DeepSeekExternalToolRound.echoSurface
+              after := DeepSeekExternalToolRound.appendToolRound accepted
+                DeepSeekExternalToolRound.echoSurface
+                (Session.Session.empty Session.noExtensions) 0 0
+                DeepSeekExternalToolRound.echoCall
+              after_eq := rfl
+            }
+            assertEqual "external tool round appends a call and result"
+              round.after.nextSeq 2
+            assertEqual "external tool round exposes one model-visible result"
+              round.after.messages.length 1
+            assertEqual "external tool round retains the exact tool name"
+              round.call.name "echo-process"
+            assertEqual "external tool round retains the typed model successor"
+              accepted.after 7
+            let _certified := round.certified
+            pure ()
+          else
+            fail "external tool round returned a nonzero exit code"
+        else
+          fail "external tool round decoded an unexpected value"
+      | .error _ =>
+        fail "external tool round decoded an unexpected typed failure"
 
 private def testDeepSeekAsyncStreamCancellation : IO Unit := do
   let race ← DeepSeekAsyncStreamCancellation.exampleCancellationRace
@@ -8702,6 +8755,7 @@ def run : IO Unit := do
   testDeepSeekAsyncStreamHarness
   testDeepSeekAsyncStreamHarnessTimeout
   testDeepSeekExternalToolProcess
+  testDeepSeekExternalToolRound
   testDeepSeekAsyncStreamCancellation
   testDeepSeekAsyncStreamRetryCancellation
   testDeepSeekStream

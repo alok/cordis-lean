@@ -1096,3 +1096,7 @@ configured command, stdout/stderr, exit code, parsed JSON, and typed decoded res
 explicit `ToolSpec.post` proof can construct `AcceptedResult.certified` and a
 `ToolSpec.CertifiedOutcome`. This is local process evidence, not command identity, sandboxing,
 authentication, exactly-once effects, cleanup, or deployed Harness equivalence.
+`DeepSeekExternalToolRound` is the local session bridge after acceptance: it constructs the
+log-only tool-call plus cited surface tool-result append and proves the exact sequence, message,
+and protocol projections. Rendering is supplied by the caller; no provider-specific deployment
+claim is made.

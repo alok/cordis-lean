@@ -1873,6 +1873,10 @@ command, stdout/stderr, exit code, parsed JSON, and typed decoded result as an o
 `ToolSpec.CertifiedOutcome`; process output alone cannot certify its postcondition. Command
 identity, sandboxing, authentication, exactly-once effects, cleanup, and deployed Harness
 equivalence remain outside.
+`DeepSeekExternalToolRound` is a narrower local proof boundary. Given that acceptance proof, its
+`ExternalToolRound` certifies the exact two-event session append and its sequence/message/protocol
+projections. The result renderer is explicit input, and this does not establish process identity,
+provider wire compatibility, or deployed Harness behavior.
 
 [paper-pdf]: https://raw.githubusercontent.com/cordiverse/paper/948a07b369c62adb3b12e102458be5c18dfb69b9/paper.pdf
 [cordis-fiber]: https://github.com/cordiverse/cordis/blob/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4/packages/core/src/fiber.ts#L78-L485
