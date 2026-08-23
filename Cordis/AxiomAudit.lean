@@ -171,6 +171,7 @@ import Cordis.GlobalPaperFullLifecycleReplay
 import Cordis.GlobalPaperShiftedLifecycle
 import Cordis.GlobalPaperShiftedFullLifecycle
 import Cordis.GlobalPaperNonReflexiveRewrite
+import Cordis.GlobalPaperTraceBackwardRewrite
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalPaperTraceNormalizer
@@ -2660,6 +2661,28 @@ namespace Cordis.GlobalPaperNonReflexiveRewrite.BirthGapRewrite
 #print axioms source_trace_rules
 #print axioms source_trace_actors
 end Cordis.GlobalPaperNonReflexiveRewrite.BirthGapRewrite
+namespace Cordis.GlobalPaperTraceBackwardRewrite
+#print axioms BackwardRelatedAdjacentRewrite.trace
+#print axioms BackwardRelatedAdjacentRewrite.final_related
+#print axioms BackwardRelatedAdjacentRewrite.final_wellFormed
+#print axioms BackwardRelatedAdjacentRewrite.assignment
+#print axioms BackwardRelatedAdjacentRewrite.detailedRules_perm
+#print axioms BackwardRelatedAdjacentRewrite.rules_perm
+#print axioms BackwardRelatedAdjacentRewrite.actors_perm
+#print axioms AssignedStepSimulation.rewriteAdjacentBackward
+#print axioms BackwardOrchestrationStepSimulation.rewriteAdjacentBackward
+namespace Example
+#print axioms result
+#print axioms assignment
+#print axioms final_related
+#print axioms final_wellFormed
+#print axioms assignment_exact
+#print axioms source_rules
+#print axioms backward_rules_perm
+#print axioms backward_actors
+#print axioms backward_actors_perm
+end Example
+end Cordis.GlobalPaperTraceBackwardRewrite
 namespace Cordis.GlobalPaperTraceDeletion
 #print axioms detailedRule_eq_of_orchestration
 #print axioms replay_detailedRules_eq

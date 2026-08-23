@@ -1242,6 +1242,12 @@ birth-erased-related endpoints; a trailing O-Retire is replayed from the swapped
 certificate retains endpoint well-formedness, assignment transport, and rule/actor permutations.
 It does not derive global lifecycle simulation, normalization, Lemma 72, or Theorem 73.
 
+`Cordis.GlobalPaperTraceBackwardRewrite` provides the mirrored backward orientation: it replays
+the source suffix from the related swapped endpoint, transports its dependent assignment, and
+retains endpoint well-formedness plus rule/actor permutations. Its concrete birth-gap fixture
+exposes the reversed actor ledger `[2, 1, 1]`; it remains a finite orchestration-suffix
+certificate, not a symmetric lifecycle simulator or a proof of Lemma 72/Theorem 73.
+
 The corrected progress slice is specified in
 [`GLOBAL_PROGRESS_SPEC.md`](GLOBAL_PROGRESS_SPEC.md) and implemented by `Cordis.GlobalProgress`.
 It exposes configured-oracle rejection and raw freshness exhaustion, defines provider precedence

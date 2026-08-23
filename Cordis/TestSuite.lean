@@ -183,6 +183,7 @@ import Cordis.GlobalPaperFullLifecycleReplay
 import Cordis.GlobalPaperShiftedLifecycle
 import Cordis.GlobalPaperShiftedFullLifecycle
 import Cordis.GlobalPaperNonReflexiveRewrite
+import Cordis.GlobalPaperTraceBackwardRewrite
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalPaperTraceNormalizer
@@ -9618,6 +9619,21 @@ private def testGlobalPaperTraceDeletion : IO Unit := do
     GlobalPaperTraceDeletion.Example.executableDecisions
     [.keep]
 
+private def testGlobalPaperTraceBackwardRewrite : IO Unit := do
+  let _related :=
+    Cordis.GlobalPaperTraceBackwardRewrite.Example.final_related
+  let _wellFormed :=
+    Cordis.GlobalPaperTraceBackwardRewrite.Example.final_wellFormed
+  let _assignment :=
+    Cordis.GlobalPaperTraceBackwardRewrite.Example.assignment_exact
+  let _rulesPerm :=
+    Cordis.GlobalPaperTraceBackwardRewrite.Example.backward_rules_perm
+  let _actors :=
+    Cordis.GlobalPaperTraceBackwardRewrite.Example.backward_actors
+  assertEqual "backward related rewrite exposes the reversed actor ledger"
+    Cordis.GlobalPaperTraceBackwardRewrite.Example.executableActors
+    [2, 1, 1]
+
 private def testGlobalPaperTraceNormalization : IO Unit := do
   let _related := GlobalPaperTraceNormalization.Example.empty_chain_related
   let _rules := GlobalPaperTraceNormalization.Example.empty_chain_rules
@@ -10238,6 +10254,7 @@ def run : IO Unit := do
   testGlobalPaperShiftedLifecycle
   testGlobalPaperShiftedFullLifecycle
   testGlobalPaperNonReflexiveRewrite
+  testGlobalPaperTraceBackwardRewrite
   testGlobalPaperTraceDeletion
   testGlobalPaperTraceNormalization
   testGlobalPaperTraceNormalizer
