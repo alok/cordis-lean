@@ -1,5 +1,6 @@
 import Cordis.DeepSeekHarnessExtensions
 import Cordis.SessionTheoremBridge
+import Cordis.DeepSeekCurlStream
 
 /-!
 # Indexed Session.ModelRequest to DeepSeek request handoff
@@ -25,6 +26,9 @@ namespace Cordis.DeepSeekSessionRequest
 
 open Cordis
 open Cordis.DeepSeekApi
+open Cordis.DeepSeekCurlTransport
+open Cordis.DeepSeekCurlStream
+open Cordis.DeepSeekStream
 open Cordis.DeepSeekHarness
 open Cordis.DeepSeekHarnessExtensions
 
@@ -343,6 +347,21 @@ def executeComplete
     IO (Except ClientError (Sigma fun body : String => ValidatedResponse body)) :=
   DeepSeekApi.execute transport
     (buildCompletePlan baseUrl apiKey prepared).requestPlan
+
+def executeStreamingSse
+    {schema : Session.ExtensionSchema}
+    {session : Session.Session schema}
+    {request : Session.ModelRequest session}
+    {source : RequestSource}
+    {encoder : ToolSchemaEncoder}
+    (config : ProcessConfig)
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (prepared : PreparedRequest request source encoder) :
+    IO (Except StreamClientError
+      (Sigma fun body : String => ValidatedSseStream body)) :=
+  DeepSeekCurlStream.executeSse config
+    (buildStreamingPlan baseUrl apiKey prepared).request
 
 /-! A deliberately structural encoder for fixtures with no tools.  Real deployments should
 provide a parser-backed encoder and prove the `ToolSchema` input-schema contract separately. -/

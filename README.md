@@ -1582,8 +1582,9 @@ retains the successful builder equation and can be lifted to an exact raw
 `RequestPlan`, or to complete/streaming plans whose `stream` flag is proved by
 the type. Optional DeepSeek controls remain adapter policy; provider behavior,
 parser-backed schema validity, credentials, and remote transport are not
-inferred here. A complete plan can be exercised through an injected transport,
-but that remains local transport evidence rather than deployed-provider proof.
+inferred here. Complete plans can be exercised through an injected transport,
+and streaming plans through the existing local SSE process adapter, but these
+remain local transport evidence rather than deployed-provider proof.
 
 There is no public generic runner event emitter. Non-tool events use a private
 emitter that requires proof that the event is not a call boundary. A private

@@ -2762,6 +2762,16 @@ private def testDeepSeekSessionRequest : IO Unit := do
               let _stream_mode_certificate :=
                 DeepSeekSessionRequest.buildStreamingPlan_is_streaming
                   "http://127.0.0.1:0" { value := "test-key" } certified
+              match ← DeepSeekSessionRequest.executeStreamingSse
+                  DeepSeekCurlStream.fixtureProcess "https://fixture.invalid"
+                  { value := "fixture-key" } certified with
+              | .error error =>
+                  fail s!"indexed DeepSeek streaming process failed: {reprStr error}"
+              | .ok ⟨body, validated⟩ =>
+                  assertEqual "indexed DeepSeek streaming process retains the body"
+                    body DeepSeekStream.exampleStreamBody
+                  assertEqual "indexed DeepSeek streaming process retains two frames"
+                    validated.frames.length 2
               match certified_request_eq : Session.mkRequest Session.certifiedSession with
               | none => fail "indexed DeepSeek transport fixture lost its certified request"
               | some certifiedRequest =>
