@@ -1599,12 +1599,14 @@ evidence only: invalid UTF-8, HTTP, transport, and semantic response errors stay
 and live networking, credentials, provider behavior, persistence, and deployed equivalence
 remain external.
 
-`Cordis.DeepSeekSessionRequestStreaming` closes the corresponding indexed streaming seam for
-the deliberately narrow text-only SSE language. `executeStreamingTextAndAppend` retains the
-mode-indexed streaming plan, strict wire frames, finished rich response, and exact
-`ExtensionRunner` endpoint. Richer reasoning/tool/mixed/multi-call streams and malformed or
-incomplete bodies remain typed rejections; the process configuration is injected local evidence,
-not live-provider or deployed-Harness equivalence.
+`Cordis.DeepSeekSessionRequestStreaming` closes the corresponding indexed streaming seam with
+a caller-supplied certified finisher. `executeStreamingAndAppend` retains the mode-indexed
+streaming plan, strict wire frames, finished rich response, and exact `ExtensionRunner` endpoint;
+`executeStreamingTextAndAppend`, `executeStreamingToolAndAppend`,
+`executeStreamingMixedAndAppend`, and `executeStreamingMultiAndAppend` select the existing
+finishers. Unsupported, malformed, incomplete, and provider-failure responses remain typed
+errors; the process configuration is injected local evidence, not live-provider or
+deployed-Harness equivalence.
 
 `Cordis.DeepSeekHarnessLocalSseIndexed` composes that request-indexed surface with the real
 one-shot loopback HTTP/SSE fixture. `runWithKey` retains the local request/response and wire

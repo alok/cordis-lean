@@ -2891,7 +2891,8 @@ private def testDeepSeekSessionRequest : IO Unit := do
                               byteAppend
                           let _byte_append_certificate :=
                             ByteCompleteAppendResult.append_endpoint_exact byteAppend
-                      match ← DeepSeekSessionRequestStreaming.executeStreamingTextAndAppend
+                      match ← DeepSeekSessionRequestStreaming.executeStreamingAndAppend
+                          DeepSeekSessionRunner.finishText
                           (runner := indexedRunner)
                           DeepSeekCurlSession.fixtureTextProcess "https://fixture.invalid"
                           { value := "fixture-key" } preparedCertified noSources noSourcesNodup

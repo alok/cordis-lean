@@ -2,19 +2,18 @@ import Cordis.DeepSeekCurlSession
 import Cordis.DeepSeekSessionRequest
 
 /-!
-# Indexed request to text-stream append
+# Indexed request to streaming append
 
 `DeepSeekSessionRequest` already builds a mode-indexed streaming request and
 `DeepSeekCurlSession` already retains a strict SSE wire certificate plus a
 finished rich response. This module composes those boundaries with the
-schema-indexed `ExtensionRunner`: a successful text-only stream keeps its
-streaming plan, wire frames, finished response, and exact append endpoint.
-
-The projection is intentionally narrow. It uses `finishText`, so reasoning,
-tool-call, mixed, multi-call, unsupported finish, malformed, and incomplete
-streams remain typed rejections at this boundary. Process configuration is
-injected; no live network, credential, provider, persistence, or deployed
-Harness equivalence claim is made.
+schema-indexed `ExtensionRunner`: a successful stream keeps its streaming plan,
+wire frames, finished response, and exact append endpoint. The caller supplies
+the certified finisher, while text/tool/mixed/multi-call convenience wrappers
+select the corresponding existing runner finishers. Process configuration is
+injected; malformed, incomplete, unsupported, and provider-failure responses
+remain typed errors, and no live network, credential, provider, persistence, or
+deployed Harness equivalence claim is made.
 -/
 
 set_option autoImplicit false
@@ -32,6 +31,7 @@ open Cordis.DeepSeekSessionRunner
 
 inductive StreamingAppendError where
   | transport (error : DeepSeekCurlSession.SessionClientError)
+  | response (error : DeepSeekSessionRunner.ResponseError)
 deriving DecidableEq, Repr
 
 structure StreamingAppendResult
@@ -180,6 +180,39 @@ theorem after_nextCall
 
 end StreamingAppendResult
 
+def executeStreamingAndAppend
+    {schema : Session.ExtensionSchema}
+    {runner : ExtensionRunner schema}
+    {request : Session.ModelRequest runner.session}
+    {source : RequestSource}
+    {encoder : ToolSchemaEncoder}
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body))
+    (config : ProcessConfig)
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (prepared : PreparedRequest request source encoder)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ eventSeq ∈ sourceEventSeqs, eventSeq < runner.session.nextSeq) :
+    IO (Except StreamingAppendError
+      (Sigma fun body : String => StreamingAppendResult runner baseUrl apiKey prepared
+        sourceEventSeqs sourcesNodup sourcesEarlier body)) := do
+  let plan := buildStreamingPlan baseUrl apiKey prepared
+  match ← DeepSeekCurlSession.executeTypedStreamingWith finish config plan with
+  | .error (.transport error) => pure (.error (.transport (.transport error)))
+  | .error (.response error) => pure (.error (.response error))
+  | .ok ⟨body, processed⟩ =>
+      pure (.ok ⟨body, {
+        plan
+        plan_eq := by
+          rfl
+        processed
+        after := ExtensionRunner.appendFinished runner processed.finished sourceEventSeqs
+          sourcesNodup sourcesEarlier
+        append_eq := rfl
+      }⟩)
+
 def executeStreamingTextAndAppend
     {schema : Session.ExtensionSchema}
     {runner : ExtensionRunner schema}
@@ -195,19 +228,65 @@ def executeStreamingTextAndAppend
     (sourcesEarlier : ∀ eventSeq ∈ sourceEventSeqs, eventSeq < runner.session.nextSeq) :
     IO (Except StreamingAppendError
       (Sigma fun body : String => StreamingAppendResult runner baseUrl apiKey prepared
-        sourceEventSeqs sourcesNodup sourcesEarlier body)) := do
-  let plan := buildStreamingPlan baseUrl apiKey prepared
-  match ← DeepSeekCurlSession.executeTypedStreamingWith finishText config plan with
-  | .error error => pure (.error (.transport error))
-  | .ok ⟨body, processed⟩ =>
-      pure (.ok ⟨body, {
-        plan
-        plan_eq := by
-          rfl
-        processed
-        after := ExtensionRunner.appendFinished runner processed.finished sourceEventSeqs
-          sourcesNodup sourcesEarlier
-        append_eq := rfl
-      }⟩)
+        sourceEventSeqs sourcesNodup sourcesEarlier body)) :=
+  executeStreamingAndAppend finishText config baseUrl apiKey prepared sourceEventSeqs
+    sourcesNodup sourcesEarlier
+
+def executeStreamingToolAndAppend
+    {schema : Session.ExtensionSchema}
+    {runner : ExtensionRunner schema}
+    {request : Session.ModelRequest runner.session}
+    {source : RequestSource}
+    {encoder : ToolSchemaEncoder}
+    (config : ProcessConfig)
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (prepared : PreparedRequest request source encoder)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ eventSeq ∈ sourceEventSeqs, eventSeq < runner.session.nextSeq) :
+    IO (Except StreamingAppendError
+      (Sigma fun body : String => StreamingAppendResult runner baseUrl apiKey prepared
+        sourceEventSeqs sourcesNodup sourcesEarlier body)) :=
+  executeStreamingAndAppend finishTool config baseUrl apiKey prepared sourceEventSeqs
+    sourcesNodup sourcesEarlier
+
+def executeStreamingMixedAndAppend
+    {schema : Session.ExtensionSchema}
+    {runner : ExtensionRunner schema}
+    {request : Session.ModelRequest runner.session}
+    {source : RequestSource}
+    {encoder : ToolSchemaEncoder}
+    (config : ProcessConfig)
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (prepared : PreparedRequest request source encoder)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ eventSeq ∈ sourceEventSeqs, eventSeq < runner.session.nextSeq) :
+    IO (Except StreamingAppendError
+      (Sigma fun body : String => StreamingAppendResult runner baseUrl apiKey prepared
+        sourceEventSeqs sourcesNodup sourcesEarlier body)) :=
+  executeStreamingAndAppend finishMixed config baseUrl apiKey prepared sourceEventSeqs
+    sourcesNodup sourcesEarlier
+
+def executeStreamingMultiAndAppend
+    {schema : Session.ExtensionSchema}
+    {runner : ExtensionRunner schema}
+    {request : Session.ModelRequest runner.session}
+    {source : RequestSource}
+    {encoder : ToolSchemaEncoder}
+    (config : ProcessConfig)
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (prepared : PreparedRequest request source encoder)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ eventSeq ∈ sourceEventSeqs, eventSeq < runner.session.nextSeq) :
+    IO (Except StreamingAppendError
+      (Sigma fun body : String => StreamingAppendResult runner baseUrl apiKey prepared
+        sourceEventSeqs sourcesNodup sourcesEarlier body)) :=
+  executeStreamingAndAppend finishMulti config baseUrl apiKey prepared sourceEventSeqs
+    sourcesNodup sourcesEarlier
 
 end Cordis.DeepSeekSessionRequestStreaming
