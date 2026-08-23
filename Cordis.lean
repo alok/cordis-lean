@@ -258,6 +258,7 @@ import Cordis.SessionEventArchive
 import Cordis.DeepSeekHarnessEventIgnorableProjection
 import Cordis.DeepSeekHarnessEventIgnorableNormalization
 import Cordis.DeepSeekHarnessEventSimulation
+import Cordis.DeepSeekHarnessCompleteSimulation
 import Cordis.DeepSeekHarnessEventArchiveReplay
 import Cordis.DeepSeekHarnessEventIgnorableRunner
 import Cordis.DeepSeekHarnessEventIgnorableTransport

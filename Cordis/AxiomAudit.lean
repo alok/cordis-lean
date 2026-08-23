@@ -254,6 +254,7 @@ import Cordis.SessionEventArchive
 import Cordis.DeepSeekHarnessEventIgnorableProjection
 import Cordis.DeepSeekHarnessEventIgnorableNormalization
 import Cordis.DeepSeekHarnessEventSimulation
+import Cordis.DeepSeekHarnessCompleteSimulation
 import Cordis.DeepSeekHarnessEventArchiveReplay
 import Cordis.DeepSeekHarnessEventIgnorableRunner
 import Cordis.DeepSeekHarnessEventIgnorableTransport
@@ -826,6 +827,21 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessEventSimulation.sourceLedger
 #print axioms Cordis.DeepSeekHarnessEventSimulation.replayOccurrences
 #print axioms Cordis.DeepSeekHarnessEventSimulation.simulateNormalized
+#print axioms Cordis.DeepSeekHarnessCompleteSimulation.CompleteSimulation
+#print axioms Cordis.DeepSeekHarnessCompleteSimulation.simulate
+#print axioms Cordis.DeepSeekHarnessCompleteSimulation.Summary
+#print axioms Cordis.DeepSeekHarnessCompleteSimulation.CompleteSimulation.summary
+#print axioms Cordis.DeepSeekHarnessCompleteSimulation.summarize
+#print axioms Cordis.DeepSeekHarnessCompleteSimulation.archive_raw_exact
+#print axioms Cordis.DeepSeekHarnessCompleteSimulation.protocolTrace_erase
+#print axioms Cordis.DeepSeekHarnessCompleteSimulation.sessionProjection_eq
+#print axioms Cordis.DeepSeekHarnessCompleteSimulation.textSummary
+#print axioms Cordis.DeepSeekHarnessCompleteSimulation.toolSummary
+#print axioms Cordis.DeepSeekHarnessCompleteSimulation.replacementSummary
+#print axioms Cordis.DeepSeekHarnessCompleteSimulation.malformedReplacementRejected
+#print axioms Cordis.DeepSeekHarnessCompleteSimulation.executableTextSummary
+#print axioms Cordis.DeepSeekHarnessCompleteSimulation.executableToolSummary
+#print axioms Cordis.DeepSeekHarnessCompleteSimulation.executableReplacementSummary
 #print axioms Cordis.DeepSeekHarnessEventArchiveReplay.ArchiveReplay.toSourceReplay
 #print axioms Cordis.DeepSeekHarnessEventArchiveReplay.ArchiveReplay.toSourceReplay_sourceRaw
 #print axioms Cordis.DeepSeekHarnessEventArchiveReplay.ArchiveReplay.droppedRaw_eq_decisionDrops

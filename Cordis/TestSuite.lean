@@ -115,6 +115,7 @@ import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessEventIgnorableProjection
 import Cordis.DeepSeekHarnessEventIgnorableNormalization
 import Cordis.DeepSeekHarnessEventSimulation
+import Cordis.DeepSeekHarnessCompleteSimulation
 import Cordis.DeepSeekHarnessEventArchiveReplay
 import Cordis.DeepSeekHarnessEventIgnorableRunner
 import Cordis.DeepSeekHarnessEventIgnorableTransport
@@ -6653,6 +6654,33 @@ private def testDeepSeekHarnessEventSimulation : IO Unit := do
         DeepSeekHarnessEventSimulation.SourceReplay.sessionProjection_eq replay
       pure ()
 
+private def testDeepSeekHarnessCompleteSimulation : IO Unit := do
+  match DeepSeekHarnessCompleteSimulation.textSummary with
+  | .error error => fail s!"complete text simulation summary failed: {reprStr error}"
+  | .ok summary =>
+      assertEqual "complete text event simulation reaches its executable summary"
+        summary DeepSeekHarnessCompleteSimulation.executableTextSummary
+  match DeepSeekHarnessCompleteSimulation.toolSummary with
+  | .error error => fail s!"complete tool simulation summary failed: {reprStr error}"
+  | .ok summary =>
+      assertEqual "complete tool event simulation reaches its executable summary"
+        summary DeepSeekHarnessCompleteSimulation.executableToolSummary
+  match DeepSeekHarnessCompleteSimulation.replacementSummary with
+  | .error error => fail s!"complete replacement simulation summary failed: {reprStr error}"
+  | .ok summary =>
+      assertEqual "complete replacement simulation reaches its executable summary"
+        summary DeepSeekHarnessCompleteSimulation.executableReplacementSummary
+  assertEqual "malformed replacement is rejected by complete simulation"
+    DeepSeekHarnessCompleteSimulation.malformedReplacementRejected true
+  match DeepSeekHarnessCompleteSimulation.simulate
+      SessionRefinement.messageExampleJson with
+  | .error error => fail s!"complete text simulation failed: {reprStr error}"
+  | .ok simulation =>
+      let _raw := DeepSeekHarnessCompleteSimulation.archive_raw_exact simulation
+      let _trace := DeepSeekHarnessCompleteSimulation.protocolTrace_erase simulation
+      let _projection := DeepSeekHarnessCompleteSimulation.sessionProjection_eq simulation
+      pure ()
+
 private def testDeepSeekHarnessEventArchiveReplay : IO Unit := do
   match DeepSeekHarnessEventArchiveReplay.toolArchiveReplay with
   | .error error => fail s!"archive-aware replay failed: {reprStr error}"
@@ -9990,6 +10018,7 @@ def run : IO Unit := do
   testDeepSeekHarnessEventIgnorableProjection
   testDeepSeekHarnessEventIgnorableNormalization
   testDeepSeekHarnessEventSimulation
+  testDeepSeekHarnessCompleteSimulation
   testDeepSeekHarnessEventArchiveReplay
   testDeepSeekHarnessEventIgnorableRunner
   testDeepSeekHarnessEventIgnorableTransport

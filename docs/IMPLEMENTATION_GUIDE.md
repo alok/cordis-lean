@@ -1938,6 +1938,13 @@ surface retains physical positions, source sequences/times, local sequence renum
 erasure, and final session-projection equality for the finite supported subset. It deliberately
 does not model opaque payload behavior, provider execution, bytes, persistence, cancellation
 delivery, or complete deployed-Harness equivalence.
+`Cordis.DeepSeekHarnessCompleteSimulation` is the composition checkpoint above those three pure
+layers. `simulate` retains the lossless archive, normalized ledger, and occurrence-indexed
+`SourceReplay` in one dependent `CompleteSimulation`; the text, tool-message, and replacement
+fixtures expose executable archive/known/keep/drop, endpoint, source-position, and source-time
+summaries, while malformed replacement rejects. Keep this as a finite source-honest fixture
+surface: it does not derive opaque/provider/transport/persistence/cancellation semantics or
+complete deployed-Harness equivalence.
 `Cordis.DeepSeekHarnessEventArchiveReplay` closes the physical/archive alignment seam without
 claiming more semantics: `ArchiveReplay` stores the indexed `SourceReplay` beside the inductive
 keep/drop `DecisionLedger`, so exact archive rows, retained raw rows, and dropped opaque rows and

@@ -1941,6 +1941,13 @@ calling `SessionRefinement.validateJsonLog`, with typed rejection for duplicate 
 missing references, malformed rewrites, and semantic failures. Opaque payload semantics and
 deployed-Harness equivalence remain external.
 
+`Cordis.DeepSeekHarnessCompleteSimulation` composes the archive, supported-subset normalization,
+and occurrence-indexed replay into one dependent `CompleteSimulation`. Its text, tool-message,
+and compaction-style replacement fixtures expose executable archive/known/keep/drop, endpoint,
+source-position, and source-time summaries, while malformed replacement rejects. This remains a
+finite source-honest subset bridge; opaque/provider/transport/persistence/cancellation behavior
+and complete deployed-Harness equivalence remain external.
+
 `Cordis.DeepSeekHarnessEventIgnorableRunner` is the next pure attachment: it sets the
 `ConversationRunner` session definitionally to the normalized final session, records the local step
 and tool-call-count witnesses, and rebuilds a typed request from that endpoint. This is a local
