@@ -2669,6 +2669,12 @@ continuation. Under explicit fuel, each child can execute dependent tool calls a
 terminal; the winning typed result preserves its model, runner, and round evidence. The cancellation
 is still only a cooperative request around synchronous process reads, not blocked-read interruption,
 fairness, cleanup, or deployed asynchronous equivalence.
+`Cordis.DeepSeekAsyncStreamHarnessTimeout` composes the same race with the timer-backed arbitrary-byte
+prefix adapter. Each child retains timeout configuration and a dependent runner/model trace; a
+completed child follows the existing tool/session continuation, while a deadline retains the exact
+prefix and maps to a cancelled phase. The fast, timeout, and race fixtures are executable configured
+process evidence. Task-cancellation delivery, arbitrary descendant cleanup, fairness, backpressure,
+reconnects, authenticity, and deployed async equivalence remain external.
 `Cordis.DeepSeekAsyncStreamCancellation` carries `CancellationPolicy` and
 `CancellableRunResult` through the same process-backed race. The executable cancellation-first
 fixture proves that a child can stop before round zero while retaining its typed reason, unchanged

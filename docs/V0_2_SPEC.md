@@ -41,6 +41,11 @@ continuation. Each child can execute a dependent tool-call round and a later tex
 explicit fuel, and the winning typed result retains tool executions, round witnesses, final model,
 and runner endpoint. Synchronous reads, fairness, arbitrary cleanup, and deployed asynchronous
 equivalence remain external.
+`Cordis.DeepSeekAsyncStreamHarnessTimeout` composes that race with the timer-backed arbitrary-byte
+prefix adapter. Completed children retain the dependent runner/model trace, while a deadline keeps
+the exact accepted prefix and becomes a cancelled phase. The fast, timeout, and race fixtures are
+configured local-process evidence; task-cancellation delivery, arbitrary cleanup, fairness,
+backpressure, reconnects, authenticity, and deployed async equivalence remain external.
 `Cordis.DeepSeekAsyncStreamCancellation` carries the typed pre-round cancellation policy through
 that race. Its fixture cancels one child before dispatch while the other remains a real streamed
 tool/text continuation; the accepted cancellation result preserves its reason, unchanged
@@ -748,6 +753,10 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekAsyncStreamHarness`, exercising the same real two-process race over streamed tool
   continuations, with a two-round tool-then-text winner and typed model/runner evidence; this is not
   blocked-read cancellation or deployed Harness refinement;
+- `Cordis.DeepSeekAsyncStreamHarnessTimeout`, exercising a cooperative race over timer-backed
+  arbitrary-byte continuations, with separate fast and timeout fixtures plus a typed cancelled
+  phase carrying the exact prefix; task cancellation, fairness, cleanup, and deployment remain
+  external;
 - `Cordis.DeepSeekAsyncStreamCancellation`, exercising a real cancellation-first streamed child
   alongside a process-backed sibling and checking the typed stop/endpoint evidence;
 - `Cordis.DeepSeekAsyncStreamRetryCancellation`, exercising the same cancellation-first race over

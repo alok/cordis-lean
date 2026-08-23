@@ -26,6 +26,7 @@ import Cordis.DeepSeekOutcomeConversationLoop
 import Cordis.DeepSeekOutcomeTransportLoop
 import Cordis.DeepSeekAsyncHarness
 import Cordis.DeepSeekAsyncStreamHarness
+import Cordis.DeepSeekAsyncStreamHarnessTimeout
 import Cordis.DeepSeekAsyncStreamCancellation
 import Cordis.DeepSeekAsyncStreamRetryCancellation
 import Cordis.DeepSeekStream
@@ -2437,6 +2438,17 @@ private def testDeepSeekAsyncStreamHarness : IO Unit := do
   | .left (.error error) | .right (.error error) =>
       fail s!"async streamed DeepSeek race returned typed error {reprStr error}"
   | .waiting => fail "async streamed DeepSeek race returned no winning result"
+
+private def testDeepSeekAsyncStreamHarnessTimeout : IO Unit := do
+  assertEqual "timed async streamed fixture retains the timeout prefix"
+    (← DeepSeekAsyncStreamHarnessTimeout.Example.timeoutSummary) true
+  assertEqual "timed async streamed fast fixture reaches completion"
+    (← DeepSeekAsyncStreamHarnessTimeout.Example.fastSummary) true
+  let race ← DeepSeekAsyncStreamHarnessTimeout.Example.raceRun
+  assertEqual "timed async streamed race has a winner"
+    (race.winner.isSome) true
+  assertEqual "timed async streamed race reaches a terminal phase"
+    race.phase.isTerminal true
 
 private def testDeepSeekAsyncStreamCancellation : IO Unit := do
   let race ← DeepSeekAsyncStreamCancellation.exampleCancellationRace
@@ -8655,6 +8667,7 @@ def run : IO Unit := do
   testDeepSeekCurlPrefixSession
   testDeepSeekAsyncHarness
   testDeepSeekAsyncStreamHarness
+  testDeepSeekAsyncStreamHarnessTimeout
   testDeepSeekAsyncStreamCancellation
   testDeepSeekAsyncStreamRetryCancellation
   testDeepSeekStream

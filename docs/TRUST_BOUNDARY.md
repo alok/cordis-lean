@@ -1861,6 +1861,13 @@ and proves endpoint uniqueness for the supplied decreasing/local-join data. Its 
 activation/orchestration fixture is nonempty, but it does not derive a CORDIS strategy, lifecycle
 normalization, Lemma 72, or Theorem 73.
 
+`DeepSeekAsyncStreamHarnessTimeout` is the timed companion to the cooperative streamed race:
+configured children use the byte-prefix deadline adapter, retain the dependent success trace or
+exact timed prefix, and project a deadline to a cancelled phase. Its fast, timeout, and race
+fixtures are executable local-process evidence; task-cancellation delivery, arbitrary descendant
+cleanup, fairness, backpressure, reconnects, authenticity, and deployed equivalence remain
+outside.
+
 [paper-pdf]: https://raw.githubusercontent.com/cordiverse/paper/948a07b369c62adb3b12e102458be5c18dfb69b9/paper.pdf
 [cordis-fiber]: https://github.com/cordiverse/cordis/blob/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4/packages/core/src/fiber.ts#L78-L485
 [cordis-reflect]: https://github.com/cordiverse/cordis/blob/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4/packages/core/src/reflect.ts#L61-L227

@@ -145,6 +145,7 @@ import Cordis.DeepSeekStreamHarnessRetryConversation
 import Cordis.DeepSeekStreamHarnessRetryCancellation
 import Cordis.DeepSeekAsyncHarness
 import Cordis.DeepSeekAsyncStreamHarness
+import Cordis.DeepSeekAsyncStreamHarnessTimeout
 import Cordis.DeepSeekAsyncStreamCancellation
 import Cordis.DeepSeekAsyncStreamRetryCancellation
 import Cordis.Effect

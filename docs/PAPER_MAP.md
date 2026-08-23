@@ -1085,3 +1085,9 @@ derived lifecycle strategy, Lemma 72, or Theorem 73.
 [harness-session-invariant]: https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/core/session/src/invariant.ts#L1-L250
 [harness-session-append]: https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/core/session/src/index.ts#L564-L655
 [harness-tool-scheduler]: https://github.com/deepseek-ai/deepseek-harness/blob/47f943859bef60e4160492346772ded9b24f765a/packages/core/agent-loop/src/tool-calls.ts
+
+`DeepSeekAsyncStreamHarnessTimeout` is the timed streamed-race refinement. It composes
+`ContextAsync.race` with the arbitrary-byte deadline reader, preserving the dependent runner/model
+trace for completion and the exact accepted prefix for timeout. This remains configured local
+process evidence, not a theorem of task-cancellation delivery, fairness, cleanup, reconnects,
+authenticity, or deployed asynchronous Harness behavior.
