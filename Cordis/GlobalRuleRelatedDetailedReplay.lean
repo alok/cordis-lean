@@ -1,4 +1,5 @@
 import Cordis.GlobalRuleRelatedTraceReplay
+import Cordis.GlobalRuleRelatedBisimulationReplay
 import Cordis.GlobalPaperTraceSimulation
 
 /-!
@@ -146,6 +147,69 @@ structure DetailedAssignedStepSimulation
     (source : Step dynamics inertia sourceBefore sourceAfter) ->
       BackwardDetailedStepMatch values (shadowBefore := shadowBefore) source
 
+/-! A conditional unified bisimulation can feed this contract only with a separate detailed-tag
+law. The ordinary bisimulation stores the coarser ten-rule equality, so this field is intentionally
+not inferred from it. -/
+
+structure DetailedBisimulationRuleTransport
+    (values : ValueSetoids sig)
+    (dynamics : Dynamics sig catalog Ambient)
+    (inertia : InertiaPolicy dynamics)
+    (bisim : GlobalLifecycleBisimulation.WellFormedRuleBisimulation
+      values dynamics inertia) where
+  forward : ∀ {left right leftAfter : State catalog Ambient},
+    (leftWf : WellFormed left) ->
+    (rightWf : WellFormed right) ->
+    (related : RuleRelated values left right) ->
+    (source : Step dynamics inertia left leftAfter) ->
+      detailedRule (bisim.forward leftWf rightWf related source).matched = detailedRule source
+  backward : ∀ {left right rightAfter : State catalog Ambient},
+    (leftWf : WellFormed left) ->
+    (rightWf : WellFormed right) ->
+    (related : RuleRelated values left right) ->
+    (source : Step dynamics inertia right rightAfter) ->
+      detailedRule (bisim.backward leftWf rightWf related source).matched = detailedRule source
+
+noncomputable def DetailedAssignedStepSimulation.ofWellFormedBisimulation
+    {values : ValueSetoids sig}
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (bisim : GlobalLifecycleBisimulation.WellFormedRuleBisimulation
+      values dynamics inertia)
+    (assignment : BisimulationAssignmentTransport values dynamics inertia bisim)
+    (detailed : DetailedBisimulationRuleTransport values dynamics inertia bisim) :
+    DetailedAssignedStepSimulation values dynamics inertia where
+  forward := fun sourceWf shadowWf related source =>
+    let base := bisim.forward sourceWf shadowWf related source
+    {
+      base := {
+        shadowAfter := base.rightAfter
+        matched := base.matched
+        same_rule := base.same_rule
+        same_actor := actor_eq_of_actedName_eq base.same_actor
+        sourceAfter_wellFormed := base.leftAfter_wellFormed
+        shadowAfter_wellFormed := base.rightAfter_wellFormed
+        successors_related := base.successors_related
+        transportAssignment := assignment.forward sourceWf shadowWf related source
+      }
+      same_detailedRule := detailed.forward sourceWf shadowWf related source
+    }
+  backward := fun shadowWf sourceWf related source =>
+    let base := bisim.backward shadowWf sourceWf related source
+    {
+      base := {
+        shadowAfter := base.leftAfter
+        matched := base.matched
+        same_rule := base.same_rule
+        same_actor := actor_eq_of_actedName_eq base.same_actor
+        sourceAfter_wellFormed := base.rightAfter_wellFormed
+        shadowAfter_wellFormed := base.leftAfter_wellFormed
+        successors_related := base.successors_related
+        transportAssignment := assignment.backward shadowWf sourceWf related source
+      }
+      same_detailedRule := detailed.backward shadowWf sourceWf related source
+    }
+
 def DetailedAssignedStepSimulation.forwardOnly
     {values : ValueSetoids sig}
     {dynamics : Dynamics sig catalog Ambient}
@@ -219,7 +283,8 @@ def executableSummary : List String := [
   "exact-rule-related-input",
   "detailed-lifecycle-tag-preservation",
   "birth-erased-paper-replay-output",
-  "backward-detailed-replay-contract"
+  "backward-detailed-replay-contract",
+  "conditional-detailed-bisimulation-adapter"
 ]
 
 end Cordis.GlobalRuleRelatedDetailedReplay

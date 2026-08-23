@@ -347,6 +347,9 @@ shadow steps and assignments, weakening the relation only when packaging the bir
 output. `DetailedAssignedStepSimulation` supplies the symmetric backward contract as well, and
 `replayBackward` constructs the reverse-oriented birth-erased package without identifying the
 two Divert constructors through the coarse global rule.
+`DetailedAssignedStepSimulation.ofWellFormedBisimulation` adapts the existing conditional
+well-formed bisimulation, but requires a separate forward/backward detailed-tag transport law in
+addition to dependent assignment transport.
 
 `Cordis.GlobalPaperShiftedLifecycle` adds a concrete non-reflexive allocator-clock replay: it
 shifts only `nextBirth`, rebuilds the dependent L-Leave/L-Unload pair, and transports the exact

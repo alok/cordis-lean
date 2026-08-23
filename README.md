@@ -1567,7 +1567,9 @@ reuses the all-keep induction. It does not infer assignment transport from rule 
 needed when L-DivertAbort and L-DivertLand must remain distinct. Its replay theorem weakens the
 exact endpoint relation only at the birth-erased paper-output boundary; the shadow steps and
 dependent assignments remain exact. `DetailedAssignedStepSimulation` and `replayBackward` expose
-the corresponding reverse-oriented contract and replay package.
+the corresponding reverse-oriented contract and replay package. The conditional
+`ofWellFormedBisimulation` adapter keeps both detailed-tag transport and dependent assignment
+transport explicit.
 
 `Cordis.GlobalPaperLandingReplay` adds a concrete fixed-program landing witness to the trace
 surface. The actual Iter/Finish activation diamond is assigned into a dependent source trace,
