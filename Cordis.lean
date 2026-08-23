@@ -218,6 +218,7 @@ import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
 import Cordis.SessionRefinementCodec
+import Cordis.SessionRefinementSurfaceCodec
 import Cordis.SessionRefinementTextCodec
 import Cordis.SessionRefinementProcess
 import Cordis.SessionRefinementProcessConversation

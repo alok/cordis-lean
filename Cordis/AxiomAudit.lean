@@ -214,6 +214,7 @@ import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
 import Cordis.SessionRefinementCodec
+import Cordis.SessionRefinementSurfaceCodec
 import Cordis.SessionRefinementTextCodec
 import Cordis.SessionRefinementProcess
 import Cordis.SessionRefinementProcessConversation
@@ -575,6 +576,11 @@ set_option format.width 200
 #print axioms Cordis.SessionRefinement.ValidatedSequence.protocolTrace_erase
 #print axioms Cordis.SessionRefinement.ValidatedSequence.sessionProjection_eq
 #print axioms Cordis.SessionRefinement.ValidatedJsonLog.projection_exact
+#print axioms Cordis.SessionRefinement.SurfaceCodec.decode_toolResult
+#print axioms Cordis.SessionRefinement.SurfaceCodec.decode_userMessage
+#print axioms Cordis.SessionRefinement.SurfaceCodec.decode_encode
+#print axioms Cordis.SessionRefinement.SurfaceCodec.decodeWireEventsText_of_encoded
+#print axioms Cordis.SessionRefinement.SurfaceCodec.decodeWireEventsBytes_of_encoded
 #print axioms Cordis.SessionRefinement.validate_example
 #print axioms Cordis.SessionRefinement.example_turnEndStep_isDerived
 #print axioms Cordis.SessionRefinement.validate_message_example

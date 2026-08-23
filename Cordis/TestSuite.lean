@@ -222,6 +222,7 @@ import Cordis.Schedule
 import Cordis.Session
 import Cordis.SessionRefinement
 import Cordis.SessionRefinementCodec
+import Cordis.SessionRefinementSurfaceCodec
 import Cordis.SessionRefinementTextCodec
 import Cordis.SessionRefinementProcess
 import Cordis.SessionRefinementProcessConversation
@@ -7421,6 +7422,63 @@ private def testSessionRefinementTextCodec : IO Unit := do
   | result => fail s!"invalid UTF-8 canonical list was not rejected: {reprStr result}"
   pure ()
 
+private def testSessionRefinementSurfaceCodec : IO Unit := do
+  match SessionRefinement.SurfaceCodec.encodeWireEventsText
+      SessionRefinement.SurfaceCodec.executableSurfaceEvents with
+  | .error error => fail s!"surface text encoding failed: {reprStr error}"
+  | .ok text =>
+      match SessionRefinement.SurfaceCodec.decodeWireEventsText text with
+      | .error error => fail s!"surface text round trip failed: {reprStr error}"
+      | .ok events =>
+          assertEqual "surface text codec retains two source-shaped events" events.length 2
+          match events with
+          | [first, second] =>
+              match first.payload with
+              | .userMessage append =>
+                  match append.message with
+                  | .user message =>
+                      assertEqual "surface text codec retains user message id"
+                        message.id "user-surface"
+                      assertEqual "surface text codec retains user message text"
+                        (message.content.map (fun block => block.text)) ["weather?"]
+                      assertEqual "surface text codec retains user source provenance"
+                        (append.sourceEventSeqs.map (List.map (fun value => value.value)))
+                        (some [2])
+                  | .assistant _ => fail "surface text codec changed user message role"
+                  assertEqual "surface text codec retains append operation"
+                    append.surfaceOp .append
+              | _ => fail "surface text codec changed user event payload"
+              match second.payload with
+              | .toolResult result =>
+                  assertEqual "surface text codec retains tool error flag" result.isError true
+                  assertEqual "surface text codec retains tool error text"
+                    result.content "weather unavailable"
+                  assertEqual "surface text codec retains tool source call id"
+                    result.sourceCallId "call-weather"
+                  assertEqual "surface text codec retains tool replacement range"
+                    result.surfaceOp (.replace { value := 3, safe := by decide }
+                      { value := 5, safe := by decide })
+                  assertEqual "surface text codec retains tool source provenance"
+                    (result.sourceEventSeqs.map (fun value => value.value)) [4]
+              | _ => fail "surface text codec changed tool-result payload"
+          | _ => fail "surface text codec changed event count"
+  match SessionRefinement.SurfaceCodec.encodeWireEventsBytes
+      SessionRefinement.SurfaceCodec.executableSurfaceEvents with
+  | .error error => fail s!"surface byte encoding failed: {reprStr error}"
+  | .ok bytes =>
+      match SessionRefinement.SurfaceCodec.decodeWireEventsBytes bytes with
+      | .error error => fail s!"surface byte round trip failed: {reprStr error}"
+      | .ok events =>
+          assertEqual "surface byte codec retains two source-shaped events" events.length 2
+          match events with
+          | _ :: { payload := .toolResult result, .. } :: _ =>
+              assertEqual "surface byte codec retains isError" result.isError true
+          | _ => fail "surface byte codec lost the tool-result event"
+  match SessionRefinement.SurfaceCodec.decodeWireEventsBytes (ByteArray.mk #[255]) with
+  | .error (.text .invalidUtf8) => pure ()
+  | result => fail s!"surface byte codec did not reject invalid UTF-8: {reprStr result}"
+  pure ()
+
 private def testSessionRefinementProcess : IO Unit := do
   match ← SessionRefinementProcess.runCanonicalProcess with
   | .error error => fail s!"canonical session process fixture failed: {reprStr error}"
@@ -8484,6 +8542,7 @@ def run : IO Unit := do
   testSessionRefinement
   testSessionRefinementCodec
   testSessionRefinementTextCodec
+  testSessionRefinementSurfaceCodec
   testSessionRefinementProcess
   testSessionRefinementProcessConversation
   testSessionOpaqueMetadata

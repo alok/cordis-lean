@@ -683,6 +683,11 @@ Current machine-checked evidence includes:
   success appends a finished assistant view, while failure leaves the runner unchanged;
 - `Cordis.SessionRefinement`, statefully translating a supported source-shaped Harness session
   prefix into joint `Session.ValidatedAppend` and intrinsic `Protocol.ValidatedEvent` witnesses;
+- `Cordis.SessionRefinementSurfaceCodec`, providing the checked reverse codec for text-only
+  user messages and singleton-text tool results across canonical JSON AST, JSONL text, and UTF-8
+  bytes, with exact safe-integer, provenance, replacement-range, call-ID, and `isError` witnesses;
+  assistant surface messages, images, opaque metadata, and unsupported event variants remain
+  fail-closed or external;
 - `Cordis.SessionOpaqueMetadata`, quarantining only provider/tool-owned tool-result `error` and
   `meta` JSON while retaining exact values and the sanitized Session/Protocol projection;
 - `Cordis.SessionArchive`, retaining every syntactically valid current-Harness event envelope

@@ -1852,6 +1852,12 @@ refinement state; text enters the smaller local message types and reasoning/imag
 Both start
 at `Lean.Json`, decode exact current field/tag shapes, and fail closed outside
 their stated language.
+`Cordis.SessionRefinementSurfaceCodec` is the corresponding checked reverse boundary for the
+text-only user-message and singleton-text tool-result subset. It encodes canonical ASTs and
+composes them with the existing JSONL text and UTF-8 byte parser; its round-trip theorems retain
+safe integers, source references, replacement ranges, call IDs, and exact `isError` values. Keep
+assistant surface messages, image blocks, opaque provider metadata, and unsupported event variants
+outside this encoder rather than assigning them guessed semantics.
 `Cordis.RuntimeFailureRefinement` separately covers the normalized in-band
 `error` and `aborted` finish branches: it retains the exact ordinary prefix and
 all `LlmFailure` fields without pretending that an open-block failure is a

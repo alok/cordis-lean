@@ -112,6 +112,18 @@ def encodeWireEvent (event : WireEvent) : Except EncodeError Lean.Json :=
   | _ =>
       (Cordis.SessionRefinement.Codec.encodeWireEvent event).mapError scalarError
 
+private theorem scalar_mapError_ok
+    {result : Except Cordis.SessionRefinement.Codec.EncodeError Lean.Json}
+    {json : Lean.Json} (encoded : result.mapError scalarError = .ok json) :
+    result = .ok json := by
+  cases result with
+  | error error =>
+      cases error with
+      | unsupportedPayload tag => simp [Except.mapError, scalarError] at encoded
+  | ok value =>
+      cases encoded
+      rfl
+
 private theorem rawField {fields : List (String × Lean.Json)} {name : String}
     {value : Lean.Json} (distinct : List.Pairwise (fun a b =>
       ¬compare a.1 b.1 = Ordering.eq) fields) (mem : (name, value) ∈ fields) :
@@ -367,5 +379,290 @@ theorem decode_userMessage (seq time : SafeNat) (message : WireUserMessage)
             Cordis.SessionRefinement.decodeString,
             textBlocks_loop_decode, safeNat_decode,
             safeNatList_decode] <;> rfl
+
+theorem decode_encode {event : WireEvent} {json : Lean.Json}
+    (encoded : encodeWireEvent event = .ok json) :
+    decodeEvent json = .ok event := by
+  cases event with
+  | mk seq time payload =>
+      cases payload with
+      | userMessage append =>
+          cases append with
+          | mk message sourceEventSeqs surfaceOp =>
+              cases message with
+              | user message =>
+                  cases encoded
+                  exact decode_userMessage seq time message sourceEventSeqs surfaceOp
+              | assistant message =>
+                  simp [encodeWireEvent, encodeUserMessage] at encoded
+      | toolResult result =>
+          cases encoded
+          exact decode_toolResult seq time result
+      | assistantMessage turn step append =>
+          simp [encodeWireEvent] at encoded
+      | turnStart turn =>
+          have scalar :
+              Cordis.SessionRefinement.Codec.encodeWireEvent
+                { seq, time, payload := .turnStart turn } = .ok json := by
+            apply scalar_mapError_ok
+            simpa [encodeWireEvent] using encoded
+          exact Cordis.SessionRefinement.Codec.decode_encode scalar
+      | turnEnd reason nextStep =>
+          have scalar :
+              Cordis.SessionRefinement.Codec.encodeWireEvent
+                { seq, time, payload := .turnEnd reason nextStep } = .ok json := by
+            apply scalar_mapError_ok
+            simpa [encodeWireEvent] using encoded
+          exact Cordis.SessionRefinement.Codec.decode_encode scalar
+      | stepStart turn step =>
+          have scalar :
+              Cordis.SessionRefinement.Codec.encodeWireEvent
+                { seq, time, payload := .stepStart turn step } = .ok json := by
+            apply scalar_mapError_ok
+            simpa [encodeWireEvent] using encoded
+          exact Cordis.SessionRefinement.Codec.decode_encode scalar
+      | stepEnd turn step =>
+          have scalar :
+              Cordis.SessionRefinement.Codec.encodeWireEvent
+                { seq, time, payload := .stepEnd turn step } = .ok json := by
+            apply scalar_mapError_ok
+            simpa [encodeWireEvent] using encoded
+          exact Cordis.SessionRefinement.Codec.decode_encode scalar
+      | requestContext context =>
+          have scalar :
+              Cordis.SessionRefinement.Codec.encodeWireEvent
+                { seq, time, payload := .requestContext context } = .ok json := by
+            apply scalar_mapError_ok
+            simpa [encodeWireEvent] using encoded
+          exact Cordis.SessionRefinement.Codec.decode_encode scalar
+      | sessionEndSeed =>
+          have scalar :
+              Cordis.SessionRefinement.Codec.encodeWireEvent
+                { seq, time, payload := .sessionEndSeed } = .ok json := by
+            apply scalar_mapError_ok
+            simpa [encodeWireEvent] using encoded
+          exact Cordis.SessionRefinement.Codec.decode_encode scalar
+      | assistantChunk chunk =>
+          have scalar :
+              Cordis.SessionRefinement.Codec.encodeWireEvent
+                { seq, time, payload := .assistantChunk chunk } = .ok json := by
+            apply scalar_mapError_ok
+            simpa [encodeWireEvent] using encoded
+          exact Cordis.SessionRefinement.Codec.decode_encode scalar
+      | assistantReasoningChunk chunk =>
+          have scalar :
+              Cordis.SessionRefinement.Codec.encodeWireEvent
+                { seq, time, payload := .assistantReasoningChunk chunk } = .ok json := by
+            apply scalar_mapError_ok
+            simpa [encodeWireEvent] using encoded
+          exact Cordis.SessionRefinement.Codec.decode_encode scalar
+      | toolCall turn step callId name arguments =>
+          have scalar :
+              Cordis.SessionRefinement.Codec.encodeWireEvent
+                { seq, time, payload := .toolCall turn step callId name arguments } =
+                .ok json := by
+            apply scalar_mapError_ok
+            simpa [encodeWireEvent] using encoded
+          exact Cordis.SessionRefinement.Codec.decode_encode scalar
+      | todoWrite todos =>
+          have scalar :
+              Cordis.SessionRefinement.Codec.encodeWireEvent
+                { seq, time, payload := .todoWrite todos } = .ok json := by
+            apply scalar_mapError_ok
+            simpa [encodeWireEvent] using encoded
+          exact Cordis.SessionRefinement.Codec.decode_encode scalar
+      | requestHeader header =>
+          have scalar :
+              Cordis.SessionRefinement.Codec.encodeWireEvent
+                { seq, time, payload := .requestHeader header } = .ok json := by
+            apply scalar_mapError_ok
+            simpa [encodeWireEvent] using encoded
+          exact Cordis.SessionRefinement.Codec.decode_encode scalar
+
+inductive TextDecodeError where
+  | text (error : TextRefinement.TextError)
+  | empty
+  | multiple (count : Nat)
+  | semantic (error : DecodeError)
+  deriving BEq, DecidableEq, Repr
+
+private def decodeSemantic (json : Lean.Json) : Except TextDecodeError WireEvent :=
+  (decodeEvent json).mapError TextDecodeError.semantic
+
+private def decodeSemanticLines (jsons : List Lean.Json) :
+    Except TextDecodeError (List WireEvent) :=
+  (jsons.mapM decodeEvent).mapError TextDecodeError.semantic
+
+/-- Encode one admitted event as compact newline-delimited JSON text. -/
+def encodeWireEventLine (event : WireEvent) : Except EncodeError String :=
+  (encodeWireEvent event).map Lean.Json.compress
+
+/-- Parse exactly one JSON line and run the source-shaped semantic decoder. -/
+def decodeWireEventLine (text : String) : Except TextDecodeError WireEvent :=
+  match _parsed : TextRefinement.parseJsonLines text with
+  | .error error => .error (.text error)
+  | .ok [] => .error .empty
+  | .ok [json] => decodeSemantic json
+  | .ok (_first :: _second :: rest) => .error (.multiple (rest.length + 2))
+
+/-- Encode a finite admitted event list as canonical JSONL text. -/
+def encodeWireEventsText (events : List WireEvent) : Except EncodeError String :=
+  (events.mapM encodeWireEvent).map TextRefinement.renderJsonLines
+
+/-- Decode finite JSONL text through this surface codec. -/
+def decodeWireEventsText (text : String) :
+    Except TextDecodeError (List WireEvent) :=
+  match _parsed : TextRefinement.parseJsonLines text with
+  | .error error => .error (.text error)
+  | .ok jsons => decodeSemanticLines jsons
+
+/-- Encode a finite admitted event list as canonical UTF-8 JSONL bytes. -/
+def encodeWireEventsBytes (events : List WireEvent) : Except EncodeError ByteArray :=
+  (events.mapM encodeWireEvent).map TextRefinement.renderJsonLinesBytes
+
+/-- Decode canonical UTF-8 JSONL bytes through this surface codec. -/
+def decodeWireEventsBytes (source : ByteArray) :
+    Except TextDecodeError (List WireEvent) :=
+  match _parsed : TextRefinement.parseJsonLinesBytes source with
+  | .error error => .error (.text error)
+  | .ok jsons => decodeSemanticLines jsons
+
+theorem encodeWireEventLine_eq_compress
+    {event : WireEvent} {json : Lean.Json}
+    (encoded : encodeWireEvent event = .ok json) :
+    encodeWireEventLine event = .ok (Lean.Json.compress json) := by
+  change (encodeWireEvent event).map Lean.Json.compress = .ok (Lean.Json.compress json)
+  rw [encoded]
+  rfl
+
+theorem decodeWireEventLine_of_encoded
+    {event : WireEvent} {json : Lean.Json} {text : String}
+    (encoded : encodeWireEvent event = .ok json)
+    (parsed : TextRefinement.parseJsonLines text = .ok [json]) :
+    decodeWireEventLine text = .ok event := by
+  unfold decodeWireEventLine
+  generalize h : TextRefinement.parseJsonLines text = result
+  cases result with
+  | error error => simp_all
+  | ok lines =>
+      cases lines with
+      | nil => simp_all
+      | cons first rest =>
+          cases rest with
+          | nil =>
+              have lines_eq :
+                  (Except.ok [first] : Except TextRefinement.TextError (List Lean.Json)) =
+                    .ok [json] := h.symm.trans parsed
+              cases lines_eq
+              simp [decodeSemantic, decode_encode encoded, Except.mapError]
+          | cons second rest => simp_all
+
+private theorem map_decode_of_encoded :
+    ∀ {events : List WireEvent} {jsons : List Lean.Json},
+      events.mapM encodeWireEvent = .ok jsons →
+      jsons.mapM decodeEvent = .ok events := by
+  intro events
+  induction events with
+  | nil =>
+      intro jsons h
+      rw [List.mapM_nil] at h
+      cases h
+      rfl
+  | cons event events ih =>
+      intro jsons h
+      rw [List.mapM_cons] at h
+      cases hHead : encodeWireEvent event with
+      | error error =>
+          simp [hHead] at h
+          contradiction
+      | ok encodedEvent =>
+          rw [hHead] at h
+          cases hTail : List.mapM encodeWireEvent events with
+          | error error =>
+              simp [hTail] at h
+              contradiction
+          | ok encodedTail =>
+              rw [hTail] at h
+              cases h
+              rw [List.mapM_cons]
+              rw [show decodeEvent encodedEvent = .ok event from decode_encode hHead]
+              rw [ih hTail]
+              rfl
+
+theorem decodeWireEventsText_of_encoded
+    {events : List WireEvent} {jsons : List Lean.Json} {text : String}
+    (encoded : events.mapM encodeWireEvent = .ok jsons)
+    (parsed : TextRefinement.parseJsonLines text = .ok jsons) :
+    decodeWireEventsText text = .ok events := by
+  have decoded : jsons.mapM decodeEvent = .ok events := map_decode_of_encoded encoded
+  unfold decodeWireEventsText
+  generalize h : TextRefinement.parseJsonLines text = result
+  cases result with
+  | error error => simp_all
+  | ok lines =>
+      have lines_eq :
+          (Except.ok lines : Except TextRefinement.TextError (List Lean.Json)) =
+            .ok jsons := h.symm.trans parsed
+      cases lines_eq
+      simp [decodeSemanticLines, decoded, Except.mapError]
+
+theorem decodeWireEventsBytes_of_encoded
+    {events : List WireEvent} {jsons : List Lean.Json} {source : ByteArray}
+    (encoded : events.mapM encodeWireEvent = .ok jsons)
+    (parsed : TextRefinement.parseJsonLinesBytes source = .ok jsons) :
+    decodeWireEventsBytes source = .ok events := by
+  have decoded : jsons.mapM decodeEvent = .ok events := map_decode_of_encoded encoded
+  unfold decodeWireEventsBytes
+  generalize h : TextRefinement.parseJsonLinesBytes source = result
+  cases result with
+  | error error => simp_all
+  | ok lines =>
+      have lines_eq :
+          (Except.ok lines : Except TextRefinement.TextError (List Lean.Json)) =
+            .ok jsons := h.symm.trans parsed
+      cases lines_eq
+      simp [decodeSemanticLines, decoded, Except.mapError]
+
+def executableUserMessage : WireUserMessage := {
+  id := "user-surface"
+  content := [{ text := "weather?" }]
+}
+
+def executableToolResult : WireToolResult := {
+  turn := { value := 1, safe := by decide }
+  step := { value := 1, safe := by decide }
+  messageId := "tool-message"
+  sourceCallId := "call-weather"
+  blockCallId := "call-weather"
+  content := "weather unavailable"
+  isError := true
+  sourceEventSeqs := [{ value := 4, safe := by decide }]
+  surfaceOp := .replace { value := 3, safe := by decide } { value := 5, safe := by decide }
+}
+
+def executableSurfaceEvents : List WireEvent := [
+  { seq := { value := 6, safe := by decide }
+    time := { value := 106, safe := by decide }
+    payload := .userMessage {
+      message := .user executableUserMessage
+      sourceEventSeqs := some [{ value := 2, safe := by decide }]
+      surfaceOp := .append
+    } },
+  { seq := { value := 7, safe := by decide }
+    time := { value := 107, safe := by decide }
+    payload := .toolResult executableToolResult }
+]
+
+theorem executableSurfaceEvents_encodable :
+    ∃ jsons, executableSurfaceEvents.mapM encodeWireEvent = .ok jsons := by
+  refine ⟨[userEventJson { value := 6, safe := by decide } { value := 106, safe := by decide } {
+    message := .user executableUserMessage
+    sourceEventSeqs := some [{ value := 2, safe := by decide }]
+    surfaceOp := .append
+  }, toolResultEvent { value := 7, safe := by decide } { value := 107, safe := by decide }
+      executableToolResult], ?_⟩
+  simp only [executableSurfaceEvents, List.mapM_cons, List.mapM_nil, encodeWireEvent,
+    encodeUserMessage, encodeToolResult]
+  rfl
 
 end Cordis.SessionRefinement.SurfaceCodec
