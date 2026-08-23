@@ -5636,6 +5636,10 @@ private def testDeepSeekToolSchema : IO Unit := do
       | .ok result =>
           assertEqual "schema conversation loop records one tool round"
             result.rounds.length 1
+          assertEqual "schema conversation loop trace records one tool round"
+            result.trace.rounds.length 1
+          assertEqual "schema conversation loop trace length agrees with its list projection"
+            result.trace.length result.rounds.length
           assertEqual "schema conversation loop preserves the final model"
             result.finalModel 0
           assertEqual "schema conversation loop appends the tool round"
@@ -5654,6 +5658,9 @@ private def testDeepSeekToolSchema : IO Unit := do
           | .fuelExhausted _ _ =>
               assertEqual "schema conversation loop preserves its certified prefix on exhaustion"
                 result.rounds.length 1
+              assertEqual
+                "schema conversation loop trace preserves its certified prefix on exhaustion"
+                result.trace.rounds.length 1
           | .completed _ => fail "schema conversation loop reported completion without fuel"
   match DeepSeekToolSchema.malformedToolResult with
   | .error (.unsupportedTag path "date") =>

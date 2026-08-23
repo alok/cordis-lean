@@ -1758,6 +1758,9 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekSchemaConversationBytes.ConversationBytesResult.finalRunner_nextSeq
 #print axioms Cordis.DeepSeekSchemaConversationBytes.Example.dualByteRoundAccepted
 #print axioms Cordis.DeepSeekSchemaConversationBytes.Example.invalidStatusRejected
+#print axioms Cordis.DeepSeekSchemaTrace.SchemaConversationTrace.rounds_length
+#print axioms Cordis.DeepSeekSchemaTrace.SchemaConversationTrace.last_round_is_endpoint
+#print axioms Cordis.DeepSeekSchemaTrace.SchemaConversationTrace.round_nextSeq
 #print axioms Cordis.DeepSeekSchemaConversationLoop.executeSchemaRegistryConversationStep
 #print axioms Cordis.DeepSeekSchemaConversationLoop.runSchemaConversation
 #print axioms Cordis.DeepSeekSchemaConversationLoop.SchemaConversationStop

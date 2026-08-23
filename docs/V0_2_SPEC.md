@@ -590,9 +590,11 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekSchemaConversationBytes`, composing that heterogeneous round with the explicit
   byte boundary: exact typed request/UTF-8 bytes, exact response bytes, decoded text, parse/decode
   certificates, accepted calls, dependent batch, and runner endpoint remain in one result;
+- `Cordis.DeepSeekSchemaTrace`, carrying successive tool rounds in an intrinsic dependent trace
+  indexed by exact runner/model endpoints, with a proved finite list projection;
 - `Cordis.DeepSeekSchemaConversationLoop`, carrying those rounds through a caller-fueled dependent
-  loop with an explicit validated no-tool terminal witness, accumulated round history, and a
-  distinct fuel-exhaustion stop;
+  loop with the intrinsic trace and equal list projection, an explicit validated no-tool terminal
+  witness, and a distinct fuel-exhaustion stop;
 - `Cordis.DeepSeekSchemaTransportRetryCancellation`, composing that heterogeneous registry with
   single-decoder bounded retry and caller-controlled pre-round cancellation, retaining exact
   dependent tool-round endpoints and distinct completion/cancellation/exhaustion stops;
@@ -2102,8 +2104,10 @@ external effects, and deployed Harness equivalence remain outside.
 `Cordis.DeepSeekSchemaConversation` closes the adjacent one-round transport seam by deriving the
 typed request's tool list from that registry, executing an explicit complete-body `Transport`, and
 retaining the request plan, validated response, accepted calls, heterogeneous batch, and runner
-endpoint together. `Cordis.DeepSeekSchemaConversationLoop` then recurses under explicit fuel,
-advances the dependent model after every certified tool round, preserves an existential history,
+endpoint together. `Cordis.DeepSeekSchemaTrace` makes successive rounds an intrinsic dependent
+history: the trace endpoint is definitionally the round's produced runner/model, and its `rounds`
+list is connected by a theorem rather than being an untyped accumulator. `Cordis.DeepSeekSchemaConversationLoop`
+then recurses under explicit fuel, advances the dependent model after every certified tool round,
 and retains a validated no-tool response as terminal rather than confusing it with exhaustion.
 These modules remain complete-body and caller-fueled; provider obedience, retries, cancellation,
 persistence, external effects, and deployed Harness equivalence remain outside.

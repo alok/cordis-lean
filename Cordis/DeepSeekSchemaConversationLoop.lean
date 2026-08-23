@@ -1,4 +1,4 @@
-import Cordis.DeepSeekSchemaConversation
+import Cordis.DeepSeekSchemaTrace
 
 /-!
 # Fuel-bounded transport-backed schema conversation
@@ -26,6 +26,7 @@ open Cordis.DeepSeekHarness
 open Cordis.DeepSeekSchemaConversation
 open Cordis.DeepSeekSchemaMultiRound
 open Cordis.DeepSeekSchemaRegistry
+open Cordis.DeepSeekSchemaTrace
 open Cordis.DeepSeekToolSchema
 
 /-! ## One-step terminal/tool distinction -/
@@ -147,10 +148,14 @@ structure SchemaConversationRunResult
     {Model Capability : Type}
     {cfg : GenericHarness.Config Model Capability}
     (registry : SchemaToolRegistry cfg) where
+  initialRunner : ConversationRunner
+  initialModel : Model
   rounds : List (SchemaToolRoundWitness registry)
   runner : ConversationRunner
   finalModel : Model
   stop : SchemaConversationStop registry runner finalModel
+  trace : SchemaConversationTrace registry initialRunner initialModel runner finalModel
+  trace_rounds_eq : trace.rounds = rounds
 
 def runSchemaConversationAux
     {Model Capability : Type}
@@ -165,17 +170,25 @@ def runSchemaConversationAux
     (sourcesNodup : sourceEventSeqs.Nodup)
     (sourcesEarlier : ∀ current : ConversationRunner,
       ∀ source ∈ sourceEventSeqs, source < current.session.nextSeq)
+    (initialModel : Model)
+    (initialRunner : ConversationRunner)
     (before : Model)
     (runner : ConversationRunner)
-    (history : List (SchemaToolRoundWitness registry)) :
+    (history : List (SchemaToolRoundWitness registry))
+    (historyTrace : SchemaConversationTrace registry initialRunner initialModel runner before)
+    (historyTrace_rounds_eq : historyTrace.rounds = history) :
     IO (Except SchemaConversationError (SchemaConversationRunResult registry)) := do
   match fuel with
   | 0 =>
       pure (.ok {
+        initialRunner
+        initialModel
         rounds := history
         runner
         finalModel := before
         stop := .fuelExhausted runner before
+        trace := historyTrace
+        trace_rounds_eq := historyTrace_rounds_eq
       })
   | fuel + 1 =>
       match ← executeSchemaRegistryConversationStep transport baseUrl apiKey request before runner
@@ -183,18 +196,26 @@ def runSchemaConversationAux
       | .error error => pure (.error error)
       | .ok ⟨_body, .terminal terminal⟩ =>
           pure (.ok {
+            initialRunner
+            initialModel
             rounds := history
             runner
             finalModel := before
             stop := .completed terminal
+            trace := historyTrace
+            trace_rounds_eq := historyTrace_rounds_eq
           })
       | .ok ⟨body, .tools toolStep⟩ =>
           let witness : SchemaToolRoundWitness registry :=
             ⟨runner, ⟨before, ⟨body, ⟨toolStep.accepted,
               ⟨toolStep.batch, toolStep.result⟩⟩⟩⟩⟩
           runSchemaConversationAux fuel transport baseUrl apiKey request sourceEventSeqs
-            sourcesNodup sourcesEarlier toolStep.batch.finalModel toolStep.result.round.finalRunner
-            (history ++ [witness])
+            sourcesNodup sourcesEarlier initialModel initialRunner
+            toolStep.result.batch.finalModel toolStep.result.round.finalRunner
+            (history ++ [witness]) (historyTrace.snoc toolStep.result) (by
+              change historyTrace.rounds ++ [⟨runner, ⟨before, ⟨body, ⟨toolStep.accepted,
+                ⟨toolStep.batch, toolStep.result⟩⟩⟩⟩⟩] = history ++ [witness]
+              rw [historyTrace_rounds_eq])
 
 def runSchemaConversation
     {Model Capability : Type}
@@ -213,7 +234,8 @@ def runSchemaConversation
     (runner : ConversationRunner) :
     IO (Except SchemaConversationError (SchemaConversationRunResult registry)) :=
   runSchemaConversationAux fuel transport baseUrl apiKey request sourceEventSeqs sourcesNodup
-    sourcesEarlier before runner []
+    sourcesEarlier before runner before runner [] (SchemaConversationTrace.nil runner before)
+    (by rfl)
 
 /-! ## Executable two-request fixture -/
 

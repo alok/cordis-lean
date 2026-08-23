@@ -2489,9 +2489,12 @@ authenticity, persistence, and deployed semantics outside this pure registry.
 `Cordis.DeepSeekSchemaConversation` is the next composition boundary: it derives the typed
 complete-body request from the registry's exact tool list, executes an explicit transport, and
 retains the request plan, validated response, accepted calls, heterogeneous execution batch, and
-runner endpoint in one dependent result. `Cordis.DeepSeekSchemaConversationLoop` lifts that result
-under caller-supplied fuel. Its history contains only certified tool rounds; a validated response
-with no calls is an explicit terminal witness, while fuel exhaustion is a separate typed stop.
+runner endpoint in one dependent result. `Cordis.DeepSeekSchemaTrace` packages successive rounds as
+an intrinsic dependent trace whose endpoint indices are the exact runner/model outputs of each
+round; its `rounds` list is retained only as a proved projection. `Cordis.DeepSeekSchemaConversationLoop`
+lifts that result under caller-supplied fuel. Its history contains only certified tool rounds; a
+validated response with no calls is an explicit terminal witness, while fuel exhaustion is a
+separate typed stop.
 Implement this as a finite loop over the existing registry theorem, not as an untyped retry or a
 claim about remote model/tool behavior. Retries, cancellation, persistence, and external effects
 remain separate authorities.
