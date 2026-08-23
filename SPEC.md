@@ -292,6 +292,12 @@ L-DivertAbort but no same-lifecycle-rule peer, refuting any unconditional assign
 simulation. General lifecycle replay, relation-aware activation swaps, Lemma 72,
 automatic/canonical normalization, and confluence remain open.
 
+`Cordis.GlobalPaperShiftedLifecycle` adds a concrete non-reflexive allocator-clock replay: it
+shifts only `nextBirth`, rebuilds the dependent L-Leave/L-Unload pair, and transports the exact
+assigned trace while preserving endpoint well-formedness, rules, actors, and birth-erased
+relatedness. This witness is trace-local; it does not upgrade the known clock-sensitive
+countermodel into a global lifecycle bisimulation.
+
 The progress layer proves that printed Theorem 66 also needs stronger executable premises. A
 configured oracle may reject a registration that the raw relation can admit through another
 oracle, while finite Boolean name exhaustion produces a well-formed nonquiescent state with no raw

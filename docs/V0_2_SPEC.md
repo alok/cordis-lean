@@ -730,6 +730,9 @@ Current machine-checked evidence includes:
 - `Cordis.GlobalPaperRelation`, erasing only the reference allocator clock/birth ranks from current
   rule observation, proving full-domain bidirectional well-formed orchestration replay, and
   constructing directed relation-aware vestigial suffix replay with lifecycle countermodels;
+- `Cordis.GlobalPaperShiftedLifecycle`, providing a concrete non-reflexive allocator-clock replay
+  that rebuilds dependent L-Leave/L-Unload transitions and transports their assigned trace while
+  retaining exact rule/actor and endpoint certificates; it is not global lifecycle bisimulation;
 - `Cordis.GlobalPaperTraceNormalization`, packaging a finite certificate-driven chain of
   birth-erased adjacent trace rewrites with transported assignments and final rule/actor
   permutation facts, while leaving automatic normal-form search and confluence external;
@@ -1176,6 +1179,11 @@ relation. Finite vestigial removal and safe foreign orchestration traces use the
 relation directionally from a well-formed source carrying a `VestigialNames` certificate. A real
 clock-sensitive L-DivertAbort with no exact-rule peer refutes
 unconditional lifecycle simulation.
+
+`Cordis.GlobalPaperShiftedLifecycle` adds a trace-local non-reflexive witness by shifting only the
+allocator clock, rebuilding the dependent leave/unload transitions, and proving the assigned peer
+trace remains well formed and birth-erased related. This is evidence for a concrete replay seam,
+not a global lifecycle simulation theorem.
 
 The corrected progress slice is specified in
 [`GLOBAL_PROGRESS_SPEC.md`](GLOBAL_PROGRESS_SPEC.md) and implemented by `Cordis.GlobalProgress`.

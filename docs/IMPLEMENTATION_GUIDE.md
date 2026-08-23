@@ -3215,6 +3215,11 @@ and backward orientations. `GlobalPaperTraceNormalization` now composes a finite
 connected list of those supplied adjacent-rewrite certificates and proves endpoint relatedness
 plus rule/actor permutations. It is certificate composition only: no rewrite strategy,
 canonical form, termination, Lemma 72, or confluence is derived.
+`GlobalPaperShiftedLifecycle` adds a concrete trace-local replay witness on the lifecycle seam:
+the peer differs only in `nextBirth`, while dependent L-Leave/L-Unload transitions and their
+assigned trace are rebuilt with exact rule/actor, well-formedness, and birth-erased endpoint
+certificates. Keep this separate from the global lifecycle-simulation frontier and its
+clock-sensitive countermodel.
 `GlobalPaperRelation` now supplies that finite relation: it erases only allocator clock/birth from
 current rule control, relates the opposite insertion endpoints, and proves bidirectional
 well-formed orchestration replay with assignment transport. From a well-formed source carrying

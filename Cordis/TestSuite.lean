@@ -165,6 +165,7 @@ import Cordis.GlobalNameAction
 import Cordis.GlobalNameLifecycle
 import Cordis.GlobalPaperRelation
 import Cordis.GlobalPaperTraceSimulation
+import Cordis.GlobalPaperShiftedLifecycle
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalPaperTraceNormalizer
@@ -9042,6 +9043,17 @@ private def testGlobalPaperTraceSimulation : IO Unit := do
   assertEqual "trace-local lifecycle replay preserves the two acting names"
     GlobalPaperTraceSimulation.PositiveLifecycle.executableActorNames [0, 0]
 
+private def testGlobalPaperShiftedLifecycle : IO Unit := do
+  let _nonreflexive := GlobalPaperShiftedLifecycle.shiftedRetired_ne_source
+  let _related := GlobalPaperShiftedLifecycle.replay_final_related
+  assertEqual "birth-erased lifecycle replay shifts only the allocator clock"
+    GlobalPaperShiftedLifecycle.executableClockPair (1, 2)
+  assertEqual "shifted lifecycle replay retains leave and unload detail"
+    GlobalPaperShiftedLifecycle.executableRules
+    [.lifecycle .leave, .lifecycle .unload]
+  assertEqual "shifted lifecycle replay retains the source actors"
+    GlobalPaperShiftedLifecycle.executableActors [0, 0]
+
 private def testGlobalPaperTraceDeletion : IO Unit := do
   assertEqual "assigned deletion replay retains the concrete detailed rule"
     GlobalPaperTraceDeletion.Example.executableDetailedRules
@@ -9655,6 +9667,7 @@ def run : IO Unit := do
   testGlobalDeletion
   testGlobalPaperRelation
   testGlobalPaperTraceSimulation
+  testGlobalPaperShiftedLifecycle
   testGlobalPaperTraceDeletion
   testGlobalPaperTraceNormalization
   testGlobalPaperTraceNormalizer

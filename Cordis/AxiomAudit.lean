@@ -159,6 +159,7 @@ import Cordis.GlobalNameAction
 import Cordis.GlobalNameLifecycle
 import Cordis.GlobalPaperRelation
 import Cordis.GlobalPaperTraceSimulation
+import Cordis.GlobalPaperShiftedLifecycle
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalPaperTraceNormalizer
@@ -2391,6 +2392,18 @@ namespace Cordis.GlobalPaperTraceSimulation
 #print axioms PositiveLifecycle.forwardReplay_final_related
 #print axioms PositiveLifecycle.backwardReplay_final_related
 end Cordis.GlobalPaperTraceSimulation
+namespace Cordis.GlobalPaperShiftedLifecycle
+#print axioms shift_wellFormed
+#print axioms shift_related
+#print axioms shiftedRetired_ne_source
+#print axioms shiftedLeaveTransition
+#print axioms shiftedUnloadTransition
+#print axioms replay_final_related
+#print axioms replay_rules
+#print axioms replay_actors
+#print axioms replayAssignment
+#print axioms executableClockPair_eq
+end Cordis.GlobalPaperShiftedLifecycle
 namespace Cordis.GlobalPaperTraceDeletion
 #print axioms detailedRule_eq_of_orchestration
 #print axioms replay_detailedRules_eq
