@@ -2210,6 +2210,13 @@ fixture checks `8 -> 11`, one round, two first-round calls, and model `0`. This 
 blocked-read interruption, cleanup, durability, external effects, or deployed cancellation
 equivalence.
 
+`Cordis.DeepSeekHarnessPayloadPersistenceFileStreamRetryCancellation` repeats that payload-aware
+cancellation boundary through an actual temporary-file backend. The file bytes are checked against
+the canonical source before JSONL validation and payload enrichment; the dependent endpoint retains
+the byte equality, restored session/payload equations, and timeout prefix. The fixture checks equal
+bytes, eight payload rows, `8 -> 11`, one round, and model `0`; fsync, stable media, crash recovery,
+blocked-read interruption, cleanup, external effects, and deployed equivalence remain unclaimed.
+
 `Cordis.DeepSeekHarnessPersistenceStreamRetry` composes that actual process outcome with the
 fuel-bounded streamed conversation loop. The restored runner remains the initial trace index; the
 fixture emits two counter calls, executes them through the dependent generic configuration, then

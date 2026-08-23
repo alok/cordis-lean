@@ -1183,3 +1183,10 @@ equations beside the completed first process-backed tool round and typed timeout
 checks `8 -> 11`, eight payload rows, one round, two first-round calls, and model `0`. It remains
 local process/payload evidence only, not blocked-read interruption, cleanup, durable recovery,
 external effects, or deployed cancellation equivalence.
+
+`Cordis.DeepSeekHarnessPayloadPersistenceFileStreamRetryCancellation` repeats that boundary after
+an actual temporary-file read. The dependent result retains source/read-byte equality, restored
+session/payload equations, the completed tool round, and typed timeout endpoint; the fixture checks
+equal bytes, `8 -> 11`, eight payload rows, one round, and model `0`. It is local file/process
+evidence only, not fsync, stable media, crash recovery, blocked-read interruption, cleanup,
+external effects, or deployed cancellation equivalence.

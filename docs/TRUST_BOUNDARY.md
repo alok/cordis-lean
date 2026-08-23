@@ -443,6 +443,13 @@ round, then returns a typed timeout stop before selecting the next request; the 
 HTTP request, establish process cleanup or durable recovery, or establish external/deployed
 cancellation equivalence.
 
+`DeepSeekHarnessPayloadPersistenceFileStreamRetryCancellation` repeats that payload-preserving
+prefix after writing and reading the canonical JSONL through a real temporary-file backend. Its
+dependent result retains source/read-byte equality, the restored session, all eight payload rows,
+and the typed timeout endpoint; the fixture checks equal bytes, `8 -> 11`, one round, and model `0`.
+The temporary file is scoped to the fixture and does not prove fsync, stable media, crash recovery,
+blocked-read interruption, process cleanup, external effects, or deployed equivalence.
+
 `DeepSeekHarnessPersistenceStreamRetry` extends that process boundary to a dependent two-round
 continuation from the restored runner. Its shell fixture emits the two-call counter stream, runs
 the typed tool executions, and emits terminal text after the first tool result is serialized into

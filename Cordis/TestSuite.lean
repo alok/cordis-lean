@@ -120,6 +120,7 @@ import Cordis.DeepSeekHarnessPayloadSimulation
 import Cordis.DeepSeekHarnessPayloadPersistenceProcessOutcome
 import Cordis.DeepSeekHarnessPayloadPersistenceStreamRetry
 import Cordis.DeepSeekHarnessPayloadPersistenceStreamRetryCancellation
+import Cordis.DeepSeekHarnessPayloadPersistenceFileStreamRetryCancellation
 import Cordis.DeepSeekHarnessEventArchiveReplay
 import Cordis.DeepSeekHarnessEventIgnorableRunner
 import Cordis.DeepSeekHarnessEventIgnorableTransport
@@ -6789,6 +6790,37 @@ private def testDeepSeekHarnessPayloadPersistenceStreamRetryCancellation : IO Un
           persisted
       pure ()
 
+private def testDeepSeekHarnessPayloadPersistenceFileStreamRetryCancellation : IO Unit := do
+  match ← DeepSeekHarnessPayloadPersistenceFileStreamRetryCancellation.runSummary with
+  | .error _ => fail "file-backed payload cancellation summary failed"
+  | .ok summary =>
+      assertEqual "file-backed payload cancellation reaches its executable summary"
+        (DeepSeekHarnessPayloadPersistenceFileStreamRetryCancellation.summaryMatchesFixture summary)
+        true
+      assertEqual "file-backed payload cancellation retains its source bytes"
+        summary.sourceBytes summary.readBytes
+      assertEqual "file-backed payload cancellation retains eight payload rows"
+        summary.payloadLength 8
+      assertEqual "file-backed payload cancellation retains one completed round"
+        summary.traceLength 1
+  match ← DeepSeekHarnessPayloadPersistenceFileStreamRetryCancellation.runFixture with
+  | .error _ => fail "file-backed payload cancellation fixture failed"
+  | .ok persisted =>
+      let _bytes :=
+        DeepSeekHarnessPayloadPersistenceFileStreamRetryCancellation.file_bytes_eq_source persisted
+      let _readBytes :=
+        DeepSeekHarnessPayloadPersistenceFileStreamRetryCancellation.read_bytes_eq_source persisted
+      let _session :=
+        DeepSeekHarnessPayloadPersistenceFileStreamRetryCancellation.restored_session_eq_file_archive
+          persisted
+      let _raw :=
+        DeepSeekHarnessPayloadPersistenceFileStreamRetryCancellation.restored_payload_raw_eq_expanded
+          persisted
+      let _length :=
+        DeepSeekHarnessPayloadPersistenceFileStreamRetryCancellation.restored_payload_length_eq
+          persisted
+      pure ()
+
 private def testDeepSeekHarnessEventArchiveReplay : IO Unit := do
   match DeepSeekHarnessEventArchiveReplay.toolArchiveReplay with
   | .error error => fail s!"archive-aware replay failed: {reprStr error}"
@@ -10131,6 +10163,7 @@ def run : IO Unit := do
   testDeepSeekHarnessPayloadPersistenceProcessOutcome
   testDeepSeekHarnessPayloadPersistenceStreamRetry
   testDeepSeekHarnessPayloadPersistenceStreamRetryCancellation
+  testDeepSeekHarnessPayloadPersistenceFileStreamRetryCancellation
   testDeepSeekHarnessEventArchiveReplay
   testDeepSeekHarnessEventIgnorableRunner
   testDeepSeekHarnessEventIgnorableTransport
