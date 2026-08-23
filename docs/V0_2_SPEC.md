@@ -1517,7 +1517,10 @@ The bounded algebra/context/global layer now has sixty-eight explicit pieces:
     combined effect/outside control and safe orchestration traces replay directionally. Outside
     reverse replay and lifecycle simulation are
     kernel-refuted; there is no birth-erased activation swap, general episode deletion,
-    automatic normalization, or confluence.
+    automatic normalization, or confluence. Separately, `ValueActionEquiv` records the explicit
+    per-key setoid-invariance premise needed to transport active-context observations; the
+    composition/inverse endpoint laws and acted-state corollaries close the renamed observation
+    relation without claiming lifecycle bisimulation.
 36. `Cordis.GlobalProgress` gives Definition 65 its exact state-local provider precedence and an
     explicit finite increasing rank. A configured oracle-rejection model separates fixed-program
     applicability from the raw existential-oracle relation; a Boolean freshness-exhaustion model

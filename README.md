@@ -1684,9 +1684,11 @@ renamed well-formed endpoint is related to its source under the birth-erased pap
 and exposes the same fact for finite trace endpoints. `NonActivationTracePaperEndpoint` packages an
 actual assigned raise/error-style trace without requiring a lifecycle-activation transport, and its
 backward counterpart reconstructs the original assigned trace from the renamed endpoint. The
-activation-bearing package keeps that transport as an explicit proof obligation. It does not turn
-the observation bridge into unconditional lifecycle bisimulation; the primitive semantic laws
-remain explicit.
+activation-bearing package keeps that transport as an explicit proof obligation. Its
+`ValueActionEquiv` premise makes per-key setoid invariance explicit: `contextRelated_actTable`
+transports the active-context relation, and the trans/symm endpoint theorems compose or invert
+renamed observations, including acted-state corollaries. It does not turn the observation bridge
+into unconditional lifecycle bisimulation; the primitive semantic laws remain explicit.
 
 `Cordis.GlobalVestigial` proves the effect-observation sentence of Lemma 57 exactly and then
 mechanizes the corrected orchestration fragment. Removing a retired, successful-inactive,

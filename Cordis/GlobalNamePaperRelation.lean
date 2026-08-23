@@ -108,6 +108,144 @@ def NameActionPaperRelated
     ∀ name, actPaperControlAt action left (action.name name) =
       paperControlAt right (action.name name)
 
+/-! ## Closure under certified value actions -/
+
+/-- The dependent value action preserves the paper's per-key value setoids. -/
+def ValueActionEquiv
+    (action : NameAction sig Ambient) (values : ValueSetoids sig) : Prop :=
+  ∀ (key : sig.Key) (left right : sig.Value key),
+    (values.relation key).r left right ↔
+      (values.relation key).r (action.value key left) (action.value key right)
+
+theorem valueActionEquiv_symm
+    (action : NameAction sig Ambient) (values : ValueSetoids sig)
+    (invariant : ValueActionEquiv action values) :
+    ValueActionEquiv action.symm values := by
+  intro key left right
+  let leftOriginal := (action.value key).symm left
+  let rightOriginal := (action.value key).symm right
+  have original := invariant key leftOriginal rightOriginal
+  constructor
+  · intro related
+    have related' : (values.relation key).r
+        ((action.value key) leftOriginal) ((action.value key) rightOriginal) := by
+      simpa [leftOriginal, rightOriginal, Equiv.symm] using related
+    have mapped := original.mpr related'
+    simpa [leftOriginal, rightOriginal, Equiv.symm] using mapped
+  · intro related
+    have mapped := original.mp related
+    simpa [leftOriginal, rightOriginal, Equiv.symm] using mapped
+
+theorem contextRelated_actTable
+    (action : NameAction sig Ambient) (values : ValueSetoids sig)
+    (invariant : ValueActionEquiv action values)
+    {left right : Coeffect.Context sig.Key sig.Value}
+    (related : ContextRelated values left right) :
+    ContextRelated values (actTable action left) (actTable action right) := by
+  intro key
+  rw [actTable_lookup, actTable_lookup]
+  cases hleft : left key with
+  | none =>
+      cases hright : right key with
+      | none =>
+          change OptionRelated (values.relation key) none none
+          exact OptionRelated.refl (values.relation key) none
+      | some rightVal =>
+          have relatedKey := related key
+          rw [hleft, hright] at relatedKey
+          cases relatedKey
+  | some leftVal =>
+      cases hright : right key with
+      | none =>
+          have relatedKey := related key
+          rw [hleft, hright] at relatedKey
+          cases relatedKey
+      | some rightVal =>
+          have relatedKey := related key
+          rw [hleft, hright] at relatedKey
+          change (values.relation key).r (action.value key leftVal)
+            (action.value key rightVal)
+          exact (invariant key leftVal rightVal).mp relatedKey
+
+theorem controlAt_trans_apply
+    (first second : NameAction sig Ambient)
+    (state : State catalog Ambient) (name : sig.Name) :
+    actPaperControlAt (first.trans second) state ((first.trans second).name name) =
+      (actPaperControlAt first state (first.name name)).map
+        (actPaperFiberControl second) := by
+  simp only [actPaperControlAt, NameAction.trans_name_symm_apply,
+    Option.map_map]
+  cases lookup : paperControlAt state name with
+  | none => simp [lookup]
+  | some control =>
+      simp [lookup, actPaperFiberControl_trans]
+
+theorem controlAt_symm_apply
+    (action : NameAction sig Ambient)
+    (state : State catalog Ambient) (name : sig.Name) :
+    actPaperControlAt action.symm state (action.symm.name name) =
+      (paperControlAt state name).map (actPaperFiberControl action.symm) := by
+  simp [actPaperControlAt]
+
+theorem nameActionPaperRelated_trans
+    (first second : NameAction sig Ambient) (values : ValueSetoids sig)
+    (secondInvariant : ValueActionEquiv second values)
+    {left middle right : State catalog Ambient}
+    (firstRelated : NameActionPaperRelated first values left middle)
+    (secondRelated : NameActionPaperRelated second values middle right) :
+    NameActionPaperRelated (first.trans second) values left right := by
+  refine ⟨?_, ?_⟩
+  · rw [actTable_trans]
+    exact contextRelated_trans
+      (contextRelated_actTable second values secondInvariant firstRelated.1)
+      secondRelated.1
+  · intro name
+    calc
+      actPaperControlAt (first.trans second) left ((first.trans second).name name) =
+          (actPaperControlAt first left (first.name name)).map
+            (actPaperFiberControl second) :=
+        controlAt_trans_apply first second left name
+      _ = (paperControlAt middle (first.name name)).map
+            (actPaperFiberControl second) := by rw [firstRelated.2 name]
+      _ = actPaperControlAt second middle (second.name (first.name name)) := by
+        symm
+        exact actPaperControlAt_apply second middle (first.name name)
+      _ = paperControlAt right (second.name (first.name name)) :=
+        secondRelated.2 (first.name name)
+
+theorem controlAt_apply_symm
+    (action : NameAction sig Ambient)
+    (state : State catalog Ambient) (name : sig.Name) :
+    (actPaperControlAt action state (action.name name)).map
+        (actPaperFiberControl action.symm) =
+      paperControlAt state name := by
+  rw [actPaperControlAt_apply]
+  simp [Function.comp_def]
+
+theorem nameActionPaperRelated_symm
+    (action : NameAction sig Ambient) (values : ValueSetoids sig)
+    (invariant : ValueActionEquiv action values)
+    {left right : State catalog Ambient}
+    (related : NameActionPaperRelated action values left right) :
+    NameActionPaperRelated action.symm values right left := by
+  refine ⟨?_, ?_⟩
+  · have swapped := contextRelated_symm related.1
+    have inverseInvariant := valueActionEquiv_symm action values invariant
+    have mapped := contextRelated_actTable action.symm values inverseInvariant swapped
+    simpa [actTable_symm_apply] using mapped
+  · intro name
+    calc
+      actPaperControlAt action.symm right (action.symm.name name) =
+          (paperControlAt right name).map (actPaperFiberControl action.symm) :=
+        controlAt_symm_apply action right name
+      _ = (actPaperControlAt action left name).map
+            (actPaperFiberControl action.symm) := by
+        have h := congrArg (Option.map (actPaperFiberControl action.symm))
+          (related.2 (action.symm.name name))
+        simpa using h.symm
+      _ = paperControlAt left (action.symm.name name) := by
+        simpa using controlAt_apply_symm action left (action.symm.name name)
+
 theorem activeValue_act_iff
     (action : NameAction sig Ambient)
     (state : State catalog Ambient) (key : sig.Key) (value : sig.Value key) :
@@ -193,6 +331,25 @@ theorem nameActionPaperRelated_actState
     | some fiber =>
         simp [actPaperControlAt, actState, actRegistry, paperControlAt, lookup,
           actPaperFiberControl, paperFiberControl]
+
+theorem nameActionPaperRelated_actState_trans
+    (first second : NameAction sig Ambient) (values : ValueSetoids sig)
+    (secondInvariant : ValueActionEquiv second values)
+    {state : State catalog Ambient} (stateWf : WellFormed state) :
+    NameActionPaperRelated (first.trans second) values state
+      (actState (first.trans second) state) := by
+  rw [actState_trans]
+  exact nameActionPaperRelated_trans first second values secondInvariant
+    (nameActionPaperRelated_actState first values stateWf)
+    (nameActionPaperRelated_actState second values (wellFormed_act first stateWf))
+
+theorem nameActionPaperRelated_actState_symm
+    (action : NameAction sig Ambient) (values : ValueSetoids sig)
+    (invariant : ValueActionEquiv action values)
+    {state : State catalog Ambient} (stateWf : WellFormed state) :
+    NameActionPaperRelated action.symm values (actState action state) state := by
+  exact nameActionPaperRelated_symm action values invariant
+    (nameActionPaperRelated_actState action values stateWf)
 
 theorem nameActionPaperRelated_context
     (action : NameAction sig Ambient) (values : ValueSetoids sig)
