@@ -1599,6 +1599,13 @@ evidence only: invalid UTF-8, HTTP, transport, and semantic response errors stay
 and live networking, credentials, provider behavior, persistence, and deployed equivalence
 remain external.
 
+`Cordis.DeepSeekSessionRequestStreaming` closes the corresponding indexed streaming seam for
+the deliberately narrow text-only SSE language. `executeStreamingTextAndAppend` retains the
+mode-indexed streaming plan, strict wire frames, finished rich response, and exact
+`ExtensionRunner` endpoint. Richer reasoning/tool/mixed/multi-call streams and malformed or
+incomplete bodies remain typed rejections; the process configuration is injected local evidence,
+not live-provider or deployed-Harness equivalence.
+
 There is no public generic runner event emitter. Non-tool events use a private
 emitter that requires proof that the event is not a call boundary. A private
 settlement transition validates and appends one adjacent call/result pair and

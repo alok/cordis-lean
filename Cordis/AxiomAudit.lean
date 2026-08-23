@@ -74,6 +74,7 @@ import Cordis.DeepSeekHarnessLocalSseMultiToolBytePrefix
 import Cordis.DeepSeekHarnessExtensions
 import Cordis.DeepSeekSessionRequest
 import Cordis.DeepSeekSessionRequestBytes
+import Cordis.DeepSeekSessionRequestStreaming
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
 import Cordis.DeepSeekGenericBridge
@@ -1247,6 +1248,10 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekSessionRequestBytes.ByteCompleteAppendResult.decoded_exact
 #print axioms Cordis.DeepSeekSessionRequestBytes.ByteCompleteAppendResult.append_endpoint_exact
 #print axioms Cordis.DeepSeekSessionRequestBytes.executeCompleteBytesAndAppend
+#print axioms Cordis.DeepSeekSessionRequestStreaming.StreamingAppendResult.stream_mode
+#print axioms Cordis.DeepSeekSessionRequestStreaming.StreamingAppendResult.wire_frames_exact
+#print axioms Cordis.DeepSeekSessionRequestStreaming.StreamingAppendResult.append_endpoint_exact
+#print axioms Cordis.DeepSeekSessionRequestStreaming.executeStreamingTextAndAppend
 #print axioms Cordis.DeepSeekHarnessExtensions.buildRequestPlanFor
 #print axioms Cordis.DeepSeekHarnessExtensions.buildTypedRequestPlanFor
 #print axioms Cordis.DeepSeekHarnessExtensions.buildStreamingRequestPlanFor

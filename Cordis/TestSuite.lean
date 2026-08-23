@@ -84,6 +84,7 @@ import Cordis.DeepSeekHarnessLocalSseMultiToolBytePrefix
 import Cordis.DeepSeekHarnessExtensions
 import Cordis.DeepSeekSessionRequest
 import Cordis.DeepSeekSessionRequestBytes
+import Cordis.DeepSeekSessionRequestStreaming
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
 import Cordis.DeepSeekGenericBridge
@@ -267,6 +268,7 @@ namespace Cordis.TestSuite
 
 open Cordis.Examples.Counter
 open Cordis.DeepSeekSessionRequestBytes
+open Cordis.DeepSeekSessionRequestStreaming
 
 private def rejectingCounterConfig : GenericHarness.Config Nat Capability := {
   Harness.counterConfig with
@@ -2887,6 +2889,31 @@ private def testDeepSeekSessionRequest : IO Unit := do
                               byteAppend
                           let _byte_append_certificate :=
                             ByteCompleteAppendResult.append_endpoint_exact byteAppend
+                      match ← DeepSeekSessionRequestStreaming.executeStreamingTextAndAppend
+                          (runner := indexedRunner)
+                          DeepSeekCurlSession.fixtureTextProcess "https://fixture.invalid"
+                          { value := "fixture-key" } preparedCertified noSources noSourcesNodup
+                          noSourcesEarlier with
+                      | .error error =>
+                          let _ := error
+                          fail "indexed DeepSeek streaming append failed"
+                      | .ok ⟨body, streamAppend⟩ =>
+                          assertEqual "indexed DeepSeek streaming append retains exact SSE body"
+                            body DeepSeekRichStream.exampleTextStreamBody
+                          assertEqual "indexed DeepSeek streaming append keeps the wire frames"
+                            streamAppend.processed.wire.frames.length 3
+                          assertEqual "indexed DeepSeek streaming append reaches the endpoint"
+                            streamAppend.after.session.nextSeq 6
+                          assertEqual "indexed DeepSeek streaming append preserves tool allocation"
+                            streamAppend.after.nextCall indexedRunner.nextCall
+                          let _stream_mode_certificate :=
+                            DeepSeekSessionRequestStreaming.StreamingAppendResult.stream_mode
+                              streamAppend
+                          let _stream_wire_certificate :=
+                            DeepSeekSessionRequestStreaming.StreamingAppendResult.wire_frames_exact
+                              streamAppend
+                          let _stream_append_certificate :=
+                            StreamingAppendResult.append_endpoint_exact streamAppend
                       let _ := certified_request_eq
                       let _ := preparedCertified_eq
               let _request_certificate :=
