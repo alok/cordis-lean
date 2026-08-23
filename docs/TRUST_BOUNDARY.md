@@ -618,7 +618,8 @@ deployed-Harness equivalence still external.
 `DeepSeekHarnessEventSchemaLocalSse` is the source-preserving continuation of that boundary. It
 rebuilds outgoing tool definitions from the dependent schema certificate and retains the original
 raw `parameters` JSON AST rather than sending the compressed local projection. Its indexed result
-proves names, descriptions, parameters, model, stream flag, frames, and append endpoint; the
+proves names, descriptions, parameters, model, stream flag, frames, append endpoint, and the exact
+compressed request body with a successful `ChatRequest` source witness; the
 fixture checks one raw tool, one valid request, three frames, and `nextSeq 6 -> 7`. Provider schema
 validation, credentials, persistence, cancellation, and deployed-Harness equivalence remain
 external.

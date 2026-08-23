@@ -325,6 +325,41 @@ theorem stream_mode
     result.localResult.prepared.plan.source.stream = true :=
   result.localResult.prepared.streaming_mode
 
+theorem request_body_eq_source_json
+    {input : List Lean.Json}
+    {encoder : ToolSchemaEncoder}
+    {options : RequestOptions}
+    {sources : List WireRequestToolSchemaSource}
+    {certificate : PreparedSchemaLogRequest input encoder options sources}
+    (result : SchemaLocalSseResult certificate) :
+    result.localResult.prepared.plan.request.body =
+      Lean.Json.compress result.localResult.prepared.plan.source.toJson :=
+  result.localResult.prepared.plan.body_eq
+
+theorem request_body_eq_built_chat_json
+    {input : List Lean.Json}
+    {encoder : ToolSchemaEncoder}
+    {options : RequestOptions}
+    {sources : List WireRequestToolSchemaSource}
+    {certificate : PreparedSchemaLogRequest input encoder options sources}
+    (result : SchemaLocalSseResult certificate) :
+    ∃ request : ChatRequest,
+      buildChatRequest (rawRequestSource certificate) (rawRunner certificate).session =
+        .ok request ∧
+      result.localResult.prepared.plan.request.body =
+        Lean.Json.compress request.asStreaming.toJson := by
+  cases requestResult : buildChatRequest (rawRequestSource certificate)
+      (rawRunner certificate).session with
+  | error error =>
+      have plan_eq := result.localResult.prepared.build_eq
+      unfold buildTypedStreamingRequestPlan at plan_eq
+      rw [requestResult] at plan_eq
+      contradiction
+  | ok request =>
+      refine ⟨request, rfl, ?_⟩
+      rw [← prepared_plan_source_eq result.localResult.prepared requestResult]
+      exact result.localResult.prepared.plan.body_eq
+
 theorem append_endpoint
     {input : List Lean.Json}
     {encoder : ToolSchemaEncoder}

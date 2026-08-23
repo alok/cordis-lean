@@ -2019,7 +2019,8 @@ Harness equivalence.
 `Cordis.DeepSeekHarnessEventSchemaLocalSse` extends this executable boundary without collapsing
 the source schema into the compressed local projection. It rebuilds each outgoing tool definition
 from the validated source list, so the request plan carries the original raw `parameters` JSON
-AST alongside the source name and description. Its dependent result proves those fields, the
+AST alongside the source name and description, and its body theorem identifies the actual
+compressed streaming request JSON (with a successful `ChatRequest` build witness). Its dependent result proves those fields, the
 model and streaming flag, response frames, and append endpoint; the fixture checks one raw tool,
 one valid request, three frames, and `nextSeq 6 -> 7`. Provider validation, credentials,
 persistence, cancellation, and deployed-Harness equivalence remain external.

@@ -3423,6 +3423,9 @@ private def testDeepSeekHarnessEventSchemaLocalSse : IO Unit := do
         result.localResult.response.wire.frames.length 3
       assertEqual "raw-schema event local SSE preserves the header model"
         result.localResult.prepared.plan.source.model "deepseek-reasoner"
+      assertEqual "raw-schema event local SSE body is the certified source JSON"
+        result.localResult.prepared.plan.request.body
+        (Lean.Json.compress result.localResult.prepared.plan.source.toJson)
       assertEqual "raw-schema event local SSE advances the exact event endpoint"
         result.localResult.after.session.nextSeq 7
       let _parameters :=
@@ -3431,6 +3434,11 @@ private def testDeepSeekHarnessEventSchemaLocalSse : IO Unit := do
         DeepSeekHarnessEventSchemaLocalSse.SchemaLocalSseResult.append_endpoint result
       let _sourceParameters :=
         DeepSeekHarnessEventSchemaLocalSse.Example.tool_parameters_are_source_json result
+      let _bodySource :=
+        DeepSeekHarnessEventSchemaLocalSse.SchemaLocalSseResult.request_body_eq_source_json result
+      let _bodyChat :=
+        DeepSeekHarnessEventSchemaLocalSse.SchemaLocalSseResult.request_body_eq_built_chat_json
+          result
       pure ()
 
 private def testDeepSeekAsyncStreamCancellation : IO Unit := do

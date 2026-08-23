@@ -835,7 +835,8 @@ provider, credential, persistence, cancellation, or deployed-Harness equivalence
 `Cordis.DeepSeekHarnessEventSchemaLocalSse` carries the source-preserving tool-schema certificate
 through that same loopback request while rebuilding outgoing `ToolDefinition`s with the original
 `parameters` JSON AST. Its indexed result proves exact names, descriptions, parameters, request
-model, stream flag, response frames, and append endpoint; the executable fixture checks one raw
+model, stream flag, response frames, append endpoint, and the exact compressed streaming request
+body (including its successful `ChatRequest` source); the executable fixture checks one raw
 tool, one valid request, three frames, and `nextSeq 6 -> 7`. Provider schema validation,
 credentials, persistence, cancellation, and deployed-Harness equivalence remain external.
 
