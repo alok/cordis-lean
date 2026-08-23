@@ -336,6 +336,11 @@ the shadow trace and assignment, proving final `RuleRelated`, rule/actor equalit
 birth-erased corollary. Its reflexive six-step fixture is executable; arbitrary lifecycle matching
 remains a supplied certificate rather than a consequence of base dynamics.
 
+`Cordis.GlobalRuleRelatedBisimulationReplay` adapts the conditional well-formed unified-rule
+bisimulation to this exact replay layer. The adapter requires an explicit
+`BisimulationAssignmentTransport` for each matched step; it therefore packages the reusable
+bisimulation without pretending that equal rules and actors determine dependent assignments.
+
 `Cordis.GlobalPaperShiftedLifecycle` adds a concrete non-reflexive allocator-clock replay: it
 shifts only `nextBirth`, rebuilds the dependent L-Leave/L-Unload pair, and transports the exact
 assigned trace while preserving endpoint well-formedness, rules, actors, and birth-erased

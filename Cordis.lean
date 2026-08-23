@@ -195,6 +195,7 @@ import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalPaperLandingReplay
 import Cordis.GlobalPaperFullLifecycleReplay
 import Cordis.GlobalRuleRelatedTraceReplay
+import Cordis.GlobalRuleRelatedBisimulationReplay
 import Cordis.GlobalPaperShiftedLifecycle
 import Cordis.GlobalPaperShiftedFullLifecycle
 import Cordis.GlobalPaperNonReflexiveRewrite

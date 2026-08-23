@@ -1245,6 +1245,11 @@ all-keep induction constructs an intrinsically adjacent shadow trace and derives
 relatedness, rule/actor ledgers, and a complete shadow assignment; the diagonal six-step fixture
 exercises the API. A non-reflexive lifecycle match is still supplied occurrence by occurrence.
 
+`Cordis.GlobalRuleRelatedBisimulationReplay` is the adapter boundary from the conditional
+well-formed unified-rule bisimulation to exact replay. It consumes an explicit
+`BisimulationAssignmentTransport` for dependent program assignments and then reuses the exact
+all-keep induction; assignment provenance is not inferred from rule or actor equality.
+
 `Cordis.GlobalPaperShiftedFullLifecycle` uses the same six-record fixture with a peer obtained by
 shifting only the allocator clock in every state. It reconstructs the six dependent peer
 transitions and their assignments, then applies the occurrence-indexed forward replay theorem.

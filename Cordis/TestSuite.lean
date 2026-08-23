@@ -185,6 +185,7 @@ import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalPaperLandingReplay
 import Cordis.GlobalPaperFullLifecycleReplay
 import Cordis.GlobalRuleRelatedTraceReplay
+import Cordis.GlobalRuleRelatedBisimulationReplay
 import Cordis.GlobalPaperShiftedLifecycle
 import Cordis.GlobalPaperShiftedFullLifecycle
 import Cordis.GlobalPaperNonReflexiveRewrite
@@ -9632,6 +9633,15 @@ private def testGlobalRuleRelatedTraceReplay : IO Unit := do
       "dependent-assignment-transport"
     ]
 
+private def testGlobalRuleRelatedBisimulationReplay : IO Unit := do
+  assertEqual "conditional bisimulation adapter keeps assignment transport explicit"
+    GlobalRuleRelatedTraceReplay.executableSummary
+    [
+      "well-formed-rule-bisimulation",
+      "explicit-assignment-transport",
+      "exact-rule-related-replay-adapter"
+    ]
+
 private def testGlobalPaperShiftedLifecycle : IO Unit := do
   let _nonreflexive := GlobalPaperShiftedLifecycle.shiftedRetired_ne_source
   let _related := GlobalPaperShiftedLifecycle.replay_final_related
@@ -10445,6 +10455,7 @@ def run : IO Unit := do
   testGlobalPaperLandingReplay
   testGlobalPaperFullLifecycleReplay
   testGlobalRuleRelatedTraceReplay
+  testGlobalRuleRelatedBisimulationReplay
   testGlobalPaperShiftedLifecycle
   testGlobalPaperShiftedFullLifecycle
   testGlobalPaperNonReflexiveRewrite

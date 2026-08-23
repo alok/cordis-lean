@@ -3285,6 +3285,10 @@ both endpoint `WellFormed` proofs, successor relation, and dependent assignment 
 rule/actor projections, and assignment transport. The diagonal six-step fixture is the smoke
 test; a non-reflexive caller must still supply lifecycle evidence rather than assuming it from
 the base dynamics or from the birth-erased theorem.
+`GlobalRuleRelatedBisimulationReplay` is the next adapter boundary: it consumes the existing
+conditional `WellFormedRuleBisimulation`, derives the exact actor wrapper equation, and requires
+`BisimulationAssignmentTransport` as the explicit dependent-assignment proof. Then call
+`replayFromWellFormedBisimulation`; do not replace that transport with a rule/actor equality.
 `GlobalPaperFullLifecycleReplay` packages the existing heterogeneous fixture as one exact
 six-record dependent path (`L-Begin`, `L-Iter`, `L-Finish`, `O-Retire`, `L-Leave`, `L-Unload`).
 Its first three records carry actual fixed-program activation assignments, while the remaining

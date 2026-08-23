@@ -173,6 +173,7 @@ import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalPaperLandingReplay
 import Cordis.GlobalPaperFullLifecycleReplay
 import Cordis.GlobalRuleRelatedTraceReplay
+import Cordis.GlobalRuleRelatedBisimulationReplay
 import Cordis.GlobalPaperShiftedLifecycle
 import Cordis.GlobalPaperShiftedFullLifecycle
 import Cordis.GlobalPaperNonReflexiveRewrite
@@ -2627,6 +2628,10 @@ end Cordis.GlobalPaperFullLifecycleReplay.Example
 namespace Cordis.GlobalRuleRelatedTraceReplay
 #print axioms ForwardStepMatch.toRetainedStep
 #print axioms BackwardStepMatch.toRetainedStep
+#print axioms BisimulationAssignmentTransport
+#print axioms actor_eq_of_actedName_eq
+#print axioms StepSimulation.ofWellFormedBisimulation
+#print axioms replayFromWellFormedBisimulation
 #print axioms StepSimulation.replay
 #print axioms TraceReplay.final_related
 #print axioms TraceReplay.transportAssignment
