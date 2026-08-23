@@ -7870,6 +7870,45 @@ private def testDeepSeekStreamHarnessRetryCancellation : IO Unit := do
             tail.length 0
       | _ => fail "retry-aware stream cancellation returned the wrong trace shape"
 
+  let checkFinishVariant
+      (label : String)
+      (finish : (body : String) →
+        Except DeepSeekSessionRunner.ResponseError
+          (DeepSeekSessionRunner.FinishedResponse body))
+      (body : String)
+      (expectedNextSeq : Nat)
+      (expectedCancelled : Bool) : IO Unit := do
+    match ← DeepSeekStreamHarnessRetryCancellation.runWithFinish finish
+        (policy := DeepSeekHarnessCancellation.CancellationPolicy.atRound 1 .timeout)
+        (retryPolicy := DeepSeekStreamHarnessRetry.RetryPolicy.default) 2
+        (DeepSeekStreamHarnessRetry.fixtureStreamProcess body)
+        "https://fixture.invalid" { value := "fixture-key" }
+        DeepSeekHarness.counterRequestSource Cordis.Harness.counterConfig [] (by simp) (by
+          intro current source sourceMem
+          cases sourceMem)
+        0 DeepSeekStreamHarnessRetryConversation.Example.counterRunner with
+    | .error _ => fail s!"{label} finisher cancellation failed"
+    | .ok ⟨finalRunner, ⟨finalModel, result⟩⟩ =>
+        assertEqual (label ++ " finisher cancellation retains one accepted round")
+          result.trace.length 1
+        assertEqual (label ++ " finisher cancellation preserves the model") finalModel 0
+        assertEqual (label ++ " finisher cancellation preserves the expected endpoint")
+          finalRunner.session.nextSeq expectedNextSeq
+        assertEqual (label ++ " finisher cancellation classification")
+          (DeepSeekStreamHarnessRetryCancellation.RetryCancellableStop.isCancelled result.stop)
+          expectedCancelled
+        match result.trace with
+        | .cons first tail =>
+            assertEqual (label ++ " finisher cancellation keeps retry history")
+              first.round.retryHistory.failures.length 0
+            assertEqual (label ++ " finisher cancellation has no later rounds") tail.length 0
+        | _ => fail s!"{label} finisher cancellation returned the wrong trace shape"
+
+  checkFinishVariant "text" DeepSeekSessionRunner.finishText
+    DeepSeekRichStream.exampleTextStreamBody 2 false
+  checkFinishVariant "tool" DeepSeekSessionRunner.finishTool
+    DeepSeekStreamHarness.counterToolStreamBody 3 true
+
 private def testDeepSeekHarnessCancellation : IO Unit := do
   let initialRunner : DeepSeekHarness.ConversationRunner := {
     session := DeepSeekHarness.counterSession

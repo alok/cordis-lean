@@ -643,10 +643,12 @@ Current machine-checked evidence includes:
   blocked-read cancellation, persistence, reconnects, and deployed retry equivalence remain
   outside;
 - `Cordis.DeepSeekStreamHarnessRetryCancellation`, composing that indexed retry trace with the
-  existing pre-round cancellation policy. Cancellation retains the accepted retry-aware prefix,
-  unchanged runner/model endpoint, round/reason certificate, and retry history inside each head;
-  it does not interrupt in-flight process/HTTP/stream/tool IO or claim deployed cancellation
-  equivalence;
+  existing pre-round cancellation policy. `runWithFinish` carries a caller-supplied
+  text/tool/mixed/multi finisher, while `run` remains the multi-tool wrapper. Cancellation retains
+  the accepted retry-aware prefix, unchanged runner/model endpoint, round/reason certificate, and
+  retry history inside each head; direct text completion and tool cancellation fixtures exercise
+  both paths. It does not interrupt in-flight process/HTTP/stream/tool IO or claim deployed
+  cancellation equivalence;
 - `Cordis.DeepSeekHarnessCancellation`, adding a pre-round cancellation decision that retains the
   exact completed prefix, runner/model endpoint, and cancellation certificate; it does not claim
   mid-request IO interruption, cleanup, or deployed Harness cancellation semantics;

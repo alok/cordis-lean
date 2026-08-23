@@ -583,9 +583,11 @@ counter tool. Backoff, idempotency, blocked-read cancellation, persistence, reco
 effects, and deployed retry equivalence remain external.
 
 `Cordis.DeepSeekStreamHarnessRetryCancellation` composes that trace with a pre-round cancellation
-policy. Its cancellation result retains the accepted retry-aware prefix, endpoint, decision
-certificate, and each head's retry history; no claim is made about interrupting blocked IO,
-cleanup, reconnect, or deployed Harness cancellation semantics.
+policy. `runWithFinish` carries a caller-supplied text/tool/mixed/multi finisher, while `run` remains
+the multi-tool wrapper. Its cancellation result retains the accepted retry-aware prefix, endpoint,
+decision certificate, and each head's retry history; direct text and tool fixtures cover completion
+and cancellation. No claim is made about interrupting blocked IO, cleanup, reconnect, or deployed
+Harness cancellation semantics.
 `Cordis.DeepSeekAsyncStreamRetryCancellation` lifts that boundary into a cooperative race. Its
 dependent `JobResult` keeps the retry policy in typed errors and the final endpoint in typed
 successes; `RaceResult` records the winning child. The fixtures include a real process-backed

@@ -1063,10 +1063,12 @@ the admitted counter tool. Backoff, idempotency, cancellation of blocked reads, 
 reconnects, external effects, and deployed retry equivalence remain external.
 
 `Cordis.DeepSeekStreamHarnessRetryCancellation` composes that indexed retry trace with the
-existing pre-round cancellation policy. A cancellation stop retains the exact accepted retry-aware
-prefix, unchanged runner/model endpoint, round/reason decision, and typed retry histories inside
-each accepted head. It is not an in-flight process/read cancellation or a deployed Harness
-cancellation equivalence claim.
+existing pre-round cancellation policy. `runWithFinish` carries a caller-supplied text/tool/mixed/multi
+finisher through the cancellation boundary, while `run` remains the multi-tool wrapper. A cancellation
+stop retains the exact accepted retry-aware prefix, unchanged runner/model endpoint, round/reason
+decision, and typed retry histories inside each accepted head. Direct text completion and tool
+cancellation fixtures exercise the two finisher paths. It is not an in-flight process/read
+cancellation or a deployed Harness cancellation equivalence claim.
 
 The next paper layer is explicit rather than assumed. `Cordis.OperationalEquivalence` models
 Definition 34's heterogeneous finite tests and proves the generator-level coarsest relation of

@@ -9,6 +9,8 @@ cancellation contract.  A cancellation decision is made before a retry-aware str
 round is started; the result retains the exact accepted round prefix and the exact
 runner/model endpoint at that boundary.  Retry histories remain inside each accepted
 round, so a transient process or HTTP failure is still typed by `ConversationError`.
+The finisher is caller-supplied through `runWithFinish`; `run` remains the multi-tool
+convenience wrapper.
 
 This is deliberately not an in-flight IO cancellation theorem.  It does not interrupt
 a blocked process read, HTTP request, stream reader, tool execution, or external
@@ -26,6 +28,7 @@ open Cordis.DeepSeekCurlTransport
 open Cordis.DeepSeekHarness
 open Cordis.DeepSeekHarnessCancellation
 open Cordis.DeepSeekRichStream
+open Cordis.DeepSeekSessionRunner
 open Cordis.DeepSeekStreamHarness
 open Cordis.DeepSeekStreamHarnessRetry
 open Cordis.DeepSeekStreamHarnessRetryConversation
@@ -179,6 +182,8 @@ def runAux
     {retryPolicy : RetryPolicy}
     {Model Capability : Type}
     {cfg : GenericHarness.Config Model Capability}
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body))
     (fuel : Nat)
     (config : ProcessConfig)
     (baseUrl : String)
@@ -210,7 +215,7 @@ def runAux
           stop := .cancelled round policy.reason decided
         }⟩⟩)
       else
-        match ← executeConversationMultiStreamRound retryPolicy config baseUrl apiKey source cfg
+        match ← executeConversationStreamRound finish retryPolicy config baseUrl apiKey source cfg
             before
             runner sourceEventSeqs sourcesNodup (sourcesEarlier runner) with
         | .error error => pure (.error error)
@@ -225,8 +230,8 @@ def runAux
                 stop := .completed head rfl rfl noTools
               }⟩⟩)
             else
-              match ← runAux (policy := policy) (retryPolicy := retryPolicy) fuel config baseUrl
-                  apiKey
+              match ← runAux (policy := policy) (retryPolicy := retryPolicy) finish fuel config
+                  baseUrl apiKey
                   source sourceEventSeqs sourcesNodup sourcesEarlier (round + 1)
                   roundResult.round.finalModel roundResult.round.runner with
               | .error error => pure (.error error)
@@ -237,6 +242,33 @@ def runAux
                   }⟩⟩)
 termination_by fuel
 decreasing_by omega
+
+def runWithFinish
+    {policy : CancellationPolicy}
+    {retryPolicy : RetryPolicy}
+    {Model Capability : Type}
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body))
+    (fuel : Nat)
+    (config : ProcessConfig)
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (source : RequestSource)
+    (cfg : GenericHarness.Config Model Capability)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ current : ConversationRunner,
+      ∀ source ∈ sourceEventSeqs, source < current.session.nextSeq)
+    (before : Model)
+    (runner : ConversationRunner) :
+    IO (Except (ConversationError retryPolicy)
+      (Sigma fun finalRunner : ConversationRunner =>
+        Sigma fun finalModel : Model =>
+          RetryCancellableRunResult policy (retryPolicy := retryPolicy) cfg config baseUrl apiKey
+            source sourceEventSeqs sourcesNodup sourcesEarlier runner before finalRunner
+              finalModel)) :=
+  runAux (policy := policy) (retryPolicy := retryPolicy) finish fuel config baseUrl apiKey source
+    sourceEventSeqs sourcesNodup sourcesEarlier 0 before runner
 
 def run
     {policy : CancellationPolicy}
@@ -260,8 +292,8 @@ def run
           RetryCancellableRunResult policy (retryPolicy := retryPolicy) cfg config baseUrl apiKey
             source sourceEventSeqs sourcesNodup sourcesEarlier runner before finalRunner
               finalModel)) :=
-  runAux (policy := policy) (retryPolicy := retryPolicy) fuel config baseUrl apiKey source
-    sourceEventSeqs sourcesNodup sourcesEarlier 0 before runner
+  runWithFinish (finish := finishMulti) (policy := policy) (retryPolicy := retryPolicy) fuel config
+    baseUrl apiKey source cfg sourceEventSeqs sourcesNodup sourcesEarlier before runner
 
 /-! ## Executable fixture -/
 

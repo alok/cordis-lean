@@ -2677,6 +2677,7 @@ end Cordis.EffectContext
 #print axioms Cordis.DeepSeekStreamHarnessRetryCancellation.RetryCancellableStop.cancelledRound
 #print axioms Cordis.DeepSeekStreamHarnessRetryCancellation.RetryCancellableStop.cancelledReason
 #print axioms Cordis.DeepSeekStreamHarnessRetryCancellation.runAux
+#print axioms Cordis.DeepSeekStreamHarnessRetryCancellation.runWithFinish
 #print axioms Cordis.DeepSeekStreamHarnessRetryCancellation.run
 #print axioms Cordis.DeepSeekStreamHarnessRetryCancellation.Example.loop
 #print axioms Cordis.DeepSeekAsyncStreamRetryCancellation.JobResult.phase_terminal_of_result
