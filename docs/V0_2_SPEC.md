@@ -189,6 +189,10 @@ Current machine-checked evidence includes:
 - `Cordis.ObservationalPartialTransformation`, proving those adaptive forward and inverse
   generators respect contextual equivalence and descending the complete closure theorem to
   domain-sensitive related partial maps;
+- `Cordis.DomainTotalQuotientIndependence`, keeping partial evaluation explicit while certifying
+  totality and domain preservation on a named invariant domain, transporting finite observational
+  independence through the certified closure, and exercising a counter/label fixture that is
+  partial outside that domain;
 - `Cordis.GlobalDynamics`, interpreting opaque iterator/undo codes externally with exact ordinary
   recovery, observational registration recovery, explicit confinement/read/equivariance
   obligations, and a total fueled Definition 52 runner with accumulated recovery/WF evidence;

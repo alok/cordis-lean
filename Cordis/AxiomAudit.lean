@@ -197,6 +197,7 @@ import Cordis.MediatedTheorem
 import Cordis.OperationIndependence
 import Cordis.ObservationalPartialTransformation
 import Cordis.TotalQuotientIndependence
+import Cordis.DomainTotalQuotientIndependence
 import Cordis.OperationalEquivalence
 import Cordis.ParallelHarness
 import Cordis.ParallelSchedule
@@ -1715,6 +1716,13 @@ set_option format.width 200
 #print axioms Cordis.TotalQuotientIndependence.effect
 #print axioms Cordis.TotalQuotientIndependence.effect_admissible
 #print axioms Cordis.TotalQuotientIndependence.Example.totalIndependent
+#print axioms Cordis.DomainTotalQuotientIndependence.Closure.toExact
+#print axioms Cordis.DomainTotalQuotientIndependence.independent_of_partial
+#print axioms Cordis.DomainTotalQuotientIndependence.pairwiseOverlap_independent
+#print axioms Cordis.DomainTotalQuotientIndependence.Example.counterTotal
+#print axioms Cordis.DomainTotalQuotientIndependence.Example.labelTotal
+#print axioms Cordis.DomainTotalQuotientIndependence.Example.domainIndependent
+#print axioms Cordis.DomainTotalQuotientIndependence.Example.executable_commute
 #print axioms Cordis.GlobalDynamics.Dynamics.applyUndo_respects
 #print axioms Cordis.GlobalDynamics.Dynamics.recover_respects
 #print axioms Cordis.GlobalDynamics.Dynamics.recover_append

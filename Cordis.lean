@@ -200,6 +200,7 @@ import Cordis.MediatedTheorem
 import Cordis.OperationIndependence
 import Cordis.ObservationalPartialTransformation
 import Cordis.TotalQuotientIndependence
+import Cordis.DomainTotalQuotientIndependence
 import Cordis.OperationalEquivalence
 import Cordis.ParallelHarness
 import Cordis.ParallelSchedule

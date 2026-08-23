@@ -204,6 +204,7 @@ import Cordis.MediatedTheorem
 import Cordis.OperationIndependence
 import Cordis.ObservationalPartialTransformation
 import Cordis.TotalQuotientIndependence
+import Cordis.DomainTotalQuotientIndependence
 import Cordis.OperationalEquivalence
 import Cordis.ParallelHarness
 import Cordis.ParallelSchedule
@@ -7872,6 +7873,30 @@ private def testTotalQuotientIndependence : IO Unit := do
       assertEqual "totalized quotient executable pure endpoint preserves the counter"
         actual expected
 
+private def testDomainTotalQuotientIndependence : IO Unit := do
+  let initial := DomainTotalQuotientIndependence.Example.initial
+  let counterRuns :=
+    (DomainTotalQuotientIndependence.Example.counterComputation.run
+      Cordis.Coeffect.Quotient.Example.coeffects initial).isSome
+  let labelRuns :=
+    (DomainTotalQuotientIndependence.Example.labelComputation.run
+      Cordis.Coeffect.Quotient.Example.coeffects initial).isSome
+  assertEqual "domain-certified counter operation succeeds on its invariant domain"
+    counterRuns true
+  assertEqual "domain-certified label operation succeeds on its invariant domain"
+    labelRuns true
+  let missing := (Coeffect.empty : Coeffect.Context
+    Cordis.Coeffect.Quotient.Example.ExampleKey
+    Cordis.Coeffect.Quotient.Example.ExampleValue)
+  let missingRuns :=
+    (DomainTotalQuotientIndependence.Example.counterComputation.run
+      Cordis.Coeffect.Quotient.Example.coeffects missing).isSome
+  assertEqual "domain-certified fixture remains partial outside its invariant domain"
+    missingRuns false
+  let _certificate := DomainTotalQuotientIndependence.Example.domainIndependent
+  let _commuting := DomainTotalQuotientIndependence.Example.executable_commute
+  pure ()
+
 open GlobalDynamics.Example in
 private def testGlobalDynamics : IO Unit := do
   assertEqual "fueled global iterator executes ordinary then registration steps"
@@ -8667,6 +8692,7 @@ def run : IO Unit := do
   testPartialTransformation
   testObservationalPartialTransformation
   testTotalQuotientIndependence
+  testDomainTotalQuotientIndependence
   testGlobalDynamics
   testGlobalLifecycle
   testGlobalCalculus
