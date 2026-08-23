@@ -2917,6 +2917,78 @@ private def testDeepSeekSessionRequest : IO Unit := do
                               streamAppend
                           let _stream_append_certificate :=
                             StreamingAppendResult.append_endpoint_exact streamAppend
+                      let variantProcess (label body : String) :
+                          DeepSeekCurlTransport.ProcessConfig := {
+                        command := "sh"
+                        args := fun _ => #[
+                          "-c",
+                          "cat >/dev/null; printf '%s\\n__CORDIS_HTTP_STATUS__200\\n' \"$1\"",
+                          label,
+                          body
+                        ]
+                      }
+                      match ← DeepSeekSessionRequestStreaming.executeStreamingToolAndAppend
+                          (variantProcess "cordis-tool-sse-fixture"
+                            DeepSeekRichToolStream.exampleToolStreamBody)
+                          "https://fixture.invalid"
+                          { value := "fixture-key" } preparedCertified noSources noSourcesNodup
+                          noSourcesEarlier with
+                      | .error error =>
+                          let _ := error
+                          fail "indexed DeepSeek tool streaming append failed"
+                      | .ok ⟨body, streamAppend⟩ =>
+                          assertEqual "indexed DeepSeek tool streaming append retains the body"
+                            body DeepSeekRichToolStream.exampleToolStreamBody
+                          assertEqual "indexed DeepSeek tool streaming append keeps three frames"
+                            streamAppend.processed.wire.frames.length 3
+                          assertEqual "indexed DeepSeek tool streaming append advances the sequence"
+                            streamAppend.after.session.nextSeq 6
+                          assertEqual "indexed DeepSeek tool streaming append allocates one call"
+                            streamAppend.after.nextCall (indexedRunner.nextCall + 1)
+                          let _tool_append_certificate :=
+                            StreamingAppendResult.append_endpoint_exact streamAppend
+                      match ← DeepSeekSessionRequestStreaming.executeStreamingMixedAndAppend
+                          (variantProcess "cordis-mixed-sse-fixture"
+                            DeepSeekRichMixedStream.mixedStreamBody)
+                          "https://fixture.invalid"
+                          { value := "fixture-key" } preparedCertified noSources noSourcesNodup
+                          noSourcesEarlier with
+                      | .error error =>
+                          let _ := error
+                          fail "indexed DeepSeek mixed streaming append failed"
+                      | .ok ⟨body, streamAppend⟩ =>
+                          assertEqual "indexed DeepSeek mixed streaming append retains the body"
+                            body DeepSeekRichMixedStream.mixedStreamBody
+                          assertEqual "indexed DeepSeek mixed streaming append keeps eight frames"
+                            streamAppend.processed.wire.frames.length 8
+                          assertEqual
+                            "indexed DeepSeek mixed streaming append advances the sequence"
+                            streamAppend.after.session.nextSeq 6
+                          assertEqual "indexed DeepSeek mixed streaming append allocates one call"
+                            streamAppend.after.nextCall (indexedRunner.nextCall + 1)
+                          let _mixed_append_certificate :=
+                            StreamingAppendResult.append_endpoint_exact streamAppend
+                      match ← DeepSeekSessionRequestStreaming.executeStreamingMultiAndAppend
+                          (variantProcess "cordis-multi-sse-fixture"
+                            DeepSeekRichMultiStream.multiBody)
+                          "https://fixture.invalid"
+                          { value := "fixture-key" } preparedCertified noSources noSourcesNodup
+                          noSourcesEarlier with
+                      | .error error =>
+                          let _ := error
+                          fail "indexed DeepSeek multi streaming append failed"
+                      | .ok ⟨body, streamAppend⟩ =>
+                          assertEqual "indexed DeepSeek multi streaming append retains the body"
+                            body DeepSeekRichMultiStream.multiBody
+                          assertEqual "indexed DeepSeek multi streaming append keeps four frames"
+                            streamAppend.processed.wire.frames.length 4
+                          assertEqual
+                            "indexed DeepSeek multi streaming append advances the sequence"
+                            streamAppend.after.session.nextSeq 6
+                          assertEqual "indexed DeepSeek multi streaming append allocates two calls"
+                            streamAppend.after.nextCall (indexedRunner.nextCall + 2)
+                          let _multi_append_certificate :=
+                            StreamingAppendResult.append_endpoint_exact streamAppend
                       let _ := certified_request_eq
                       let _ := preparedCertified_eq
               let _request_certificate :=
