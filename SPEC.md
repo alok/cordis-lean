@@ -170,9 +170,11 @@ and the backward package reconstructs that assigned trace from the acted endpoin
 `ValueActionEquiv` is the explicit per-key setoid-invariance premise for closure: under that
 premise, `contextRelated_actTable` transports active-context observations, while
 `nameActionPaperRelated_trans` and `nameActionPaperRelated_symm` compose and invert renamed
-endpoint relations. The acted-state corollaries expose the same laws for composition and inverse
-actions. Activation-bearing traces retain their transport premise explicitly. The bridge remains
-observational; it does not supply the missing unconditional lifecycle bisimulation.
+endpoint relations; certified value actions are closed under identity and composition, and the
+paper relation has an explicit identity and double-inverse law. The acted-state corollaries expose
+the same laws for composition and inverse actions. Activation-bearing traces retain their transport
+premise explicitly. The bridge remains observational; it does not supply the missing unconditional
+lifecycle bisimulation.
 
 The active line now also includes an oracle-specific finite partial/Kleisli analogue of paper
 Definition 60. Reachable iterator codes are generated from successful continuation yields; their closures

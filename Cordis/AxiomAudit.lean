@@ -3065,10 +3065,15 @@ end Cordis.EffectContext
 #print axioms Cordis.GlobalNamePaperRelation.nonActivationTracePaperEndpoint_acted_eq
 #print axioms Cordis.GlobalNamePaperRelation.actPaperFiberControl_trans
 #print axioms Cordis.GlobalNamePaperRelation.actPaperFiberControl_symm_apply
+#print axioms Cordis.GlobalNamePaperRelation.actPaperFiberControl_refl
 #print axioms Cordis.GlobalNamePaperRelation.valueActionEquiv_symm
+#print axioms Cordis.GlobalNamePaperRelation.valueActionEquiv_refl
+#print axioms Cordis.GlobalNamePaperRelation.valueActionEquiv_trans
 #print axioms Cordis.GlobalNamePaperRelation.contextRelated_actTable
 #print axioms Cordis.GlobalNamePaperRelation.nameActionPaperRelated_trans
 #print axioms Cordis.GlobalNamePaperRelation.nameActionPaperRelated_symm
+#print axioms Cordis.GlobalNamePaperRelation.nameActionPaperRelated_refl
+#print axioms Cordis.GlobalNamePaperRelation.nameActionPaperRelated_symm_symm
 #print axioms Cordis.GlobalNamePaperRelation.nameActionPaperRelated_actState_trans
 #print axioms Cordis.GlobalNamePaperRelation.nameActionPaperRelated_actState_symm
 #print axioms Cordis.GlobalNamePaperRelation.unactNonActivationTraceAssignment

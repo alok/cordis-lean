@@ -86,6 +86,28 @@ theorem actPaperFiberControl_symm_apply
           rw [actPhase_symm_apply]
           simp
 
+@[simp]
+theorem actPaperFiberControl_refl
+    (control : PaperFiberControl catalog) :
+    actPaperFiberControl (NameAction.refl sig Ambient) control = control := by
+  cases control with
+  | mk component parent retired phase =>
+      cases parent with
+      | none =>
+          change PaperFiberControl.mk component none retired
+              (actPhase (NameAction.refl sig Ambient) phase) =
+            PaperFiberControl.mk component none retired phase
+          exact congrArg (fun nextPhase =>
+            PaperFiberControl.mk component none retired nextPhase)
+            (actPhase_refl phase)
+      | some parent =>
+          change PaperFiberControl.mk component (some parent) retired
+              (actPhase (NameAction.refl sig Ambient) phase) =
+            PaperFiberControl.mk component (some parent) retired phase
+          exact congrArg (fun nextPhase =>
+            PaperFiberControl.mk component (some parent) retired nextPhase)
+            (actPhase_refl phase)
+
 /-- Look up a left paper control at the name corresponding to a right name. -/
 def actPaperControlAt
     (action : NameAction sig Ambient)
@@ -135,6 +157,28 @@ theorem valueActionEquiv_symm
   · intro related
     have mapped := original.mp related
     simpa [leftOriginal, rightOriginal, Equiv.symm] using mapped
+
+theorem valueActionEquiv_refl
+    (values : ValueSetoids sig) :
+    ValueActionEquiv (NameAction.refl sig Ambient) values := by
+  intro key left right
+  simp
+
+theorem valueActionEquiv_trans
+    (first second : NameAction sig Ambient) (values : ValueSetoids sig)
+    (firstInvariant : ValueActionEquiv first values)
+    (secondInvariant : ValueActionEquiv second values) :
+    ValueActionEquiv (first.trans second) values := by
+  intro key left right
+  constructor
+  · intro related
+    have firstRelated := (firstInvariant key left right).mp related
+    exact (secondInvariant key (first.value key left) (first.value key right)).mp
+      firstRelated
+  · intro related
+    have secondRelated :=
+      (secondInvariant key (first.value key left) (first.value key right)).mpr related
+    exact (firstInvariant key left right).mpr secondRelated
 
 theorem contextRelated_actTable
     (action : NameAction sig Ambient) (values : ValueSetoids sig)
@@ -245,6 +289,34 @@ theorem nameActionPaperRelated_symm
         simpa using h.symm
       _ = paperControlAt left (action.symm.name name) := by
         simpa using controlAt_apply_symm action left (action.symm.name name)
+
+theorem nameActionPaperRelated_refl
+    (values : ValueSetoids sig) (state : State catalog Ambient) :
+    NameActionPaperRelated (NameAction.refl sig Ambient) values state state := by
+  refine ⟨?_, ?_⟩
+  · simpa [actTable_refl] using contextRelated_refl values (activeContext state)
+  · intro name
+    change (paperControlAt state name).map
+        (actPaperFiberControl (NameAction.refl sig Ambient)) = paperControlAt state name
+    cases lookup : state.registry name with
+    | none => simp [paperControlAt, NameAction.refl, Equiv.refl, lookup]
+    | some fiber =>
+        have paperLookup : paperControlAt state name = some (paperFiberControl fiber) := by
+          simp [paperControlAt, lookup]
+        rw [paperLookup]
+        exact congrArg some (actPaperFiberControl_refl (sig := sig) (Ambient := Ambient)
+          (paperFiberControl fiber))
+
+theorem nameActionPaperRelated_symm_symm
+    (action : NameAction sig Ambient) (values : ValueSetoids sig)
+    (invariant : ValueActionEquiv action values)
+    {left right : State catalog Ambient}
+    (related : NameActionPaperRelated action values left right) :
+    NameActionPaperRelated action.symm.symm values left right := by
+  have inverseInvariant := valueActionEquiv_symm action values invariant
+  have twice := nameActionPaperRelated_symm action.symm values inverseInvariant
+    (nameActionPaperRelated_symm action values invariant related)
+  simpa [NameAction.symm] using twice
 
 theorem activeValue_act_iff
     (action : NameAction sig Ambient)

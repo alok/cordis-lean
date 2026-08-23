@@ -1687,8 +1687,9 @@ backward counterpart reconstructs the original assigned trace from the renamed e
 activation-bearing package keeps that transport as an explicit proof obligation. Its
 `ValueActionEquiv` premise makes per-key setoid invariance explicit: `contextRelated_actTable`
 transports the active-context relation, and the trans/symm endpoint theorems compose or invert
-renamed observations, including acted-state corollaries. It does not turn the observation bridge
-into unconditional lifecycle bisimulation; the primitive semantic laws remain explicit.
+renamed observations; identity, composition, and double-inverse laws are explicit, including
+acted-state corollaries. It does not turn the observation bridge into unconditional lifecycle
+bisimulation; the primitive semantic laws remain explicit.
 
 `Cordis.GlobalVestigial` proves the effect-observation sentence of Lemma 57 exactly and then
 mechanizes the corrected orchestration fragment. Removing a retired, successful-inactive,
