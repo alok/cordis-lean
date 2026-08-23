@@ -8,8 +8,9 @@ appended to an `ExtensionRunner`.  This module closes the next dependent seam: a
 append, it reconstructs a fresh `Session.ModelRequest` from the resulting session, prepares that
 request with the same source/header certificate, and runs a second real curl/loopback round.
 
-The result keeps both indexed append witnesses and the second request's dependent type.  The
-final sequence equation is therefore derived from the two append contracts rather than from a
+The result keeps both indexed append witnesses and the second request's dependent type. The
+finisher is caller-supplied, while `run` remains a text-stream convenience wrapper. The final
+sequence equation is therefore derived from the two append contracts rather than from a
 counter in the executable fixture.  Each round is still a local one-shot HTTP fixture; remote
 reachability, credentials, provider authenticity, persistence, reconnects, blocked-read
 interruption, and deployed Harness equivalence remain outside this module.
@@ -25,6 +26,7 @@ open Cordis.DeepSeekHarness
 open Cordis.DeepSeekHarnessExtensions
 open Cordis.DeepSeekHarnessLocalSseIndexed
 open Cordis.DeepSeekSessionRequest
+open Cordis.DeepSeekSessionRunner
 
 inductive IndexedLoopError where
   | first (error : IndexedLocalSseError)
@@ -101,15 +103,18 @@ structure TwoRoundResult where
     PreparedRequest secondRequest (sourceFor secondRequest encoder {}) encoder
   second : IndexedLocalSseResult (runner := first.after) secondPrepared
 
-def run : IO (Except IndexedLoopError TwoRoundResult) := do
-  match ← DeepSeekHarnessLocalSseIndexed.runWithKey (runner := initialRunner) prepared
+def runWithFinish
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body))
+    (body : String) : IO (Except IndexedLoopError TwoRoundResult) := do
+  match ← DeepSeekHarnessLocalSseIndexed.runWithFinish finish (runner := initialRunner) prepared
       { value := "fixture-key" } body with
   | .error error => pure (.error (.first error))
   | .ok first =>
       match prepareNext first.after with
       | .error error => pure (.error (.secondRequest error))
       | .ok ⟨secondRequest, secondPrepared⟩ =>
-          match ← DeepSeekHarnessLocalSseIndexed.runWithKey (runner := first.after)
+          match ← DeepSeekHarnessLocalSseIndexed.runWithFinish finish (runner := first.after)
               secondPrepared { value := "fixture-key" } body with
           | .error error => pure (.error (.second error))
           | .ok second =>
@@ -119,6 +124,9 @@ def run : IO (Except IndexedLoopError TwoRoundResult) := do
                 secondPrepared
                 second
               })
+
+def run : IO (Except IndexedLoopError TwoRoundResult) :=
+  runWithFinish finishText body
 
 theorem second_endpoint_exact (result : TwoRoundResult) :
     result.second.after = ExtensionRunner.appendFinished result.first.after

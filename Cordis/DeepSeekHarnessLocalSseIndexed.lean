@@ -146,7 +146,9 @@ theorem append_endpoint_exact
 
 end IndexedLocalSseResult
 
-def runWithKey
+def runWithFinish
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body))
     {runner : ExtensionRunner Session.noExtensions}
     {request : Session.ModelRequest runner.session}
     {source : RequestSource}
@@ -155,7 +157,7 @@ def runWithKey
     (key : ApiKey)
     (body : String) :
     IO (Except IndexedLocalSseError (IndexedLocalSseResult prepared)) := do
-  match ← Cordis.DeepSeekHarnessLocalSse.runWithKey source
+  match ← Cordis.DeepSeekHarnessLocalSse.runWithKeyAndFinish finish source
       { session := runner.session, turn := runner.turn, step := runner.step,
         nextCall := runner.nextCall,
         toolCallCount_eq_nextCall := runner.toolCallCount_eq_nextCall }
@@ -168,6 +170,17 @@ def runWithKey
         after := fromConversation result.after
         append_eq := local_after_append result
       })
+
+def runWithKey
+    {runner : ExtensionRunner Session.noExtensions}
+    {request : Session.ModelRequest runner.session}
+    {source : RequestSource}
+    {encoder : ToolSchemaEncoder}
+    (prepared : PreparedRequest request source encoder)
+    (key : ApiKey)
+    (body : String) :
+    IO (Except IndexedLocalSseError (IndexedLocalSseResult prepared)) :=
+  runWithFinish finishText prepared key body
 
 namespace Example
 

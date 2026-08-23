@@ -4416,6 +4416,46 @@ private def testDeepSeekHarnessLocalSseIndexedLoop : IO Unit := do
         DeepSeekHarnessLocalSseIndexedLoop.Example.second_endpoint_exact result
       let _final_endpoint :=
         DeepSeekHarnessLocalSseIndexedLoop.Example.final_nextSeq result
+      let checkVariant
+          (label : String)
+          (finish : (body : String) →
+            Except DeepSeekSessionRunner.ResponseError
+              (DeepSeekSessionRunner.FinishedResponse body))
+          (body : String)
+          (frames : Nat)
+          (calls : Nat) : IO Unit := do
+        match ← DeepSeekHarnessLocalSseIndexedLoop.Example.runWithFinish finish body with
+        | .error error => fail s!"{label} indexed two-round local SSE failed: {reprStr error}"
+        | .ok variant =>
+            let variantSummary :=
+              DeepSeekHarnessLocalSseIndexedLoop.Example.summarize variant
+            assertEqual (label ++ " indexed loop keeps one first request")
+              variantSummary.firstRequests 1
+            assertEqual (label ++ " indexed loop keeps one second request")
+              variantSummary.secondRequests 1
+            assertEqual (label ++ " indexed loop validates the first request")
+              variantSummary.firstValidRequests 1
+            assertEqual (label ++ " indexed loop validates the second request")
+              variantSummary.secondValidRequests 1
+            assertEqual (label ++ " indexed loop keeps first frame count")
+              variantSummary.firstFrames frames
+            assertEqual (label ++ " indexed loop keeps second frame count")
+              variantSummary.secondFrames frames
+            assertEqual (label ++ " indexed loop reaches the dependent endpoint")
+              variantSummary.finalNextSeq 4
+            assertEqual (label ++ " indexed loop allocates the expected calls")
+              variant.second.after.nextCall calls
+            let _variant_endpoint :=
+              DeepSeekHarnessLocalSseIndexedLoop.Example.second_endpoint_exact variant
+            let _variant_final :=
+              DeepSeekHarnessLocalSseIndexedLoop.Example.final_nextSeq variant
+            pure ()
+      checkVariant "tool" DeepSeekSessionRunner.finishTool
+        DeepSeekRichToolStream.exampleToolStreamBody 3 2
+      checkVariant "mixed" DeepSeekSessionRunner.finishMixed
+        DeepSeekRichMixedStream.mixedStreamBody 8 2
+      checkVariant "multi" DeepSeekSessionRunner.finishMulti
+        DeepSeekRichMultiStream.multiBody 4 4
 
 private def testDeepSeekHarnessLocalSseRetry : IO Unit := do
   match ← DeepSeekHarnessLocalSseRetry.runWithRetry DeepSeekHarness.counterRequestSource

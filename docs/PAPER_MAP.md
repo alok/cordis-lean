@@ -1067,18 +1067,19 @@ derived lifecycle strategy, Lemma 72, or Theorem 73.
 
 [paper-tree]: https://github.com/cordiverse/paper/tree/948a07b369c62adb3b12e102458be5c18dfb69b9
 
-`DeepSeekHarnessLocalSseIndexed.runWithKey` is the local executable attachment for the indexed
-streaming seam. It retains the loopback request/response and wire evidence while proving exact
-streaming-plan and `ExtensionRunner.appendFinished` equations; its fixture checks one valid
-request, three frames, and the `2 -> 3` endpoint. Returned-body provenance, remote/TLS/credential
-authenticity, persistence, blocked reads, reconnects, and deployed Harness equivalence remain
-outside.
+`DeepSeekHarnessLocalSseIndexed.runWithFinish` is the local executable attachment for the indexed
+streaming seam; `runWithKey` is its text-finisher wrapper. It retains loopback request/response
+and wire evidence while proving exact streaming-plan and `ExtensionRunner.appendFinished`
+equations. The executable tests cover text, tool, mixed, and multi-call finishes. Returned-body
+provenance, remote/TLS/credential authenticity, persistence, blocked reads, reconnects, and
+deployed Harness equivalence remain outside.
 
-`DeepSeekHarnessLocalSseIndexedLoop` extends that attachment to two dependent rounds. The first
-append supplies the exact session index used to rebuild the second `Session.ModelRequest`; the
-result retains both loopback wire certificates and proves the final sequence is the initial
-sequence plus two. This remains local process/HTTP evidence, not a provider or deployment
-equivalence theorem.
+`DeepSeekHarnessLocalSseIndexedLoop` extends that attachment to two dependent rounds. Its
+`runWithFinish` carries the caller-supplied finisher through both rounds; the first append supplies
+the exact session index used to rebuild the second `Session.ModelRequest`, and the result retains
+both loopback wire certificates plus exact frame/tool-count projections. The executable fixture
+proves the final sequence is the initial sequence plus two for all four finishers. This remains
+local process/HTTP evidence, not a provider or deployment equivalence theorem.
 
 [paper-pdf]: https://raw.githubusercontent.com/cordiverse/paper/948a07b369c62adb3b12e102458be5c18dfb69b9/paper.pdf
 [cordis-tree]: https://github.com/cordiverse/cordis/tree/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4

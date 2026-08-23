@@ -1616,12 +1616,14 @@ frames, and the `2 -> 3` session endpoint. The fixture does not prove that its r
 matches the supplied process argument, nor remote reachability, TLS, credentials, provider
 authenticity, persistence, blocked-read behavior, reconnects, or deployed Harness equivalence.
 
-`Cordis.DeepSeekHarnessLocalSseIndexedLoop` composes that same seam for two rounds. The first
-indexed append is used to rebuild the second dependent `Session.ModelRequest` and
-`PreparedRequest`; `TwoRoundResult` retains both real loopback responses and proves the final
-`ExtensionRunner` sequence is the initial sequence plus two. The fixture remains local process/
-HTTP evidence only, with provider authenticity, persistence, reconnects, blocked-read behavior,
-and deployed Harness equivalence outside the claim.
+`Cordis.DeepSeekHarnessLocalSseIndexedLoop` composes that same seam for two rounds. Its
+`runWithFinish` carries a caller-supplied text/tool/mixed/multi finisher through both rounds; the
+first indexed append rebuilds the second dependent `Session.ModelRequest` and `PreparedRequest`,
+while `TwoRoundResult` retains both real loopback responses and proves the final
+`ExtensionRunner` sequence is the initial sequence plus two. The executable fixture checks all
+four finishers and their expected frame/tool-count projections. This remains local process/HTTP
+evidence only, with provider authenticity, persistence, reconnects, blocked-read behavior, and
+deployed Harness equivalence outside the claim.
 
 There is no public generic runner event emitter. Non-tool events use a private
 emitter that requires proof that the event is not a call boundary. A private

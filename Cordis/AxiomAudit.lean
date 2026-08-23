@@ -1262,9 +1262,11 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessLocalSseIndexed.IndexedLocalSseResult.indexed_plan_exact
 #print axioms Cordis.DeepSeekHarnessLocalSseIndexed.IndexedLocalSseResult.append_endpoint_exact
 #print axioms Cordis.DeepSeekHarnessLocalSseIndexed.runWithKey
+#print axioms Cordis.DeepSeekHarnessLocalSseIndexed.runWithFinish
 #print axioms Cordis.DeepSeekHarnessLocalSseIndexed.Example.summaryIO
 #print axioms Cordis.DeepSeekHarnessLocalSseIndexedLoop.Example.second_endpoint_exact
 #print axioms Cordis.DeepSeekHarnessLocalSseIndexedLoop.Example.final_nextSeq
+#print axioms Cordis.DeepSeekHarnessLocalSseIndexedLoop.Example.runWithFinish
 #print axioms Cordis.DeepSeekHarnessLocalSseIndexedLoop.Example.run
 #print axioms Cordis.DeepSeekHarnessExtensions.buildRequestPlanFor
 #print axioms Cordis.DeepSeekHarnessExtensions.buildTypedRequestPlanFor

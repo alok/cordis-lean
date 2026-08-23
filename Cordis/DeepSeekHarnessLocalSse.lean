@@ -10,8 +10,9 @@ the next delivery seam: a one-shot loopback HTTP server emits an actual SSE body
 chunks, the real curl executable carries a typed `stream: true` request, and the incremental
 reader retains the delivered lines together with the reconstructed body and strict wire proof.
 
-The successful result then runs the existing text-stream finisher and appends the certified
-assistant to the indexed conversation runner.  The fixture validates method, route,
+The successful result runs a caller-supplied certified finisher and appends the resulting
+assistant to the indexed conversation runner. `runWithKey` remains a text-finisher convenience
+wrapper. The fixture validates method, route,
 authorization, model, and stream mode before writing the body.  This is local process/HTTP
 evidence only: it does not establish remote reachability, TLS, credential validity, provider
 authenticity, backpressure, blocked-read interruption, reconnects, arbitrary cleanup, or deployed
@@ -211,6 +212,8 @@ private def prepare
   | .ok plan => .ok { key, plan, build_eq := built }
 
 private def runChild
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body))
     (source : RequestSource)
     (runner : ConversationRunner)
     (key : ApiKey)
@@ -244,7 +247,7 @@ private def runChild
                 match parseReport reportLine with
                 | none => pure (.error (.report reportLine))
                 | some (requests, validRequests) =>
-                    match finishText responseBody with
+                    match finish responseBody with
                     | .error error => pure (.error (.response error))
                     | .ok finished =>
                         if hExit : serverExit = 0 then
@@ -269,7 +272,9 @@ private def runChild
     stopServer child stderrTask
     pure (.error (.io (toString error)))
 
-def runWithKey
+def runWithKeyAndFinish
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body))
     (source : RequestSource)
     (runner : ConversationRunner)
     (key : ApiKey)
@@ -288,9 +293,18 @@ def runWithKey
         stderr := serverStdio.stderr
       }
       let stderrTask ← IO.asTask child.stderr.readToEnd Task.Priority.dedicated
-      runChild source runner key maxReads child stderrTask
+      runChild finish source runner key maxReads child stderrTask
     catch error =>
       pure (.error (.io (toString error)))
+
+def runWithKey
+    (source : RequestSource)
+    (runner : ConversationRunner)
+    (key : ApiKey)
+    (body : String)
+    (maxReads : Nat := 64) :
+    IO (Except LocalSseError (LocalSseResult source runner)) :=
+  runWithKeyAndFinish finishText source runner key body maxReads
 
 namespace Example
 
