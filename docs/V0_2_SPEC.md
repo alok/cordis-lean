@@ -2004,8 +2004,10 @@ equivalence remain external.
 
 `Cordis.DeepSeekHarnessEventToolSchema` retains the exact request-header tool `parameters` AST
 before the compressed local projection, and validates the bounded primitive object-schema subset
-in a dependent source certificate. The `lookup` fixture succeeds and an unsupported primitive tag
-rejects; full JSON Schema and provider/deployed semantics remain external.
+in a dependent source certificate. `PreparedSchemaLogRequest` attaches that certificate to the
+validated request endpoint with raw-header and local-tool-list equalities. The `lookup` fixture
+succeeds and an unsupported primitive tag rejects; full JSON Schema and provider/deployed semantics
+remain external.
 
 `Cordis.DeepSeekHarnessEventLocalSse` carries that same result through the actual local
 Python/curl SSE fixture. `EventRunner` fixes the validated session as the runner index and

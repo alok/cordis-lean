@@ -1,4 +1,5 @@
 import Cordis.DeepSeekToolSchema
+import Cordis.DeepSeekHarnessEventRequest
 import Cordis.SessionRefinement
 
 /-!
@@ -25,6 +26,8 @@ namespace Cordis.DeepSeekHarnessEventToolSchema
 open Cordis
 open Cordis.DeepSeekApi
 open Cordis.DeepSeekToolSchema
+open Cordis.DeepSeekHarnessEventRequest
+open Cordis.DeepSeekSessionRequest
 open Cordis.SessionRefinement
 
 abbrev SessionPathSegment := SessionRefinement.PathSegment
@@ -39,8 +42,21 @@ def sourceToolDefinition (source : WireRequestToolSchemaSource) : ToolDefinition
   }
 }
 
+def sourceToLocalTool (source : WireRequestToolSchemaSource) : Session.ToolSchema := {
+  name := source.name
+  description := source.description
+  inputSchema := Lean.Json.compress source.parameters
+}
+
 structure ValidatedSourceToolSchema (source : WireRequestToolSchemaSource) where
   certificate : ValidatedToolDefinition (sourceToolDefinition source)
+
+inductive ValidatedSourceToolList : List WireRequestToolSchemaSource → Type where
+  | nil : ValidatedSourceToolList []
+  | cons {source : WireRequestToolSchemaSource}
+      {tail : List WireRequestToolSchemaSource}
+      (head : ValidatedSourceToolSchema source)
+      (tailProof : ValidatedSourceToolList tail) : ValidatedSourceToolList (source :: tail)
 
 inductive ToolSchemaDecodeError where
   | decode (error : SessionDecodeError)
@@ -57,6 +73,84 @@ def decodeValidatedSourceToolSchema (path : List SessionPathSegment) (json : Lea
       | .error error => .error (.schema error)
       | .ok certificate =>
           .ok ⟨source, { certificate }⟩
+
+def decodeValidatedSourceToolSchemas (path : List SessionPathSegment) (json : Lean.Json) :
+    Except ToolSchemaDecodeError
+      (Σ sources : List WireRequestToolSchemaSource, ValidatedSourceToolList sources) :=
+  match json with
+  | .arr values =>
+      let rec loop : Nat → List Lean.Json →
+          Except ToolSchemaDecodeError
+            (Σ sources : List WireRequestToolSchemaSource,
+              ValidatedSourceToolList sources)
+        | _, [] => .ok ⟨[], .nil⟩
+        | index, value :: rest => do
+            let head ← decodeValidatedSourceToolSchema (path ++ [.index index]) value
+            let tail ← loop (index + 1) rest
+            .ok ⟨head.1 :: tail.1, .cons head.2 tail.2⟩
+      loop 0 values.toList
+  | _ => .error (.decode (.typeMismatch path "array" .array))
+
+def requestHeaderToolsJson : Lean.Json → Option Lean.Json
+  | json =>
+      match objectField? json "type" with
+      | some (.str "request/header") =>
+          match objectField? json "data" with
+          | some data =>
+              match objectField? data "header" with
+              | some header =>
+                  match objectField? header "tools" with
+                  | some tools => some tools
+                  | none => some (.arr #[])
+              | _ => none
+          | _ => none
+      | _ => none
+
+def latestRequestHeaderToolsJson : List Lean.Json → Option Lean.Json
+  | [] => none
+  | head :: tail =>
+      match latestRequestHeaderToolsJson tail with
+      | some tools => some tools
+      | none => requestHeaderToolsJson head
+
+structure PreparedSchemaLogRequest
+    (input : List Lean.Json)
+    (encoder : ToolSchemaEncoder)
+    (options : RequestOptions)
+    (sources : List WireRequestToolSchemaSource) where
+  base : PreparedLogRequest input encoder options
+  sourceCertificates : ValidatedSourceToolList sources
+  sourceJson : Lean.Json
+  source_decode :
+    decodeValidatedSourceToolSchemas [.field "tools"] sourceJson =
+      .ok ⟨sources, sourceCertificates⟩
+  raw_header_tools_eq : latestRequestHeaderToolsJson input = some sourceJson
+  header_tools_eq :
+    sources.map sourceToLocalTool = base.request.header.toolSchemas
+
+namespace PreparedSchemaLogRequest
+
+theorem request_header_eq
+    {input : List Lean.Json}
+    {encoder : ToolSchemaEncoder}
+    {options : RequestOptions}
+    {sources : List WireRequestToolSchemaSource}
+    (certificate : PreparedSchemaLogRequest input encoder options sources) :
+    certificate.base.request.header.toolSchemas = sources.map sourceToLocalTool :=
+  certificate.header_tools_eq.symm
+
+theorem source_names_eq_request_names
+    {input : List Lean.Json}
+    {encoder : ToolSchemaEncoder}
+    {options : RequestOptions}
+  {sources : List WireRequestToolSchemaSource}
+    (certificate : PreparedSchemaLogRequest input encoder options sources) :
+    sources.map WireRequestToolSchemaSource.name =
+      certificate.base.request.header.toolSchemas.map Session.ToolSchema.name := by
+  rw [← certificate.header_tools_eq]
+  simp [sourceToLocalTool]
+
+end PreparedSchemaLogRequest
 
 theorem decodeValidatedSourceToolSchema_source
     {path : List SessionPathSegment} {json : Lean.Json}
@@ -126,6 +220,89 @@ def malformedHeaderToolRejected : Bool :=
   | .ok _ => false
 
 theorem malformedHeaderToolRejected_true : malformedHeaderToolRejected = true := by
+  rfl
+
+def headerToolSourcesJson : Lean.Json := .arr #[headerToolJson]
+
+def headerToolSourcesDecoded :=
+  decodeValidatedSourceToolSchemas [.field "tools"] headerToolSourcesJson
+
+theorem headerToolSourcesDecoded_is_ok : headerToolSourcesDecoded.isOk := by
+  rfl
+
+theorem headerToolSourcesDecoded_source :
+    match headerToolSourcesDecoded with
+    | .error _ => False
+    | .ok result => result.1 = [headerToolSource] := by
+  rfl
+
+/-! ## Prepared-request attachment -/
+
+def headerPreparedCertificate :
+    PreparedLogRequest SessionRefinement.headerChunkExampleJson
+      structuralToolSchemaEncoder headerOptions := by
+  match h : headerPrepared with
+  | .ok certificate => exact certificate
+  | .error error =>
+      have impossible : False := by
+        have status := DeepSeekHarnessEventRequest.headerPrepared_is_ok
+        rw [h] at status
+        change (false : Bool) = true at status
+        exact Bool.noConfusion status
+      exact impossible.elim
+
+theorem headerPreparedCertificate_header :
+    headerPreparedCertificate.request.header = SessionRefinement.headerChunkExpectedHeader := by
+  unfold headerPreparedCertificate
+  split
+  · rename_i certificate h
+    have header_eq := DeepSeekHarnessEventRequest.headerPrepared_request_header
+    rw [h] at header_eq
+    exact header_eq
+  · rename_i error h
+    have status := DeepSeekHarnessEventRequest.headerPrepared_is_ok
+    rw [h] at status
+    change (false : Bool) = true at status
+    exact Bool.noConfusion status
+
+def headerSourceCertificate : ValidatedSourceToolList [headerToolSource] := by
+  match h : headerToolCertificate with
+  | .error error =>
+      have status := headerToolCertificate_is_ok
+      rw [h] at status
+      change (false : Bool) = true at status
+      exact Bool.noConfusion status
+  | .ok result =>
+      have source_eq : result.1 = headerToolSource := by
+        have source_theorem := headerToolCertificate_source
+        rw [h] at source_theorem
+        exact source_theorem
+      exact .cons (source_eq ▸ result.2) .nil
+
+def headerSchemaAttachment :
+    Σ sources : List WireRequestToolSchemaSource,
+      PreparedSchemaLogRequest SessionRefinement.headerChunkExampleJson
+        structuralToolSchemaEncoder headerOptions sources :=
+  ⟨[headerToolSource], {
+    base := headerPreparedCertificate
+    sourceCertificates := headerSourceCertificate
+    sourceJson := headerToolSourcesJson
+    source_decode := by rfl
+    raw_header_tools_eq := by rfl
+    header_tools_eq := by
+      rw [headerPreparedCertificate_header]
+      rfl
+  }⟩
+
+theorem headerSchemaAttachment_source : headerSchemaAttachment.1 = [headerToolSource] := by
+  rfl
+
+theorem headerSchemaAttachment_request_tools :
+    headerSchemaAttachment.2.base.request.header.toolSchemas =
+      [sourceToLocalTool headerToolSource] := by
+  change headerPreparedCertificate.request.header.toolSchemas =
+    [sourceToLocalTool headerToolSource]
+  rw [headerPreparedCertificate_header]
   rfl
 
 end Cordis.DeepSeekHarnessEventToolSchema

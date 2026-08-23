@@ -1933,8 +1933,10 @@ provider behavior, and complete deployed-Harness equivalence remain external.
 the compressed local schema string is parsed JSON. Its source certificate retains the exact request
 tool `parameters` AST, proves the compressed projection, and feeds the bounded primitive
 object-schema validator. The current `lookup` schema succeeds and an unsupported primitive tag is
-rejected; full JSON Schema, provider validation, model obedience, and deployed-Harness equivalence
-remain external.
+rejected. `PreparedSchemaLogRequest` then attaches the source certificate to the validated request
+endpoint and proves that its raw tool-array JSON is the latest request-header payload and that its
+local tool list is the request's header list. Full JSON Schema, provider validation, model
+obedience, and deployed-Harness equivalence remain external.
 `Cordis.DeepSeekHarnessEventLocalSse` is the executable continuation of that certificate. Its
 `EventRunner` uses the validated final session directly as the `ExtensionRunner` index, and its
 `EventSseResult` retains the loopback request plan, raw frames, finisher, and append endpoint.

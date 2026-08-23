@@ -3376,6 +3376,15 @@ private def testDeepSeekHarnessEventToolSchema : IO Unit := do
     DeepSeekHarnessEventToolSchema.malformedHeaderToolRejected true
   let _source_certificate :=
     DeepSeekHarnessEventToolSchema.headerToolCertificate_source
+  assertEqual "prepared request carries one source-preserving schema"
+    DeepSeekHarnessEventToolSchema.headerSchemaAttachment.1.length 1
+  assertEqual "prepared request source JSON is the raw header tool array"
+    (Lean.Json.compress DeepSeekHarnessEventToolSchema.headerSchemaAttachment.2.sourceJson)
+    (Lean.Json.compress DeepSeekHarnessEventToolSchema.headerToolSourcesJson)
+  assertEqual "prepared request retains the schema-backed header tool"
+    DeepSeekHarnessEventToolSchema.headerSchemaAttachment.2.base.request.header.toolSchemas.length 1
+  let _prepared_header_tools :=
+    DeepSeekHarnessEventToolSchema.headerSchemaAttachment_request_tools
   pure ()
 
 private def testDeepSeekHarnessEventLocalSse : IO Unit := do

@@ -819,9 +819,11 @@ equivalence remain external.
 `Cordis.DeepSeekHarnessEventToolSchema` closes the adjacent request-tool payload seam without
 changing that fail-closed projection. It retains the exact `parameters` JSON AST alongside the
 compressed `Session` string, validates the bounded primitive object-schema vocabulary, and exposes
-the validated source/tool pair as a dependent certificate. The current `lookup` header fixture
-passes and a primitive `date` tag rejects; full JSON Schema, provider validation, model obedience,
-and deployed-Harness equivalence remain external.
+the validated source/tool pair as a dependent certificate. `PreparedSchemaLogRequest` attaches
+that certificate to the actual validated request endpoint and proves that its raw tool-array JSON
+is the latest request-header payload and that its local tool list is the request's header list. The
+current `lookup` header fixture passes and a primitive `date` tag rejects; full JSON Schema,
+provider validation, model obedience, and deployed-Harness equivalence remain external.
 
 `Cordis.DeepSeekHarnessEventLocalSse` carries that same dependent request through the existing
 real loopback Python/curl SSE fixture. `EventRunner` fixes the validated session as the runner
