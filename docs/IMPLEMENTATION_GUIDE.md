@@ -2645,6 +2645,11 @@ streaming request, drive a valid request through a real loopback server returnin
 retain the exact `IncrementalError.httpStatus` body alongside its dependent parsed `ApiErrorBody`,
 request report, and clean process exit. Keep error authenticity and retry/backoff policy outside
 this local certificate.
+`Cordis.DeepSeekHarnessLocalSseApiErrorRetry` is the next bounded composition: run the same valid
+request twice, retain the first 429 as a typed API-error envelope, validate the second strict SSE
+success, and dispatch only that accepted result into the dependent runner. Prove the two valid
+attempts, accepted endpoint, and clean process exit together. Keep backoff, idempotency,
+cancellation, reconnect, provider authenticity, and deployed retry semantics outside this fixture.
 `Cordis.DeepSeekCurlPrefix` is the typed process counterpart: it advances `PrefixState` before
 requesting the next complete line, retains the raw process body separately from the normalized
 prefix certificate, and uses the same line policy for synchronous fuel/cancellation stops. Its

@@ -1111,6 +1111,11 @@ claim:
    with a real loopback HTTP 429. Its dependent result retains the exact
    `IncrementalError.httpStatus` body, parsed `ApiErrorBody`, request report, and
    clean server exit; error authenticity and retry/backoff policy remain external.
+   `Cordis.DeepSeekHarnessLocalSseApiErrorRetry` composes that status-error branch with one
+   explicit retry: the first valid request retains a typed 429/API-error envelope, the second
+   returns strict SSE success, and only the accepted second outcome advances the dependent runner.
+   It proves two valid attempts, the exact accepted outcome, and clean process exit; backoff,
+   idempotency, cancellation, reconnect, and deployed retry semantics remain external.
 1. **Production streaming.** Extend the bounded text model with transport,
    backpressure, cancellation, tool-call payload assembly, provider-complete
    parser state, and a live HTTP reader; the current `DeepSeekStream` module is

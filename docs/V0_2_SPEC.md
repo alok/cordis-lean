@@ -700,6 +700,11 @@ Current machine-checked evidence includes:
   loopback server's HTTP-429 branch and retaining the exact status/body transport error, parsed
   `ApiErrorBody`, request report, and clean-exit evidence; authenticity and retry policy remain
   external;
+- `Cordis.DeepSeekHarnessLocalSseApiErrorRetry`, composing that real 429 branch with one explicit
+  retry: the first valid attempt retains its typed API-error envelope, the second returns strict SSE
+  success, and only the accepted outcome advances the dependent runner; request counts, accepted
+  outcome, and clean exit are proved, while backoff, idempotency, cancellation, reconnect, and
+  deployed retry semantics remain external;
 - `Cordis.DeepSeekCurlPrefix`, connecting the process line reader to the proof-carrying prefix
   state: each accepted line is parsed before the next read, synchronous fuel/cancellation stops
   clean up the child, and terminal success retains raw output plus normalized frame certificates;

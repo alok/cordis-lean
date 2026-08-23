@@ -1194,7 +1194,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 2399
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 2407
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.
@@ -1682,6 +1682,11 @@ Without additional proofs or tests, do not state that:
   request and HTTP 429. Its dependent result retains the exact `httpStatus` transport branch,
   parsed `ApiErrorBody`, request counts, report, and clean server exit; it does not authenticate
   provider errors or establish retry/backoff safety;
+- `DeepSeekHarnessLocalSseApiErrorRetry` composes that boundary with one real loopback retry: the
+  first valid request is retained as a typed 429/API-error envelope, the second yields strict SSE
+  success, and only the accepted second outcome advances the dependent runner. Two valid attempts,
+  exact accepted outcome, counts, and clean exit are proved; backoff, idempotency, cancellation,
+  reconnect, provider authenticity, and deployed retry semantics remain external;
 - `DeepSeekCurlPrefix` proves only synchronous line-boundary prefix advancement and child cleanup;
   it does not interrupt a blocked read or prove byte framing, backpressure, reconnect, network or
   credential validity, executable trust, provider-complete assembly, or deployed equivalence;

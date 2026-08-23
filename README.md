@@ -319,6 +319,11 @@ provider obedience, credential/TLS authenticity, and deployed equivalence remain
 streaming request receives a real HTTP 429 with an OpenAI-compatible `{ "error": ... }` body, and
 the dependent result retains the exact status/body transport error, parsed `ApiErrorBody`, request
 report, and clean server exit. It proves neither error authenticity nor retry/backoff safety.
+`Cordis.DeepSeekHarnessLocalSseApiErrorRetry` then drives a bounded two-attempt loopback: the first
+valid request is retained as a typed 429/API-error envelope, the second returns strict SSE success,
+and only that accepted outcome advances the dependent runner. The request/valid-request counts and
+clean process exit are proved; backoff, idempotency, cancellation, reconnect, and deployed retry
+semantics remain external.
 `Cordis.DeepSeekCurlPrefix` connects that process boundary to the proof-carrying
 prefix state: each accepted process line updates the typed body/frame state,
 and a line policy can stop before the next read while cleanup kills and waits

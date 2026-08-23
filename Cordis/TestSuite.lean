@@ -75,6 +75,7 @@ import Cordis.DeepSeekHarnessLocalHttp
 import Cordis.DeepSeekHarnessLocalSse
 import Cordis.DeepSeekHarnessLocalSseOutcome
 import Cordis.DeepSeekHarnessLocalSseApiError
+import Cordis.DeepSeekHarnessLocalSseApiErrorRetry
 import Cordis.DeepSeekHarnessLocalSseIndexed
 import Cordis.DeepSeekHarnessLocalSseIndexedLoop
 import Cordis.DeepSeekHarnessLocalSseRetry
@@ -2436,6 +2437,48 @@ private def testDeepSeekHarnessLocalSseApiError : IO Unit := do
       let _status := result.status_is_rate_limited
       let _counts := result.requests_are_valid
       let _exit := result.server_exited_successfully
+
+private def testDeepSeekHarnessLocalSseApiErrorRetry : IO Unit := do
+  match ← Cordis.DeepSeekHarnessLocalSseApiErrorRetry.Example.run with
+  | .error error => fail s!"loopback SSE API-error retry failed: {reprStr error}"
+  | .ok ⟨firstBody, ⟨successBody, result⟩⟩ =>
+      assertEqual "loopback SSE API-error retry preserves the first error body"
+        firstBody Cordis.DeepSeekHarnessLocalSseApiErrorRetry.Example.errorBody
+      assertEqual "loopback SSE API-error retry preserves the accepted body"
+        successBody Cordis.DeepSeekHarnessLocalSseApiErrorRetry.Example.successBody
+      assertEqual "loopback SSE API-error retry preserves the first 429 status"
+        result.firstStatus 429
+      assertEqual "loopback SSE API-error retry records two attempts"
+        result.attempts 2
+      assertEqual "loopback SSE API-error retry records two requests"
+        (result.accepted.requests, result.accepted.validRequests) (2, 2)
+      assertEqual "loopback SSE API-error retry exits the fixture successfully"
+        result.accepted.serverExit 0
+      assertEqual "loopback SSE API-error retry preserves the first message"
+        result.firstValidated.error.message "rate limited"
+      assertEqual "loopback SSE API-error retry classifies the accepted text"
+        (DeepSeekTerminalOutcome.TerminalOutcome.kind result.accepted.processed.outcome) .text
+      match result.firstTransportError with
+      | .httpStatus status errorBody =>
+          assertEqual "loopback SSE API-error retry retains the first HTTP status"
+            status 429
+          assertEqual "loopback SSE API-error retry retains the first transport body"
+            errorBody firstBody
+      | _ => fail "loopback SSE API-error retry lost the first HTTP-status branch"
+      match result.accepted.dispatch with
+      | .providerFailure _ _ => fail "loopback SSE API-error retry did not append the accepted body"
+      | .appended _ runner =>
+          assertEqual "loopback SSE API-error retry advances only after acceptance"
+            runner.session.nextSeq
+            (Cordis.DeepSeekHarnessLocalSseApiErrorRetry.Example.runner.session.nextSeq + 1)
+      let _status := result.first_status_is_rate_limited
+      let _parsed := result.first_body_is_validated
+      let _decoded := result.first_decodes_api_error
+      let _transport := result.first_transport_is_http_status
+      let _attempts := result.attempts_are_two
+      let _requests := result.requests_are_two
+      let _outcome := result.accepted_outcome_exact
+      let _exit := result.accepted_server_exited
   match ← Cordis.DeepSeekHarnessLocalSseOutcome.Example.textRun with
   | .error error => fail s!"loopback SSE terminal text failed: {reprStr error}"
   | .ok ⟨body, result⟩ =>
@@ -9685,6 +9728,7 @@ def run : IO Unit := do
   testDeepSeekCurlIncrementalOutcome
   testDeepSeekHarnessLocalSseOutcome
   testDeepSeekHarnessLocalSseApiError
+  testDeepSeekHarnessLocalSseApiErrorRetry
   testDeepSeekCurlPrefix
   testDeepSeekCurlPrefixSession
   testDeepSeekAsyncHarness
