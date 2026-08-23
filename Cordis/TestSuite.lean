@@ -203,6 +203,7 @@ import Cordis.MediatedIndependence
 import Cordis.MediatedTheorem
 import Cordis.OperationIndependence
 import Cordis.ObservationalPartialTransformation
+import Cordis.TotalQuotientIndependence
 import Cordis.OperationalEquivalence
 import Cordis.ParallelHarness
 import Cordis.ParallelSchedule
@@ -7857,6 +7858,20 @@ private def testObservationalPartialTransformation : IO Unit := do
       (ObservationalPartialTransformation.RespectGap.bad right).visible)
     (false, true)
 
+private def testTotalQuotientIndependence : IO Unit := do
+  let _independent := TotalQuotientIndependence.Example.totalIndependent
+  let _admissible := TotalQuotientIndependence.effect_admissible
+    TotalQuotientIndependence.Example.leftTotal
+  let initial := MediatedTheorem.Example.IndependentBranching.initial
+  match (OperationIndependence.Computation.pure.run
+      MediatedTheorem.Example.IndependentBranching.demoCoeffects initial) with
+  | none => fail "totalized quotient pure fixture unexpectedly failed"
+  | some applied =>
+      let actual : Option Nat := applied.after .counter
+      let expected : Option Nat := initial .counter
+      assertEqual "totalized quotient executable pure endpoint preserves the counter"
+        actual expected
+
 open GlobalDynamics.Example in
 private def testGlobalDynamics : IO Unit := do
   assertEqual "fueled global iterator executes ordinary then registration steps"
@@ -8651,6 +8666,7 @@ def run : IO Unit := do
   testMediatedWholeRun
   testPartialTransformation
   testObservationalPartialTransformation
+  testTotalQuotientIndependence
   testGlobalDynamics
   testGlobalLifecycle
   testGlobalCalculus
