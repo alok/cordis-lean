@@ -1047,18 +1047,20 @@ loop retains the failed round and a later text terminal under that explicit poli
 recovery, retries, persistence, and deployed error semantics remain external.
 
 `Cordis.DeepSeekStreamHarnessRetry` adds the corresponding bounded complete-body retry seam for
-streamed rounds. An explicit policy may retry process and transient-HTTP failures, while stream
-framing, semantic response, and tool failures remain terminal; the exact retry history and the
-existing streamed assistant/tool certificates are retained. Backoff, idempotency, cancellation,
-persistence, and deployed retry semantics remain external.
+streamed rounds. `executeWithRetryAndFinish` accepts a caller-supplied text/tool/mixed/multi
+finisher, while `executeConversationStreamRound` carries the same dependent finisher into the
+assistant/tool continuation; the existing multi-tool entry points remain wrappers. An explicit
+policy may retry process and transient-HTTP failures, while stream framing, semantic response,
+and tool failures remain terminal. Backoff, idempotency, cancellation, persistence, and deployed
+retry semantics remain external.
 
 `Cordis.DeepSeekStreamHarnessRetryConversation` composes those process-backed retry rounds into
-an indexed, fuel-bounded trace. Every head retains the accepted streamed body, ordered retry
-history, dependent assistant/tool endpoint, and exact final runner/model; the tail begins at that
-endpoint. The executable fixture covers a streamed two-call tool round followed by a text terminal,
-while a transient-HTTP fixture proves the bounded failure history. Backoff, idempotency,
-cancellation of blocked reads, persistence, reconnects, external effects, and deployed retry
-equivalence remain external.
+an indexed, fuel-bounded trace. `runWithFinish` carries the selected finisher through each round;
+every head retains the accepted streamed body, ordered retry history, dependent assistant/tool
+endpoint, and exact final runner/model, while `run` remains the multi-tool wrapper. Direct retry
+fixtures cover text/tool/mixed/multi semantic raw counts, and the dependent loop covers text plus
+the admitted counter tool. Backoff, idempotency, cancellation of blocked reads, persistence,
+reconnects, external effects, and deployed retry equivalence remain external.
 
 `Cordis.DeepSeekStreamHarnessRetryCancellation` composes that indexed retry trace with the
 existing pre-round cancellation policy. A cancellation stop retains the exact accepted retry-aware

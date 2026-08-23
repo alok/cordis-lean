@@ -2658,13 +2658,16 @@ end Cordis.EffectContext
 #print axioms Cordis.DeepSeekStreamHarnessErrors.executeConversationMultiStreamRoundRecoverable
 #print axioms Cordis.DeepSeekStreamHarnessErrors.runConversationMultiStreamRecoverable
 #print axioms Cordis.DeepSeekStreamHarnessRetry.executeWithRetry
+#print axioms Cordis.DeepSeekStreamHarnessRetry.executeWithRetryAndFinish
 #print axioms Cordis.DeepSeekStreamHarnessRetry.executeConversationMultiStreamRound
+#print axioms Cordis.DeepSeekStreamHarnessRetry.executeConversationStreamRound
 #print axioms Cordis.DeepSeekStreamHarness.streamFlagFixtureProcess
 #print axioms Cordis.DeepSeekStreamHarnessRetryConversation.StreamRetryTrace.length
 #print axioms Cordis.DeepSeekStreamHarnessRetryConversation.StreamRetryTrace.length_cons
 #print axioms Cordis.DeepSeekStreamHarnessRetryConversation.StreamRetryStop.isCompleted
 #print axioms Cordis.DeepSeekStreamHarnessRetryConversation.StreamRetryStop.isFuelExhausted
 #print axioms Cordis.DeepSeekStreamHarnessRetryConversation.runAux
+#print axioms Cordis.DeepSeekStreamHarnessRetryConversation.runWithFinish
 #print axioms Cordis.DeepSeekStreamHarnessRetryConversation.run
 #print axioms Cordis.DeepSeekStreamHarnessRetryConversation.Example.loop
 #print axioms Cordis.DeepSeekStreamHarnessRetryConversation.Example.failure

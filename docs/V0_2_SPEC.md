@@ -629,13 +629,17 @@ Current machine-checked evidence includes:
   same request plan; provider backoff, idempotency, cancellation, and deployed retry semantics
   remain outside;
 - `Cordis.DeepSeekStreamHarnessRetry`, adding the same bounded retry boundary to complete-body
-  streamed rounds. Process and transient-HTTP failures retain ordered history and may retry under
-  policy, while stream framing, semantic response, and tool failures remain terminal;
-  backoff, idempotency, cancellation, persistence, and deployed retry semantics remain outside;
+  streamed rounds. `executeWithRetryAndFinish` accepts caller-supplied text/tool/mixed/multi
+  finishers, and `executeConversationStreamRound` carries the selected finisher into the dependent
+  continuation; the existing multi-tool functions remain wrappers. Process and transient-HTTP
+  failures retain ordered history and may retry under policy, while stream framing, semantic
+  response, and tool failures remain terminal; backoff, idempotency, cancellation, persistence,
+  and deployed retry semantics remain outside;
 - `Cordis.DeepSeekStreamHarnessRetryConversation`, composing those process-backed retry rounds
-  into an indexed fuel-bounded trace whose heads retain complete SSE bodies, retry histories,
-  dependent assistant/tool endpoints, and exact runner/model tails; its fixtures cover streamed
-  tool-to-text completion and an exhausted transient-HTTP policy, while backoff, idempotency,
+  into an indexed fuel-bounded trace via `runWithFinish`, whose heads retain complete SSE bodies,
+  retry histories, dependent assistant/tool endpoints, and exact runner/model tails; `run` remains
+  the multi-tool wrapper. Direct fixtures cover text/tool/mixed/multi semantic raw counts, while
+  the dependent loop covers text plus the admitted counter tool. Backoff, idempotency,
   blocked-read cancellation, persistence, reconnects, and deployed retry equivalence remain
   outside;
 - `Cordis.DeepSeekStreamHarnessRetryCancellation`, composing that indexed retry trace with the

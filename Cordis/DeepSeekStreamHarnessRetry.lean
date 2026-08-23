@@ -7,7 +7,9 @@ import Cordis.DeepSeekStreamHarness
 This module adds an opt-in retry policy around the streamed terminal boundary. Process failures
 and transient HTTP statuses can be retried; malformed SSE, semantic response failures, and tool
 execution failures remain terminal. Every retry retains the exact `SessionClientError` history,
-and the same request is supplied to every attempt by construction.
+and the same request is supplied to every attempt by construction. The finisher is caller-supplied
+through `executeWithRetryAndFinish` and `executeConversationStreamRound`; the existing multi-tool
+functions remain convenience wrappers.
 
 The round result reuses the existing streamed assistant/tool certificates. This is not a claim
 about backoff, idempotency of arbitrary tools, cancellation, reconnects, incremental delivery,
@@ -133,7 +135,9 @@ def executeWithRetryAux
 termination_by remaining => remaining
 decreasing_by omega
 
-def executeWithRetry
+def executeWithRetryAndFinish
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body))
     (policy : RetryPolicy)
     (config : ProcessConfig)
     (request : HttpRequest) :
@@ -142,8 +146,15 @@ def executeWithRetry
     failures := []
     failures_le := by simp
   }
-  executeWithRetryAux policy (DeepSeekCurlSession.executeWith finishMulti config request)
+  executeWithRetryAux policy (DeepSeekCurlSession.executeWith finish config request)
     policy.maxRetries history (by simp [history])
+
+def executeWithRetry
+    (policy : RetryPolicy)
+    (config : ProcessConfig)
+    (request : HttpRequest) :
+    IO (RetryResult policy) :=
+  executeWithRetryAndFinish finishMulti policy config request
 
 theorem retryRequest_body_eq
     (plan : RequestPlan) :
@@ -166,7 +177,9 @@ structure ConversationRoundResult
   round : StreamConversationRoundResult cfg before body
   retryHistory : RetryHistory policy
 
-def executeConversationMultiStreamRound
+def executeConversationStreamRound
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body))
     (policy : RetryPolicy)
     {Model Capability : Type}
     (config : ProcessConfig)
@@ -184,7 +197,7 @@ def executeConversationMultiStreamRound
   match buildTypedStreamingRequestPlan baseUrl apiKey source runner.session with
   | .error error => pure (.error (.request error))
   | .ok plan =>
-      match ← executeWithRetry policy config plan.request with
+      match ← executeWithRetryAndFinish finish policy config plan.request with
       | .failed history error => pure (.error (.client history error))
       | .succeeded history ⟨body, processed⟩ =>
           let assistantSeq := runner.session.nextSeq
@@ -214,6 +227,24 @@ def executeConversationMultiStreamRound
                 }
                 retryHistory := history
               }⟩)
+
+def executeConversationMultiStreamRound
+    (policy : RetryPolicy)
+    {Model Capability : Type}
+    (config : ProcessConfig)
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (source : RequestSource)
+    (cfg : GenericHarness.Config Model Capability)
+    (before : Model)
+    (runner : ConversationRunner)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    IO (Except (ConversationError policy)
+      (Sigma fun body : String => ConversationRoundResult policy cfg before body)) :=
+  executeConversationStreamRound finishMulti policy config baseUrl apiKey source cfg before runner
+    sourceEventSeqs sourcesNodup sourcesEarlier
 
 theorem conversationRound_history_bound
     {policy : RetryPolicy}

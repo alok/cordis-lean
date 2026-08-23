@@ -5,8 +5,10 @@ import Cordis.DeepSeekStreamHarnessRetry
 
 This module composes the complete-body streamed retry boundary with the indexed conversation
 loop.  Each trace head retains the accepted SSE body, retry history, streamed assistant/tool
-endpoint, and exact final runner/model; the tail is indexed by that endpoint.  Completion and
-fuel exhaustion are distinct, while request/process/response/tool failures remain typed.
+endpoint, and exact final runner/model; the tail is indexed by that endpoint.  The finisher is
+caller-supplied through `runWithFinish`, while `run` remains the multi-tool convenience wrapper.
+Completion and fuel exhaustion are distinct, while request/process/response/tool failures remain
+typed.
 
 The boundary is intentionally local: it does not establish backoff, idempotency, cancellation of
 blocked reads, persistence, reconnect semantics, arbitrary external effects, live credentials,
@@ -22,6 +24,7 @@ open Cordis.DeepSeekApi
 open Cordis.DeepSeekCurlTransport
 open Cordis.DeepSeekHarness
 open Cordis.DeepSeekRichStream
+open Cordis.DeepSeekSessionRunner
 open Cordis.DeepSeekStreamHarness
 open Cordis.DeepSeekStreamHarnessRetry
 
@@ -222,6 +225,8 @@ def runAux
     {policy : RetryPolicy}
     {Model Capability : Type}
     {cfg : GenericHarness.Config Model Capability}
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body))
     (fuel : Nat)
     (config : ProcessConfig)
     (baseUrl : String)
@@ -245,7 +250,7 @@ def runAux
         stop := .fuelExhausted
       }⟩⟩)
   | fuel + 1 =>
-      match ← executeConversationMultiStreamRound policy config baseUrl apiKey source cfg before
+      match ← executeConversationStreamRound finish policy config baseUrl apiKey source cfg before
           runner sourceEventSeqs sourcesNodup (sourcesEarlier runner) with
       | .error error => pure (.error error)
       | .ok ⟨body, round⟩ =>
@@ -258,7 +263,7 @@ def runAux
               stop := .completed head rfl rfl noTools
             }⟩⟩)
           else
-            match ← runAux fuel config baseUrl apiKey source sourceEventSeqs sourcesNodup
+            match ← runAux finish fuel config baseUrl apiKey source sourceEventSeqs sourcesNodup
                 sourcesEarlier round.round.finalModel round.round.runner with
             | .error error => pure (.error error)
             | .ok ⟨finalRunner, ⟨finalModel, tail⟩⟩ =>
@@ -268,6 +273,31 @@ def runAux
                 }⟩⟩)
 termination_by fuel
 decreasing_by omega
+
+def runWithFinish
+    {Model Capability : Type}
+    {policy : RetryPolicy}
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body))
+    (fuel : Nat)
+    (config : ProcessConfig)
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (source : RequestSource)
+    (cfg : GenericHarness.Config Model Capability)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ current : ConversationRunner,
+      ∀ source ∈ sourceEventSeqs, source < current.session.nextSeq)
+    (before : Model)
+    (runner : ConversationRunner) :
+    IO (Except (ConversationError policy)
+      (Sigma fun finalRunner : ConversationRunner =>
+        Sigma fun finalModel : Model =>
+          StreamRetryConversationRunResult policy cfg config baseUrl apiKey source sourceEventSeqs
+            sourcesNodup sourcesEarlier runner before finalRunner finalModel)) :=
+  runAux finish fuel config baseUrl apiKey source sourceEventSeqs sourcesNodup sourcesEarlier before
+    runner
 
 def run
     {Model Capability : Type}
@@ -289,7 +319,8 @@ def run
         Sigma fun finalModel : Model =>
           StreamRetryConversationRunResult policy cfg config baseUrl apiKey source sourceEventSeqs
             sourcesNodup sourcesEarlier runner before finalRunner finalModel)) :=
-  runAux fuel config baseUrl apiKey source sourceEventSeqs sourcesNodup sourcesEarlier before runner
+  runWithFinish finishMulti fuel config baseUrl apiKey source cfg sourceEventSeqs sourcesNodup
+    sourcesEarlier before runner
 
 /-! ## Executable process fixtures -/
 

@@ -7738,6 +7738,34 @@ private def testDeepSeekStreamHarnessRetry : IO Unit := do
           .assistant "" [{ id := { value := 0 }, name := "counter_read", arguments := "null" }],
           .toolResult { value := 0 } "[true,0]" false
         ]
+  let checkRoundVariant
+      (label : String)
+      (finish : (body : String) →
+        Except DeepSeekSessionRunner.ResponseError
+          (DeepSeekSessionRunner.FinishedResponse body))
+      (body : String)
+      (frames : Nat) : IO Unit := do
+    match DeepSeekHarness.buildTypedStreamingRequestPlan "https://fixture.invalid"
+        { value := "fixture-key" } DeepSeekHarness.counterRequestSource initialRunner.session with
+    | .error error => fail s!"{label} generic retry request failed: {reprStr error}"
+    | .ok plan =>
+        match ← DeepSeekStreamHarnessRetry.executeWithRetryAndFinish finish policy
+            (DeepSeekStreamHarnessRetry.fixtureStreamProcess body) plan.request with
+        | .failed _ error => fail s!"{label} generic retry round failed: {reprStr error}"
+        | .succeeded history ⟨actualBody, processed⟩ =>
+            assertEqual (label ++ " generic retry round preserves body") actualBody body
+            assertEqual (label ++ " generic retry round has no failures")
+              history.failures []
+            assertEqual (label ++ " generic retry round keeps parsed frame count")
+              processed.finished.raw.length frames
+  checkRoundVariant "text" DeepSeekSessionRunner.finishText
+    DeepSeekRichStream.exampleTextStreamBody 6
+  checkRoundVariant "tool" DeepSeekSessionRunner.finishTool
+    DeepSeekRichToolStream.exampleToolStreamBody 6
+  checkRoundVariant "mixed" DeepSeekSessionRunner.finishMixed
+    DeepSeekRichMixedStream.mixedStreamBody 14
+  checkRoundVariant "multi" DeepSeekSessionRunner.finishMulti
+    DeepSeekRichMultiStream.multiBody 10
 
 private def testDeepSeekStreamHarnessRetryConversation : IO Unit := do
   match ← DeepSeekStreamHarnessRetryConversation.Example.loop with
@@ -7778,6 +7806,41 @@ private def testDeepSeekStreamHarnessRetryConversation : IO Unit := do
         (DeepSeekStreamHarnessRetry.RetryHistory.attemptCount history) 3
   | .error _ => fail "stream retry conversation returned the wrong failure"
   | .ok _ => fail "stream retry conversation accepted an exhausted transient process"
+  let checkLoopVariant
+      (label : String)
+      (finish : (body : String) →
+        Except DeepSeekSessionRunner.ResponseError
+          (DeepSeekSessionRunner.FinishedResponse body))
+      (body : String)
+      (frames : Nat)
+      (calls : Nat) : IO Unit := do
+    match ← DeepSeekStreamHarnessRetryConversation.runWithFinish
+        (policy := DeepSeekStreamHarnessRetry.RetryPolicy.default) finish 2
+        (DeepSeekStreamHarnessRetry.fixtureStreamProcess body)
+        "https://fixture.invalid" { value := "fixture-key" }
+        DeepSeekHarness.counterRequestSource Cordis.Harness.counterConfig [] (by simp) (by
+          intro current source sourceMem
+          cases sourceMem)
+        0 DeepSeekStreamHarnessRetryConversation.Example.counterRunner with
+    | .error _ => fail s!"{label} generic retry loop failed"
+    | .ok ⟨finalRunner, ⟨finalModel, run⟩⟩ =>
+        let expectedLength := if calls = 0 then 1 else 2
+        assertEqual (label ++ " generic retry loop trace length") run.trace.length expectedLength
+        assertEqual (label ++ " generic retry loop call allocation")
+          finalRunner.nextCall (calls * expectedLength)
+        assertEqual (label ++ " generic retry loop preserves model") finalModel 0
+        assertEqual (label ++ " generic retry loop completion classification")
+          (DeepSeekStreamHarnessRetryConversation.StreamRetryStop.isCompleted run.stop)
+          (calls = 0)
+        match run.trace with
+        | .cons first _ =>
+            assertEqual (label ++ " generic retry loop first frame count")
+              first.round.round.finished.raw.length frames
+        | _ => fail s!"{label} generic retry loop returned the wrong trace shape"
+  checkLoopVariant "text" DeepSeekSessionRunner.finishText
+    DeepSeekRichStream.exampleTextStreamBody 6 0
+  checkLoopVariant "tool" DeepSeekSessionRunner.finishTool
+    DeepSeekStreamHarness.counterToolStreamBody 6 1
 
 private def testDeepSeekStreamHarnessRetryCancellation : IO Unit := do
   match ← DeepSeekStreamHarnessRetryCancellation.Example.loop with
