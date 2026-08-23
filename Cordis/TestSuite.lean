@@ -175,6 +175,7 @@ import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalPaperLandingReplay
 import Cordis.GlobalPaperFullLifecycleReplay
 import Cordis.GlobalPaperShiftedLifecycle
+import Cordis.GlobalPaperShiftedFullLifecycle
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalPaperTraceNormalizer
@@ -9395,6 +9396,24 @@ private def testGlobalPaperShiftedLifecycle : IO Unit := do
   assertEqual "shifted lifecycle replay retains the source actors"
     GlobalPaperShiftedLifecycle.executableActors [0, 0]
 
+private def testGlobalPaperShiftedFullLifecycle : IO Unit := do
+  let _nonreflexive :=
+    Cordis.GlobalPaperShiftedFullLifecycle.Example.shiftedStart_ne_source
+  let _related :=
+    Cordis.GlobalPaperShiftedFullLifecycle.Example.replay_final_related
+  let _wellFormed :=
+    Cordis.GlobalPaperShiftedFullLifecycle.Example.replay_shadow_wellFormed
+  let _assignment :=
+    Cordis.GlobalPaperShiftedFullLifecycle.Example.replay_assignment_matches_constructed
+  assertEqual "shifted full lifecycle replay exposes all six detailed rules"
+    Cordis.GlobalPaperShiftedFullLifecycle.Example.executableGlobalRules
+    [.lBegin, .lIter, .lFinish, .oRetire, .lLeave, .lUnload]
+  assertEqual "shifted full lifecycle replay retains six acting names"
+    Cordis.GlobalPaperShiftedFullLifecycle.Example.executableActors
+    [0, 0, 0, 0, 0, 0]
+  assertEqual "shifted full lifecycle replay changes only the allocator clock"
+    Cordis.GlobalPaperShiftedFullLifecycle.Example.executableClockPair (1, 2)
+
 private def testGlobalPaperTraceDeletion : IO Unit := do
   assertEqual "assigned deletion replay retains the concrete detailed rule"
     GlobalPaperTraceDeletion.Example.executableDetailedRules
@@ -10018,6 +10037,7 @@ def run : IO Unit := do
   testGlobalPaperLandingReplay
   testGlobalPaperFullLifecycleReplay
   testGlobalPaperShiftedLifecycle
+  testGlobalPaperShiftedFullLifecycle
   testGlobalPaperTraceDeletion
   testGlobalPaperTraceNormalization
   testGlobalPaperTraceNormalizer

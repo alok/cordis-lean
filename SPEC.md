@@ -320,6 +320,14 @@ assigned trace while preserving endpoint well-formedness, rules, actors, and bir
 relatedness. This witness is trace-local; it does not upgrade the known clock-sensitive
 countermodel into a global lifecycle bisimulation.
 
+`Cordis.GlobalPaperShiftedFullLifecycle` extends that witness to the complete six-record path.
+It shifts the allocator clock in every source state, reconstructs concrete peer transitions for
+L-Begin, L-Iter, L-Finish, O-Retire, L-Leave, and L-Unload, and replays the source assignment
+occurrence-by-occurrence into the shifted trace. The resulting certificate proves peer endpoint
+well-formedness, final birth-erased relatedness, exact detailed-rule and actor ledgers, six keep
+decisions, and equality with the explicitly constructed peer assignment. This is still one
+finite assigned replay; it does not derive arbitrary lifecycle matching or Lemma 72/Theorem 73.
+
 The progress layer proves that printed Theorem 66 also needs stronger executable premises. A
 configured oracle may reject a registration that the raw relation can admit through another
 oracle, while finite Boolean name exhaustion produces a well-formed nonquiescent state with no raw

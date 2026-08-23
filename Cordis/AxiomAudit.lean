@@ -169,6 +169,7 @@ import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalPaperLandingReplay
 import Cordis.GlobalPaperFullLifecycleReplay
 import Cordis.GlobalPaperShiftedLifecycle
+import Cordis.GlobalPaperShiftedFullLifecycle
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalPaperTraceNormalizer
@@ -2497,6 +2498,34 @@ namespace Cordis.GlobalPaperShiftedLifecycle
 #print axioms replayAssignment
 #print axioms executableClockPair_eq
 end Cordis.GlobalPaperShiftedLifecycle
+namespace Cordis.GlobalPaperShiftedFullLifecycle.Example
+#print axioms shiftWf
+#print axioms shiftRelated
+#print axioms shiftedStart_wf
+#print axioms shiftedStart_related
+#print axioms shiftedStart_ne_source
+#print axioms shiftedBeginTransition
+#print axioms shiftedIterTransition
+#print axioms shiftedFinishTransition
+#print axioms shiftedRetireTransition
+#print axioms shiftedLeaveTransition
+#print axioms shiftedUnloadTransition
+#print axioms shiftedTrace
+#print axioms shiftedAssignment
+#print axioms evidence
+#print axioms replay
+#print axioms replayAssignment
+#print axioms replay_final_related
+#print axioms replay_shadow_wellFormed
+#print axioms replay_rules
+#print axioms replay_actors
+#print axioms replay_decisions
+#print axioms replay_assignment_matches_constructed
+#print axioms executableClockPair_eq
+#print axioms shiftedTrace_rules
+#print axioms shiftedTrace_global_rules
+#print axioms shiftedTrace_actors
+end Cordis.GlobalPaperShiftedFullLifecycle.Example
 namespace Cordis.GlobalPaperTraceDeletion
 #print axioms detailedRule_eq_of_orchestration
 #print axioms replay_detailedRules_eq

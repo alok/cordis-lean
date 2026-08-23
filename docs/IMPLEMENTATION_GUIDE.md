@@ -3259,6 +3259,12 @@ the peer differs only in `nextBirth`, while dependent L-Leave/L-Unload transitio
 assigned trace are rebuilt with exact rule/actor, well-formedness, and birth-erased endpoint
 certificates. Keep this separate from the global lifecycle-simulation frontier and its
 clock-sensitive countermodel.
+`GlobalPaperShiftedFullLifecycle` then applies the same construction to all six records of the
+assigned fixture. It is the useful next manual pattern: build each peer transition, build its
+`StepProgramAssignment`, cons the six `ForwardAssignedStepMatch` records, and invoke the
+dependent replay theorem. The resulting non-reflexive certificate retains the peer endpoint/WF,
+final relation, exact rule/actor ledgers, six keep decisions, and complete assignment. It remains
+finite occurrence evidence rather than a derived global lifecycle simulator.
 `GlobalPaperRelation` now supplies that finite relation: it erases only allocator clock/birth from
 current rule control, relates the opposite insertion endpoints, and proves bidirectional
 well-formed orchestration replay with assignment transport. From a well-formed source carrying

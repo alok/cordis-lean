@@ -764,6 +764,9 @@ Current machine-checked evidence includes:
 - `Cordis.GlobalPaperShiftedLifecycle`, providing a concrete non-reflexive allocator-clock replay
   that rebuilds dependent L-Leave/L-Unload transitions and transports their assigned trace while
   retaining exact rule/actor and endpoint certificates; it is not global lifecycle bisimulation;
+- `Cordis.GlobalPaperShiftedFullLifecycle`, extending that allocator-only peer to the full
+  assigned six-step path and proving shifted endpoint/WF, final birth-erased relatedness, exact
+  six-rule/actor ledgers, keep decisions, and the explicit peer assignment;
 - `Cordis.GlobalPaperTraceNormalization`, packaging a finite certificate-driven chain of
   birth-erased adjacent trace rewrites with transported assignments and final rule/actor
   permutation facts, while leaving automatic normal-form search and confluence external;
@@ -1222,6 +1225,14 @@ Actual fixed-program activation assignments cover the first three records; expli
 non-activation assignments cover the remaining records. An all-keep self-replay retains endpoint
 well-formedness, detailed rules, actors, six decisions, and the complete assignment. It does not
 infer arbitrary program provenance, match an unrelated peer lifecycle, or close Lemma 72/Theorem 73.
+
+`Cordis.GlobalPaperShiftedFullLifecycle` uses the same six-record fixture with a peer obtained by
+shifting only the allocator clock in every state. It reconstructs the six dependent peer
+transitions and their assignments, then applies the occurrence-indexed forward replay theorem.
+The result is a genuinely non-reflexive finite certificate retaining endpoint well-formedness,
+final birth-erased relatedness, exact detailed rules and actors, six keep decisions, and equality
+with the constructed peer assignment. It does not provide arbitrary lifecycle simulation,
+episode deletion, Lemma 72, or Theorem 73.
 
 The corrected progress slice is specified in
 [`GLOBAL_PROGRESS_SPEC.md`](GLOBAL_PROGRESS_SPEC.md) and implemented by `Cordis.GlobalProgress`.
