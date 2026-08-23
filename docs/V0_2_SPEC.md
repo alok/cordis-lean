@@ -689,6 +689,10 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekCurlIncremental`, delivering complete response lines through a process callback
   under an explicit read budget before strict validation of the reconstructed SSE body; byte-level
   and cancellation semantics remain external;
+- `Cordis.DeepSeekCurlIncrementalOutcome`, classifying that reconstructed body as a provider
+  failure or successful rich terminal outcome and dispatching it into the local runner; failures
+  remain unchanged-runner results, and byte-level/backpressure, cancellation, reconnect,
+  credential, provider-complete assembly, and deployed Harness semantics remain external;
 - `Cordis.DeepSeekCurlPrefix`, connecting the process line reader to the proof-carrying prefix
   state: each accepted line is parsed before the next read, synchronous fuel/cancellation stops
   clean up the child, and terminal success retains raw output plus normalized frame certificates;

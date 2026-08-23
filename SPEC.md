@@ -1096,6 +1096,11 @@ claim:
    status trailer and validating the reconstructed body; it remains a
    line-oriented complete-response adapter, not a byte-level/backpressure/
    cancellation or deployed-stream theorem.
+   `Cordis.DeepSeekCurlIncrementalOutcome` composes the reconstructed body with
+   the terminal provider-failure/text/tool/mixed/multi sum and local runner
+   dispatch; failures preserve the runner, while successes append. It adds no
+   byte-level, backpressure, cancellation, reconnect, provider-complete, or
+   deployed-equivalence guarantee.
 1. **Production streaming.** Extend the bounded text model with transport,
    backpressure, cancellation, tool-call payload assembly, provider-complete
    parser state, and a live HTTP reader; the current `DeepSeekStream` module is

@@ -17,6 +17,7 @@ import Cordis.DeepSeekHarnessProcessSchema
 import Cordis.DeepSeekHarnessProcessSchemaPrefix
 import Cordis.DeepSeekHarnessProcessSchemaPrefixConversation
 import Cordis.DeepSeekCurlIncremental
+import Cordis.DeepSeekCurlIncrementalOutcome
 import Cordis.DeepSeekCurlPrefix
 import Cordis.DeepSeekCurlPrefixSession
 import Cordis.DeepSeekCurlOutcome
@@ -2335,6 +2336,49 @@ private def testDeepSeekCurlIncremental : IO Unit := do
       assertEqual "incremental DeepSeek SSE preserves callback failure position" line 0
   | .error error => fail s!"unexpected incremental callback error: {reprStr error}"
   | .ok _ => fail "incremental DeepSeek SSE ignored a callback failure"
+
+private def testDeepSeekCurlIncrementalOutcome : IO Unit := do
+  let seen ← IO.mkRef ([] : List (Nat × String))
+  match ← Cordis.DeepSeekCurlIncrementalOutcome.executeOutcome
+      64
+      (Cordis.DeepSeekCurlIncremental.fixtureProcess
+        DeepSeekStreamFailure.exampleContentFilterBody)
+      DeepSeekCurlTransport.fixtureRequest.request (fun index line => do
+        seen.modify (fun lines => (index, line) :: lines)) with
+  | .error error => fail s!"incremental terminal failure fixture failed: {reprStr error}"
+  | .ok ⟨body, processed⟩ =>
+      assertEqual "incremental terminal failure preserves the exact body"
+        body DeepSeekStreamFailure.exampleContentFilterBody
+      assertEqual "incremental terminal failure classifies the provider branch"
+        (DeepSeekTerminalOutcome.TerminalOutcome.kind processed.outcome)
+        .providerFailure
+      assertEqual "incremental terminal failure retains all failure frames"
+        processed.response.wire.frames.length 3
+      assertEqual "incremental terminal failure exposes callback lines"
+        processed.response.lines.isEmpty false
+      let callbackLines ← seen.get
+      assertEqual "incremental terminal failure callback indices are contiguous"
+        (callbackLines.reverse |>.map (fun item => item.1))
+        (List.range callbackLines.length)
+      let _exactCertificate := processed.outcome_exact
+  match ← Cordis.DeepSeekCurlIncrementalOutcome.fixtureFailureDispatch with
+  | .error error => fail s!"incremental outcome failure dispatch failed: {reprStr error}"
+  | .ok ⟨_, .providerFailure validated runner⟩ =>
+      assertEqual "incremental outcome dispatch preserves provider failure reason"
+        validated.view.reason .contentFilter
+      assertEqual "incremental outcome dispatch leaves the runner unchanged"
+        runner.session.nextSeq 0
+      assertEqual "incremental outcome dispatch keeps messages empty"
+        runner.session.messages []
+  | .ok _ => fail "incremental outcome dispatch turned provider failure into an assistant"
+  match ← Cordis.DeepSeekCurlIncrementalOutcome.fixtureTextDispatch with
+  | .error error => fail s!"incremental outcome text dispatch failed: {reprStr error}"
+  | .ok ⟨_, .appended _ runner⟩ =>
+      assertEqual "incremental outcome text dispatch advances the runner"
+        runner.session.nextSeq 1
+      assertEqual "incremental outcome text dispatch stores the assistant"
+        runner.session.messages [.assistant "Hello world" []]
+  | .ok _ => fail "incremental outcome text dispatch did not append an assistant"
 
 private def testDeepSeekCurlPrefix : IO Unit := do
   match ← DeepSeekCurlPrefix.fixtureResponse with
@@ -9505,6 +9549,7 @@ def run : IO Unit := do
   testDeepSeekHarnessProcessSchemaPrefix
   testDeepSeekHarnessProcessSchemaPrefixConversation
   testDeepSeekCurlIncremental
+  testDeepSeekCurlIncrementalOutcome
   testDeepSeekCurlPrefix
   testDeepSeekCurlPrefixSession
   testDeepSeekAsyncHarness

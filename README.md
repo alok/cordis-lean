@@ -305,6 +305,10 @@ line is delivered to a typed callback before the private status trailer is
 consumed, while the complete reconstructed body still receives strict SSE
 validation under an explicit read budget. Byte framing, backpressure,
 cancellation, and deployment semantics remain explicit runtime obligations.
+`Cordis.DeepSeekCurlIncrementalOutcome` composes that line reader with the typed terminal outcome
+sum and local session runner: provider failures retain their exact certificate and unchanged
+runner, while successful rich outcomes finish and append. Byte-level framing, backpressure,
+cancellation, reconnects, provider-complete assembly, and deployed equivalence remain external.
 `Cordis.DeepSeekCurlPrefix` connects that process boundary to the proof-carrying
 prefix state: each accepted process line updates the typed body/frame state,
 and a line policy can stop before the next read while cleanup kills and waits

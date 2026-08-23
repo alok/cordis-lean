@@ -2628,6 +2628,12 @@ proof that this pure complete-body layer does not provide.
 each body line under an explicit read budget before the private status trailer is consumed, while
 the reconstructed body still passes the strict SSE validator. It is not a byte-level reader or a
 proof of backpressure, cancellation, reconnect, process trust, or provider-complete assembly.
+`Cordis.DeepSeekCurlIncrementalOutcome` is the next narrow composition: it retains the incremental
+response and callback-visible lines, classifies the reconstructed body through
+`DeepSeekTerminalOutcome`, and dispatches provider failures or successful rich outcomes through
+the local runner. The failure branch intentionally leaves the runner unchanged; retry,
+`isError`-message, cancellation, reconnect, credential, provider-complete assembly, and deployed
+equivalence policies remain caller/deployment obligations.
 `Cordis.DeepSeekCurlPrefix` is the typed process counterpart: it advances `PrefixState` before
 requesting the next complete line, retains the raw process body separately from the normalized
 prefix certificate, and uses the same line policy for synchronous fuel/cancellation stops. Its

@@ -38,6 +38,7 @@ import Cordis.DeepSeekHarnessTransportRetryCancellation
 import Cordis.DeepSeekSchemaTransportRetryCancellation
 import Cordis.DeepSeekSchemaProcessRetryCancellation
 import Cordis.DeepSeekCurlIncremental
+import Cordis.DeepSeekCurlIncrementalOutcome
 import Cordis.DeepSeekCurlPrefix
 import Cordis.DeepSeekCurlPrefixSession
 import Cordis.DeepSeekCurlOutcome

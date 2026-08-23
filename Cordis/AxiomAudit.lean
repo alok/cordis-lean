@@ -18,6 +18,7 @@ import Cordis.DeepSeekHarnessProcessSchema
 import Cordis.DeepSeekHarnessProcessSchemaPrefix
 import Cordis.DeepSeekHarnessProcessSchemaPrefixConversation
 import Cordis.DeepSeekCurlIncremental
+import Cordis.DeepSeekCurlIncrementalOutcome
 import Cordis.DeepSeekCurlPrefix
 import Cordis.DeepSeekCurlPrefixSession
 import Cordis.DeepSeekCurlOutcome
@@ -1042,6 +1043,10 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessProcessSchemaPrefixConversation.runPreparedSchemaPrefixConversation
 #print axioms Cordis.DeepSeekCurlIncremental.readBodyLines
 #print axioms Cordis.DeepSeekCurlIncremental.executeSseIncremental
+#print axioms Cordis.DeepSeekCurlIncrementalOutcome.executeOutcome
+#print axioms Cordis.DeepSeekCurlIncrementalOutcome.executeAndDispatchOutcome
+#print axioms Cordis.DeepSeekCurlIncrementalOutcome.outcome_exact_failure
+#print axioms Cordis.DeepSeekCurlIncrementalOutcome.outcome_exact_text
 #print axioms Cordis.DeepSeekCurlPrefix.executeSsePrefix
 #print axioms Cordis.DeepSeekCurlPrefix.PrefixResponse.isCompleted
 #print axioms Cordis.DeepSeekCurlPrefixSession.executeWith
