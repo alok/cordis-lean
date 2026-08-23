@@ -30,6 +30,7 @@ import Cordis.DeepSeekAsyncStreamHarnessTimeout
 import Cordis.DeepSeekExternalToolProcess
 import Cordis.DeepSeekExternalToolRound
 import Cordis.DeepSeekExternalGenericRound
+import Cordis.DeepSeekExternalGenericConversation
 import Cordis.DeepSeekAsyncStreamCancellation
 import Cordis.DeepSeekAsyncStreamRetryCancellation
 import Cordis.DeepSeekStream
@@ -2592,6 +2593,37 @@ private def testDeepSeekExternalGenericRound : IO Unit := do
           fail "external generic failure decoded an unexpected value"
       | .error _ => fail "external generic failure did not retain the typed result"
   | .ok ⟨_, some _⟩ => fail "external generic failure was incorrectly certified"
+
+private def testDeepSeekExternalGenericConversation : IO Unit := do
+  match ← DeepSeekExternalGenericConversation.counterReadStopRun with
+  | .error error =>
+      fail s!"external generic stop conversation failed: {reprStr error}"
+  | .ok ⟨final, result⟩ =>
+      assertEqual "external generic stop advances the call id" final.nextCall 1
+      assertEqual "external generic stop retains the certified model" final.model 7
+      assertEqual "external generic stop has one external trace edge"
+        result.trace.length 1
+      assertEqual "external generic stop completes"
+        result.stop DeepSeekExternalGenericConversation.StopKind.completed
+      assertEqual "external generic stop has no failure process"
+        result.stopProcess none
+  match ← DeepSeekExternalGenericConversation.counterReadContinueRun with
+  | .error error =>
+      fail s!"external generic continuation failed before its uncertified stop: {reprStr error}"
+  | .ok ⟨final, result⟩ =>
+      assertEqual "external generic continuation preserves the accepted call id"
+        final.nextCall 1
+      assertEqual "external generic continuation preserves the accepted model"
+        final.model 7
+      assertEqual "external generic continuation retains the accepted prefix"
+        result.trace.length 1
+      assertEqual "external generic continuation stops uncertified"
+        result.stop DeepSeekExternalGenericConversation.StopKind.uncertified
+      match result.stopProcess with
+      | none => fail "external generic continuation lost the uncertified process evidence"
+      | some process =>
+          assertEqual "external generic continuation retains the nonzero exit"
+            process.exitCode 7
 
 private def testDeepSeekAsyncStreamCancellation : IO Unit := do
   let race ← DeepSeekAsyncStreamCancellation.exampleCancellationRace
@@ -8814,6 +8846,7 @@ def run : IO Unit := do
   testDeepSeekExternalToolProcess
   testDeepSeekExternalToolRound
   testDeepSeekExternalGenericRound
+  testDeepSeekExternalGenericConversation
   testDeepSeekAsyncStreamCancellation
   testDeepSeekAsyncStreamRetryCancellation
   testDeepSeekStream

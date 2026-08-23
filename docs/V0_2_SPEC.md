@@ -56,6 +56,12 @@ cleanup, and deployed Harness equivalence remain external.
 dependent certificate that constructs the generic dispatch result. The executable counter fixture
 checks model, lease, call-ID, record, and rich-session advancement; a decodable nonzero-exit process
 is retained but cannot be certified.
+`Cordis.DeepSeekExternalGenericConversation` adds finite dependent process scripts over that
+handoff. A continuation is selected from the exact accepted dispatch, accepted edges form an
+indexed runner trace, and completion, fuel exhaustion, and uncertified stops are distinct. The
+trace keeps heterogeneous process/tool provenance in `Prop` so its executable result remains
+usable by `IO`; sandboxing, authentication, exactly-once effects, cleanup, persistence, provider
+obedience, and deployed Harness equivalence remain external.
 `Cordis.DeepSeekAsyncStreamCancellation` carries the typed pre-round cancellation policy through
 that race. Its fixture cancels one child before dispatch while the other remains a real streamed
 tool/text continuation; the accepted cancellation result preserves its reason, unchanged
@@ -779,6 +785,10 @@ Current machine-checked evidence includes:
   observation is retained in a dependent sigma, and a caller-supplied acceptance/dispatch
   certificate is the only route to `ExternalDispatchResult`; the success and nonzero-exit counter
   fixtures exercise the generic runner/session boundary;
+- `Cordis.DeepSeekExternalGenericConversation`, providing a finite dependent script whose accepted
+  dispatches form an indexed trace and whose completed, fuel-exhausted, and uncertified outcomes
+  are separated; heterogeneous tool/process origins are proof-only edge certificates so the
+  executable result remains usable by `IO`;
 - `Cordis.DeepSeekAsyncStreamCancellation`, exercising a real cancellation-first streamed child
   alongside a process-backed sibling and checking the typed stop/endpoint evidence;
 - `Cordis.DeepSeekAsyncStreamRetryCancellation`, exercising the same cancellation-first race over

@@ -149,6 +149,7 @@ import Cordis.DeepSeekAsyncStreamHarnessTimeout
 import Cordis.DeepSeekExternalToolProcess
 import Cordis.DeepSeekExternalToolRound
 import Cordis.DeepSeekExternalGenericRound
+import Cordis.DeepSeekExternalGenericConversation
 import Cordis.DeepSeekAsyncStreamCancellation
 import Cordis.DeepSeekAsyncStreamRetryCancellation
 import Cordis.Effect

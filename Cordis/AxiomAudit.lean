@@ -126,6 +126,7 @@ import Cordis.DeepSeekAsyncStreamHarnessTimeout
 import Cordis.DeepSeekExternalToolProcess
 import Cordis.DeepSeekExternalToolRound
 import Cordis.DeepSeekExternalGenericRound
+import Cordis.DeepSeekExternalGenericConversation
 import Cordis.DeepSeekAsyncStreamCancellation
 import Cordis.DeepSeekAsyncStreamRetryCancellation
 import Cordis.DurableCodec
@@ -476,6 +477,11 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekExternalGenericRound.counterReadDispatch
 #print axioms Cordis.DeepSeekExternalGenericRound.counterReadCertifyAndDispatch
 #print axioms Cordis.DeepSeekExternalGenericRound.counterReadAttached
+#print axioms Cordis.DeepSeekExternalGenericConversation.ExternalStep.ofObserved
+#print axioms Cordis.DeepSeekExternalGenericConversation.Trace.length
+#print axioms Cordis.DeepSeekExternalGenericConversation.runAux
+#print axioms Cordis.DeepSeekExternalGenericConversation.counterReadStopRun
+#print axioms Cordis.DeepSeekExternalGenericConversation.counterReadContinueRun
 #print axioms Cordis.DeepSeekAsyncStreamCancellation.ProcessJobResult.phase_terminal_of_result
 #print axioms Cordis.DeepSeekAsyncStreamCancellation.ProcessJobResult.cancelled_preserves_endpoint
 #print axioms Cordis.DeepSeekAsyncStreamCancellation.RaceResult.winner_mem
