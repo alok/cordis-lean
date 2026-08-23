@@ -9,7 +9,8 @@ This module lifts the one-round local SSE retry witness into a dependent convers
 round starts a bounded loopback server, validates both typed attempts, returns one transient HTTP
 503 followed by a real curl/SSE success, and appends only the accepted terminal response.  The
 second round is indexed by the first round's exact `ConversationRunner`, so its request body is
-rebuilt from the appended session rather than reused by convention.
+rebuilt from the appended session rather than reused by convention.  `runTwoRoundsWithFinish`
+keeps the response finisher caller-supplied; `runTwoRounds` remains the text-finisher wrapper.
 
 The fixture is finite and local.  It does not claim provider backoff, tool idempotency, arbitrary
 retry policy, blocked-read cancellation, byte-level backpressure, credential/TLS authenticity,
@@ -73,20 +74,32 @@ inductive RetryConversationError where
   | second (error : LocalSseRetryError)
 deriving DecidableEq, Repr
 
-def runTwoRounds
+def runTwoRoundsWithFinish
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body))
     (source : RequestSource)
     (runner : ConversationRunner)
     (key : ApiKey)
     (body : String)
     (maxRetries : Nat := 1) :
     IO (Except RetryConversationError (RetryConversationResult source runner)) := do
-  match ← DeepSeekHarnessLocalSseRetry.runWithRetry source runner key body maxRetries with
+  match ← DeepSeekHarnessLocalSseRetry.runWithRetryAndFinish finish source runner key body
+      maxRetries with
   | .error error => pure (.error (.first error))
   | .ok first =>
-      match ← DeepSeekHarnessLocalSseRetry.runWithRetry source first.after key body
-          maxRetries with
+      match ← DeepSeekHarnessLocalSseRetry.runWithRetryAndFinish finish source first.after key
+          body maxRetries with
       | .error error => pure (.error (.second error))
       | .ok second => pure (.ok { first, second })
+
+def runTwoRounds
+    (source : RequestSource)
+    (runner : ConversationRunner)
+    (key : ApiKey)
+    (body : String)
+    (maxRetries : Nat := 1) :
+    IO (Except RetryConversationError (RetryConversationResult source runner)) :=
+  runTwoRoundsWithFinish finishText source runner key body maxRetries
 
 namespace Example
 

@@ -1627,14 +1627,17 @@ The bounded algebra/context/global layer now has sixty-eight explicit pieces:
 66. `Cordis.DeepSeekHarnessLocalSseRetry` composes that local streaming boundary with one
     transient HTTP retry. The fixture validates both requests, retains the first 503 as a typed
     failure, reuses the exact streaming plan for the second curl attempt, and proves that only
-    the accepted terminal body advances the dependent runner. Provider backoff, tool idempotency,
-    arbitrary retry policy, blocked-read cancellation, credentials/TLS, and deployed retry
-    equivalence remain external.
+    the accepted terminal body advances the dependent runner. `runWithRetryAndFinish` passes that
+    body to a caller-supplied text/tool/mixed/multi finisher, while `runWithRetry` remains the text
+    wrapper. Provider backoff, tool idempotency, arbitrary retry policy, blocked-read cancellation,
+    credentials/TLS, and deployed retry equivalence remain external.
 67. `Cordis.DeepSeekHarnessLocalSseRetryConversation` lifts the retry boundary over two dependent
-    conversation rounds. Each round validates both requests, retains one typed 503 and one
-    accepted terminal append, and the second request is rebuilt from the first round's exact
-    session endpoint. Provider backoff, idempotency, arbitrary retry policy, cancellation,
-    persistence, external effects, and deployed retry/conversation equivalence remain external.
+    conversation rounds. `runTwoRoundsWithFinish` carries the selected finisher through both
+    rounds, validates both requests, retains one typed 503 and one accepted terminal append per
+    round, and rebuilds the second request from the first round's exact session endpoint. The
+    executable variants cover text/tool/mixed/multi frame counts and call allocation. Provider
+    backoff, idempotency, arbitrary retry policy, cancellation, persistence, external effects, and
+    deployed retry/conversation equivalence remain external.
 68. `Cordis.DeepSeekHarnessLocalSseTimeout` composes that local streaming boundary with a real
     per-read timer. A delayed fixture flushes two valid lines, times out before the third, kills
     and waits the configured curl child, and retains the exact unfinished prefix; a zero-delay

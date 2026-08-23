@@ -1081,6 +1081,14 @@ both loopback wire certificates plus exact frame/tool-count projections. The exe
 proves the final sequence is the initial sequence plus two for all four finishers. This remains
 local process/HTTP evidence, not a provider or deployment equivalence theorem.
 
+`DeepSeekHarnessLocalSseRetry` now exposes the same finisher boundary across a real transient retry:
+`runWithRetryAndFinish` retains the typed 503 history and passes only the accepted SSE body to the
+caller-supplied text/tool/mixed/multi finisher, while `runWithRetry` remains the text wrapper.
+`DeepSeekHarnessLocalSseRetryConversation.runTwoRoundsWithFinish` carries that choice through two
+dependent retry rounds; executable variants retain two failures, frame counts, tool allocation,
+and the exact `2 -> 3` endpoint. Provider backoff, idempotency, cancellation, and deployed retry
+equivalence remain outside.
+
 [paper-pdf]: https://raw.githubusercontent.com/cordiverse/paper/948a07b369c62adb3b12e102458be5c18dfb69b9/paper.pdf
 [cordis-tree]: https://github.com/cordiverse/cordis/tree/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4
 [cordis-context]: https://github.com/cordiverse/cordis/blob/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4/packages/core/src/context.ts#L21-L77

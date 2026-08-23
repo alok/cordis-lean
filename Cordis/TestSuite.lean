@@ -4510,6 +4510,45 @@ private def testDeepSeekHarnessLocalSseRetryConversation : IO Unit := do
       assertEqual "local SSE retry conversation completes both accepted streams"
         (summary.firstCompleted, summary.secondCompleted)
         (expected.firstCompleted, expected.secondCompleted)
+  let checkVariant
+      (label : String)
+      (finish : (body : String) →
+        Except DeepSeekSessionRunner.ResponseError
+          (DeepSeekSessionRunner.FinishedResponse body))
+      (body : String)
+      (frames : Nat)
+      (calls : Nat) : IO Unit := do
+    match ← DeepSeekHarnessLocalSseRetryConversation.runTwoRoundsWithFinish finish
+        DeepSeekHarnessLocalSseRetryConversation.Example.source
+        DeepSeekHarnessLocalSseRetryConversation.Example.runner
+        { value := "fixture-key" } body 1 with
+    | .error error => fail s!"{label} local SSE retry conversation failed: {reprStr error}"
+    | .ok variant =>
+        let summary := DeepSeekHarnessLocalSseRetryConversation.Example.summarize variant
+        assertEqual (label ++ " retry conversation keeps two attempts per round")
+          (summary.firstRequests, summary.secondRequests) (2, 2)
+        assertEqual (label ++ " retry conversation validates every attempt")
+          (summary.firstValidRequests, summary.secondValidRequests) (2, 2)
+        assertEqual (label ++ " retry conversation keeps one failure per round")
+          (summary.firstFailures, summary.secondFailures) (1, 1)
+        assertEqual (label ++ " retry conversation keeps distinct dependent bodies")
+          summary.requestBodiesDistinct true
+        assertEqual (label ++ " retry conversation reaches two-round endpoint")
+          summary.finalNextSeq 3
+        assertEqual (label ++ " retry conversation completes both streams")
+          (summary.firstCompleted, summary.secondCompleted) (true, true)
+        assertEqual (label ++ " retry conversation keeps first frame count")
+          variant.first.response.wire.frames.length frames
+        assertEqual (label ++ " retry conversation keeps second frame count")
+          variant.second.response.wire.frames.length frames
+        assertEqual (label ++ " retry conversation allocates expected calls")
+          variant.second.after.nextCall calls
+  checkVariant "tool" DeepSeekSessionRunner.finishTool
+    DeepSeekRichToolStream.exampleToolStreamBody 3 2
+  checkVariant "mixed" DeepSeekSessionRunner.finishMixed
+    DeepSeekRichMixedStream.mixedStreamBody 8 2
+  checkVariant "multi" DeepSeekSessionRunner.finishMulti
+    DeepSeekRichMultiStream.multiBody 4 4
 
 private def testDeepSeekHarnessLocalSseTimeout : IO Unit := do
   match ← DeepSeekHarnessLocalSseTimeout.Example.timeoutRun with

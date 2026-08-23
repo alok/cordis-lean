@@ -239,15 +239,16 @@ result keeps the prepared streaming plan, delivered lines, reconstructed body, s
 finished text projection, and appended runner endpoint together; backpressure, blocked-read
 cancellation, reconnects, and deployed stream equivalence remain outside.
 `Cordis.DeepSeekHarnessLocalSseRetry` adds a real two-attempt loopback reconnect: the first valid
-request receives a typed transient HTTP 503, the second receives the flushed SSE body, and the
-result retains the failure history while appending only the accepted terminal response. Provider
-backoff, tool idempotency, arbitrary retry policy, blocked-read cancellation, and deployed retry
-equivalence remain outside.
+request receives a typed transient HTTP 503, the second receives the flushed SSE body, and
+`runWithRetryAndFinish` passes only that accepted body to a caller-supplied text/tool/mixed/multi
+finisher; `runWithRetry` remains the text wrapper. Provider backoff, tool idempotency, arbitrary
+retry policy, blocked-read cancellation, and deployed retry equivalence remain outside.
 `Cordis.DeepSeekHarnessLocalSseRetryConversation` lifts that retry boundary over two dependent
-conversation rounds: each round retains its transient failure and accepted append, while the
-second typed request is rebuilt from the first round's exact session endpoint. Provider backoff,
-idempotency, arbitrary retry policy, cancellation, persistence, external effects, and deployed
-retry/conversation equivalence remain outside.
+conversation rounds. `runTwoRoundsWithFinish` carries the selected finisher through both rounds,
+retains each transient failure and accepted append, and rebuilds the second typed request from the
+first round's exact session endpoint; the executable variants cover tool, mixed, and multi-call
+responses as well as text. Provider backoff, idempotency, arbitrary retry policy, cancellation,
+persistence, external effects, and deployed retry/conversation equivalence remain outside.
 `Cordis.DeepSeekHarnessPersistenceFileLocalSseRetryConversation` composes the same two dependent
 rounds with a real temporary-file archive read. The returned result keeps the `ReadCertificate`
 beside the restored runner, retains the exact archive/session equality, and checks the executable

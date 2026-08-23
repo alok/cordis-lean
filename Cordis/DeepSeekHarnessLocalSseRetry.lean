@@ -6,8 +6,9 @@ import Cordis.DeepSeekHarnessLocalSse
 `DeepSeekHarnessLocalSse` proves one real loopback HTTP/SSE attempt.  This module composes a
 bounded retry around that same process boundary: the fixture returns one validated transient HTTP
 failure, the second request receives the real flushed SSE body, and only that accepted terminal
-body is finished and appended to the dependent conversation runner.  The retry history retains
-the typed incremental failure instead of collapsing it into a generic client error.
+body is passed to a caller-supplied certified finisher and appended to the dependent conversation
+runner.  The retry history retains the typed incremental failure instead of collapsing it into a
+generic client error.  `runWithRetry` remains the text-finisher convenience wrapper.
 
 This is a local two-attempt reconnect witness.  It does not establish provider backoff,
 idempotency of external tools, arbitrary reconnect policies, blocked-read cancellation,
@@ -198,6 +199,8 @@ private def retryAttempts
         pure (.error (.stream error))
 
 private def runChild
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body))
     (source : RequestSource)
     (runner : ConversationRunner)
     (key : ApiKey)
@@ -229,7 +232,7 @@ private def runChild
                 match parseReport reportLine with
                 | none => pure (.error (.report reportLine))
                 | some (requests, validRequests) =>
-                    match finishText responseBody with
+                    match finish responseBody with
                     | .error error => pure (.error (.response error))
                     | .ok finished =>
                         if hExit : serverExit = 0 then
@@ -257,7 +260,9 @@ private def runChild
     stopServer child stderrTask
     pure (.error (.io (toString error)))
 
-def runWithRetry
+def runWithRetryAndFinish
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body))
     (source : RequestSource)
     (runner : ConversationRunner)
     (key : ApiKey)
@@ -276,9 +281,18 @@ def runWithRetry
         stderr := serverStdio.stderr
       }
       let stderrTask ← IO.asTask child.stderr.readToEnd Task.Priority.dedicated
-      runChild source runner key maxRetries child stderrTask
+      runChild finish source runner key maxRetries child stderrTask
     catch error =>
       pure (.error (.io (toString error)))
+
+def runWithRetry
+    (source : RequestSource)
+    (runner : ConversationRunner)
+    (key : ApiKey)
+    (body : String)
+    (maxRetries : Nat := 1) :
+    IO (Except LocalSseRetryError (LocalSseRetryResult source runner)) :=
+  runWithRetryAndFinish finishText source runner key body maxRetries
 
 namespace Example
 

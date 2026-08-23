@@ -1951,6 +1951,14 @@ projections, and the `2 -> 4` final sequence for all four finishers. This is sti
 one-shot process/HTTP evidence and does not establish returned-body provenance, remote/provider
 authenticity, persistence, reconnects, blocked reads, or deployed Harness equivalence.
 
+`DeepSeekHarnessLocalSseRetry` adds `runWithRetryAndFinish`: after the typed transient 503, only the
+accepted SSE body reaches the caller-supplied text/tool/mixed/multi finisher; `runWithRetry` keeps
+the text convenience path. `DeepSeekHarnessLocalSseRetryConversation.runTwoRoundsWithFinish`
+retains the typed failure and append certificates across two dependent rounds, with executable
+frame/tool-count variants and exact `2 -> 3` growth. This remains local retry evidence; provider
+backoff, idempotency, blocked-read interruption, persistence, and deployed retry equivalence stay
+outside.
+
 [paper-pdf]: https://raw.githubusercontent.com/cordiverse/paper/948a07b369c62adb3b12e102458be5c18dfb69b9/paper.pdf
 [cordis-fiber]: https://github.com/cordiverse/cordis/blob/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4/packages/core/src/fiber.ts#L78-L485
 [cordis-reflect]: https://github.com/cordiverse/cordis/blob/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4/packages/core/src/reflect.ts#L61-L227

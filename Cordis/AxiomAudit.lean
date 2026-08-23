@@ -1268,6 +1268,8 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessLocalSseIndexedLoop.Example.final_nextSeq
 #print axioms Cordis.DeepSeekHarnessLocalSseIndexedLoop.Example.runWithFinish
 #print axioms Cordis.DeepSeekHarnessLocalSseIndexedLoop.Example.run
+#print axioms Cordis.DeepSeekHarnessLocalSseRetry.runWithRetryAndFinish
+#print axioms Cordis.DeepSeekHarnessLocalSseRetryConversation.runTwoRoundsWithFinish
 #print axioms Cordis.DeepSeekHarnessExtensions.buildRequestPlanFor
 #print axioms Cordis.DeepSeekHarnessExtensions.buildTypedRequestPlanFor
 #print axioms Cordis.DeepSeekHarnessExtensions.buildStreamingRequestPlanFor
