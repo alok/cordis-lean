@@ -124,6 +124,51 @@ def attach
   GenericSessionHarness.RunnerState.attachCompletedDispatch state session aligned
     result.runnerResult
 
+/-! ## Reusable process-to-runner handoff -/
+
+/-- An accepted observation together with its proof-carrying generic dispatch. -/
+structure ObservedDispatch
+    {Model Capability : Type u}
+    {cfg : GenericHarness.Config Model Capability}
+    {spec : ToolSpec Model Capability}
+    {binding : ProcessBinding spec}
+    {invocation : ToolSpec.Invocation spec}
+    {turn step : Nat}
+    (state : GenericHarness.Runner cfg (.step turn step []))
+    (observed : ObservedResult binding invocation) where
+  accepted : AcceptedResult observed
+  result : ExternalDispatchResult accepted state
+
+/--
+Observe one configured process and, when a caller can prove acceptance, dispatch it into the
+generic runner.  The `none` branch is deliberately not an error: it covers a nonzero process
+exit or an observation for which the caller cannot establish the tool postcondition.  The
+observation remains in the returned sigma value, so a caller can inspect the exact stdout,
+stderr, exit code, JSON, and typed result before choosing a policy-level rejection.
+-/
+def observeAndDispatch
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    {spec : ToolSpec Model Capability}
+    {binding : ProcessBinding spec}
+    {invocation : ToolSpec.Invocation spec}
+    {turn step : Nat}
+    (state : GenericHarness.Runner cfg (.step turn step []))
+    (certify : ∀ observed : ObservedResult binding invocation,
+      observed.process.exitCode = 0 → Option (ObservedDispatch state observed)) :
+    IO (Except ObservationError
+      (Sigma fun observed : ObservedResult binding invocation =>
+        Option (ObservedDispatch state observed))) := do
+  match ← observe binding invocation with
+  | .error error => pure (.error error)
+  | .ok observed =>
+      if exit_zero : observed.process.exitCode = 0 then
+        match certify observed exit_zero with
+        | none => pure (.ok ⟨observed, none⟩)
+        | some dispatch => pure (.ok ⟨observed, some dispatch⟩)
+      else
+        pure (.ok ⟨observed, none⟩)
+
 /-! ## Concrete read-process bridge over the existing counter catalog -/
 
 def counterReadBinding : ProcessBinding Cordis.Examples.Counter.readSpec where
@@ -255,6 +300,35 @@ def counterReadDispatch
       counterReadIssued counterReadIssuance counterReadConsumption
       (counterReadPolicy bridge)).runnerResult
   }
+
+def counterReadCertifyAndDispatch
+    (observed : ObservedResult counterReadBinding counterReadInvocation)
+    (exit_zero : observed.process.exitCode = 0) :
+    Option (ObservedDispatch counterReadRunner observed) :=
+  match result_eq : observed.result with
+  | .error _ => none
+  | .ok value =>
+      if value_eq : (show Nat from value) = 7 then
+        have result_eq' : observed.result = .ok (7 : Nat) := by
+          rw [result_eq, value_eq]
+        let post : Cordis.Examples.Counter.readSpec.post
+            counterReadInvocation.input counterReadInvocation.before observed.result 7 := by
+          rw [result_eq']
+          simp [Cordis.Examples.Counter.readSpec, counterReadInvocation,
+            counterReadCall, Cordis.Examples.Counter.readCall]
+        let accepted := accept exit_zero 7 post
+        some {
+          accepted
+          result := counterReadDispatch accepted result_eq' rfl
+        }
+      else
+        none
+
+def counterReadFailCertify
+    (observed : ObservedResult counterReadFailBinding counterReadInvocation)
+    (_exit_zero : observed.process.exitCode = 0) :
+    Option (ObservedDispatch counterReadRunner observed) :=
+  none
 
 def counterReadSession : Session.Session Session.noExtensions :=
   let empty := Session.Session.empty Session.noExtensions

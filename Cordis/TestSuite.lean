@@ -2538,70 +2538,60 @@ private def testDeepSeekExternalToolRound : IO Unit := do
         fail "external tool round decoded an unexpected typed failure"
 
 private def testDeepSeekExternalGenericRound : IO Unit := do
-  match ← DeepSeekExternalToolProcess.observe
-      DeepSeekExternalGenericRound.counterReadBinding
-      DeepSeekExternalGenericRound.counterReadInvocation with
+  match ← DeepSeekExternalGenericRound.observeAndDispatch
+      DeepSeekExternalGenericRound.counterReadRunner
+      DeepSeekExternalGenericRound.counterReadCertifyAndDispatch with
   | .error error => fail s!"external generic success fixture failed: {reprStr error}"
-  | .ok observed =>
-      match result_eq : observed.result with
+  | .ok ⟨observed, none⟩ =>
+      fail "external generic success fixture was not certified"
+  | .ok ⟨observed, some dispatch⟩ =>
+      assertEqual "external generic success retains the zero exit code"
+        observed.process.exitCode 0
+      match observed.result with
       | .ok value =>
         let typedValue : Nat := value
-        if value_eq : typedValue = 7 then
-          if exit_eq : observed.process.exitCode = 0 then
-            have result_eq' := DeepSeekExternalGenericRound.counterReadResult_eq
-              result_eq value_eq
-            have post : Cordis.Examples.Counter.readSpec.post
-                DeepSeekExternalGenericRound.counterReadInvocation.input
-                DeepSeekExternalGenericRound.counterReadInvocation.before
-                observed.result (7 : Nat) := by
-              rw [result_eq']
-              simp [Cordis.Examples.Counter.readSpec,
-                DeepSeekExternalGenericRound.counterReadInvocation,
-                DeepSeekExternalGenericRound.counterReadCall,
-                Cordis.Examples.Counter.readCall]
-            let accepted := DeepSeekExternalToolProcess.accept exit_eq 7 post
-            let attached := DeepSeekExternalGenericRound.counterReadAttached
-              accepted result_eq' rfl
-            assertEqual "external generic dispatch advances the call id"
-              attached.runner.nextCall 1
-            assertEqual "external generic dispatch retains the certified model"
-              attached.runner.model 7
-            assertEqual "external generic dispatch appends one record"
-              attached.runner.records.length 1
-            assertEqual "external generic dispatch appends four physical events"
-              attached.session.events.length 4
-            assertEqual "external generic dispatch exposes one model message"
-              attached.session.messages.length 1
-            pure ()
-          else
-            fail "external generic success fixture returned a nonzero exit code"
-        else
-          fail "external generic success fixture decoded an unexpected value"
-      | .error _ => fail "external generic success fixture decoded an unexpected failure"
-  match ← DeepSeekExternalToolProcess.observe
-      DeepSeekExternalGenericRound.counterReadFailBinding
-      DeepSeekExternalGenericRound.counterReadInvocation with
+        assertEqual "external generic success decodes the typed value" typedValue 7
+      | .error _ => fail "external generic success decoded an unexpected typed failure"
+      let attached := DeepSeekExternalGenericRound.attach dispatch.result
+        DeepSeekExternalGenericRound.counterReadSession
+        DeepSeekExternalGenericRound.counterReadSession_aligned
+      assertEqual "external generic dispatch advances the call id"
+        attached.runner.nextCall 1
+      assertEqual "external generic dispatch retains the certified model"
+        attached.runner.model 7
+      assertEqual "external generic dispatch appends one record"
+        attached.runner.records.length 1
+      assertEqual "external generic dispatch appends four physical events"
+        attached.session.events.length 4
+      assertEqual "external generic dispatch exposes one model message"
+        attached.session.messages.length 1
+      pure ()
+  match ← DeepSeekExternalGenericRound.observeAndDispatch
+      DeepSeekExternalGenericRound.counterReadRunner
+      (binding := DeepSeekExternalGenericRound.counterReadFailBinding)
+      (invocation := DeepSeekExternalGenericRound.counterReadInvocation)
+      DeepSeekExternalGenericRound.counterReadFailCertify with
   | .error error => fail s!"external generic failure fixture was not observable: {reprStr error}"
-  | .ok observed =>
+  | .ok ⟨observed, none⟩ =>
       assertEqual "external generic failure retains the nonzero exit code"
         observed.process.exitCode 7
-      match result_eq : observed.result with
+      match observed.result with
       | .ok value =>
         let typedValue : Nat := value
         if value_eq : typedValue = 7 then
           if exit_eq : observed.process.exitCode = 7 then
-            assertEqual "external generic failure still decodes typed stdout"
-              typedValue 7
+            assertEqual "external generic failure still decodes typed stdout" typedValue 7
             have nonzero : observed.process.exitCode ≠ 0 := by
               rw [exit_eq]
               decide
             let _noAccepted := DeepSeekExternalGenericRound.noAccepted_of_nonzero nonzero
             pure ()
           else
-            fail "external generic failure fixture returned an unexpected exit code"
+            fail "external generic failure returned an unexpected exit code"
         else
           fail "external generic failure decoded an unexpected value"
       | .error _ => fail "external generic failure did not retain the typed result"
+  | .ok ⟨_, some _⟩ => fail "external generic failure was incorrectly certified"
 
 private def testDeepSeekAsyncStreamCancellation : IO Unit := do
   let race ← DeepSeekAsyncStreamCancellation.exampleCancellationRace

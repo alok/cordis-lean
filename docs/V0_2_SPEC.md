@@ -51,6 +51,11 @@ configured command, stdout/stderr, exit code, parsed JSON, and typed decoded res
 only a supplied `ToolSpec.post` proof constructs `AcceptedResult.certified` and a
 `ToolSpec.CertifiedOutcome`. Process identity, sandboxing, authentication, exactly-once effects,
 cleanup, and deployed Harness equivalence remain external.
+`Cordis.DeepSeekExternalGenericRound` adds the reusable process-to-generic-runner handoff:
+`observeAndDispatch` retains the complete typed observation and requires a caller-supplied
+dependent certificate that constructs the generic dispatch result. The executable counter fixture
+checks model, lease, call-ID, record, and rich-session advancement; a decodable nonzero-exit process
+is retained but cannot be certified.
 `Cordis.DeepSeekAsyncStreamCancellation` carries the typed pre-round cancellation policy through
 that race. Its fixture cancels one child before dispatch while the other remains a real streamed
 tool/text continuation; the accepted cancellation result preserves its reason, unchanged
@@ -770,6 +775,10 @@ Current machine-checked evidence includes:
   `Session` append (log-only tool call plus cited surface tool result) with sequence, message, and
   protocol-projection theorems; the result renderer is supplied and provider/deployment semantics
   remain external;
+- `Cordis.DeepSeekExternalGenericRound`, providing `observeAndDispatch`: the configured process
+  observation is retained in a dependent sigma, and a caller-supplied acceptance/dispatch
+  certificate is the only route to `ExternalDispatchResult`; the success and nonzero-exit counter
+  fixtures exercise the generic runner/session boundary;
 - `Cordis.DeepSeekAsyncStreamCancellation`, exercising a real cancellation-first streamed child
   alongside a process-backed sibling and checking the typed stop/endpoint evidence;
 - `Cordis.DeepSeekAsyncStreamRetryCancellation`, exercising the same cancellation-first race over

@@ -1877,6 +1877,12 @@ equivalence remain outside.
 `ExternalToolRound` certifies the exact two-event session append and its sequence/message/protocol
 projections. The result renderer is explicit input, and this does not establish process identity,
 provider wire compatibility, or deployed Harness behavior.
+`DeepSeekExternalGenericRound` makes the process-to-generic handoff reusable: `observeAndDispatch`
+retains the full typed observation and accepts only a caller-supplied dependent certificate that
+also constructs the generic `ExternalDispatchResult`. Its executable counter fixture advances the
+generic runner and rich-session state on success; a decodable nonzero-exit observation remains
+uncertified. Process identity, sandboxing, authentication, exactly-once effects, cleanup, and
+deployed Harness equivalence remain outside.
 
 [paper-pdf]: https://raw.githubusercontent.com/cordiverse/paper/948a07b369c62adb3b12e102458be5c18dfb69b9/paper.pdf
 [cordis-fiber]: https://github.com/cordiverse/cordis/blob/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4/packages/core/src/fiber.ts#L78-L485
