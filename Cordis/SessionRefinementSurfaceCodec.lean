@@ -10,9 +10,10 @@ the local Harness fixtures.  The encoder emits the exact outer metadata required
 preserves typed safe-integer witnesses, and retains `isError` as data rather than translating it to
 a local success flag.
 
-Assistant text/reasoning and complete tool-call surface messages are now encoded as well as decoded.
-Image blocks, request metadata, and provider/tool-owned opaque fields remain fail-closed;
-source-event references and replacement operations are emitted from their typed metadata.  A
+Assistant text/reasoning, tagged raw image, and complete tool-call surface messages are now
+encoded as well as decoded.  Image schema semantics, request metadata, and provider/tool-owned
+opaque fields remain external or fail-closed; source-event references and replacement operations
+are emitted from their typed metadata.  A
 successful AST round trip is proved, then composed with the
 existing JSONL parser and UTF-8 renderer.  This is a source-shaped local codec, not a claim of
 deployed logger compatibility, provider obedience, or complete future event-union coverage.
@@ -64,10 +65,18 @@ def textBlockJson (block : WireTextBlock) : Lean.Json :=
 def textBlocksJson (blocks : List WireTextBlock) : Lean.Json :=
   .arr (blocks.map textBlockJson).toArray
 
+def imageBlockJson (raw : Lean.Json) : Except EncodeError Lean.Json :=
+  match raw with
+  | .obj _ =>
+      match field? raw "type" with
+      | some (.str "image") => .ok raw
+      | _ => .error (.unsupportedAssistantBlock "image")
+  | _ => .error (.unsupportedAssistantBlock "image")
+
 def assistantBlockJson : WireAssistantBlock → Except EncodeError Lean.Json
   | .text text => .ok (rawObj [("type", .str "text"), ("text", .str text)])
   | .reasoning text => .ok (rawObj [("type", .str "reasoning"), ("text", .str text)])
-  | .image _ => .error (.unsupportedAssistantBlock "image")
+  | .image raw => imageBlockJson raw
   | .toolCall providerId name arguments =>
       .ok (rawObj [("type", .str "tool-call"), ("id", .str providerId),
         ("name", .str name), ("arguments", .str arguments)])
@@ -226,6 +235,38 @@ private theorem textBlocks_decode (path : List PathSegment) (blocks : List WireT
   change decodeTextBlocks.loop path 0 (blocks.map textBlockJson) = .ok blocks
   exact textBlocks_loop_decode path 0 blocks
 
+private theorem imageBlock_decode (path : List PathSegment) (raw : Lean.Json)
+    {json : Lean.Json} (encoded : imageBlockJson raw = .ok json) :
+    decodeAssistantBlock path json = .ok (.image raw) := by
+  cases raw with
+  | obj fields =>
+      unfold imageBlockJson at encoded
+      cases hType : field? (.obj fields) "type" with
+      | none => simp [hType] at encoded
+      | some value =>
+          cases value with
+          | str tag =>
+              by_cases hTag : tag = "image"
+              · subst tag
+                rw [hType] at encoded
+                cases encoded
+                have hType' : objectField? (Lean.Json.obj fields) "type" =
+                    some (.str "image") := by
+                  simpa [field?] using hType
+                simp [decodeAssistantBlock, decodeRequiredString,
+                  decodeString, requireField, field?, hType'] <;> rfl
+              · simp [hType, hTag] at encoded
+          | num value => simp [hType] at encoded
+          | bool value => simp [hType] at encoded
+          | arr values => simp [hType] at encoded
+          | obj nested => simp [hType] at encoded
+          | null => simp [hType] at encoded
+  | str value => simp [imageBlockJson] at encoded
+  | num value => simp [imageBlockJson] at encoded
+  | bool value => simp [imageBlockJson] at encoded
+  | arr values => simp [imageBlockJson] at encoded
+  | null => simp [imageBlockJson] at encoded
+
 private theorem assistantBlock_decode (path : List PathSegment)
     (block : WireAssistantBlock) {json : Lean.Json}
     (encoded : assistantBlockJson block = .ok json) :
@@ -240,7 +281,7 @@ private theorem assistantBlock_decode (path : List PathSegment)
       simp_all (maxSteps := 1000000) [rawObj,
         decodeAssistantBlock, decodeRequiredString, requireField, field?] <;> rfl
   | image raw =>
-      simp [assistantBlockJson] at encoded
+      exact imageBlock_decode path raw encoded
   | toolCall providerId name arguments =>
       cases encoded
       simp_all (maxSteps := 1000000) [rawObj,
@@ -1014,6 +1055,9 @@ def executableAssistantMessage : WireAssistantMessage := {
   provider := "fixture-provider"
   model := "fixture-model"
   content := [.text "forecast", .reasoning "checked",
+    .image (rawObj [("type", .str "image"), ("mimeType", .str "image/png"),
+      ("url", .str "https://example.invalid/forecast.png"),
+      ("alt", .str "forecast")]),
     .toolCall "call-weather" "weather" "{\"city\":\"Cupertino\"}"]
   usage := some {
     inputTokens := { value := 11, safe := by decide }
@@ -1039,6 +1083,9 @@ theorem executableAssistantEvent_encodable :
   let content : Lean.Json := .arr #[
     rawObj [("type", .str "text"), ("text", .str "forecast")],
     rawObj [("type", .str "reasoning"), ("text", .str "checked")],
+    rawObj [("type", .str "image"), ("mimeType", .str "image/png"),
+      ("url", .str "https://example.invalid/forecast.png"),
+      ("alt", .str "forecast")],
     rawObj [("type", .str "tool-call"), ("id", .str "call-weather"),
       ("name", .str "weather"), ("arguments", .str "{\"city\":\"Cupertino\"}")]]
   refine ⟨assistantEventJsonWithMetadata { value := 8, safe := by decide }

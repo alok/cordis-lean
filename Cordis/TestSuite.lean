@@ -7502,10 +7502,16 @@ private def testSessionRefinementSurfaceCodec : IO Unit := do
                     | .reasoning text => "reasoning:" ++ text
                     | .image _ => "image"
                     | .toolCall _ _ _ => "tool-call"
-                  assertEqual "assistant surface AST retains text/reasoning/tool-call blocks" tags
-                    ["text:forecast", "reasoning:checked", "tool-call"]
+                  assertEqual "assistant surface AST retains text/reasoning/image/tool-call blocks" tags
+                    ["text:forecast", "reasoning:checked", "image", "tool-call"]
                   match message.content with
-                  | [_text, _reasoning, .toolCall providerId name arguments] =>
+                  | [_text, _reasoning, .image raw, .toolCall providerId name arguments] =>
+                      assertEqual "assistant surface AST retains opaque tagged image JSON"
+                        (Lean.Json.compress raw)
+                        (Lean.Json.compress (SessionRefinement.SurfaceCodec.rawObj [
+                          ("type", .str "image"), ("mimeType", .str "image/png"),
+                          ("url", .str "https://example.invalid/forecast.png"),
+                          ("alt", .str "forecast")]))
                       assertEqual "assistant surface AST retains tool-call provider ID"
                         providerId "call-weather"
                       assertEqual "assistant surface AST retains tool-call name"
