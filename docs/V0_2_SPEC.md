@@ -2196,6 +2196,13 @@ the streaming request, process body, rich/tool execution, and exact endpoint; th
 evidence, not provider/schema authenticity, durability, blocked-read cancellation, external
 effects, or deployed Harness equivalence.
 
+`Cordis.DeepSeekHarnessPayloadPersistenceStreamRetry` carries the payload ledger through the
+fuel-bounded two-round process/retry continuation. Expanded rows and typed count remain indexed
+beside the restored session, both retry rounds, tool execution, terminal completion, and final
+runner/model; the executable fixture checks `8 -> 12`, eight payload rows, and two rounds. This is
+local process/payload evidence, not durable recovery, backoff/idempotency, blocked-read
+cancellation, external effects, or deployed Harness equivalence.
+
 `Cordis.DeepSeekHarnessPersistenceStreamRetry` composes that actual process outcome with the
 fuel-bounded streamed conversation loop. The restored runner remains the initial trace index; the
 fixture emits two counter calls, executes them through the dependent generic configuration, then

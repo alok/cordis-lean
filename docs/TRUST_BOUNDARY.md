@@ -429,6 +429,13 @@ fixture reaches `8 -> 10` with body length `523` and eight typed payload rows. T
 process/payload-shape evidence, not provider/schema authenticity, durability, blocked-read
 cancellation, external effects, or deployed equivalence.
 
+`DeepSeekHarnessPayloadPersistenceStreamRetry` carries that payload ledger through the existing
+fuel-bounded two-round process/retry trace. The restored session and expanded payload rows remain
+indexed beside both typed rounds, tool execution, terminal completion, and the final runner/model;
+the fixture reaches `8 -> 12` with eight payload rows and two rounds. This is local
+process/payload evidence only, not durable recovery, backoff/idempotency, blocked-read
+cancellation, external effects, or deployed Harness equivalence.
+
 `DeepSeekHarnessPersistenceStreamRetry` extends that process boundary to a dependent two-round
 continuation from the restored runner. Its shell fixture emits the two-call counter stream, runs
 the typed tool executions, and emits terminal text after the first tool result is serialized into

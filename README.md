@@ -695,6 +695,13 @@ endpoint together; the fixture checks `8 -> 10`, body length `523`, and eight re
 This is local process plus payload-shape evidence, not provider/schema authenticity, durability,
 blocked-read cancellation, external effects, or deployed Harness equivalence.
 
+`Cordis.DeepSeekHarnessPayloadPersistenceStreamRetry` carries the same payload ledger through the
+fuel-bounded two-round process-backed retry conversation. Its dependent result retains the
+restored session/payload equations beside the retry trace, tool execution, terminal text round,
+and final runner/model; the fixture checks `8 -> 12`, eight payload rows, two rounds, and a typed
+completed stop. This remains deterministic local process/payload evidence, not durable recovery,
+backoff/idempotency, blocked-read cancellation, external effects, or deployed Harness equivalence.
+
 `Cordis.DeepSeekHarnessPersistenceStreamRetry` extends that actual process boundary to a
 two-round continuation from the restored archive runner. The shell fixture emits the two-call
 counter stream first, then switches to terminal text after the first tool result appears in the

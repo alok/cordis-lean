@@ -118,6 +118,7 @@ import Cordis.DeepSeekHarnessEventSimulation
 import Cordis.DeepSeekHarnessCompleteSimulation
 import Cordis.DeepSeekHarnessPayloadSimulation
 import Cordis.DeepSeekHarnessPayloadPersistenceProcessOutcome
+import Cordis.DeepSeekHarnessPayloadPersistenceStreamRetry
 import Cordis.DeepSeekHarnessEventArchiveReplay
 import Cordis.DeepSeekHarnessEventIgnorableRunner
 import Cordis.DeepSeekHarnessEventIgnorableTransport
@@ -6739,6 +6740,27 @@ private def testDeepSeekHarnessPayloadPersistenceProcessOutcome : IO Unit := do
       let _endpoint := DeepSeekHarnessPayloadPersistenceProcessOutcome.process_endpoint run
       pure ()
 
+private def testDeepSeekHarnessPayloadPersistenceStreamRetry : IO Unit := do
+  match ← DeepSeekHarnessPayloadPersistenceStreamRetry.runSummary with
+  | .error _ => fail "payload persistence stream retry summary failed"
+  | .ok summary =>
+      assertEqual "payload persistence stream retry reaches its executable summary"
+        (DeepSeekHarnessPayloadPersistenceStreamRetry.summaryMatchesFixture summary) true
+      assertEqual "payload persistence stream retry retains eight payload rows"
+        summary.payloadLength 8
+      assertEqual "payload persistence stream retry completes two rounds"
+        summary.traceLength 2
+  match ← DeepSeekHarnessPayloadPersistenceStreamRetry.runFixture with
+  | .error _ => fail "payload persistence stream retry fixture failed"
+  | .ok run =>
+      let _session :=
+        DeepSeekHarnessPayloadPersistenceStreamRetry.restored_session_eq_archive run
+      let _raw :=
+        DeepSeekHarnessPayloadPersistenceStreamRetry.restored_payload_raw_eq_expanded run
+      let _length :=
+        DeepSeekHarnessPayloadPersistenceStreamRetry.restored_payload_length_eq run
+      pure ()
+
 private def testDeepSeekHarnessEventArchiveReplay : IO Unit := do
   match DeepSeekHarnessEventArchiveReplay.toolArchiveReplay with
   | .error error => fail s!"archive-aware replay failed: {reprStr error}"
@@ -10079,6 +10101,7 @@ def run : IO Unit := do
   testDeepSeekHarnessCompleteSimulation
   testDeepSeekHarnessPayloadSimulation
   testDeepSeekHarnessPayloadPersistenceProcessOutcome
+  testDeepSeekHarnessPayloadPersistenceStreamRetry
   testDeepSeekHarnessEventArchiveReplay
   testDeepSeekHarnessEventIgnorableRunner
   testDeepSeekHarnessEventIgnorableTransport

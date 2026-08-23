@@ -1169,3 +1169,10 @@ payload rows and typed count beside the streaming request, body, rich/tool execu
 endpoint; the fixture checks `8 -> 10`, body length `523`, and eight typed rows. This is local
 process/payload-shape evidence only, not provider/schema authenticity, durability, cancellation,
 external effects, or deployed Harness equivalence.
+
+`Cordis.DeepSeekHarnessPayloadPersistenceStreamRetry` carries the same lossless payload ledger
+through the two-round process-backed retry continuation. The dependent trace retains restored
+session/payload equations, both typed rounds, tool execution, terminal completion, and final
+runner/model; its fixture checks `8 -> 12`, eight payload rows, and two rounds. This remains local
+process/payload evidence only, not durable recovery, retry policy equivalence, cancellation,
+external effects, or deployed Harness equivalence.
