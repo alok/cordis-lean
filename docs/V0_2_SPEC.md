@@ -779,6 +779,10 @@ Current machine-checked evidence includes:
   into a conditional fuel-bounded normalizer whose authority supplies normal-form decisions,
   oriented links, and a strictly decreasing natural measure; strategy, canonical form, dynamic
   termination, confluence, Lemma 72, and Theorem 73 remain external;
+- `Cordis.GlobalPaperTraceBidirectionalConfluence`, lifting the decreasing/local-join Newman
+  kernel to that bidirectional authority; explicit selected-edge, local-join, measure-decrease,
+  and normal-form-equivalence laws yield unique terminal packages for successful runs, while
+  CORDIS-specific joins, strategy, confluence, Lemma 72, and Theorem 73 remain external;
 - `Cordis.GlobalProgress`, distinguishing configured-oracle rejection from the permissive raw
   relation, kernel-refuting progress under exhausted names, and proving conditional state-local
   no-deadlock from finite precedence and exact execution/recovery authorities;
@@ -1269,6 +1273,12 @@ oriented link, and strict Nat-measure decrease; `normalize_some` returns a finit
 whose endpoint is birth-erased related to the source and whose rule/actor lists are permutations.
 It does not derive a strategy, canonical form, dynamic termination, confluence, Lemma 72, or
 Theorem 73.
+
+`Cordis.GlobalPaperTraceBidirectionalConfluence` applies the generic decreasing/local-join kernel
+to this authority. `ConfluentAuthority` makes the selected oriented links explicit rewrite edges,
+requires local joinability and normal-form equivalence, and proves that any two successful
+normalizer results have equal final dependent packages. This is conditional metatheory only; the
+current dynamics do not supply those joins or a canonical strategy.
 
 The corrected progress slice is specified in
 [`GLOBAL_PROGRESS_SPEC.md`](GLOBAL_PROGRESS_SPEC.md) and implemented by `Cordis.GlobalProgress`.

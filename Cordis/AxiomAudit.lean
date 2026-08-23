@@ -175,6 +175,7 @@ import Cordis.GlobalPaperTraceBackwardRewrite
 import Cordis.GlobalPaperTraceBackwardNormalization
 import Cordis.GlobalPaperTraceBidirectionalNormalization
 import Cordis.GlobalPaperTraceBidirectionalNormalizer
+import Cordis.GlobalPaperTraceBidirectionalConfluence
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalPaperTraceNormalizer
@@ -2745,6 +2746,20 @@ namespace Example
 #print axioms executableFuel_eq
 end Example
 end Cordis.GlobalPaperTraceBidirectionalNormalizer
+namespace Cordis.GlobalPaperTraceBidirectionalConfluence
+#print axioms AuthorityStep
+#print axioms AuthorityLinked
+#print axioms authoritySystem
+#print axioms path_of_authorityLinked
+#print axioms path_lift_to_rewrite
+#print axioms normalizeFuel_authorityLinked
+#print axioms normalize_authorityLinked
+#print axioms normalize_results_unique
+namespace Example
+#print axioms emptyConfluent
+#print axioms empty_normalizer_unique
+end Example
+end Cordis.GlobalPaperTraceBidirectionalConfluence
 namespace Cordis.GlobalPaperTraceDeletion
 #print axioms detailedRule_eq_of_orchestration
 #print axioms replay_detailedRules_eq

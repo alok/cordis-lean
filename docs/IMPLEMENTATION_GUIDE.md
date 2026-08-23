@@ -3296,6 +3296,10 @@ supplies normal-form decisions, an oriented link at every non-normal package, an
 decreasing Nat measure, so `normalize_some` constructs a finite terminal chain with the same
 birth-erased relation and rule/actor permutations. It still does not derive the strategy, measure,
 dynamic termination, canonical form, confluence, Lemma 72, or Theorem 73.
+`GlobalPaperTraceBidirectionalConfluence` then reuses the decreasing/local-join Newman kernel for
+that authority. A `ConfluentAuthority` explicitly identifies selected links with rewrite edges,
+supplies local joins and normal-form equivalence, and proves equality of any two successful final
+packages; it does not infer those premises or claim CORDIS-specific confluence.
 `GlobalPaperRelation` now supplies that finite relation: it erases only allocator clock/birth from
 current rule control, relates the opposite insertion endpoints, and proves bidirectional
 well-formed orchestration replay with assignment transport. From a well-formed source carrying

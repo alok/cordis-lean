@@ -187,6 +187,7 @@ import Cordis.GlobalPaperTraceBackwardRewrite
 import Cordis.GlobalPaperTraceBackwardNormalization
 import Cordis.GlobalPaperTraceBidirectionalNormalization
 import Cordis.GlobalPaperTraceBidirectionalNormalizer
+import Cordis.GlobalPaperTraceBidirectionalConfluence
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalPaperTraceNormalizer
@@ -9680,6 +9681,11 @@ private def testGlobalPaperTraceBidirectionalNormalizer : IO Unit := do
     Cordis.GlobalPaperTraceBidirectionalNormalizer.Example.executableFuel
     0
 
+private def testGlobalPaperTraceBidirectionalConfluence : IO Unit := do
+  let _unique :=
+    Cordis.GlobalPaperTraceBidirectionalConfluence.Example.empty_normalizer_unique
+  pure ()
+
 private def testGlobalPaperTraceNormalization : IO Unit := do
   let _related := GlobalPaperTraceNormalization.Example.empty_chain_related
   let _rules := GlobalPaperTraceNormalization.Example.empty_chain_rules
@@ -10304,6 +10310,7 @@ def run : IO Unit := do
   testGlobalPaperTraceBackwardNormalization
   testGlobalPaperTraceBidirectionalNormalization
   testGlobalPaperTraceBidirectionalNormalizer
+  testGlobalPaperTraceBidirectionalConfluence
   testGlobalPaperTraceDeletion
   testGlobalPaperTraceNormalization
   testGlobalPaperTraceNormalizer
