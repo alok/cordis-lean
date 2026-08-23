@@ -24,7 +24,7 @@ namespace Cordis.GlobalNamePaperRelation
 open Cordis.GlobalRegistry Cordis.GlobalDynamics Cordis.GlobalLifecycle
 open Cordis.GlobalRelations Cordis.GlobalPaperRelation
 open Cordis.GlobalNameAction Cordis.GlobalNameLifecycle
-open Cordis.GlobalCalculus Cordis.GlobalNameTraceAction
+open Cordis.GlobalCalculus Cordis.GlobalNameTraceAction Cordis.GlobalTraceRewrite
 
 universe u
 
@@ -172,6 +172,47 @@ theorem nameActionPaperRelated_trace_endpoint
     (trace : GlobalCalculus.Trace dynamics inertia before after) :
     NameActionPaperRelated action values after (actState action after) :=
   nameActionPaperRelated_actState action values (trace.preservesWellFormed beforeWf)
+
+/-! ## Exact acted traces with paper-visible endpoint evidence -/
+
+structure AssignedTracePaperEndpoint
+    (action : NameAction sig Ambient) (values : ValueSetoids sig)
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    {before after : State catalog Ambient} (beforeWf : WellFormed before)
+    (trace : GlobalCalculus.Trace dynamics inertia before after)
+    (assignment : TraceProgramAssignment dynamics inertia trace)
+    (activationTransport : ActivationAssignmentTransport assumptions) where
+  acted : AssignedForwardTrace assumptions beforeWf trace assignment activationTransport
+  paperRelated : NameActionPaperRelated action values after (actState action after)
+
+noncomputable def assignedTracePaperEndpoint
+    (action : NameAction sig Ambient) (values : ValueSetoids sig)
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    {before after : State catalog Ambient} (beforeWf : WellFormed before)
+    (trace : GlobalCalculus.Trace dynamics inertia before after)
+    (assignment : TraceProgramAssignment dynamics inertia trace)
+    (activationTransport : ActivationAssignmentTransport assumptions) :
+    AssignedTracePaperEndpoint action values assumptions beforeWf trace assignment
+      activationTransport :=
+  { acted := assignedForwardTrace assumptions beforeWf trace assignment activationTransport
+    paperRelated := nameActionPaperRelated_actState action values
+      (trace.preservesWellFormed beforeWf) }
+
+theorem assignedTracePaperEndpoint_acted_eq
+    (action : NameAction sig Ambient) (values : ValueSetoids sig)
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    {before after : State catalog Ambient} (beforeWf : WellFormed before)
+    (trace : GlobalCalculus.Trace dynamics inertia before after)
+    (assignment : TraceProgramAssignment dynamics inertia trace)
+    (activationTransport : ActivationAssignmentTransport assumptions) :
+    (assignedTracePaperEndpoint action values assumptions beforeWf trace assignment
+      activationTransport).acted.acted = actTrace assumptions beforeWf trace := rfl
 
 /-! ## A nonidentity endpoint witness -/
 

@@ -3059,6 +3059,8 @@ end Cordis.EffectContext
 #print axioms Cordis.GlobalNamePaperRelation.activeContext_act_eq
 #print axioms Cordis.GlobalNamePaperRelation.nameActionPaperRelated_actState
 #print axioms Cordis.GlobalNamePaperRelation.nameActionPaperRelated_trace_endpoint
+#print axioms Cordis.GlobalNamePaperRelation.assignedTracePaperEndpoint
+#print axioms Cordis.GlobalNamePaperRelation.assignedTracePaperEndpoint_acted_eq
 #print axioms Cordis.GlobalNamePaperRelation.Example.actedRaise_related
 #print axioms Cordis.DeepSeekStreamHarnessErrors.executeConversationMultiStreamRoundRecoverable
 #print axioms Cordis.DeepSeekStreamHarnessErrors.runConversationMultiStreamRecoverable
