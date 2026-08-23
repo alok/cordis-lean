@@ -9924,6 +9924,15 @@ private def testGlobalNameTraceAction : IO Unit := do
     (GlobalNameTraceAction.unactTrace
       GlobalNameLifecycle.NonidentityRaiseExample.assumptions
       GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed acted).endpoint_eq
+  let _backwardWellFormed := GlobalNameTraceAction.unactTraceWithProjections_wellFormed
+    GlobalNameLifecycle.NonidentityRaiseExample.assumptions
+    GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed acted
+  let _backwardRules := GlobalNameTraceAction.unactTraceWithProjections_rules
+    GlobalNameLifecycle.NonidentityRaiseExample.assumptions
+    GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed acted
+  let _backwardActors := GlobalNameTraceAction.unactTraceWithProjections_actors
+    GlobalNameLifecycle.NonidentityRaiseExample.assumptions
+    GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed acted
   assertEqual "trace name action preserves the raise rule projection"
     acted.rules [.lRaise]
   match acted.actors with

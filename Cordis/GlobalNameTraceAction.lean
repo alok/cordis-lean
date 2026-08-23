@@ -160,6 +160,121 @@ noncomputable def unactTrace
         endpoint_eq := tailResult.endpoint_eq })
     (actState action before) actedAfter trace before rfl beforeWf
 
+theorem trace_rules_transport
+    {dynamics : Dynamics sig catalog Ambient} {inertia : InertiaPolicy dynamics}
+    {middle middle' after : State catalog Ambient}
+    (eq : middle = middle') (trace : GlobalCalculus.Trace dynamics inertia middle after) :
+    (eq ▸ trace).rules = trace.rules := by
+  cases eq
+  rfl
+
+theorem trace_actors_transport
+    {dynamics : Dynamics sig catalog Ambient} {inertia : InertiaPolicy dynamics}
+    {middle middle' after : State catalog Ambient}
+    (eq : middle = middle') (trace : GlobalCalculus.Trace dynamics inertia middle after) :
+    (eq ▸ trace).actors = trace.actors := by
+  cases eq
+  rfl
+
+structure BackwardTraceAction
+    {action : NameAction sig Ambient} {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    {before actedAfter : State catalog Ambient}
+    (beforeWf : WellFormed before)
+    (trace : GlobalCalculus.Trace dynamics inertia (actState action before) actedAfter) where
+  originalAfter : State catalog Ambient
+  original : GlobalCalculus.Trace dynamics inertia before originalAfter
+  endpoint_eq : actState action originalAfter = actedAfter
+  originalAfter_wellFormed : WellFormed originalAfter
+  rules_eq : original.rules = trace.rules
+  actors_eq : original.actors.map (mapActor action) = trace.actors
+
+noncomputable def unactTraceWithProjections
+    {action : NameAction sig Ambient} {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    {before actedAfter : State catalog Ambient} (beforeWf : WellFormed before)
+    (trace : GlobalCalculus.Trace dynamics inertia (actState action before) actedAfter) :
+    BackwardTraceAction assumptions beforeWf trace :=
+  @GlobalCalculus.Trace.rec sig catalog Ambient dynamics inertia
+    (fun source target trace =>
+      ∀ (original : State catalog Ambient)
+        (sourceEq : actState action original = source)
+        (originalWf : WellFormed original),
+        BackwardTraceAction (before := original) (actedAfter := target)
+          assumptions originalWf (sourceEq.symm ▸ trace))
+    (fun state original sourceEq originalWf => by
+      cases sourceEq
+      exact {
+        originalAfter := original
+        original := .nil original
+        endpoint_eq := rfl
+        originalAfter_wellFormed := originalWf
+        rules_eq := rfl
+        actors_eq := rfl })
+    (fun {source middle target} head tail ih original sourceEq originalWf => by
+      cases sourceEq
+      let headResult := unactUnifiedStep assumptions originalWf head
+      have actedMiddleWf : WellFormed middle :=
+        head.preservesWellFormed (wellFormed_act action originalWf)
+      have originalMiddleWf : WellFormed headResult.originalAfter := by
+        rw [← wellFormed_act_iff action headResult.originalAfter]
+        rw [headResult.endpoint_eq]
+        exact actedMiddleWf
+      let tailResult := ih headResult.originalAfter headResult.endpoint_eq originalMiddleWf
+      exact {
+        originalAfter := tailResult.originalAfter
+        original := .cons headResult.original tailResult.original
+        endpoint_eq := tailResult.endpoint_eq
+        originalAfter_wellFormed := tailResult.originalAfter_wellFormed
+        rules_eq := by
+          simp only [GlobalCalculus.Trace.rules]
+          rw [headResult.same_rule]
+          exact congrArg (List.cons head.rule)
+            (tailResult.rules_eq.trans
+              (trace_rules_transport headResult.endpoint_eq.symm tail))
+        actors_eq := by
+          simp only [GlobalCalculus.Trace.actors, List.map_cons]
+          have headActor :
+              mapActor action headResult.original.actor = head.actor := by
+            change Actor.fiber (action.name headResult.original.actedName) =
+              Actor.fiber head.actedName
+            exact congrArg Actor.fiber headResult.acted_name
+          rw [headActor]
+          exact congrArg (List.cons head.actor)
+            (tailResult.actors_eq.trans
+              (trace_actors_transport headResult.endpoint_eq.symm tail)) })
+    (actState action before) actedAfter trace before rfl beforeWf
+
+theorem unactTraceWithProjections_wellFormed
+    {action : NameAction sig Ambient} {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    {before actedAfter : State catalog Ambient} (beforeWf : WellFormed before)
+    (trace : GlobalCalculus.Trace dynamics inertia (actState action before) actedAfter) :
+    WellFormed (unactTraceWithProjections assumptions beforeWf trace).originalAfter :=
+  (unactTraceWithProjections assumptions beforeWf trace).originalAfter_wellFormed
+
+theorem unactTraceWithProjections_rules
+    {action : NameAction sig Ambient} {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    {before actedAfter : State catalog Ambient} (beforeWf : WellFormed before)
+    (trace : GlobalCalculus.Trace dynamics inertia (actState action before) actedAfter) :
+    (unactTraceWithProjections assumptions beforeWf trace).original.rules = trace.rules :=
+  (unactTraceWithProjections assumptions beforeWf trace).rules_eq
+
+theorem unactTraceWithProjections_actors
+    {action : NameAction sig Ambient} {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    {before actedAfter : State catalog Ambient} (beforeWf : WellFormed before)
+    (trace : GlobalCalculus.Trace dynamics inertia (actState action before) actedAfter) :
+    (unactTraceWithProjections assumptions beforeWf trace).original.actors.map
+        (mapActor action) = trace.actors :=
+  (unactTraceWithProjections assumptions beforeWf trace).actors_eq
+
 def actProgram
     {action : NameAction sig Ambient} {dynamics : Dynamics sig catalog Ambient}
     (equivariant : DynamicsNameEquivariant action dynamics)
