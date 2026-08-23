@@ -7525,10 +7525,11 @@ private def testSessionRefinementSurfaceCodec : IO Unit := do
                         (usage.reasoningTokens.map (fun value => value.value)) (some 2)
                   | none => fail "assistant surface AST lost usage"
               | .user _ => fail "assistant surface AST changed assistant role"
-              assertEqual "assistant surface AST retains append operation"
-                append.surfaceOp .append
-              assertEqual "assistant surface AST rejects source refs on output"
-                append.sourceEventSeqs none
+              assertEqual "assistant surface AST retains replacement operation"
+                append.surfaceOp (.replace { value := 3, safe := by decide }
+                  { value := 5, safe := by decide })
+              assertEqual "assistant surface AST retains source refs"
+                (append.sourceEventSeqs.map (List.map (fun value => value.value))) (some [6])
           | _ => fail "assistant surface AST changed assistant event payload"
   match SessionRefinement.SurfaceCodec.encodeWireEventsText
       [SessionRefinement.SurfaceCodec.executableAssistantEvent] with

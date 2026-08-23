@@ -579,6 +579,7 @@ set_option format.width 200
 #print axioms Cordis.SessionRefinement.SurfaceCodec.decode_toolResult
 #print axioms Cordis.SessionRefinement.SurfaceCodec.decode_userMessage
 #print axioms Cordis.SessionRefinement.SurfaceCodec.decode_assistantMessage
+#print axioms Cordis.SessionRefinement.SurfaceCodec.decode_assistantMessage_withMetadata
 #print axioms Cordis.SessionRefinement.SurfaceCodec.decode_encode
 #print axioms Cordis.SessionRefinement.SurfaceCodec.decodeWireEventsText_of_encoded
 #print axioms Cordis.SessionRefinement.SurfaceCodec.decodeWireEventsBytes_of_encoded
