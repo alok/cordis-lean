@@ -2675,6 +2675,11 @@ completed child follows the existing tool/session continuation, while a deadline
 prefix and maps to a cancelled phase. The fast, timeout, and race fixtures are executable configured
 process evidence. Task-cancellation delivery, arbitrary descendant cleanup, fairness, backpressure,
 reconnects, authenticity, and deployed async equivalence remain external.
+`Cordis.DeepSeekExternalToolProcess` is the next source-honest external-tool seam. It records the
+configured process, stdout/stderr, exit code, parsed JSON, and typed decoded result. Keep the
+observation untrusted: `AcceptedResult.certified` must receive an explicit `ToolSpec.post` proof
+before constructing `ToolSpec.CertifiedOutcome`. Do not infer command identity, sandboxing,
+authentication, exactly-once effects, cleanup, or deployed Harness equivalence from the fixture.
 `Cordis.DeepSeekAsyncStreamCancellation` carries `CancellationPolicy` and
 `CancellableRunResult` through the same process-backed race. The executable cancellation-first
 fixture proves that a child can stop before round zero while retaining its typed reason, unchanged

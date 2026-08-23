@@ -1867,6 +1867,12 @@ exact timed prefix, and project a deadline to a cancelled phase. Its fast, timeo
 fixtures are executable local-process evidence; task-cancellation delivery, arbitrary descendant
 cleanup, fairness, backpressure, reconnects, authenticity, and deployed equivalence remain
 outside.
+`DeepSeekExternalToolProcess` is the source-honest external-tool seam: it retains the configured
+command, stdout/stderr, exit code, parsed JSON, and typed decoded result as an observation.
+`AcceptedResult.certified` requires an explicit `ToolSpec.post` proof before constructing a
+`ToolSpec.CertifiedOutcome`; process output alone cannot certify its postcondition. Command
+identity, sandboxing, authentication, exactly-once effects, cleanup, and deployed Harness
+equivalence remain outside.
 
 [paper-pdf]: https://raw.githubusercontent.com/cordiverse/paper/948a07b369c62adb3b12e102458be5c18dfb69b9/paper.pdf
 [cordis-fiber]: https://github.com/cordiverse/cordis/blob/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4/packages/core/src/fiber.ts#L78-L485

@@ -1091,3 +1091,8 @@ derived lifecycle strategy, Lemma 72, or Theorem 73.
 trace for completion and the exact accepted prefix for timeout. This remains configured local
 process evidence, not a theorem of task-cancellation delivery, fairness, cleanup, reconnects,
 authenticity, or deployed asynchronous Harness behavior.
+`DeepSeekExternalToolProcess` is the adjacent external-tool observation seam. It retains the
+configured command, stdout/stderr, exit code, parsed JSON, and typed decoded result; only an
+explicit `ToolSpec.post` proof can construct `AcceptedResult.certified` and a
+`ToolSpec.CertifiedOutcome`. This is local process evidence, not command identity, sandboxing,
+authentication, exactly-once effects, cleanup, or deployed Harness equivalence.

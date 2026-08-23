@@ -27,6 +27,7 @@ import Cordis.DeepSeekOutcomeTransportLoop
 import Cordis.DeepSeekAsyncHarness
 import Cordis.DeepSeekAsyncStreamHarness
 import Cordis.DeepSeekAsyncStreamHarnessTimeout
+import Cordis.DeepSeekExternalToolProcess
 import Cordis.DeepSeekAsyncStreamCancellation
 import Cordis.DeepSeekAsyncStreamRetryCancellation
 import Cordis.DeepSeekStream
@@ -2449,6 +2450,38 @@ private def testDeepSeekAsyncStreamHarnessTimeout : IO Unit := do
     (race.winner.isSome) true
   assertEqual "timed async streamed race reaches a terminal phase"
     race.phase.isTerminal true
+
+private def testDeepSeekExternalToolProcess : IO Unit := do
+  match ← DeepSeekExternalToolProcess.observe
+      DeepSeekExternalToolProcess.successfulEchoBinding
+      DeepSeekExternalToolProcess.echoInvocation with
+  | .error error => fail s!"external tool success fixture failed: {reprStr error}"
+  | .ok observed =>
+      assertEqual "external tool observation retains the zero exit code"
+        observed.process.exitCode 0
+      match observed.result with
+      | .ok value =>
+          let typedValue : String := value
+          assertEqual "external tool observation decodes the typed result"
+            typedValue "hello from cordis"
+      | .error _ => fail "external tool observation decoded an unexpected typed failure"
+      assertEqual "external tool observation retains its configured command"
+        observed.config.command "sh"
+      assertEqual "external tool observation retains its configured stdin"
+        observed.config.stdin "hello from cordis"
+  match ← DeepSeekExternalToolProcess.observe
+      DeepSeekExternalToolProcess.failingEchoBinding
+      DeepSeekExternalToolProcess.echoInvocation with
+  | .error error => fail s!"external tool failure fixture was not observable: {reprStr error}"
+  | .ok observed =>
+      assertEqual "external tool observation retains a nonzero exit code"
+        observed.process.exitCode 7
+      match observed.result with
+      | .ok value =>
+          let typedValue : String := value
+          assertEqual "external tool failure fixture still decodes its untrusted stdout"
+            typedValue "hello from cordis"
+      | .error _ => fail "external tool failure fixture decoded an unexpected typed failure"
 
 private def testDeepSeekAsyncStreamCancellation : IO Unit := do
   let race ← DeepSeekAsyncStreamCancellation.exampleCancellationRace
@@ -8668,6 +8701,7 @@ def run : IO Unit := do
   testDeepSeekAsyncHarness
   testDeepSeekAsyncStreamHarness
   testDeepSeekAsyncStreamHarnessTimeout
+  testDeepSeekExternalToolProcess
   testDeepSeekAsyncStreamCancellation
   testDeepSeekAsyncStreamRetryCancellation
   testDeepSeekStream

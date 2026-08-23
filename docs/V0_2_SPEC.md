@@ -46,6 +46,11 @@ prefix adapter. Completed children retain the dependent runner/model trace, whil
 the exact accepted prefix and becomes a cancelled phase. The fast, timeout, and race fixtures are
 configured local-process evidence; task-cancellation delivery, arbitrary cleanup, fairness,
 backpressure, reconnects, authenticity, and deployed async equivalence remain external.
+`Cordis.DeepSeekExternalToolProcess` adds a source-honest process-backed tool observation. The
+configured command, stdout/stderr, exit code, parsed JSON, and typed decoded result are retained;
+only a supplied `ToolSpec.post` proof constructs `AcceptedResult.certified` and a
+`ToolSpec.CertifiedOutcome`. Process identity, sandboxing, authentication, exactly-once effects,
+cleanup, and deployed Harness equivalence remain external.
 `Cordis.DeepSeekAsyncStreamCancellation` carries the typed pre-round cancellation policy through
 that race. Its fixture cancels one child before dispatch while the other remains a real streamed
 tool/text continuation; the accepted cancellation result preserves its reason, unchanged
@@ -757,6 +762,10 @@ Current machine-checked evidence includes:
   arbitrary-byte continuations, with separate fast and timeout fixtures plus a typed cancelled
   phase carrying the exact prefix; task cancellation, fairness, cleanup, and deployment remain
   external;
+- `Cordis.DeepSeekExternalToolProcess`, retaining configured local-process command/stdin/argv,
+  stdout/stderr, exit code, parsed JSON, and typed decoded output; only an explicit `ToolSpec.post`
+  proof can construct `AcceptedResult.certified`, so process identity, sandboxing, authentication,
+  exactly-once effects, cleanup, and deployed Harness equivalence remain external;
 - `Cordis.DeepSeekAsyncStreamCancellation`, exercising a real cancellation-first streamed child
   alongside a process-backed sibling and checking the typed stop/endpoint evidence;
 - `Cordis.DeepSeekAsyncStreamRetryCancellation`, exercising the same cancellation-first race over
