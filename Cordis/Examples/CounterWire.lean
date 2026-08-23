@@ -115,6 +115,27 @@ def rawRead : RawCall where
   name := readSpec.name
   arguments := Codec.unit.encode ()
 
+def readCall (before : Nat) : AuthorizedCall catalog.signature allNeeds := {
+  op := .read
+  request := {
+    input := ()
+    before := before
+    granted := allCapabilities
+    precondition := trivial
+    authorized := by
+      intro capability required
+      exact trivial
+  }
+  declared := trivial
+}
+
+theorem validateRaw_read (before : Nat) :
+    validateRaw before rawRead = .ok (readCall before) := by
+  simp [validateRaw, ToolWire.validate, rawRead, readCall, wire, resolveTool,
+    readSpec, Codec.unit,
+    certifyReadAdmission, allCapabilities, allCapabilitiesDecidable,
+    allNeedsDecidable]
+
 def rawIncrement (input : Increment) : RawCall where
   name := incrementSpec.name
   arguments := incrementCodec.encode input

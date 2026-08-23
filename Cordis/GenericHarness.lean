@@ -703,7 +703,7 @@ theorem beginStep_log
     (state : Runner cfg (.turn turn step)) :
     state.beginStep.log = state.log ++ [.stepStart turn step] := rfl
 
-private def settle
+def settle
     {Model Capability : Type u}
     {cfg : Config Model Capability}
     {turn step : Nat}
@@ -744,6 +744,45 @@ structure DispatchResult
     .toolResult turn step record.id
   ]
   records_eq : runner.records = before.records ++ [record]
+
+/--
+Construct the completed branch when completion came from an external adapter.  The adapter must
+still provide the exact generic `View.execute` equality; this constructor only centralizes the
+lease, policy-trace, record-chain, and replay certificates rather than weakening them.
+-/
+def dispatchCompleted
+    {Model Capability : Type u}
+    {cfg : Config Model Capability}
+    {turn step : Nat}
+    (state : Runner cfg (.step turn step []))
+    (raw : RawCall)
+    (call : cfg.Call)
+    (validation : cfg.validate state.model raw = .ok call)
+    (allowed : cfg.decide state.model raw call = .allow)
+    (issued : LeasePool)
+    (issuance : state.leases.issue { value := state.nextCall } = some issued)
+    {remaining : LeasePool}
+    (consumption : issued.consume { value := state.nextCall } = some remaining)
+    (completion : cfg.Completion call)
+    (execution : cfg.view.execute call = completion)
+    (policy : SubjectPolicyTrace
+      (Completed := cfg.Completion)
+      (Rejected := cfg.PolicyRejected)
+      (.proposed { value := state.nextCall } call issued)
+      (.settled { value := state.nextCall } call remaining (.completed completion))) :
+    DispatchResult state :=
+  let record : CallRecord cfg := {
+    id := { value := state.nextCall }
+    raw := raw
+    before := state.model
+    after := completionAfter state.model completion
+    leasesBefore := state.leases
+    leasesAfter := remaining
+    evidence := .completed call validation allowed issued issuance consumption
+      completion execution policy
+  }
+  let next := settle state record rfl rfl rfl
+  { record, runner := next, log_eq := rfl, records_eq := rfl }
 
 /--
 Settle one raw call in an empty-pending step. Policy is decided before lease issuance; non-allow

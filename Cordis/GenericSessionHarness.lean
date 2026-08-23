@@ -322,6 +322,55 @@ def dispatch
   | ⟨.step _ _ pending, _, _, _⟩, _ => .error (.pendingCalls pending)
   | ⟨phase, _, _, _⟩, _ => .error (.notInStep (eraseState phase))
 
+/--
+Attach a completed generic dispatch whose completion was produced by an external adapter.  The
+result already carries the runner-side policy, lease, evidence, and replay certificates; this
+function adds the corresponding rich-session call/result events without re-dispatching the tool.
+-/
+def attachCompletedDispatch
+    {Model Capability : Type u}
+    {cfg : SessionConfig Model Capability}
+    {turn step : Nat}
+    (runner : GenericHarness.Runner cfg.core (.step turn step []))
+    (session : Session.Session Session.noExtensions)
+    (aligned : Session.protocolProjection session.events = runner.log)
+    (result : GenericHarness.Runner.DispatchResult runner) : RunnerState cfg :=
+  let callSeq := session.nextSeq
+  let call : Session.ToolCall := {
+    id := result.record.id
+    name := result.record.raw.name
+    arguments := result.record.raw.arguments.compress
+  }
+  let called := session.appendLogOnly .toolCall { turn, step, call }
+  let outcome := result.record.outcome
+  let completed := called.appendSurface .toolResult {
+    turn
+    step
+    callId := result.record.id
+    content := reprStr outcome
+    isError := match outcome with
+      | .succeeded => false
+      | _ => true
+  } [callSeq] (by simp) (by
+    intro source member
+    simp only [List.mem_singleton] at member
+    subst source
+    simp [callSeq, called, Session.Session.appendLogOnly,
+      Session.Session.append])
+  {
+    phase := .step turn step []
+    runner := result.runner
+    session := completed
+    projection_eq := by
+      rw [result.log_eq]
+      simpa [completed, called, call, Session.Session.appendSurface,
+        Session.Session.appendLogOnly, Session.Session.append,
+        Session.protocolProjection, Session.LoggedEvent.protocolEvent?] using
+        congrArg (fun log => log ++ [
+          RuntimeEvent.toolCall turn step result.record.id,
+          RuntimeEvent.toolResult turn step result.record.id]) aligned
+  }
+
 def dispatchAll
     {Model Capability : Type u}
     {cfg : SessionConfig Model Capability} :
