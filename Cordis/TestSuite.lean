@@ -2418,7 +2418,65 @@ private def testDeepSeekHarnessLocalSseOutcome : IO Unit := do
       | .providerFailure _ _ => fail "loopback SSE terminal text remained a provider failure"
       | .appended _ runner =>
           assertEqual "loopback SSE terminal text appends an assistant"
-            runner.session.nextSeq (Cordis.DeepSeekHarnessLocalSseOutcome.Example.runner.session.nextSeq + 1)
+            runner.session.nextSeq
+            (Cordis.DeepSeekHarnessLocalSseOutcome.Example.runner.session.nextSeq + 1)
+      let _exact := result.outcome_exact
+      let _serverExit := result.server_exited_successfully
+  match ← Cordis.DeepSeekHarnessLocalSseOutcome.Example.toolRun with
+  | .error error => fail s!"loopback SSE terminal tool failed: {reprStr error}"
+  | .ok ⟨body, result⟩ =>
+      assertEqual "loopback SSE terminal tool preserves the exact body"
+        body Cordis.DeepSeekHarnessLocalSseOutcome.Example.toolBody
+      assertEqual "loopback SSE terminal tool validates one request"
+        (result.requests, result.validRequests) (1, 1)
+      assertEqual "loopback SSE terminal tool classifies successful tool"
+        (DeepSeekTerminalOutcome.TerminalOutcome.kind result.processed.outcome) .tool
+      match result.dispatch with
+      | .providerFailure _ _ => fail "loopback SSE terminal tool remained a provider failure"
+      | .appended _ runner =>
+          assertEqual "loopback SSE terminal tool appends one call"
+            runner.nextCall 1
+          assertEqual "loopback SSE terminal tool advances the sequence"
+            runner.session.nextSeq
+            (Cordis.DeepSeekHarnessLocalSseOutcome.Example.runner.session.nextSeq + 1)
+      let _exact := result.outcome_exact
+      let _serverExit := result.server_exited_successfully
+  match ← Cordis.DeepSeekHarnessLocalSseOutcome.Example.mixedRun with
+  | .error error => fail s!"loopback SSE terminal mixed failed: {reprStr error}"
+  | .ok ⟨body, result⟩ =>
+      assertEqual "loopback SSE terminal mixed preserves the exact body"
+        body Cordis.DeepSeekHarnessLocalSseOutcome.Example.mixedBody
+      assertEqual "loopback SSE terminal mixed validates one request"
+        (result.requests, result.validRequests) (1, 1)
+      assertEqual "loopback SSE terminal mixed classifies successful mixed"
+        (DeepSeekTerminalOutcome.TerminalOutcome.kind result.processed.outcome) .mixed
+      match result.dispatch with
+      | .providerFailure _ _ => fail "loopback SSE terminal mixed remained a provider failure"
+      | .appended _ runner =>
+          assertEqual "loopback SSE terminal mixed appends one call"
+            runner.nextCall 1
+          assertEqual "loopback SSE terminal mixed advances the sequence"
+            runner.session.nextSeq
+            (Cordis.DeepSeekHarnessLocalSseOutcome.Example.runner.session.nextSeq + 1)
+      let _exact := result.outcome_exact
+      let _serverExit := result.server_exited_successfully
+  match ← Cordis.DeepSeekHarnessLocalSseOutcome.Example.multiRun with
+  | .error error => fail s!"loopback SSE terminal multi failed: {reprStr error}"
+  | .ok ⟨body, result⟩ =>
+      assertEqual "loopback SSE terminal multi preserves the exact body"
+        body Cordis.DeepSeekHarnessLocalSseOutcome.Example.multiBody
+      assertEqual "loopback SSE terminal multi validates one request"
+        (result.requests, result.validRequests) (1, 1)
+      assertEqual "loopback SSE terminal multi classifies successful multi"
+        (DeepSeekTerminalOutcome.TerminalOutcome.kind result.processed.outcome) .multi
+      match result.dispatch with
+      | .providerFailure _ _ => fail "loopback SSE terminal multi remained a provider failure"
+      | .appended _ runner =>
+          assertEqual "loopback SSE terminal multi appends two calls"
+            runner.nextCall 2
+          assertEqual "loopback SSE terminal multi advances the sequence"
+            runner.session.nextSeq
+            (Cordis.DeepSeekHarnessLocalSseOutcome.Example.runner.session.nextSeq + 1)
       let _exact := result.outcome_exact
       let _serverExit := result.server_exited_successfully
 

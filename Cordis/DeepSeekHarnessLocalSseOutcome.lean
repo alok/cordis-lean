@@ -293,6 +293,12 @@ def failureBody : String := DeepSeekStreamFailure.exampleContentFilterBody
 
 def textBody : String := DeepSeekRichStream.exampleTextStreamBody
 
+def toolBody : String := DeepSeekRichToolStream.exampleToolStreamBody
+
+def mixedBody : String := DeepSeekRichMixedStream.mixedStreamBody
+
+def multiBody : String := DeepSeekRichMultiStream.multiBody
+
 def failureRun : IO (Except LocalOutcomeError
     (Sigma fun body : String => OutcomeResult DeepSeekHarness.counterRequestSource runner body)) :=
   runWithKey DeepSeekHarness.counterRequestSource runner { value := "fixture-key" } failureBody 64
@@ -300,6 +306,18 @@ def failureRun : IO (Except LocalOutcomeError
 def textRun : IO (Except LocalOutcomeError
     (Sigma fun body : String => OutcomeResult DeepSeekHarness.counterRequestSource runner body)) :=
   runWithKey DeepSeekHarness.counterRequestSource runner { value := "fixture-key" } textBody 64
+
+def toolRun : IO (Except LocalOutcomeError
+    (Sigma fun body : String => OutcomeResult DeepSeekHarness.counterRequestSource runner body)) :=
+  runWithKey DeepSeekHarness.counterRequestSource runner { value := "fixture-key" } toolBody 64
+
+def mixedRun : IO (Except LocalOutcomeError
+    (Sigma fun body : String => OutcomeResult DeepSeekHarness.counterRequestSource runner body)) :=
+  runWithKey DeepSeekHarness.counterRequestSource runner { value := "fixture-key" } mixedBody 64
+
+def multiRun : IO (Except LocalOutcomeError
+    (Sigma fun body : String => OutcomeResult DeepSeekHarness.counterRequestSource runner body)) :=
+  runWithKey DeepSeekHarness.counterRequestSource runner { value := "fixture-key" } multiBody 64
 
 end Example
 
