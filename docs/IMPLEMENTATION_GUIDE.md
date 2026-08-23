@@ -1929,6 +1929,11 @@ model/system/tool agreement, request-build equality, and the replay's protocol-p
 equation. The header fixture succeeds and the headerless text fixture returns `noRequestHeader`.
 The structural encoder is deliberately not a provider-schema proof, and transport, credentials,
 provider behavior, and complete deployed-Harness equivalence remain external.
+`Cordis.DeepSeekHarnessEventLocalSse` is the executable continuation of that certificate. Its
+`EventRunner` uses the validated final session directly as the `ExtensionRunner` index, and its
+`EventSseResult` retains the loopback request plan, raw frames, finisher, and append endpoint.
+The fixture proves one valid request, three frames, and the exact `nextSeq 6 -> 7` transition;
+the evidence is local Python/curl transport only.
 `Cordis.DeepSeekHarnessEventIgnorableProjection` records the adjacent source-authorized exception
 without weakening that fail-closed runner boundary. Its positional ledger drops only opaque rows
 whose envelope explicitly carries `ignorable: true`, retains supported wire certificates and raw

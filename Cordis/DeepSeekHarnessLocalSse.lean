@@ -49,7 +49,8 @@ def sseServerScript : String :=
   "      request=json.loads(raw.decode())\n" ++
   "      good=self.path=='/chat/completions' and self.command=='POST' and " ++
   "self.headers.get('Authorization')=='Bearer fixture-key' and " ++
-  "request.get('model')=='deterministic-counter' and request.get('stream') is True\n" ++
+  "request.get('model') in ('deterministic-counter','deepseek-reasoner') and " ++
+  "request.get('stream') is True\n" ++
   "    except Exception:\n" ++
   "      good=False\n" ++
   "    H.count += 1\n" ++

@@ -1984,6 +1984,13 @@ projection equation. The current-shaped header fixture succeeds; a headerless me
 schema compatibility, credentials, transport, provider behavior, and complete deployed-Harness
 equivalence remain external.
 
+`Cordis.DeepSeekHarnessEventLocalSse` carries that same result through the actual local
+Python/curl SSE fixture. `EventRunner` fixes the validated session as the runner index and
+`EventSseResult` retains the indexed request plan, raw frames, finisher, protocol replay, and
+append endpoint; the executable fixture checks one valid request, three frames, and
+`nextSeq 6 -> 7`. This remains local process/HTTP evidence rather than remote or deployed
+Harness equivalence.
+
 `Cordis.DeepSeekHarnessEventIgnorableProjection` is the intentionally smaller source-authorized
 exception. It retains the full archive and a positional keep/drop ledger, drops only opaque rows
 marked `ignorable: true`, retains supported wire/raw certificates and positions, and rejects a

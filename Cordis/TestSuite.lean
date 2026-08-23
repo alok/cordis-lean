@@ -113,6 +113,7 @@ import Cordis.DeepSeekSchemaStreamErrors
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessEventRequest
+import Cordis.DeepSeekHarnessEventLocalSse
 import Cordis.DeepSeekHarnessEventIgnorableProjection
 import Cordis.DeepSeekHarnessEventIgnorableNormalization
 import Cordis.DeepSeekHarnessEventSimulation
@@ -3352,6 +3353,27 @@ private def testDeepSeekHarnessEventRequest : IO Unit := do
   | .error .noRequestHeader => pure ()
   | .error error => fail s!"headerless log returned the wrong request error: {reprStr error}"
   | .ok _ => fail "headerless current-Harness log unexpectedly produced a model request"
+
+private def testDeepSeekHarnessEventLocalSse : IO Unit := do
+  match ← DeepSeekHarnessEventLocalSse.Example.run with
+  | .error error => fail s!"validated event local SSE failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "validated event local SSE has one request"
+        result.sse.localResult.requests 1
+      assertEqual "validated event local SSE validates one request"
+        result.sse.localResult.validRequests 1
+      assertEqual "validated event local SSE delivers three frames"
+        result.sse.localResult.response.wire.frames.length 3
+      assertEqual "validated event local SSE preserves the header model"
+        result.sse.localResult.prepared.plan.source.model "deepseek-reasoner"
+      assertEqual "validated event local SSE advances the exact event endpoint"
+        result.sse.after.session.nextSeq 7
+      let _header := DeepSeekHarnessEventLocalSse.EventSseResult.request_header result
+      let _endpoint := DeepSeekHarnessEventLocalSse.EventSseResult.append_endpoint result
+      let _projection :=
+        DeepSeekHarnessEventLocalSse.EventSseResult.protocol_projection_before
+          (certificate := DeepSeekHarnessEventLocalSse.Example.certificate)
+      pure ()
 
 private def testDeepSeekAsyncStreamCancellation : IO Unit := do
   let race ← DeepSeekAsyncStreamCancellation.exampleCancellationRace
@@ -10326,6 +10348,7 @@ def run : IO Unit := do
   testDeepSeekSchemaStreamErrors
   testDeepSeekHarnessEventArchive
   testDeepSeekHarnessEventRequest
+  testDeepSeekHarnessEventLocalSse
   testDeepSeekHarnessEventIgnorableProjection
   testDeepSeekHarnessEventIgnorableNormalization
   testDeepSeekHarnessEventSimulation
