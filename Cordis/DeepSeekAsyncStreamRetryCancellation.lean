@@ -9,6 +9,9 @@ This module lifts the retry-aware, pre-round-cancellable streamed conversation i
 cooperative `ContextAsync` children.  Each job retains its cancellation and retry policies;
 the winning result therefore keeps the exact dependent trace, endpoint, decision certificate,
 and per-round retry history instead of collapsing a policy stop into an untyped process error.
+The finisher is caller-supplied through `RetryProcessJob.runWithFinish` and
+`executeRaceWithFinish`; the existing `run`, `race`, and `executeRace` functions remain
+the multi-tool convenience wrappers.
 
 The boundary remains cooperative.  `ContextAsync.race` requests cancellation of the losing
 child, but the process adapter still performs synchronous reads.  No blocked-read interruption,
@@ -25,6 +28,7 @@ open Cordis.AsyncHarness
 open Cordis.DeepSeekApi
 open Cordis.DeepSeekHarness
 open Cordis.DeepSeekHarnessCancellation
+open Cordis.DeepSeekSessionRunner
 open Cordis.DeepSeekStreamHarnessRetry
 open Cordis.DeepSeekStreamHarnessRetryCancellation
 open Cordis.DeepSeekCurlTransport
@@ -65,11 +69,13 @@ structure JobResult
 
 namespace RetryProcessJob
 
-def run
+def runWithFinish
     {Model Capability : Type}
     {cfg : GenericHarness.Config Model Capability}
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body))
     (job : RetryProcessJob cfg) : ContextAsync (JobResult cfg job) := do
-  let result ← DeepSeekStreamHarnessRetryCancellation.run
+  let result ← DeepSeekStreamHarnessRetryCancellation.runWithFinish finish
     (policy := job.cancellationPolicy) (retryPolicy := job.retryPolicy)
     job.fuel job.config job.baseUrl job.apiKey job.source cfg job.sourceEventSeqs
     job.sourcesNodup (by
@@ -77,6 +83,12 @@ def run
       exact job.sourcesEarlier current source sourceMem)
     job.before job.runner
   pure { result }
+
+def run
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (job : RetryProcessJob cfg) : ContextAsync (JobResult cfg job) :=
+  runWithFinish (finish := finishMulti) job
 
 end RetryProcessJob
 
@@ -236,24 +248,42 @@ theorem phase_pending_iff_waiting
 
 end RaceResult
 
-def race
+def raceWithFinish
     {Model Capability : Type}
     {cfg : GenericHarness.Config Model Capability}
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body))
     {left right : RetryProcessJob cfg} :
     ContextAsync (RaceResult cfg) :=
   ContextAsync.race
     (do
-      let result ← left.run
+      let result ← left.runWithFinish finish
       pure (.left left result))
     (do
-      let result ← right.run
+      let result ← right.runWithFinish finish
       pure (.right right result))
+
+def race
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+  {left right : RetryProcessJob cfg} :
+    ContextAsync (RaceResult cfg) :=
+  raceWithFinish (finish := finishMulti) (left := left) (right := right)
+
+def executeRaceWithFinish
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    (finish : (body : String) →
+      Except DeepSeekSessionRunner.ResponseError (FinishedResponse body))
+    (left right : RetryProcessJob cfg) : IO (RaceResult cfg) :=
+  Async.block (ContextAsync.run
+    (raceWithFinish finish (left := left) (right := right)))
 
 def executeRace
     {Model Capability : Type}
     {cfg : GenericHarness.Config Model Capability}
     (left right : RetryProcessJob cfg) : IO (RaceResult cfg) :=
-  Async.block (ContextAsync.run (race (left := left) (right := right)))
+  executeRaceWithFinish (finish := finishMulti) left right
 
 /-! ## Real cancellation-first fixture -/
 

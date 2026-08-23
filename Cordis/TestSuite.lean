@@ -3071,6 +3071,45 @@ private def testDeepSeekAsyncStreamRetryCancellation : IO Unit := do
           fail "async retry-aware success-first returned a typed error"
   | .waiting => fail "async retry-aware success-first returned no winning result"
 
+  let textJob : DeepSeekAsyncStreamRetryCancellation.RetryProcessJob
+      Cordis.Harness.counterConfig := {
+    id := 10
+    cancellationPolicy := DeepSeekHarnessCancellation.CancellationPolicy.never .user
+    retryPolicy := DeepSeekStreamHarnessRetry.RetryPolicy.default
+    fuel := 1
+    config := DeepSeekStreamHarnessRetry.fixtureStreamProcess
+      DeepSeekRichStream.exampleTextStreamBody
+    baseUrl := "https://fixture.invalid"
+    apiKey := { value := "fixture-key" }
+    source := DeepSeekHarness.counterRequestSource
+    before := 0
+    runner := DeepSeekAsyncStreamHarness.counterInitialRunner
+    sourceEventSeqs := []
+    sourcesNodup := by simp
+    sourcesEarlier := by
+      intro current source sourceMem
+      cases sourceMem
+  }
+  let textRace ← DeepSeekAsyncStreamRetryCancellation.executeRaceWithFinish
+    DeepSeekSessionRunner.finishText textJob textJob
+  assertEqual "async retry-aware generic finisher race succeeds"
+    textRace.successful true
+  match textRace with
+  | .left _ result | .right _ result =>
+      match result.result with
+      | .ok ⟨finalRunner, ⟨finalModel, run⟩⟩ =>
+          assertEqual "async retry-aware generic finisher keeps one text round"
+            run.trace.length 1
+          assertEqual "async retry-aware generic finisher preserves the model"
+            finalModel 0
+          assertEqual "async retry-aware generic finisher reaches the text endpoint"
+            finalRunner.session.nextSeq 2
+          assertEqual "async retry-aware generic finisher completes normally"
+            (DeepSeekStreamHarnessRetryCancellation.RetryCancellableStop.isCancelled run.stop)
+            false
+      | .error _ => fail "async retry-aware generic finisher returned a typed error"
+  | .waiting => fail "async retry-aware generic finisher returned no winning result"
+
 private def testDeepSeekStream : IO Unit := do
   match DeepSeekStream.validateSse DeepSeekStream.exampleStreamBody with
   | .error error => fail s!"DeepSeek SSE fixture failed: {reprStr error}"

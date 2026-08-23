@@ -2682,9 +2682,12 @@ end Cordis.EffectContext
 #print axioms Cordis.DeepSeekStreamHarnessRetryCancellation.Example.loop
 #print axioms Cordis.DeepSeekAsyncStreamRetryCancellation.JobResult.phase_terminal_of_result
 #print axioms Cordis.DeepSeekAsyncStreamRetryCancellation.JobResult.phase_ne_pending
+#print axioms Cordis.DeepSeekAsyncStreamRetryCancellation.RetryProcessJob.runWithFinish
 #print axioms Cordis.DeepSeekAsyncStreamRetryCancellation.RaceResult.winner_mem
 #print axioms Cordis.DeepSeekAsyncStreamRetryCancellation.RaceResult.phase_terminal_of_winner
 #print axioms Cordis.DeepSeekAsyncStreamRetryCancellation.RaceResult.phase_pending_iff_waiting
+#print axioms Cordis.DeepSeekAsyncStreamRetryCancellation.raceWithFinish
+#print axioms Cordis.DeepSeekAsyncStreamRetryCancellation.executeRaceWithFinish
 #print axioms Cordis.DeepSeekAsyncStreamRetryCancellation.RaceResult.result
 #print axioms Cordis.DeepSeekAsyncStreamRetryCancellation.exampleCancellationRace
 #print axioms Cordis.DeepSeekAsyncStreamRetryCancellation.exampleSuccessRace

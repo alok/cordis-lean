@@ -93,10 +93,11 @@ tool/text continuation; the accepted cancellation result preserves its reason, u
 runner/model endpoint, and empty completed prefix. Blocked-read interruption and deployed async
 cancellation equivalence remain external.
 `Cordis.DeepSeekAsyncStreamRetryCancellation` composes the same cooperative race with retry-aware
-streamed jobs. The dependent winner retains its indexed retry trace and endpoint; the
-cancellation-first branch retains its pre-round reason and empty accepted prefix, while a
-delayed-child success-first fixture exercises two accepted rounds. Blocked-read interruption,
-fairness, cleanup, reconnect, and deployed retry/cancellation equivalence remain external.
+streamed jobs. `runWithFinish` and `executeRaceWithFinish` accept a caller-supplied certified
+text/tool/mixed/multi finisher, while `run` and `executeRace` remain multi-tool wrappers. The
+dependent winner retains its indexed retry trace and endpoint; text and multi-tool fixtures cover
+cancellation-first and delayed-child success-first branches. Blocked-read interruption, fairness,
+cleanup, reconnect, and deployed retry/cancellation equivalence remain external.
 
 `Cordis.DeepSeekHarnessExtensions` generalizes complete and streaming request construction to
 every indexed `Session.ExtensionSchema`, and appends an accepted assistant view without changing
@@ -706,8 +707,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekAsyncStreamCancellation`, carrying typed pre-round cancellation through the same
   race and retaining the unchanged endpoint and empty completed prefix on the cancelled branch;
 - `Cordis.DeepSeekAsyncStreamRetryCancellation`, carrying that cooperative race over retry-aware
-  streamed jobs and retaining the dependent retry trace, endpoint, and typed pre-round stop, with
-  a delayed-child success-first fixture covering the complementary terminal branch;
+  streamed jobs; `runWithFinish`/`executeRaceWithFinish` accept a caller-supplied certified finisher
+  while `run`/`executeRace` remain multi-tool wrappers, and text plus multi-tool fixtures cover
+  both terminal branches;
 - `Cordis.DeepSeekSessionRunner`, composing accepted text, one-tool, mixed, and multi-call
   terminal traces into the pure append-only local session surface with exact sequence and
   tool-count invariants;
@@ -847,9 +849,9 @@ Current machine-checked evidence includes:
   `Session.ModelRequest` before dispatch;
 - `Cordis.DeepSeekAsyncStreamCancellation`, exercising a real cancellation-first streamed child
   alongside a process-backed sibling and checking the typed stop/endpoint evidence;
-- `Cordis.DeepSeekAsyncStreamRetryCancellation`, exercising the same cancellation-first race over
-  retry-aware streamed children and checking the indexed trace, endpoint, and reason evidence,
-  alongside a delayed-child success-first two-round fixture;
+- `Cordis.DeepSeekAsyncStreamRetryCancellation`, exercising caller-supplied text and legacy
+  multi-tool finishers over retry-aware streamed children, checking the indexed trace, endpoint,
+  and reason evidence across cancellation-first and delayed-child success-first branches;
 - `Cordis.StreamSession`, making the provider-string-ID to unique numeric-session-`CallId`
   assignment explicit before a validated rich assistant view enters the canonical surface;
 - `Harness.RunnerState.protocolProjection_eq_log` and `protocolProjection_replays`, tying the

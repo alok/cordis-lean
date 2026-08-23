@@ -1080,10 +1080,12 @@ process race. Its fixture cancels one child before round zero and checks the typ
 phase, unchanged runner/model endpoint, and empty completed prefix; it does not claim interruptible
 reads, fairness, arbitrary cleanup, or deployed async cancellation equivalence.
 `Cordis.DeepSeekAsyncStreamRetryCancellation` carries the retry-aware indexed result through the
-same cooperative race. Its `JobResult` retains the dependent retry trace/error and final endpoint;
-the fixtures check both a cancellation-first child with an exact round/reason stop and a delayed
-success-first child with two accepted rounds. Blocked-read interruption, fairness, cleanup,
-reconnect, and deployed async retry/cancellation equivalence remain external.
+same cooperative race. `RetryProcessJob.runWithFinish` and `executeRaceWithFinish` accept a
+caller-supplied certified text/tool/mixed/multi finisher; `run` and `executeRace` remain multi-tool
+wrappers. Its `JobResult` retains the dependent retry trace/error and final endpoint; the fixtures
+check direct text and multi-tool cancellation-first children plus a delayed success-first child
+with two accepted rounds. Blocked-read interruption, fairness, cleanup, reconnect, and deployed
+async retry/cancellation equivalence remain external.
 
 `Cordis.DeepSeekStreamHarnessPrefix` extends the same continuation over the line-oriented
 process prefix. It retains either a completed multi-call tool append or the exact parsed prefix
