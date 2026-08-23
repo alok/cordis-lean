@@ -1591,6 +1591,14 @@ complete-plan path can also fail-closed-admit its response and append it to the
 same schema-indexed runner, retaining body, header, sequence, local-ID,
 tool-count, and request-reconstruction certificates.
 
+`Cordis.DeepSeekSessionRequestBytes` carries the same append path across the raw-byte
+boundary. `buildCompleteBytePlan` retains the exact canonical UTF-8 request body, while
+`executeCompleteBytesAndAppend` uses an injected byte transport and returns a dependent
+raw-body/decoded-text/accepted-response/runner-endpoint witness. This is byte-level local
+evidence only: invalid UTF-8, HTTP, transport, and semantic response errors stay typed,
+and live networking, credentials, provider behavior, persistence, and deployed equivalence
+remain external.
+
 There is no public generic runner event emitter. Non-tool events use a private
 emitter that requires proof that the event is not a call boundary. A private
 settlement transition validates and appends one adjacent call/result pair and

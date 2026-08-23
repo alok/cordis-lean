@@ -73,6 +73,7 @@ import Cordis.DeepSeekHarnessLocalSseBytePrefixProviderAssemblyTool
 import Cordis.DeepSeekHarnessLocalSseMultiToolBytePrefix
 import Cordis.DeepSeekHarnessExtensions
 import Cordis.DeepSeekSessionRequest
+import Cordis.DeepSeekSessionRequestBytes
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
 import Cordis.DeepSeekGenericBridge
@@ -1242,6 +1243,10 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekSessionRequest.appendAccepted_latestHeader
 #print axioms Cordis.DeepSeekSessionRequest.appendAccepted_modelRequest_isSome
 #print axioms Cordis.DeepSeekSessionRequest.executeCompleteAndAppend
+#print axioms Cordis.DeepSeekSessionRequestBytes.buildCompleteBytePlan_source_stream
+#print axioms Cordis.DeepSeekSessionRequestBytes.ByteCompleteAppendResult.decoded_exact
+#print axioms Cordis.DeepSeekSessionRequestBytes.ByteCompleteAppendResult.append_endpoint_exact
+#print axioms Cordis.DeepSeekSessionRequestBytes.executeCompleteBytesAndAppend
 #print axioms Cordis.DeepSeekHarnessExtensions.buildRequestPlanFor
 #print axioms Cordis.DeepSeekHarnessExtensions.buildTypedRequestPlanFor
 #print axioms Cordis.DeepSeekHarnessExtensions.buildStreamingRequestPlanFor

@@ -93,6 +93,7 @@ import Cordis.DeepSeekHarnessLocalSseBytePrefixProviderAssemblyTool
 import Cordis.DeepSeekHarnessLocalSseMultiToolBytePrefix
 import Cordis.DeepSeekHarnessExtensions
 import Cordis.DeepSeekSessionRequest
+import Cordis.DeepSeekSessionRequestBytes
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
 import Cordis.DeepSeekGenericBridge

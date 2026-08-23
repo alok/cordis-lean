@@ -83,6 +83,7 @@ import Cordis.DeepSeekHarnessLocalSseBytePrefixProviderAssemblyTool
 import Cordis.DeepSeekHarnessLocalSseMultiToolBytePrefix
 import Cordis.DeepSeekHarnessExtensions
 import Cordis.DeepSeekSessionRequest
+import Cordis.DeepSeekSessionRequestBytes
 import Cordis.DeepSeekToolSchema
 import Cordis.DeepSeekToolAdmission
 import Cordis.DeepSeekGenericBridge
@@ -265,6 +266,7 @@ set_option autoImplicit false
 namespace Cordis.TestSuite
 
 open Cordis.Examples.Counter
+open Cordis.DeepSeekSessionRequestBytes
 
 private def rejectingCounterConfig : GenericHarness.Config Nat Capability := {
   Harness.counterConfig with
@@ -2863,6 +2865,28 @@ private def testDeepSeekSessionRequest : IO Unit := do
                             localAppend.result.after.nextCall 2
                           let _local_append_certificate := localAppend.result.append_eq
                           let _local_accept_certificate := localAppend.result.accept_eq
+                      match ← DeepSeekSessionRequestBytes.executeCompleteBytesAndAppend
+                          (runner := indexedRunner)
+                          DeepSeekApiBytes.exampleTransport "https://fixture.invalid"
+                          { value := "fixture-key" } preparedCertified noSources noSourcesNodup
+                          noSourcesEarlier with
+                      | .error error =>
+                          let _ := error
+                          fail "indexed DeepSeek byte append failed"
+                      | .ok ⟨body, byteAppend⟩ =>
+                          assertEqual "indexed DeepSeek byte append retains exact response bytes"
+                            (body == DeepSeekApiBytes.exampleResponseBytes) true
+                          assertEqual "indexed DeepSeek byte append retains decoded response text"
+                            byteAppend.response.text DeepSeekApi.exampleResponseBody
+                          assertEqual "indexed DeepSeek byte append reaches the certified endpoint"
+                            byteAppend.after.session.nextSeq 6
+                          assertEqual "indexed DeepSeek byte append retains local tool allocation"
+                            byteAppend.after.nextCall 2
+                          let _byte_decode_certificate :=
+                            DeepSeekSessionRequestBytes.ByteCompleteAppendResult.decoded_exact
+                              byteAppend
+                          let _byte_append_certificate :=
+                            ByteCompleteAppendResult.append_endpoint_exact byteAppend
                       let _ := certified_request_eq
                       let _ := preparedCertified_eq
               let _request_certificate :=
