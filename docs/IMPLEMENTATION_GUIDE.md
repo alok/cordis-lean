@@ -3291,6 +3291,11 @@ backward witnesses behind one orientation-indexed chain API, symmetrizing only t
 relation and deriving target packages, assignments, and permutations from the selected proof.
 These layers remain supplied certificate composition; they do not derive a normalizer, lifecycle
 simulation, Lemma 72, or Theorem 73.
+`GlobalPaperTraceBidirectionalNormalizer` adds the next conditional layer: its explicit authority
+supplies normal-form decisions, an oriented link at every non-normal package, and a strictly
+decreasing Nat measure, so `normalize_some` constructs a finite terminal chain with the same
+birth-erased relation and rule/actor permutations. It still does not derive the strategy, measure,
+dynamic termination, canonical form, confluence, Lemma 72, or Theorem 73.
 `GlobalPaperRelation` now supplies that finite relation: it erases only allocator clock/birth from
 current rule control, relates the opposite insertion endpoints, and proves bidirectional
 well-formed orchestration replay with assignment transport. From a well-formed source carrying

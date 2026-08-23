@@ -174,6 +174,7 @@ import Cordis.GlobalPaperNonReflexiveRewrite
 import Cordis.GlobalPaperTraceBackwardRewrite
 import Cordis.GlobalPaperTraceBackwardNormalization
 import Cordis.GlobalPaperTraceBidirectionalNormalization
+import Cordis.GlobalPaperTraceBidirectionalNormalizer
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalPaperTraceNormalizer
@@ -2729,6 +2730,21 @@ namespace Example
 #print axioms executableLinkCounts_eq
 end Example
 end Cordis.GlobalPaperTraceBidirectionalNormalization
+namespace Cordis.GlobalPaperTraceBidirectionalNormalizer
+#print axioms normalizeFuel
+#print axioms normalize
+#print axioms normalizeFuel_some_of_measure_le
+#print axioms normalize_some
+#print axioms Result.final_related
+#print axioms Result.rules_perm
+#print axioms Result.actors_perm
+namespace Example
+#print axioms emptyAuthority
+#print axioms empty_normalizes
+#print axioms empty_normal_form
+#print axioms executableFuel_eq
+end Example
+end Cordis.GlobalPaperTraceBidirectionalNormalizer
 namespace Cordis.GlobalPaperTraceDeletion
 #print axioms detailedRule_eq_of_orchestration
 #print axioms replay_detailedRules_eq

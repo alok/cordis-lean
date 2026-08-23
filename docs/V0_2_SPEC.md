@@ -775,6 +775,10 @@ Current machine-checked evidence includes:
 - `Cordis.GlobalPaperTraceNormalizer`, adding an authority-driven terminating chain constructor
   from explicit normal-form, rewrite, and decreasing-measure certificates, while leaving strategy,
   canonical form, global dynamic termination, and confluence external;
+- `Cordis.GlobalPaperTraceBidirectionalNormalizer`, lifting the unified forward/backward chain
+  into a conditional fuel-bounded normalizer whose authority supplies normal-form decisions,
+  oriented links, and a strictly decreasing natural measure; strategy, canonical form, dynamic
+  termination, confluence, Lemma 72, and Theorem 73 remain external;
 - `Cordis.GlobalProgress`, distinguishing configured-oracle rejection from the permissive raw
   relation, kernel-refuting progress under exhausted names, and proving conditional state-local
   no-deadlock from finite precedence and exact execution/recovery authorities;
@@ -1258,6 +1262,13 @@ strategy, canonical-form theorem, termination, confluence, Lemma 72, or Theorem 
 behind one orientation-indexed chain. It copies source/target packages from the selected proof,
 symmetrizes only the backward relation at the wrapper boundary, and composes assignments plus
 rule/actor permutations. This remains a supplied finite chain, not an automatic normalizer.
+
+`Cordis.GlobalPaperTraceBidirectionalNormalizer` lifts that unified chain to a conditional
+fuel-bounded normalizer. An `Authority` supplies normal-form decidability, a source-indexed
+oriented link, and strict Nat-measure decrease; `normalize_some` returns a finite terminal chain
+whose endpoint is birth-erased related to the source and whose rule/actor lists are permutations.
+It does not derive a strategy, canonical form, dynamic termination, confluence, Lemma 72, or
+Theorem 73.
 
 The corrected progress slice is specified in
 [`GLOBAL_PROGRESS_SPEC.md`](GLOBAL_PROGRESS_SPEC.md) and implemented by `Cordis.GlobalProgress`.

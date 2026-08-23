@@ -186,6 +186,7 @@ import Cordis.GlobalPaperNonReflexiveRewrite
 import Cordis.GlobalPaperTraceBackwardRewrite
 import Cordis.GlobalPaperTraceBackwardNormalization
 import Cordis.GlobalPaperTraceBidirectionalNormalization
+import Cordis.GlobalPaperTraceBidirectionalNormalizer
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalPaperTraceNormalizer
@@ -9670,6 +9671,15 @@ private def testGlobalPaperTraceBidirectionalNormalization : IO Unit := do
     Cordis.GlobalPaperTraceBidirectionalNormalization.Example.executableLinkCounts
     [1, 1]
 
+private def testGlobalPaperTraceBidirectionalNormalizer : IO Unit := do
+  let _normalizes :=
+    Cordis.GlobalPaperTraceBidirectionalNormalizer.Example.empty_normalizes
+  let _normal :=
+    Cordis.GlobalPaperTraceBidirectionalNormalizer.Example.empty_normal_form
+  assertEqual "bidirectional normalizer authority starts with zero fuel"
+    Cordis.GlobalPaperTraceBidirectionalNormalizer.Example.executableFuel
+    0
+
 private def testGlobalPaperTraceNormalization : IO Unit := do
   let _related := GlobalPaperTraceNormalization.Example.empty_chain_related
   let _rules := GlobalPaperTraceNormalization.Example.empty_chain_rules
@@ -10293,6 +10303,7 @@ def run : IO Unit := do
   testGlobalPaperTraceBackwardRewrite
   testGlobalPaperTraceBackwardNormalization
   testGlobalPaperTraceBidirectionalNormalization
+  testGlobalPaperTraceBidirectionalNormalizer
   testGlobalPaperTraceDeletion
   testGlobalPaperTraceNormalization
   testGlobalPaperTraceNormalizer

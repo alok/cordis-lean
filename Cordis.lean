@@ -195,6 +195,7 @@ import Cordis.GlobalPaperNonReflexiveRewrite
 import Cordis.GlobalPaperTraceBackwardRewrite
 import Cordis.GlobalPaperTraceBackwardNormalization
 import Cordis.GlobalPaperTraceBidirectionalNormalization
+import Cordis.GlobalPaperTraceBidirectionalNormalizer
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalPaperTraceNormalizer
