@@ -414,6 +414,11 @@ Current machine-checked evidence includes:
   `stream: true` request through the real curl/incremental-reader path, with delivered lines,
   reconstructed body, strict wire proof, and appended runner endpoint retained; byte framing,
   backpressure, blocked-read cancellation, reconnects, and deployed equivalence remain external;
+- `Cordis.DeepSeekHarnessLocalSseIndexed`, attaching that real loopback fixture to the indexed
+  request/append seam. Its result retains local request/response/wire evidence plus exact
+  streaming-plan and indexed-append equations; the executable example checks one valid request,
+  three frames, and the `2 -> 3` endpoint. Returned-body provenance and remote/deployed claims
+  remain outside;
 - `Cordis.DeepSeekHarnessLocalSseRetry`, starting a two-attempt loopback SSE fixture whose first
   valid request returns a typed transient HTTP 503 and whose second request returns the flushed
   SSE body; the retry history, reused streaming plan, accepted wire/body certificate, and single

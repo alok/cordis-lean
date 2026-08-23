@@ -1936,6 +1936,13 @@ fixtures cover a completed endpoint and a later malformed-observation stop. This
 identity, sandboxing, authentication, exactly-once effects, cleanup, persistence, provider
 obedience, and deployed Harness equivalence remain outside.
 
+`DeepSeekHarnessLocalSseIndexed.runWithKey` is checked against the real one-shot loopback
+HTTP/SSE fixture. The result retains local request/response/wire evidence plus exact indexed
+streaming-plan and `ExtensionRunner.appendFinished` certificates; the executable example checks
+one valid request, three frames, and the `2 -> 3` session endpoint. It does not claim returned-
+body provenance, remote reachability, TLS, credentials, provider authenticity, persistence,
+blocked reads, reconnects, or deployed Harness equivalence.
+
 [paper-pdf]: https://raw.githubusercontent.com/cordiverse/paper/948a07b369c62adb3b12e102458be5c18dfb69b9/paper.pdf
 [cordis-fiber]: https://github.com/cordiverse/cordis/blob/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4/packages/core/src/fiber.ts#L78-L485
 [cordis-reflect]: https://github.com/cordiverse/cordis/blob/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4/packages/core/src/reflect.ts#L61-L227

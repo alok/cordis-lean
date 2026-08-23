@@ -1066,6 +1066,14 @@ endpoint, rule, and actor projections. This remains a caller-supplied finite cer
 derived lifecycle strategy, Lemma 72, or Theorem 73.
 
 [paper-tree]: https://github.com/cordiverse/paper/tree/948a07b369c62adb3b12e102458be5c18dfb69b9
+
+`DeepSeekHarnessLocalSseIndexed.runWithKey` is the local executable attachment for the indexed
+streaming seam. It retains the loopback request/response and wire evidence while proving exact
+streaming-plan and `ExtensionRunner.appendFinished` equations; its fixture checks one valid
+request, three frames, and the `2 -> 3` endpoint. Returned-body provenance, remote/TLS/credential
+authenticity, persistence, blocked reads, reconnects, and deployed Harness equivalence remain
+outside.
+
 [paper-pdf]: https://raw.githubusercontent.com/cordiverse/paper/948a07b369c62adb3b12e102458be5c18dfb69b9/paper.pdf
 [cordis-tree]: https://github.com/cordiverse/cordis/tree/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4
 [cordis-context]: https://github.com/cordiverse/cordis/blob/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4/packages/core/src/context.ts#L21-L77

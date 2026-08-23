@@ -1606,6 +1606,14 @@ mode-indexed streaming plan, strict wire frames, finished rich response, and exa
 incomplete bodies remain typed rejections; the process configuration is injected local evidence,
 not live-provider or deployed-Harness equivalence.
 
+`Cordis.DeepSeekHarnessLocalSseIndexed` composes that request-indexed surface with the real
+one-shot loopback HTTP/SSE fixture. `runWithKey` retains the local request/response and wire
+evidence while adding exact equalities for the indexed streaming plan and
+`ExtensionRunner.appendFinished`; `Example.run` exercises one validated request, three delivered
+frames, and the `2 -> 3` session endpoint. The fixture does not prove that its returned body
+matches the supplied process argument, nor remote reachability, TLS, credentials, provider
+authenticity, persistence, blocked-read behavior, reconnects, or deployed Harness equivalence.
+
 There is no public generic runner event emitter. Non-tool events use a private
 emitter that requires proof that the event is not a call boundary. A private
 settlement transition validates and appends one adjacent call/result pair and

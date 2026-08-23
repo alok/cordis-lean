@@ -72,6 +72,7 @@ import Cordis.DeepSeekHarnessLiveProbe
 import Cordis.DeepSeekHarnessLiveStreamProbe
 import Cordis.DeepSeekHarnessLocalHttp
 import Cordis.DeepSeekHarnessLocalSse
+import Cordis.DeepSeekHarnessLocalSseIndexed
 import Cordis.DeepSeekHarnessLocalSseRetry
 import Cordis.DeepSeekHarnessLocalSseRetryConversation
 import Cordis.DeepSeekHarnessPersistenceFileLocalSseRetryConversation
@@ -4285,6 +4286,31 @@ private def testDeepSeekHarnessLocalSse : IO Unit := do
       assertEqual "local SSE result retains the actual loopback request URL"
         result.prepared.plan.request.url
         (DeepSeekHarnessLocalSse.localBaseUrl result.port ++ "/chat/completions")
+
+private def testDeepSeekHarnessLocalSseIndexed : IO Unit := do
+  match ← DeepSeekHarnessLocalSseIndexed.Example.run with
+  | .error error => fail s!"indexed local SSE curl round-trip failed: {reprStr error}"
+  | .ok result =>
+      let summary := DeepSeekHarnessLocalSseIndexed.Example.summarize result
+      let expected := DeepSeekHarnessLocalSseIndexed.Example.expectedSummary
+      assertEqual "indexed local SSE fixture receives one streamed request"
+        summary.requests expected.requests
+      assertEqual "indexed local SSE fixture validates the request shape"
+        summary.validRequests expected.validRequests
+      assertEqual "indexed local SSE fixture retains every complete SSE frame"
+        summary.deliveredFrames expected.deliveredFrames
+      assertEqual "indexed local SSE fixture starts at the certified session endpoint"
+        summary.initialNextSeq expected.initialNextSeq
+      assertEqual "indexed local SSE fixture reaches the exact append endpoint"
+        summary.finalNextSeq expected.finalNextSeq
+      assertEqual "indexed local SSE fixture preserves the runner's tool-count index"
+        result.after.nextCall 0
+      assertEqual "indexed local SSE result retains the streaming mode certificate"
+        result.localResult.prepared.plan.source.stream true
+      let _plan_certificate :=
+        DeepSeekHarnessLocalSseIndexed.IndexedLocalSseResult.indexed_plan_exact result
+      let _append_certificate :=
+        DeepSeekHarnessLocalSseIndexed.IndexedLocalSseResult.append_endpoint_exact result
 
 private def testDeepSeekHarnessLocalSseRetry : IO Unit := do
   match ← DeepSeekHarnessLocalSseRetry.runWithRetry DeepSeekHarness.counterRequestSource
@@ -9188,6 +9214,7 @@ def run : IO Unit := do
   testDeepSeekHarnessLiveStreamProbe
   testDeepSeekHarnessLocalHttp
   testDeepSeekHarnessLocalSse
+  testDeepSeekHarnessLocalSseIndexed
   testDeepSeekHarnessLocalSseRetry
   testDeepSeekHarnessLocalSseRetryConversation
   testDeepSeekHarnessLocalSseTimeout

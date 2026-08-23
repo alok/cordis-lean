@@ -82,6 +82,7 @@ import Cordis.DeepSeekHarnessLiveProbe
 import Cordis.DeepSeekHarnessLiveStreamProbe
 import Cordis.DeepSeekHarnessLocalHttp
 import Cordis.DeepSeekHarnessLocalSse
+import Cordis.DeepSeekHarnessLocalSseIndexed
 import Cordis.DeepSeekHarnessLocalSseRetry
 import Cordis.DeepSeekHarnessLocalSseRetryConversation
 import Cordis.DeepSeekHarnessPersistenceFileLocalSseRetryConversation
