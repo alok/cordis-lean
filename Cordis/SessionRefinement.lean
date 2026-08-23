@@ -862,12 +862,12 @@ def decodeWireReasoningChunkData (event : Lean.Json) (eventPath : List PathSegme
   else
     .error (.unsupportedTag (fieldPath chunkPath "index") (toString index.value))
 
-private structure DecodedToolResultBlock where
+structure DecodedToolResultBlock where
   callId : String
   content : String
   isError : Bool
 
-private def decodeToolResultBlock (path : List PathSegment) : Lean.Json →
+def decodeToolResultBlock (path : List PathSegment) : Lean.Json →
     Except DecodeError DecodedToolResultBlock
   | json@(.obj _) => do
       expectTag (fieldPath path "type") "tool-result"
