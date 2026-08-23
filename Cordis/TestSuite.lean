@@ -85,6 +85,7 @@ import Cordis.DeepSeekSchemaMultiRound
 import Cordis.DeepSeekSchemaRegistry
 import Cordis.DeepSeekScopedRegistry
 import Cordis.DeepSeekSchemaConversation
+import Cordis.DeepSeekSchemaConversationBytes
 import Cordis.DeepSeekSchemaConversationLoop
 import Cordis.DeepSeekSchemaLocalHttp
 import Cordis.DeepSeekSchemaStreamConversation
@@ -4572,6 +4573,44 @@ private def testDeepSeekToolSchema : IO Unit := do
   | .error error => fail s!"duplicate tool names returned the wrong error: {reprStr error}"
   | .ok _ => fail "duplicate tool names were accepted"
 
+private def testDeepSeekSchemaConversationBytes : IO Unit := do
+  assertEqual "byte-backed heterogeneous schema conversation succeeds"
+    (← DeepSeekSchemaConversationBytes.Example.dualByteRoundAccepted) true
+  assertEqual "byte-backed schema conversation preserves HTTP status failures"
+    (← DeepSeekSchemaConversationBytes.Example.invalidStatusRejected) true
+  match DeepSeekToolSchema.weatherToolCertificate,
+      DeepSeekSchemaRegistry.Example.clockToolCertificate with
+  | .error error, _ => fail s!"byte schema weather setup failed: {reprStr error}"
+  | _, .error error => fail s!"byte schema clock setup failed: {reprStr error}"
+  | .ok weatherCertificate, .ok clockCertificate =>
+      match ← DeepSeekSchemaConversationBytes.Example.dualByteConversationRound
+          weatherCertificate clockCertificate with
+      | .error _ => fail "byte-backed schema round failed"
+      | .ok ⟨body, ⟨validated, ⟨accepted, ⟨batch, result⟩⟩⟩⟩ =>
+          assertEqual "byte schema round retains exact response bytes"
+            body.toList DeepSeekSchemaRegistry.Example.dualResponseBody.toUTF8.toList
+          assertEqual "byte schema round decodes the exact response text"
+            validated.text DeepSeekSchemaRegistry.Example.dualResponseBody
+          assertEqual "byte schema round executes both heterogeneous calls"
+            batch.executions.length 2
+          assertEqual "byte schema round preserves the final model"
+            batch.finalModel 0
+          assertEqual "byte schema round accounts for assistant plus two results"
+            result.round.finalRunner.session.nextSeq
+            (DeepSeekSchemaHarness.Example.counterRunner.session.nextSeq + 3)
+          let _complete :=
+            DeepSeekSchemaConversationBytes.PreparedByteRequest.complete_mode result.prepared
+          let _body :=
+            DeepSeekSchemaConversationBytes.PreparedByteRequest.bytes_are_utf8_body
+              result.prepared
+          let _decoded := validated.decoded
+          let _parsed := validated.validated.parsed
+          let _response := validated.validated.decoded
+          let _accepted := accepted.calls_eq
+          let _final :=
+            DeepSeekSchemaConversationBytes.ConversationBytesResult.finalRunner_nextSeq result
+          pure ()
+
 private def testDeepSeekSchemaLocalHttp : IO Unit := do
   assertEqual "schema loopback port parser accepts a decimal port"
     (DeepSeekSchemaLocalHttp.parsePort "61703\n") (some 61703)
@@ -8646,6 +8685,7 @@ def run : IO Unit := do
   testDeepSeekHarnessOpaqueMetadata
   testDeepSeekHarnessMetadataArchive
   testDeepSeekToolSchema
+  testDeepSeekSchemaConversationBytes
   testDeepSeekSchemaLocalHttp
   testDeepSeekScopedRegistry
   testDeepSeekHarnessExtensions

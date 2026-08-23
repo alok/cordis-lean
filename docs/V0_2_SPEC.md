@@ -512,6 +512,9 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekSchemaConversation`, attaching registry-derived tool declarations to a typed
   complete-body transport request and validated response while retaining the exact plan, response,
   heterogeneous execution batch, and runner endpoint for one round;
+- `Cordis.DeepSeekSchemaConversationBytes`, composing that heterogeneous round with the explicit
+  byte boundary: exact typed request/UTF-8 bytes, exact response bytes, decoded text, parse/decode
+  certificates, accepted calls, dependent batch, and runner endpoint remain in one result;
 - `Cordis.DeepSeekSchemaConversationLoop`, carrying those rounds through a caller-fueled dependent
   loop with an explicit validated no-tool terminal witness, accumulated round history, and a
   distinct fuel-exhaustion stop;
@@ -1864,6 +1867,12 @@ advances the dependent model after every certified tool round, preserves an exis
 and retains a validated no-tool response as terminal rather than confusing it with exhaustion.
 These modules remain complete-body and caller-fueled; provider obedience, retries, cancellation,
 persistence, external effects, and deployed Harness equivalence remain outside.
+
+`Cordis.DeepSeekSchemaConversationBytes` is the corresponding raw-byte composition. It converts the
+typed complete request to exact UTF-8 bytes, validates the successful response bytes once, and feeds
+the decoded text into the same heterogeneous registry round without erasing its dependent
+certificates. Invalid UTF-8 and non-2xx status remain typed before schema admission; remote/provider
+behavior, retries, cancellation, persistence, and deployed Harness equivalence remain outside.
 
 `Cordis.DeepSeekSchemaTransportRetryCancellation` composes the same heterogeneous registry with
 the single-decoder retry boundary and pre-round cancellation. A successful validated response is

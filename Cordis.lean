@@ -101,6 +101,7 @@ import Cordis.DeepSeekSchemaMultiRound
 import Cordis.DeepSeekSchemaRegistry
 import Cordis.DeepSeekScopedRegistry
 import Cordis.DeepSeekSchemaConversation
+import Cordis.DeepSeekSchemaConversationBytes
 import Cordis.DeepSeekSchemaConversationLoop
 import Cordis.DeepSeekSchemaLocalHttp
 import Cordis.DeepSeekSchemaStreamConversation

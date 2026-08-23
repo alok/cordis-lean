@@ -81,6 +81,7 @@ import Cordis.DeepSeekSchemaMultiRound
 import Cordis.DeepSeekSchemaRegistry
 import Cordis.DeepSeekScopedRegistry
 import Cordis.DeepSeekSchemaConversation
+import Cordis.DeepSeekSchemaConversationBytes
 import Cordis.DeepSeekSchemaConversationLoop
 import Cordis.DeepSeekSchemaLocalHttp
 import Cordis.DeepSeekSchemaStreamConversation
@@ -1450,6 +1451,11 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekSchemaConversation.registryToolDefinitions
 #print axioms Cordis.DeepSeekSchemaConversation.executeSchemaRegistryConversationRound
 #print axioms Cordis.DeepSeekSchemaConversation.SchemaRegistryConversationResult.finalRunner_nextSeq
+#print axioms Cordis.DeepSeekSchemaConversationBytes.ByteRequestPlan.ofTypedPlan
+#print axioms Cordis.DeepSeekSchemaConversationBytes.executeSchemaRegistryConversationRound
+#print axioms Cordis.DeepSeekSchemaConversationBytes.ConversationBytesResult.finalRunner_nextSeq
+#print axioms Cordis.DeepSeekSchemaConversationBytes.Example.dualByteRoundAccepted
+#print axioms Cordis.DeepSeekSchemaConversationBytes.Example.invalidStatusRejected
 #print axioms Cordis.DeepSeekSchemaConversationLoop.executeSchemaRegistryConversationStep
 #print axioms Cordis.DeepSeekSchemaConversationLoop.runSchemaConversation
 #print axioms Cordis.DeepSeekSchemaConversationLoop.SchemaConversationStop
