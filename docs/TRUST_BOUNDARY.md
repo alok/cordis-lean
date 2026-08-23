@@ -370,6 +370,13 @@ outside. `RequestProvenance` also proves that the first plan rebuilds from the v
 session, the second from the first appended session, and both serialized bodies match their typed
 request sources.
 
+`DeepSeekHarnessPersistenceFileLocalSseApiErrorRetryConversation` carries that same
+temporary-file-origin runner through two real HTTP-429/API-error retry rounds. Both typed error
+envelopes, request/body provenance equations, valid-request counts, distinct rebuilt bodies, clean
+exits, archive/session equality, and exact `8 -> 10` growth remain attached. The file lifetime is
+scoped to `withTempFile`; fsync, stable media, crash recovery, provider authenticity, retry
+policy, external effects, and deployed Harness equivalence remain outside this certificate.
+
 `DeepSeekHarnessPersistenceTransportRound` carries that exact restored runner through a complete
 typed request and injected transport. Its `PersistedRound` retains the single response decoder,
 `acceptValidated` equality, archive/session equality, typed tool executions, and final
@@ -1194,7 +1201,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 2415
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 2426
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.

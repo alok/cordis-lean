@@ -441,6 +441,12 @@ Current machine-checked evidence includes:
   archive session, the second from the first appended session, and both serialized bodies equal
   their typed request sources. `withTempFile` cleanup, fsync, stable media, crash recovery,
   provider authenticity, external effects, and deployed Harness equivalence remain external;
+- `Cordis.DeepSeekHarnessPersistenceFileLocalSseApiErrorRetryConversation`, carrying that
+  temporary-file restored runner through two loopback HTTP-429/API-error retry rounds. It retains
+  archive/session equality, both parsed error envelopes, both request/body provenance equations,
+  valid-request counts, distinct rebuilt bodies, clean exits, and exact `8 -> 10` growth. File
+  durability, provider authenticity, retry policy, external effects, and deployed equivalence
+  remain external;
 - `Cordis.DeepSeekHarnessLocalSseTimeout`, starting a loopback SSE fixture that flushes two valid
   lines and then stalls, racing a real asynchronous timer against the blocking curl read and
   retaining the dependent prefix after cleanup; a zero-delay sibling reaches strict completion and

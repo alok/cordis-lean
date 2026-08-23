@@ -82,6 +82,7 @@ import Cordis.DeepSeekHarnessLocalSseIndexedLoop
 import Cordis.DeepSeekHarnessLocalSseRetry
 import Cordis.DeepSeekHarnessLocalSseRetryConversation
 import Cordis.DeepSeekHarnessPersistenceFileLocalSseRetryConversation
+import Cordis.DeepSeekHarnessPersistenceFileLocalSseApiErrorRetryConversation
 import Cordis.DeepSeekHarnessLocalSseTimeout
 import Cordis.DeepSeekHarnessLocalSseMultiTool
 import Cordis.DeepSeekHarnessLocalSseMultiToolPrefix
@@ -2109,6 +2110,49 @@ private def testDeepSeekHarnessPersistenceFileLocalSseRetryConversation : IO Uni
         DeepSeekHarnessPersistenceFileLocalSseRetryConversation.restored_session_eq_file_archive run
       let _advanceCertificate :=
         DeepSeekHarnessPersistenceFileLocalSseRetryConversation.final_session_advance run
+      pure ()
+
+private def testDeepSeekHarnessPersistenceFileLocalSseApiErrorRetryConversation : IO Unit := do
+  match ← DeepSeekHarnessPersistenceFileLocalSseApiErrorRetryConversation.runFixture with
+  | .error error =>
+      fail s!"file-backed local SSE API-error retry conversation failed: {reprStr error}"
+  | .ok run =>
+      let summary := DeepSeekHarnessPersistenceFileLocalSseApiErrorRetryConversation.summary run
+      let expected :=
+        DeepSeekHarnessPersistenceFileLocalSseApiErrorRetryConversation.expectedSummary
+      assertEqual "file-backed API-error retry conversation restores the archive endpoint"
+        summary.initialNextSeq expected.initialNextSeq
+      assertEqual "file-backed API-error retry conversation records temporary-file storage"
+        summary.storage expected.storage
+      assertEqual "file-backed API-error retry conversation appends two terminal responses"
+        summary.finalNextSeq expected.finalNextSeq
+      assertEqual "file-backed API-error retry conversation receives two attempts per round"
+        (summary.firstRequests, summary.secondRequests)
+        (expected.firstRequests, expected.secondRequests)
+      assertEqual "file-backed API-error retry conversation validates both requests per round"
+        (summary.firstValidRequests, summary.secondValidRequests)
+        (expected.firstValidRequests, expected.secondValidRequests)
+      assertEqual "file-backed API-error retry conversation retains both 429 statuses"
+        (summary.firstStatus, summary.secondStatus)
+        (expected.firstStatus, expected.secondStatus)
+      assertEqual "file-backed API-error retry conversation rebuilds a distinct second request"
+        summary.requestBodiesDistinct expected.requestBodiesDistinct
+      assertEqual "file-backed API-error retry conversation exits both servers cleanly"
+        (summary.firstServerExit, summary.secondServerExit)
+        (expected.firstServerExit, expected.secondServerExit)
+      assertEqual "file-backed API-error retry conversation executable projection agrees"
+        (DeepSeekHarnessPersistenceFileLocalSseApiErrorRetryConversation.summaryMatches summary)
+        true
+      let _requestProvenance :=
+        DeepSeekHarnessPersistenceFileLocalSseApiErrorRetryConversation.requestProvenance run
+      let _sessionCertificate :=
+        Cordis.DeepSeekHarnessPersistenceFileLocalSseApiErrorRetryConversation.restored_session_eq_file_archive
+          run
+      let _advanceCertificate :=
+        DeepSeekHarnessPersistenceFileLocalSseApiErrorRetryConversation.final_session_advance run
+      let _endpointCertificate :=
+        Cordis.DeepSeekHarnessLocalSseApiErrorRetryConversation.ApiErrorRetryConversationResult.session_advance_twice
+          run.conversation
       pure ()
 
 private def testDeepSeekHarnessPersistenceStreamBytePrefixTimeout : IO Unit := do
@@ -9761,6 +9805,7 @@ def run : IO Unit := do
   testDeepSeekHarnessPersistenceStreamRetryCancellation
   testDeepSeekHarnessPersistenceFileStreamRetryCancellation
   testDeepSeekHarnessPersistenceFileLocalSseRetryConversation
+  testDeepSeekHarnessPersistenceFileLocalSseApiErrorRetryConversation
   testDeepSeekHarnessProcessSchema
   testDeepSeekHarnessProcessSchemaPrefix
   testDeepSeekHarnessProcessSchemaPrefixConversation

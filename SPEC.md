@@ -1121,6 +1121,11 @@ claim:
    both typed 429 envelopes, both accepted append endpoints, and the exact two-round sequence
    equation. Provider retry policy, persistence, cancellation, reconnect, and deployed equivalence
    remain external.
+   `Cordis.DeepSeekHarnessPersistenceFileLocalSseApiErrorRetryConversation` restores the initial
+   runner from the validated temporary-file archive before running those two rounds. It retains
+   archive/session equality, both request-build/body equations, both 429 statuses, valid-request
+   counts, clean exits, distinct rebuilt bodies, and exact `8 -> 10` growth; file durability,
+   provider authenticity, retry policy, and deployed equivalence remain external.
 1. **Production streaming.** Extend the bounded text model with transport,
    backpressure, cancellation, tool-call payload assembly, provider-complete
    parser state, and a live HTTP reader; the current `DeepSeekStream` module is

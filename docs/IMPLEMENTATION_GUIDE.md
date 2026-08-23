@@ -2655,6 +2655,12 @@ match the first accepted dispatch, use its exact runner as the second request's 
 both typed first-attempt envelopes plus both append endpoints. The dependent proof should expose
 the exact two-round `nextSeq` equation; do not silently reuse the first request or infer deployed
 retry policy from the deterministic loopback server.
+`Cordis.DeepSeekHarnessPersistenceFileLocalSseApiErrorRetryConversation` composes that dependent
+conversation with `DeepSeekHarnessPersistenceIO.fixtureFile`. Restore the initial runner from the
+validated archive, then retain both parsed 429 envelopes, both request/body provenance equations,
+valid-request counts, distinct rebuilt bodies, clean exits, archive/session equality, and exact
+`8 -> 10` growth. Keep `withTempFile` cleanup separate from fsync, stable media, crash recovery,
+provider authenticity, retry policy, external effects, and deployed Harness equivalence.
 `Cordis.DeepSeekCurlPrefix` is the typed process counterpart: it advances `PrefixState` before
 requesting the next complete line, retains the raw process body separately from the normalized
 prefix certificate, and uses the same line policy for synchronous fuel/cancellation stops. Its

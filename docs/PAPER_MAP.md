@@ -409,6 +409,7 @@ Local sources: [`Cordis/RichStream.lean`](../Cordis/RichStream.lean),
 [`Cordis/DeepSeekHarnessLocalSseApiError.lean`](../Cordis/DeepSeekHarnessLocalSseApiError.lean),
 [`Cordis/DeepSeekHarnessLocalSseApiErrorRetry.lean`](../Cordis/DeepSeekHarnessLocalSseApiErrorRetry.lean),
 [`Cordis/DeepSeekHarnessLocalSseApiErrorRetryConversation.lean`](../Cordis/DeepSeekHarnessLocalSseApiErrorRetryConversation.lean),
+[`Cordis/DeepSeekHarnessPersistenceFileLocalSseApiErrorRetryConversation.lean`](../Cordis/DeepSeekHarnessPersistenceFileLocalSseApiErrorRetryConversation.lean),
 [`Cordis/DeepSeekStream.lean`](../Cordis/DeepSeekStream.lean), and
 [`Cordis/DeepSeekRichStream.lean`](../Cordis/DeepSeekRichStream.lean), and
 [`Cordis/DeepSeekRichToolStream.lean`](../Cordis/DeepSeekRichToolStream.lean), and

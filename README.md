@@ -257,6 +257,12 @@ removed by `withTempFile`; fsync, stable media, crash recovery, provider authent
 effects, and deployed Harness equivalence remain outside. `RequestProvenance` additionally proves
 that the first plan rebuilds from the validated archive session, the second from the first
 appended session, and both serialized bodies equal their typed request sources.
+`Cordis.DeepSeekHarnessPersistenceFileLocalSseApiErrorRetryConversation` carries the same
+temporary-file-origin runner through two real HTTP-429-then-SSE-success rounds. Its dependent
+result retains both parsed API-error envelopes, both request-build equations, both valid-request
+counts, distinct rebuilt request bodies, clean exits, and the executable `8 -> 10` endpoint. The
+file lifetime is scoped to `withTempFile`; fsync, stable media, crash recovery, provider
+authenticity, retry policy, external effects, and deployed Harness equivalence remain outside.
 `Cordis.DeepSeekHarnessLocalSseTimeout` closes the adjacent in-flight boundary: a loopback server
 flushes two valid SSE lines and then stalls, while a real asynchronous timer races the blocking curl
 read and retains the exact typed prefix after cleanup. A fast fixture follows the same path to a
