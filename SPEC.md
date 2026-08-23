@@ -164,7 +164,9 @@ conditional fixed-catalog Lemma 56 analogue, not a base-Dynamics theorem.
 `Cordis.GlobalNamePaperRelation` now connects that executable action to the paper-visible
 observation layer: dependent active-context values and paper fiber controls are reindexed by the
 name permutation, and every well-formed acted state (including a finite trace endpoint) is related
-to its source after allocator birth artifacts are erased. The bridge remains observational; it does
+to its source after allocator birth artifacts are erased. Its non-activation trace package gives a
+concrete assigned raise/error-style witness without smuggling in an activation transport premise;
+activation-bearing traces retain that premise explicitly. The bridge remains observational; it does
 not supply the missing unconditional lifecycle bisimulation.
 
 The active line now also includes an oracle-specific finite partial/Kleisli analogue of paper

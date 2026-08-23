@@ -9946,6 +9946,15 @@ private def testGlobalNameTraceAction : IO Unit := do
 
 private def testGlobalNamePaperRelation : IO Unit := do
   let _related := GlobalNamePaperRelation.Example.actedRaise_related
+  let acted := GlobalNameTraceAction.actTrace
+    GlobalNamePaperRelation.Example.raiseAssumptions
+    GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed
+    GlobalNamePaperRelation.Example.raiseTrace
+  assertEqual "paper relation bridge retains the acted raise rule"
+    acted.rules [.lRaise]
+  match acted.actors with
+  | [.fiber true] => pure ()
+  | actors => fail s!"paper relation bridge mapped actors unexpectedly: {reprStr actors}"
   let _control := GlobalNamePaperRelation.nameActionPaperRelated_control
     GlobalNameAction.Example.swapAction GlobalNamePaperRelation.Example.values
     GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed false

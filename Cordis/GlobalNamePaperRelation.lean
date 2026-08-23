@@ -173,6 +173,54 @@ theorem nameActionPaperRelated_trace_endpoint
     NameActionPaperRelated action values after (actState action after) :=
   nameActionPaperRelated_actState action values (trace.preservesWellFormed beforeWf)
 
+/-! ## Exact non-activation assignments without a lifecycle transport premise -/
+
+structure NonActivationTracePaperEndpoint
+    (action : NameAction sig Ambient) (values : ValueSetoids sig)
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    {before after : State catalog Ambient} (beforeWf : WellFormed before)
+    (trace : GlobalCalculus.Trace dynamics inertia before after)
+    (evidence : NonActivationTrace trace)
+    (assignment : TraceProgramAssignment dynamics inertia trace) where
+  acted : GlobalCalculus.Trace dynamics inertia
+    (actState action before) (actState action after)
+  acted_eq : acted = actTrace assumptions beforeWf trace
+  actedAssignment : TraceProgramAssignment dynamics inertia acted
+  paperRelated : NameActionPaperRelated action values after (actState action after)
+
+noncomputable def nonActivationTracePaperEndpoint
+    (action : NameAction sig Ambient) (values : ValueSetoids sig)
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    {before after : State catalog Ambient} (beforeWf : WellFormed before)
+    (trace : GlobalCalculus.Trace dynamics inertia before after)
+    (evidence : NonActivationTrace trace)
+    (assignment : TraceProgramAssignment dynamics inertia trace) :
+    NonActivationTracePaperEndpoint action values assumptions beforeWf trace evidence
+      assignment :=
+  { acted := actTrace assumptions beforeWf trace
+    acted_eq := rfl
+    actedAssignment := actNonactivationTraceAssignment assumptions beforeWf evidence assignment
+    paperRelated := nameActionPaperRelated_actState action values
+      (trace.preservesWellFormed beforeWf) }
+
+theorem nonActivationTracePaperEndpoint_acted_eq
+    (action : NameAction sig Ambient) (values : ValueSetoids sig)
+    {dynamics : Dynamics sig catalog Ambient}
+    {inertia : InertiaPolicy dynamics}
+    (assumptions : NameLifecycleAssumptions action dynamics inertia)
+    {before after : State catalog Ambient} (beforeWf : WellFormed before)
+    (trace : GlobalCalculus.Trace dynamics inertia before after)
+    (evidence : NonActivationTrace trace)
+    (assignment : TraceProgramAssignment dynamics inertia trace) :
+    let endpoint :=
+      nonActivationTracePaperEndpoint action values assumptions beforeWf trace evidence assignment
+    endpoint.acted =
+      actTrace assumptions beforeWf trace := rfl
+
 /-! ## Exact acted traces with paper-visible endpoint evidence -/
 
 structure AssignedTracePaperEndpoint
@@ -235,6 +283,48 @@ theorem actedRaise_related :
       (actState swapAction GlobalNameLifecycle.NonidentityRaiseExample.raiseState) :=
   nameActionPaperRelated_actState swapAction values
     GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed
+
+abbrev raiseDynamics := GlobalNameLifecycle.NonidentityRaiseExample.dynamics
+abbrev raiseInertia := GlobalNameLifecycle.NonidentityRaiseExample.inertia
+abbrev raiseAssumptions := GlobalNameLifecycle.NonidentityRaiseExample.assumptions
+abbrev raiseState := GlobalNameLifecycle.NonidentityRaiseExample.raiseState
+abbrev raiseAfter := GlobalNameLifecycle.NonidentityRaiseExample.raiseAfter
+abbrev raiseTransition := GlobalNameLifecycle.NonidentityRaiseExample.raiseTransition
+
+def raiseStep : GlobalCalculus.Step raiseDynamics raiseInertia raiseState raiseAfter :=
+  .lifecycle raiseTransition
+
+def raiseTrace : GlobalCalculus.Trace raiseDynamics raiseInertia raiseState raiseAfter :=
+  .cons raiseStep (.nil raiseAfter)
+
+theorem raiseStep_not_activation : ¬IsProgramActivationRule raiseStep.rule := by
+  intro evidence
+  cases evidence
+
+def raiseTraceEvidence : NonActivationTrace raiseTrace :=
+  .cons raiseStep_not_activation (.nil raiseAfter)
+
+def raiseTraceAssignment : TraceProgramAssignment raiseDynamics raiseInertia raiseTrace :=
+  .cons (StepProgramAssignment.ofNotActivation raiseStep raiseStep_not_activation) (.nil _)
+
+noncomputable def actedRaiseTrace :
+    NonActivationTracePaperEndpoint swapAction values raiseAssumptions
+      GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed
+      raiseTrace raiseTraceEvidence raiseTraceAssignment :=
+  nonActivationTracePaperEndpoint swapAction values raiseAssumptions
+    GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed
+    raiseTrace raiseTraceEvidence raiseTraceAssignment
+
+theorem actedRaiseTrace_related :
+    NameActionPaperRelated swapAction values raiseAfter (actState swapAction raiseAfter) :=
+  actedRaiseTrace.paperRelated
+
+theorem actedRaiseTrace_rules : actedRaiseTrace.acted.rules = raiseTrace.rules := by
+  change (actTrace raiseAssumptions
+      GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed raiseTrace).rules =
+    raiseTrace.rules
+  exact actTrace_rules raiseAssumptions
+    GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed raiseTrace
 
 end Example
 
