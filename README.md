@@ -1661,6 +1661,11 @@ only Lean's standard logical principles where needed: `propext`,
 axioms. The project defines no custom axioms and contains no proof
 placeholders.
 
+The finite external conversation layer also exposes `runCapturingErrors`: it
+retains an accepted indexed trace prefix when a later local process fails to
+spawn or decode, while the original `run` API preserves the typed
+`Except ObservationError` boundary.
+
 ## What is verified
 
 | Guarantee                                                                                                                                                                                                                                                   | Lean evidence                                                                                                                                                                                                                                                                                                                                                                                                 | Exact boundary                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |

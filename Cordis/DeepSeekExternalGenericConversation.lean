@@ -16,7 +16,8 @@ accepted dispatch, while the executable result remains usable by `IO` and downst
 
 The module does not claim process identity, sandboxing, authentication, exactly-once effects,
 cleanup, persistence, provider obedience, or deployed DeepSeek Harness equivalence.  A failed
-or uncertified process is retained as an explicit stop classification.
+or uncertified process is retained as an explicit stop classification; the capturing runner also
+retains an accepted prefix when a later observation returns a typed process/JSON error.
 -/
 
 set_option autoImplicit false
@@ -132,6 +133,7 @@ inductive StopKind where
   | completed
   | fuelExhausted
   | uncertified
+  | observationError
 deriving DecidableEq, Repr
 
 structure RunResult
@@ -142,6 +144,101 @@ structure RunResult
   trace : Trace initial final
   stop : StopKind
   stopProcess : Option ProcessObservation
+  stopError : Option ObservationError
+
+/-!
+The capturing runner is the total observation-facing form of the finite script.  Unlike `run`,
+it does not discard a previously accepted prefix when the next configured process cannot be
+observed or decoded.  The error is moved into the indexed result as `stopError`; an uncertified
+successful observation remains a separate stop with its process evidence in `stopProcess`.
+-/
+
+def runCaptureAux
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    {turn step : Nat}
+    (fuel : Nat)
+    {state : GenericHarness.Runner cfg (.step turn step [])}
+    (script : Script state) :
+    IO (Sigma fun final : GenericHarness.Runner cfg (.step turn step []) =>
+      RunResult state final) := do
+  match fuel with
+  | 0 =>
+      pure ⟨state, {
+        trace := .nil state
+        stop := .fuelExhausted
+        stopProcess := none
+        stopError := none
+      }⟩
+  | fuel + 1 =>
+      match script with
+      | .stop plan =>
+          match ← observeAndDispatch state
+              (binding := plan.binding) (invocation := plan.invocation)
+              plan.certify with
+          | .error error =>
+              pure ⟨state, {
+                trace := .nil state
+                stop := .observationError
+                stopProcess := none
+                stopError := some error
+              }⟩
+          | .ok ⟨observed, none⟩ =>
+              pure ⟨state, {
+                trace := .nil state
+                stop := .uncertified
+                stopProcess := some observed.process
+                stopError := none
+              }⟩
+          | .ok ⟨_, some dispatch⟩ =>
+              let head := ExternalStep.ofObserved dispatch
+              pure ⟨dispatch.result.runnerResult.runner, {
+                trace := .cons head (.nil dispatch.result.runnerResult.runner)
+                stop := .completed
+                stopProcess := none
+                stopError := none
+              }⟩
+      | .continue plan next =>
+          match ← observeAndDispatch state
+              (binding := plan.binding) (invocation := plan.invocation)
+              plan.certify with
+          | .error error =>
+              pure ⟨state, {
+                trace := .nil state
+                stop := .observationError
+                stopProcess := none
+                stopError := some error
+              }⟩
+          | .ok ⟨observed, none⟩ =>
+              pure ⟨state, {
+                trace := .nil state
+                stop := .uncertified
+                stopProcess := some observed.process
+                stopError := none
+              }⟩
+          | .ok ⟨observed, some dispatch⟩ =>
+              let head := ExternalStep.ofObserved dispatch
+              let captured ← runCaptureAux fuel (next observed dispatch)
+              match captured with
+              | ⟨final, tail⟩ =>
+                  pure ⟨final, {
+                    trace := .cons head tail.trace
+                    stop := tail.stop
+                    stopProcess := tail.stopProcess
+                    stopError := tail.stopError
+                  }⟩
+termination_by fuel
+
+def runCapturingErrors
+    {Model Capability : Type}
+    {cfg : GenericHarness.Config Model Capability}
+    {turn step : Nat}
+    (fuel : Nat)
+    {state : GenericHarness.Runner cfg (.step turn step [])}
+    (script : Script state) :
+    IO (Sigma fun final : GenericHarness.Runner cfg (.step turn step []) =>
+      RunResult state final) :=
+  runCaptureAux fuel script
 
 def runAux
     {Model Capability : Type}
@@ -153,55 +250,12 @@ def runAux
     IO (Except ObservationError
       (Sigma fun final : GenericHarness.Runner cfg (.step turn step []) =>
         RunResult state final)) := do
-  match fuel with
-  | 0 =>
-      pure (.ok ⟨state, {
-        trace := .nil state
-        stop := .fuelExhausted
-        stopProcess := none
-      }⟩)
-  | fuel + 1 =>
-      match script with
-      | .stop plan =>
-          match ← observeAndDispatch state
-              (binding := plan.binding) (invocation := plan.invocation)
-              plan.certify with
-          | .error error => pure (.error error)
-          | .ok ⟨observed, none⟩ =>
-              pure (.ok ⟨state, {
-                trace := .nil state
-                stop := .uncertified
-                stopProcess := some observed.process
-              }⟩)
-          | .ok ⟨_, some dispatch⟩ =>
-              let head := ExternalStep.ofObserved dispatch
-              pure (.ok ⟨dispatch.result.runnerResult.runner, {
-                trace := .cons head (.nil dispatch.result.runnerResult.runner)
-                stop := .completed
-                stopProcess := none
-              }⟩)
-      | .continue plan next =>
-          match ← observeAndDispatch state
-              (binding := plan.binding) (invocation := plan.invocation)
-              plan.certify with
-          | .error error => pure (.error error)
-          | .ok ⟨observed, none⟩ =>
-              pure (.ok ⟨state, {
-                trace := .nil state
-                stop := .uncertified
-                stopProcess := some observed.process
-              }⟩)
-          | .ok ⟨observed, some dispatch⟩ =>
-              let head := ExternalStep.ofObserved dispatch
-              match ← runAux fuel (next observed dispatch) with
-              | .error error => pure (.error error)
-              | .ok ⟨final, tail⟩ =>
-                  pure (.ok ⟨final, {
-                    trace := .cons head tail.trace
-                    stop := tail.stop
-                    stopProcess := tail.stopProcess
-                  }⟩)
-termination_by fuel
+  let captured ← runCaptureAux fuel script
+  match captured with
+  | ⟨final, result⟩ =>
+      match result.stopError with
+      | some error => pure (.error error)
+      | none => pure (.ok ⟨final, result⟩)
 
 def run
     {Model Capability : Type}
@@ -250,5 +304,37 @@ def counterReadContinueScript : Script DeepSeekExternalGenericRound.counterReadR
     .stop (counterReadFailPlan (state := dispatch.result.runnerResult.runner)))
 
 def counterReadContinueRun := run 2 counterReadContinueScript
+
+def counterReadMalformedBinding :
+    ProcessBinding Cordis.Examples.Counter.readSpec where
+  resultCodec := fun input => Cordis.Examples.Counter.wire.resultCodec .read input
+  config := fun _ => {
+    command := "sh"
+    args := #["-c", "printf '%s' 'not-json'"]
+    stdin := ""
+  }
+
+def counterReadMalformedCertify
+    {state : GenericHarness.Runner Harness.counterConfig (.step 0 0 [])}
+    (observed : ObservedResult counterReadMalformedBinding counterReadInvocation)
+    (_exit_zero : observed.process.exitCode = 0) :
+    Option (ObservedDispatch state observed) :=
+  none
+
+def counterReadMalformedPlan
+    {state : GenericHarness.Runner Harness.counterConfig (.step 0 0 [])} :
+    RoundPlan state where
+  spec := Cordis.Examples.Counter.readSpec
+  binding := counterReadMalformedBinding
+  invocation := DeepSeekExternalGenericRound.counterReadInvocation
+  certify := counterReadMalformedCertify
+
+def counterReadErrorScript : Script DeepSeekExternalGenericRound.counterReadRunner :=
+  .continue counterReadStopPlan (fun _ dispatch =>
+    .stop (counterReadMalformedPlan (state := dispatch.result.runnerResult.runner)))
+
+def counterReadErrorRun := runCapturingErrors 2 counterReadErrorScript
+
+def counterReadErrorLegacyRun := run 2 counterReadErrorScript
 
 end Cordis.DeepSeekExternalGenericConversation

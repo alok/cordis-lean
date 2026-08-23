@@ -2624,6 +2624,27 @@ private def testDeepSeekExternalGenericConversation : IO Unit := do
       | some process =>
           assertEqual "external generic continuation retains the nonzero exit"
             process.exitCode 7
+  match ← DeepSeekExternalGenericConversation.counterReadErrorRun with
+  | ⟨final, result⟩ =>
+      assertEqual "external generic captured error preserves the accepted call id"
+        final.nextCall 1
+      assertEqual "external generic captured error preserves the accepted model"
+        final.model 7
+      assertEqual "external generic captured error retains the accepted prefix"
+        result.trace.length 1
+      assertEqual "external generic captured error has an explicit stop"
+        result.stop DeepSeekExternalGenericConversation.StopKind.observationError
+      assertEqual "external generic captured error has no process stop"
+        result.stopProcess none
+      match result.stopError with
+      | some (.invalidJson _) => pure ()
+      | some error =>
+          fail s!"external generic captured the wrong observation error: {reprStr error}"
+      | none => fail "external generic captured error lost its observation error"
+  match ← DeepSeekExternalGenericConversation.counterReadErrorLegacyRun with
+  | .error (.invalidJson _) => pure ()
+  | .error error => fail s!"external generic legacy runner returned the wrong error: {reprStr error}"
+  | .ok _ => fail "external generic legacy runner did not preserve its error boundary"
 
 private def testDeepSeekAsyncStreamCancellation : IO Unit := do
   let race ← DeepSeekAsyncStreamCancellation.exampleCancellationRace

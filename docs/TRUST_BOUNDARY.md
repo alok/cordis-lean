@@ -1885,12 +1885,13 @@ uncertified. Process identity, sandboxing, authentication, exactly-once effects,
 deployed Harness equivalence remain outside.
 `DeepSeekExternalGenericConversation` composes those proof-carrying dispatches into a finite
 dependent script. Continuations are chosen from the exact accepted dispatch, accepted edges form an
-indexed runner trace, and completion, fuel exhaustion, and uncertified stops are separate results.
-Because heterogeneous `ToolSpec` values are above the executable `IO` universe, each trace edge
-stores its external origin in `Prop` rather than pretending to return a homogeneous wire payload.
-This proves finite local-process orchestration only; process identity, sandboxing, authentication,
-exactly-once effects, cleanup, persistence, provider obedience, and deployed Harness equivalence
-remain outside.
+indexed runner trace, and completion, fuel exhaustion, uncertified stops, and observation errors
+are separate results. `runCapturingErrors` retains the accepted prefix when a later process fails
+to spawn or decode, while `run` preserves the error-returning API. Because heterogeneous
+`ToolSpec` values are above the executable `IO` universe, each trace edge stores its external origin
+in `Prop` rather than pretending to return a homogeneous wire payload. This proves finite
+local-process orchestration only; process identity, sandboxing, authentication, exactly-once
+effects, cleanup, persistence, provider obedience, and deployed Harness equivalence remain outside.
 
 [paper-pdf]: https://raw.githubusercontent.com/cordiverse/paper/948a07b369c62adb3b12e102458be5c18dfb69b9/paper.pdf
 [cordis-fiber]: https://github.com/cordiverse/cordis/blob/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4/packages/core/src/fiber.ts#L78-L485

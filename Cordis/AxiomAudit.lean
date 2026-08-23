@@ -480,8 +480,12 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekExternalGenericConversation.ExternalStep.ofObserved
 #print axioms Cordis.DeepSeekExternalGenericConversation.Trace.length
 #print axioms Cordis.DeepSeekExternalGenericConversation.runAux
+#print axioms Cordis.DeepSeekExternalGenericConversation.runCaptureAux
+#print axioms Cordis.DeepSeekExternalGenericConversation.runCapturingErrors
 #print axioms Cordis.DeepSeekExternalGenericConversation.counterReadStopRun
 #print axioms Cordis.DeepSeekExternalGenericConversation.counterReadContinueRun
+#print axioms Cordis.DeepSeekExternalGenericConversation.counterReadErrorRun
+#print axioms Cordis.DeepSeekExternalGenericConversation.counterReadErrorLegacyRun
 #print axioms Cordis.DeepSeekAsyncStreamCancellation.ProcessJobResult.phase_terminal_of_result
 #print axioms Cordis.DeepSeekAsyncStreamCancellation.ProcessJobResult.cancelled_preserves_endpoint
 #print axioms Cordis.DeepSeekAsyncStreamCancellation.RaceResult.winner_mem
