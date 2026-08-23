@@ -164,6 +164,7 @@ import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
 import Cordis.GlobalNameLifecycle
+import Cordis.GlobalNameTraceAction
 import Cordis.GlobalPaperRelation
 import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalPaperLandingReplay
@@ -3030,6 +3031,16 @@ end Cordis.EffectContext
 #print axioms Cordis.GlobalNameLifecycle.NonidentityRaiseExample.entryBreakingAction_not_invariant
 #print axioms Cordis.GlobalNameLifecycle.NonidentityRaiseExample.successOnlyMap_loses_error_action
 #print axioms Cordis.GlobalNameLifecycle.NonidentityRaiseExample.constantErrorBadRun_not_equivariant
+#print axioms Cordis.GlobalNameTraceAction.actStep_rule
+#print axioms Cordis.GlobalNameTraceAction.actStep_name
+#print axioms Cordis.GlobalNameTraceAction.actTrace
+#print axioms Cordis.GlobalNameTraceAction.actTrace_rules
+#print axioms Cordis.GlobalNameTraceAction.actTrace_actors
+#print axioms Cordis.GlobalNameTraceAction.actTrace_preservesWellFormed
+#print axioms Cordis.GlobalNameTraceAction.actProgram
+#print axioms Cordis.GlobalNameTraceAction.actStepAssignment
+#print axioms Cordis.GlobalNameTraceAction.actTraceAssignment
+#print axioms Cordis.GlobalNameTraceAction.assignedForwardTrace
 #print axioms Cordis.DeepSeekStreamHarnessErrors.executeConversationMultiStreamRoundRecoverable
 #print axioms Cordis.DeepSeekStreamHarnessErrors.runConversationMultiStreamRecoverable
 #print axioms Cordis.DeepSeekStreamHarnessRetry.executeWithRetry

@@ -176,6 +176,7 @@ import Cordis.GlobalLifecycle
 import Cordis.GlobalLifecycleBisimulation
 import Cordis.GlobalNameAction
 import Cordis.GlobalNameLifecycle
+import Cordis.GlobalNameTraceAction
 import Cordis.GlobalPaperRelation
 import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalPaperLandingReplay
@@ -9895,6 +9896,27 @@ private def testGlobalNameLifecycle : IO Unit := do
       GlobalNameAction.Example.providerDecl.entry)
     (true, false)
 
+private def testGlobalNameTraceAction : IO Unit := do
+  let trace : GlobalCalculus.Trace
+      GlobalNameLifecycle.NonidentityRaiseExample.dynamics
+      GlobalNameLifecycle.NonidentityRaiseExample.inertia
+      GlobalNameLifecycle.NonidentityRaiseExample.raiseState
+      GlobalNameLifecycle.NonidentityRaiseExample.raiseAfter :=
+    .cons (.lifecycle GlobalNameLifecycle.NonidentityRaiseExample.raiseTransition)
+      (.nil GlobalNameLifecycle.NonidentityRaiseExample.raiseAfter)
+  let acted := GlobalNameTraceAction.actTrace
+    GlobalNameLifecycle.NonidentityRaiseExample.assumptions
+    GlobalNameLifecycle.NonidentityRaiseExample.raiseState_wellFormed trace
+  assertEqual "trace name action preserves the raise rule projection"
+    acted.rules [.lRaise]
+  match acted.actors with
+  | [.fiber true] => pure ()
+  | actors => fail s!"trace name action mapped actors unexpectedly: {reprStr actors}"
+  assertEqual "trace name action reaches the acted raise endpoint"
+    ((GlobalNameAction.actState GlobalNameAction.Example.swapAction
+      GlobalNameLifecycle.NonidentityRaiseExample.raiseAfter).registry true).isSome
+    true
+
 private def testHarnessPhaseFailures : IO Unit := do
   let initial := Harness.RunnerState.initial 0
   match initial.beginStep with
@@ -10330,6 +10352,7 @@ def run : IO Unit := do
   testGlobalLifecycleBisimulation
   testGlobalNameAction
   testGlobalNameLifecycle
+  testGlobalNameTraceAction
   testHarnessPhaseFailures
   testCounterAdmission
   testDependentChoiceSessionHarness
