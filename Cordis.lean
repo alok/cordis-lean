@@ -59,6 +59,7 @@ import Cordis.DeepSeekRichMixedStream
 import Cordis.DeepSeekRichMultiStream
 import Cordis.DeepSeekProviderAssembler
 import Cordis.DeepSeekProviderStreamAssembly
+import Cordis.DeepSeekProviderReplayAttachment
 import Cordis.DeepSeekProviderAssemblyPrefix
 import Cordis.DeepSeekCurlProviderAssemblyPrefix
 import Cordis.DeepSeekCurlProviderAssemblyIncremental

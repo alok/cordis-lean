@@ -49,6 +49,7 @@ import Cordis.DeepSeekRichMixedStream
 import Cordis.DeepSeekRichMultiStream
 import Cordis.DeepSeekProviderAssembler
 import Cordis.DeepSeekProviderStreamAssembly
+import Cordis.DeepSeekProviderReplayAttachment
 import Cordis.DeepSeekProviderAssemblyPrefix
 import Cordis.DeepSeekCurlProviderAssemblyPrefix
 import Cordis.DeepSeekCurlProviderAssemblyIncremental
@@ -3994,6 +3995,21 @@ private def testDeepSeekProviderStreamAssembly : IO Unit := do
         validated.assembly.result.blocks.length 1
       assertEqual "wire-backed provider assembly retains tool-call finish"
         validated.assembly.result.finish .toolCalls
+
+private def testDeepSeekProviderReplayAttachment : IO Unit := do
+  assertEqual "replay attachment example assembles successfully"
+    DeepSeekProviderReplayAttachment.interleavedResult.isSome true
+  assertEqual "replay attachment preserves the rich envelope"
+    DeepSeekProviderReplayAttachment.interleavedSummary true
+  match DeepSeekProviderReplayAttachment.interleavedResult with
+  | none => fail "replay attachment example was rejected"
+  | some value =>
+      assertEqual "replay attachment retains four provider blocks"
+        value.assembly.result.blocks.length 4
+      assertEqual "replay attachment keeps the provider wire slot opaque"
+        value.assembly.result.replayState none
+      assertEqual "replay attachment retains exact per-block metadata"
+        value.replay (some RichStream.interleavedReplay.erase)
 
 private def testDeepSeekProviderAssemblyPrefix : IO Unit := do
   assertEqual "incremental provider prefix reaches exact counter assembly"
@@ -9844,6 +9860,7 @@ def run : IO Unit := do
   testDeepSeekProviderAssembler
   testDeepSeekAssemblerToolRound
   testDeepSeekProviderStreamAssembly
+  testDeepSeekProviderReplayAttachment
   testDeepSeekProviderAssemblyPrefix
   testDeepSeekCurlProviderAssemblyPrefix
   testDeepSeekCurlProviderAssemblyIncremental

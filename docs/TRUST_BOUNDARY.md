@@ -2003,6 +2003,12 @@ frame/tool-count variants and exact `2 -> 3` growth. This remains local retry ev
 backoff, idempotency, blocked-read interruption, persistence, and deployed retry equivalence stay
 outside.
 
+`DeepSeekProviderReplayAttachment` closes only the local rich/provider loss boundary: a
+proof-aligned `RawReplayEnvelope` is carried beside the exact provider assembly, while the
+assembler's opaque `replayState` slot remains absent. The current wire projector still emits no
+replay attachment, and no provider replay schema, transport behavior, or deployed equivalence is
+claimed.
+
 [paper-pdf]: https://raw.githubusercontent.com/cordiverse/paper/948a07b369c62adb3b12e102458be5c18dfb69b9/paper.pdf
 [cordis-fiber]: https://github.com/cordiverse/cordis/blob/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4/packages/core/src/fiber.ts#L78-L485
 [cordis-reflect]: https://github.com/cordiverse/cordis/blob/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4/packages/core/src/reflect.ts#L61-L227

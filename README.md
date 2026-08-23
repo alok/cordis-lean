@@ -454,6 +454,11 @@ caller obligations.
 that source-shaped assembler. It retains both the rich wire certificate and the exact
 provider fold certificate, while explicitly rejecting replay metadata and normalizing
 structured failure/abort causes to the provider failure vocabulary.
+`Cordis.DeepSeekProviderReplayAttachment` supplies the adjacent lossless boundary for a
+validated rich trace that already carries replay metadata: canonical provider assembly is
+still certified, while the proof-aligned `RawReplayEnvelope` is retained in a separate typed
+attachment instead of being serialized or silently discarded. The provider `replayState` slot
+therefore remains `none`; the current wire subset has an explicit no-attachment witness.
 `Cordis.DeepSeekStreamToolRound` carries the same wire-backed result through dependent
 execution and appends the assistant/tool-result pair to a session. The executable fixture
 starts at model `2` and reaches model `5`; network/authentication, external effects,

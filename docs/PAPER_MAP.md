@@ -1106,6 +1106,12 @@ dependent retry rounds; executable variants retain two failures, frame counts, t
 and the exact `2 -> 3` endpoint. Provider backoff, idempotency, cancellation, and deployed retry
 equivalence remain outside.
 
+`DeepSeekProviderReplayAttachment` is the lossless companion to the strict provider assembly
+row above. It maps a validated `RichStream.RawChunk` list into canonical provider chunks while
+retaining the exact erased `RawReplayEnvelope` in a separate dependent certificate. This does
+not serialize provider replay JSON or upgrade the current wire subset, which emits no replay
+metadata.
+
 [paper-pdf]: https://raw.githubusercontent.com/cordiverse/paper/948a07b369c62adb3b12e102458be5c18dfb69b9/paper.pdf
 [cordis-tree]: https://github.com/cordiverse/cordis/tree/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4
 [cordis-context]: https://github.com/cordiverse/cordis/blob/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4/packages/core/src/context.ts#L21-L77
