@@ -64,6 +64,7 @@ import Cordis.DeepSeekHarnessLiveStreamProbe
 import Cordis.DeepSeekHarnessLocalHttp
 import Cordis.DeepSeekHarnessLocalSse
 import Cordis.DeepSeekHarnessLocalSseOutcome
+import Cordis.DeepSeekHarnessLocalSseApiError
 import Cordis.DeepSeekHarnessLocalSseIndexed
 import Cordis.DeepSeekHarnessLocalSseIndexedLoop
 import Cordis.DeepSeekHarnessLocalSseRetry
@@ -705,6 +706,13 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessLocalSseOutcome.OutcomeResult.streaming_mode
 #print axioms Cordis.DeepSeekHarnessLocalSseOutcome.OutcomeResult.outcome_exact
 #print axioms Cordis.DeepSeekHarnessLocalSseOutcome.OutcomeResult.server_exited_successfully
+#print axioms Cordis.DeepSeekHarnessLocalSseApiError.ApiErrorResult.streaming_mode
+#print axioms Cordis.DeepSeekHarnessLocalSseApiError.ApiErrorResult.body_is_validated_api_error
+#print axioms Cordis.DeepSeekHarnessLocalSseApiError.ApiErrorResult.decoded_api_error
+#print axioms Cordis.DeepSeekHarnessLocalSseApiError.ApiErrorResult.transport_error_is_http_status
+#print axioms Cordis.DeepSeekHarnessLocalSseApiError.ApiErrorResult.status_is_rate_limited
+#print axioms Cordis.DeepSeekHarnessLocalSseApiError.ApiErrorResult.requests_are_valid
+#print axioms Cordis.DeepSeekHarnessLocalSseApiError.ApiErrorResult.server_exited_successfully
 #print axioms Cordis.DeepSeekHarnessLocalSseRetry.LocalSseRetryResult.retry_count
 #print axioms Cordis.DeepSeekHarnessLocalSseRetry.LocalSseRetryResult.accepted_streaming
 #print axioms Cordis.DeepSeekHarnessLocalSseRetry.LocalSseRetryResult.nextSeq

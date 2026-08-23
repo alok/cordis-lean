@@ -696,6 +696,10 @@ Current machine-checked evidence includes:
 - `Cordis.DeepSeekHarnessLocalSseOutcome`, carrying that terminal outcome through the real one-shot
   loopback HTTP/SSE server and curl process; failure remains a typed runner no-op, while successful
   text/tool/mixed/multi outcomes append with request, wire, body, report, and clean-exit evidence;
+- `Cordis.DeepSeekHarnessLocalSseApiError`, exercising a valid streaming request against the real
+  loopback server's HTTP-429 branch and retaining the exact status/body transport error, parsed
+  `ApiErrorBody`, request report, and clean-exit evidence; authenticity and retry policy remain
+  external;
 - `Cordis.DeepSeekCurlPrefix`, connecting the process line reader to the proof-carrying prefix
   state: each accepted line is parsed before the next read, synchronous fuel/cancellation stops
   clean up the child, and terminal success retains raw output plus normalized frame certificates;

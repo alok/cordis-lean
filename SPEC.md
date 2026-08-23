@@ -1107,6 +1107,10 @@ claim:
    dispatch endpoint, request report, and clean server exit; it remains local
    process/HTTP evidence rather than a remote, byte-framed, cancellable,
    reconnecting, provider-complete, or deployed-equivalence theorem.
+   `Cordis.DeepSeekHarnessLocalSseApiError` exercises the non-success sibling path
+   with a real loopback HTTP 429. Its dependent result retains the exact
+   `IncrementalError.httpStatus` body, parsed `ApiErrorBody`, request report, and
+   clean server exit; error authenticity and retry/backoff policy remain external.
 1. **Production streaming.** Extend the bounded text model with transport,
    backpressure, cancellation, tool-call payload assembly, provider-complete
    parser state, and a live HTTP reader; the current `DeepSeekStream` module is

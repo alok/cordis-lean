@@ -315,6 +315,10 @@ with the strict wire certificate, provider failures leave the indexed runner unc
 successful text/tool/mixed/multi outcomes append through the dependent conversation runner. This
 remains local process/HTTP evidence; byte framing, backpressure, cancellation, reconnects,
 provider obedience, credential/TLS authenticity, and deployed equivalence remain external.
+`Cordis.DeepSeekHarnessLocalSseApiError` exercises the other one-shot loopback branch: a valid
+streaming request receives a real HTTP 429 with an OpenAI-compatible `{ "error": ... }` body, and
+the dependent result retains the exact status/body transport error, parsed `ApiErrorBody`, request
+report, and clean server exit. It proves neither error authenticity nor retry/backoff safety.
 `Cordis.DeepSeekCurlPrefix` connects that process boundary to the proof-carrying
 prefix state: each accepted process line updates the typed body/frame state,
 and a line policy can stop before the next read while cleanup kills and waits

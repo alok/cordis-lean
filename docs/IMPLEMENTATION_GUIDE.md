@@ -2640,6 +2640,11 @@ wire certificate, terminal outcome, dispatch endpoint, request report, and serve
 The failure branch must remain a runner no-op; successful rich branches may append only after the
 existing dependent finisher succeeds. Do not infer byte framing, cancellation, reconnect,
 credential authenticity, provider completeness, or deployed equivalence from this fixture.
+`Cordis.DeepSeekHarnessLocalSseApiError` is the adjacent status-error exercise: reuse the typed
+streaming request, drive a valid request through a real loopback server returning HTTP 429, and
+retain the exact `IncrementalError.httpStatus` body alongside its dependent parsed `ApiErrorBody`,
+request report, and clean process exit. Keep error authenticity and retry/backoff policy outside
+this local certificate.
 `Cordis.DeepSeekCurlPrefix` is the typed process counterpart: it advances `PrefixState` before
 requesting the next complete line, retains the raw process body separately from the normalized
 prefix certificate, and uses the same line policy for synchronous fuel/cancellation stops. Its

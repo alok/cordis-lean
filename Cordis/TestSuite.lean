@@ -74,6 +74,7 @@ import Cordis.DeepSeekHarnessLiveStreamProbe
 import Cordis.DeepSeekHarnessLocalHttp
 import Cordis.DeepSeekHarnessLocalSse
 import Cordis.DeepSeekHarnessLocalSseOutcome
+import Cordis.DeepSeekHarnessLocalSseApiError
 import Cordis.DeepSeekHarnessLocalSseIndexed
 import Cordis.DeepSeekHarnessLocalSseIndexedLoop
 import Cordis.DeepSeekHarnessLocalSseRetry
@@ -2403,6 +2404,38 @@ private def testDeepSeekHarnessLocalSseOutcome : IO Unit := do
       | .appended _ _ => fail "loopback SSE terminal failure appended an assistant"
       let _exact := result.outcome_exact
       let _serverExit := result.server_exited_successfully
+
+private def testDeepSeekHarnessLocalSseApiError : IO Unit := do
+  match ← Cordis.DeepSeekHarnessLocalSseApiError.Example.run with
+  | .error error => fail s!"loopback SSE API error failed: {reprStr error}"
+  | .ok ⟨body, result⟩ =>
+      assertEqual "loopback SSE API error preserves the exact body"
+        body Cordis.DeepSeekHarnessLocalSseApiError.Example.body
+      assertEqual "loopback SSE API error preserves status 429"
+        result.status 429
+      assertEqual "loopback SSE API error validates one request"
+        (result.requests, result.validRequests) (1, 1)
+      assertEqual "loopback SSE API error exits the fixture successfully"
+        result.serverExit 0
+      assertEqual "loopback SSE API error preserves the decoded message"
+        result.validated.error.message "rate limited"
+      assertEqual "loopback SSE API error preserves the decoded type"
+        result.validated.error.type (some "rate_limit_error")
+      assertEqual "loopback SSE API error preserves the decoded code"
+        result.validated.error.code (some "429")
+      match result.transportError with
+      | .httpStatus status errorBody =>
+          assertEqual "loopback SSE API error retains the exact HTTP status"
+            status 429
+          assertEqual "loopback SSE API error retains the exact transport body"
+            errorBody body
+      | _ => fail "loopback SSE API error lost the HTTP-status transport branch"
+      let _parsed := result.body_is_validated_api_error
+      let _decoded := result.decoded_api_error
+      let _transport := result.transport_error_is_http_status
+      let _status := result.status_is_rate_limited
+      let _counts := result.requests_are_valid
+      let _exit := result.server_exited_successfully
   match ← Cordis.DeepSeekHarnessLocalSseOutcome.Example.textRun with
   | .error error => fail s!"loopback SSE terminal text failed: {reprStr error}"
   | .ok ⟨body, result⟩ =>
@@ -9651,6 +9684,7 @@ def run : IO Unit := do
   testDeepSeekCurlIncremental
   testDeepSeekCurlIncrementalOutcome
   testDeepSeekHarnessLocalSseOutcome
+  testDeepSeekHarnessLocalSseApiError
   testDeepSeekCurlPrefix
   testDeepSeekCurlPrefixSession
   testDeepSeekAsyncHarness
