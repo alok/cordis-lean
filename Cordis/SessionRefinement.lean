@@ -115,12 +115,28 @@ inductive WireRequestHeaderReason where
   | change
   deriving BEq, DecidableEq, Repr
 
+/-- A request-tool schema before the local projection compresses its JSON parameters. -/
+structure WireRequestToolSchemaSource where
+  name : String
+  description : String
+  parameters : Lean.Json
+
 /-- A tool schema whose JSON parameters are compressed into the local schema string field. -/
 structure WireRequestToolSchema where
   name : String
   description : String
   parameters : String
   deriving DecidableEq, Repr
+
+namespace WireRequestToolSchemaSource
+
+def toWire (tool : WireRequestToolSchemaSource) : WireRequestToolSchema := {
+  name := tool.name
+  description := tool.description
+  parameters := Lean.Json.compress tool.parameters
+}
+
+end WireRequestToolSchemaSource
 
 /-- The selected source-shaped request header fields admitted by this refinement. -/
 structure WireRequestHeader where
@@ -699,8 +715,8 @@ def decodeAssistantMessageData (event : Lean.Json) (eventPath : List PathSegment
     surfaceOp := metadata.surfaceOp
   })
 
-def decodeWireRequestToolSchema (path : List PathSegment) (json : Lean.Json) :
-    Except DecodeError WireRequestToolSchema :=
+def decodeWireRequestToolSchemaSource (path : List PathSegment) (json : Lean.Json) :
+    Except DecodeError WireRequestToolSchemaSource :=
   match json with
   | .obj _ => do
       let name ← decodeRequiredString json path "name"
@@ -708,10 +724,22 @@ def decodeWireRequestToolSchema (path : List PathSegment) (json : Lean.Json) :
       let parameters ← requireField json path "parameters"
       match parameters with
       | .obj _ => .ok {
-          name, description, parameters := Lean.Json.compress parameters
+          name, description, parameters
         }
       | value => .error (.typeMismatch (fieldPath path "parameters") "object" (jsonKind value))
   | value => .error (.typeMismatch path "object" (jsonKind value))
+
+def decodeWireRequestToolSchema (path : List PathSegment) (json : Lean.Json) :
+    Except DecodeError WireRequestToolSchema :=
+  (decodeWireRequestToolSchemaSource path json).map WireRequestToolSchemaSource.toWire
+
+theorem decodeWireRequestToolSchema_source_projection
+    {path : List PathSegment} {json : Lean.Json}
+    {source : WireRequestToolSchemaSource}
+    (h : decodeWireRequestToolSchemaSource path json = .ok source) :
+    decodeWireRequestToolSchema path json = .ok source.toWire := by
+  rw [decodeWireRequestToolSchema, h]
+  rfl
 
 def decodeWireRequestToolSchemas (path : List PathSegment) (json : Lean.Json) :
     Except DecodeError (List WireRequestToolSchema) :=

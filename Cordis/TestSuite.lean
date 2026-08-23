@@ -113,6 +113,7 @@ import Cordis.DeepSeekSchemaStreamErrors
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessEventRequest
+import Cordis.DeepSeekHarnessEventToolSchema
 import Cordis.DeepSeekHarnessEventLocalSse
 import Cordis.DeepSeekHarnessEventIgnorableProjection
 import Cordis.DeepSeekHarnessEventIgnorableNormalization
@@ -3357,6 +3358,25 @@ private def testDeepSeekHarnessEventRequest : IO Unit := do
   | .error .noRequestHeader => pure ()
   | .error error => fail s!"headerless log returned the wrong request error: {reprStr error}"
   | .ok _ => fail "headerless current-Harness log unexpectedly produced a model request"
+
+private def testDeepSeekHarnessEventToolSchema : IO Unit := do
+  assertEqual "current Harness tool-schema certificate succeeds"
+    DeepSeekHarnessEventToolSchema.headerToolCertificate.isOk true
+  match DeepSeekHarnessEventToolSchema.headerToolCertificate with
+  | .error error => fail s!"current Harness tool-schema certificate failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "current Harness tool-schema source retains its name"
+        result.1.name DeepSeekHarnessEventToolSchema.headerToolSource.name
+      assertEqual "current Harness tool-schema source retains its description"
+        result.1.description DeepSeekHarnessEventToolSchema.headerToolSource.description
+      assertEqual "current Harness tool-schema source retains compressed parameters"
+        result.1.toWire.parameters
+        DeepSeekHarnessEventToolSchema.headerToolSource.toWire.parameters
+  assertEqual "current Harness malformed primitive schema is rejected"
+    DeepSeekHarnessEventToolSchema.malformedHeaderToolRejected true
+  let _source_certificate :=
+    DeepSeekHarnessEventToolSchema.headerToolCertificate_source
+  pure ()
 
 private def testDeepSeekHarnessEventLocalSse : IO Unit := do
   match ← DeepSeekHarnessEventLocalSse.Example.run with
@@ -10411,6 +10431,7 @@ def run : IO Unit := do
   testDeepSeekSchemaStreamErrors
   testDeepSeekHarnessEventArchive
   testDeepSeekHarnessEventRequest
+  testDeepSeekHarnessEventToolSchema
   testDeepSeekHarnessEventLocalSse
   testDeepSeekHarnessEventIgnorableProjection
   testDeepSeekHarnessEventIgnorableNormalization

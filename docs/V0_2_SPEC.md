@@ -2002,6 +2002,11 @@ projection equation. The current-shaped header fixture succeeds; a headerless me
 schema compatibility, credentials, transport, provider behavior, and complete deployed-Harness
 equivalence remain external.
 
+`Cordis.DeepSeekHarnessEventToolSchema` retains the exact request-header tool `parameters` AST
+before the compressed local projection, and validates the bounded primitive object-schema subset
+in a dependent source certificate. The `lookup` fixture succeeds and an unsupported primitive tag
+rejects; full JSON Schema and provider/deployed semantics remain external.
+
 `Cordis.DeepSeekHarnessEventLocalSse` carries that same result through the actual local
 Python/curl SSE fixture. `EventRunner` fixes the validated session as the runner index and
 `EventSseResult` retains the indexed request plan, raw frames, finisher, protocol replay, and

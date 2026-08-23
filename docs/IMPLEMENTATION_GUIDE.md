@@ -1929,6 +1929,12 @@ model/system/tool agreement, request-build equality, and the replay's protocol-p
 equation. The header fixture succeeds and the headerless text fixture returns `noRequestHeader`.
 The structural encoder is deliberately not a provider-schema proof, and transport, credentials,
 provider behavior, and complete deployed-Harness equivalence remain external.
+`Cordis.DeepSeekHarnessEventToolSchema` supplies the next type-level seam without pretending that
+the compressed local schema string is parsed JSON. Its source certificate retains the exact request
+tool `parameters` AST, proves the compressed projection, and feeds the bounded primitive
+object-schema validator. The current `lookup` schema succeeds and an unsupported primitive tag is
+rejected; full JSON Schema, provider validation, model obedience, and deployed-Harness equivalence
+remain external.
 `Cordis.DeepSeekHarnessEventLocalSse` is the executable continuation of that certificate. Its
 `EventRunner` uses the validated final session directly as the `ExtensionRunner` index, and its
 `EventSseResult` retains the loopback request plan, raw frames, finisher, and append endpoint.
@@ -2823,8 +2829,8 @@ fail-closed policy: singleton index-zero choice, supported finish, and nonempty
 content/tool payload are required before the append. Extra choices and unsupported
 terminal states are preserved as typed rejection rather than silently dropped.
 Continue by defining translations for additional pinned Harness payload fields and tool
-definitions and proving only the invariants actually shared by the two representations. Expect to
-model more payloads, surface semantics, session
+definitions, extending the source-preserving schema certificate only where the current source and
+local representation share an invariant. Expect to model more payloads, surface semantics, session
 extensions, policy phases, persistence, and cancellation. Similar names and a
 one-way supported-subset text/AST decoder are not a whole-runtime equivalence theorem;
 Lean's parser and the external logger remain explicit boundaries.

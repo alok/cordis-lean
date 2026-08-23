@@ -127,6 +127,7 @@ import Cordis.DeepSeekSchemaStreamErrors
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessEventRequest
+import Cordis.DeepSeekHarnessEventToolSchema
 import Cordis.DeepSeekHarnessEventLocalSse
 import Cordis.DeepSeekHarnessExtensionArchive
 import Cordis.DeepSeekHarnessExtensionRequest

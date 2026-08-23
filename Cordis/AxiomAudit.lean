@@ -103,6 +103,7 @@ import Cordis.DeepSeekSchemaStreamErrors
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessEventRequest
+import Cordis.DeepSeekHarnessEventToolSchema
 import Cordis.DeepSeekHarnessEventLocalSse
 import Cordis.DeepSeekHarnessExtensionArchive
 import Cordis.DeepSeekHarnessExtensionRequest
@@ -1809,6 +1810,12 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessEventRequest.PreparedLogRequest.protocol_projection_eq_replay
 #print axioms Cordis.DeepSeekHarnessEventRequest.headerPrepared_is_ok
 #print axioms Cordis.DeepSeekHarnessEventRequest.headerless_is_rejected
+#print axioms Cordis.DeepSeekHarnessEventToolSchema.decodeValidatedSourceToolSchema
+#print axioms Cordis.DeepSeekHarnessEventToolSchema.decodeValidatedSourceToolSchema_source
+#print axioms Cordis.DeepSeekHarnessEventToolSchema.decodeValidatedSourceToolSchema_wire_projection
+#print axioms Cordis.DeepSeekHarnessEventToolSchema.headerToolCertificate_is_ok
+#print axioms Cordis.DeepSeekHarnessEventToolSchema.headerToolCertificate_source
+#print axioms Cordis.DeepSeekHarnessEventToolSchema.malformedHeaderToolRejected_true
 #print axioms Cordis.DeepSeekHarnessEventLocalSse.EventRunner.extensionRunner
 #print axioms Cordis.DeepSeekHarnessEventLocalSse.EventSseResult.request_header
 #print axioms Cordis.DeepSeekHarnessEventLocalSse.EventSseResult.append_endpoint

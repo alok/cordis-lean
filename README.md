@@ -816,6 +816,13 @@ as `noRequestHeader`. The structural tool encoder preserves names/descriptions o
 schema compatibility, credentials, transport, provider behavior, and complete deployed-Harness
 equivalence remain external.
 
+`Cordis.DeepSeekHarnessEventToolSchema` closes the adjacent request-tool payload seam without
+changing that fail-closed projection. It retains the exact `parameters` JSON AST alongside the
+compressed `Session` string, validates the bounded primitive object-schema vocabulary, and exposes
+the validated source/tool pair as a dependent certificate. The current `lookup` header fixture
+passes and a primitive `date` tag rejects; full JSON Schema, provider validation, model obedience,
+and deployed-Harness equivalence remain external.
+
 `Cordis.DeepSeekHarnessEventLocalSse` carries that same dependent request through the existing
 real loopback Python/curl SSE fixture. `EventRunner` fixes the validated session as the runner
 index, and `EventSseResult` retains the request plan, raw wire frames, accepted finisher, and
