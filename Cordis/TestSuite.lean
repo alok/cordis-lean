@@ -2789,6 +2789,59 @@ private def testDeepSeekSessionRequest : IO Unit := do
                             body DeepSeekApi.exampleResponseBody
                           assertEqual "indexed DeepSeek injected transport validates choice zero"
                             validated.response.choices.head.index 0
+                      let indexedRunner :
+                          DeepSeekHarnessExtensions.ExtensionRunner Session.noExtensions := {
+                        session := Session.certifiedSession
+                        turn := 2
+                        step := Session.certifiedSession.nextSeq
+                        nextCall :=
+                          DeepSeekSessionRunner.toolCallCount Session.certifiedSession.messages
+                        nextSeq_eq_step := by rfl
+                        toolCallCount_eq_nextCall := by rfl
+                      }
+                      let noSources : List Nat := []
+                      have noSourcesNodup : noSources.Nodup := by simp [noSources]
+                      have noSourcesEarlier :
+                          ∀ source ∈ noSources, source < indexedRunner.session.nextSeq := by
+                        simp [noSources]
+                      match ← DeepSeekSessionRequest.executeCompleteAndAppend
+                          (runner := indexedRunner)
+                          DeepSeekApi.exampleTransport "https://fixture.invalid"
+                          { value := "fixture-key" } preparedCertified noSources noSourcesNodup
+                          noSourcesEarlier with
+                      | .error error =>
+                          fail s!"indexed DeepSeek response append failed: {reprStr error}"
+                      | .ok ⟨body, appended⟩ =>
+                          let _append_certificate := appended.append_eq
+                          let _accept_certificate := appended.accept_eq
+                          assertEqual "indexed DeepSeek append retains the response body"
+                            body DeepSeekApi.exampleResponseBody
+                          assertEqual "indexed DeepSeek append advances the session sequence"
+                            appended.after.session.nextSeq 6
+                          assertEqual "indexed DeepSeek append threads the prior tool count"
+                            appended.after.nextCall 2
+                          assertEqual "indexed DeepSeek append preserves prior messages and adds assistant"
+                            appended.after.session.messages
+                            (Session.certifiedSession.messages ++ [
+                              Session.Message.assistant "I will check that." [{
+                                id := { value := 1 }
+                                name := "get_weather"
+                                arguments := "{\"city\":\"San Francisco\"}"
+                              }]])
+                          assertEqual "indexed DeepSeek append preserves the request header"
+                            appended.after.session.latestHeader Session.certifiedSession.latestHeader
+                          let _message_certificate :=
+                            DeepSeekSessionRequest.appendAccepted_messages indexedRunner
+                              appended.accepted noSources noSourcesNodup noSourcesEarlier
+                          let _sequence_certificate :=
+                            DeepSeekSessionRequest.appendAccepted_nextSeq indexedRunner
+                              appended.accepted noSources noSourcesNodup noSourcesEarlier
+                          let _header_certificate :=
+                            DeepSeekSessionRequest.appendAccepted_latestHeader indexedRunner
+                              appended.accepted noSources noSourcesNodup noSourcesEarlier
+                          let _request_after_certificate :=
+                            DeepSeekSessionRequest.appendAccepted_modelRequest_isSome indexedRunner
+                              appended.accepted noSources noSourcesNodup noSourcesEarlier (by rfl)
                       let _ := certified_request_eq
                       let _ := preparedCertified_eq
               let _request_certificate :=

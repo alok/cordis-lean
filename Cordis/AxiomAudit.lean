@@ -1232,6 +1232,13 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekSessionRequest.buildStreamingPlan_is_streaming
 #print axioms Cordis.DeepSeekSessionRequest.executeComplete
 #print axioms Cordis.DeepSeekSessionRequest.executeStreamingSse
+#print axioms Cordis.DeepSeekSessionRequest.appendAccepted
+#print axioms Cordis.DeepSeekSessionRequest.appendAccepted_messages
+#print axioms Cordis.DeepSeekSessionRequest.appendAccepted_nextSeq
+#print axioms Cordis.DeepSeekSessionRequest.appendAccepted_nextCall
+#print axioms Cordis.DeepSeekSessionRequest.appendAccepted_latestHeader
+#print axioms Cordis.DeepSeekSessionRequest.appendAccepted_modelRequest_isSome
+#print axioms Cordis.DeepSeekSessionRequest.executeCompleteAndAppend
 #print axioms Cordis.DeepSeekHarnessExtensions.buildRequestPlanFor
 #print axioms Cordis.DeepSeekHarnessExtensions.buildTypedRequestPlanFor
 #print axioms Cordis.DeepSeekHarnessExtensions.buildStreamingRequestPlanFor

@@ -1,6 +1,7 @@
 import Cordis.DeepSeekHarnessExtensions
 import Cordis.SessionTheoremBridge
 import Cordis.DeepSeekCurlStream
+import Cordis.DeepSeekApiSession
 
 /-!
 # Indexed Session.ModelRequest to DeepSeek request handoff
@@ -16,8 +17,11 @@ The resulting `PreparedRequest` retains the exact `ChatRequest`, the successful 
 the source/header agreement, and the session-message reconstruction equation.  It can be lifted to
 raw, complete, or streaming request plans; the mode-indexed variants carry their `stream` flag in
 the type.  A complete plan may also be sent through an injected `DeepSeekApi.Transport`, retaining
-the API's dependent response validation.  No credential, remote provider, or schema compatibility
-claim is made here.
+the API's dependent response validation.  The accepted complete response can then be appended to a
+schema-indexed `ExtensionRunner`; the append retains the response body, preserves the request
+header, advances the physical sequence, allocates local tool IDs, and proves that a model request
+remains reconstructible.  No credential, remote provider, or schema compatibility claim is made
+here.
 -/
 
 set_option autoImplicit false
@@ -31,6 +35,8 @@ open Cordis.DeepSeekCurlStream
 open Cordis.DeepSeekStream
 open Cordis.DeepSeekHarness
 open Cordis.DeepSeekHarnessExtensions
+open Cordis.DeepSeekApiSession
+open Cordis.DeepSeekSessionRunner
 
 /-! ## Tool-schema encoding certificate -/
 
@@ -362,6 +368,176 @@ def executeStreamingSse
       (Sigma fun body : String => ValidatedSseStream body)) :=
   DeepSeekCurlStream.executeSse config
     (buildStreamingPlan baseUrl apiKey prepared).request
+
+/-! ## Accepted complete responses into the same indexed session -/
+
+inductive CompleteAppendError where
+  | transport (error : ClientError)
+  | response (error : ApiSessionError)
+deriving DecidableEq, Repr
+
+def appendAccepted
+    {schema : Session.ExtensionSchema}
+    (runner : ExtensionRunner schema)
+    {body : String}
+    (accepted : AcceptedApiResponse body)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    ExtensionRunner schema :=
+  let assistantView := view accepted
+  let assignment := sequentialAssignment runner.nextCall assistantView
+  let session := appendAssistantFor runner.session runner.turn runner.step assistantView
+    assignment sourceEventSeqs sourcesNodup sourcesEarlier
+  {
+    session
+    turn := runner.turn
+    step := runner.step + 1
+    nextCall := runner.nextCall + assistantView.rawToolCalls.length
+    nextSeq_eq_step := by
+      change runner.session.nextSeq + 1 = runner.step + 1
+      rw [runner.nextSeq_eq_step]
+    toolCallCount_eq_nextCall := by
+      have messages_eq := appendAssistantFor_messages runner.session runner.turn runner.step
+        assistantView assignment sourceEventSeqs sourcesNodup sourcesEarlier
+      simp only [session, messages_eq]
+      rw [toolCallCount_append]
+      rw [runner.toolCallCount_eq_nextCall]
+      simp [toolCallCount, messageToolCallCount,
+        StreamSession.toSessionToolCalls_length]
+  }
+
+/- A successful response remains tied to its body and to the runner produced by this append. -/
+structure CompleteAppendResult
+    (schema : Session.ExtensionSchema)
+    (runner : ExtensionRunner schema)
+    (body : String)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) where
+  validated : ValidatedResponse body
+  accepted : AcceptedApiResponse body
+  accept_eq : acceptValidated validated = .ok accepted
+  after : ExtensionRunner schema
+  append_eq : after = appendAccepted runner accepted sourceEventSeqs sourcesNodup sourcesEarlier
+
+theorem appendAccepted_messages
+    {schema : Session.ExtensionSchema}
+    (runner : ExtensionRunner schema)
+    {body : String}
+    (accepted : AcceptedApiResponse body)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    (appendAccepted runner accepted sourceEventSeqs sourcesNodup sourcesEarlier).session.messages =
+      runner.session.messages ++ [.assistant (view accepted).content
+        (StreamSession.toSessionToolCalls (view accepted)
+          (sequentialAssignment runner.nextCall (view accepted)))] := by
+  change (appendAssistantFor runner.session runner.turn runner.step (view accepted)
+      (sequentialAssignment runner.nextCall (view accepted))
+      sourceEventSeqs sourcesNodup sourcesEarlier).messages = _
+  exact appendAssistantFor_messages runner.session runner.turn runner.step (view accepted)
+    (sequentialAssignment runner.nextCall (view accepted)) sourceEventSeqs sourcesNodup
+    sourcesEarlier
+
+theorem appendAccepted_nextSeq
+    {schema : Session.ExtensionSchema}
+    (runner : ExtensionRunner schema)
+    {body : String}
+    (accepted : AcceptedApiResponse body)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    (appendAccepted runner accepted sourceEventSeqs sourcesNodup sourcesEarlier).session.nextSeq =
+      runner.session.nextSeq + 1 := by
+  change runner.session.nextSeq + 1 = runner.session.nextSeq + 1
+  rfl
+
+theorem appendAccepted_nextCall
+    {schema : Session.ExtensionSchema}
+    (runner : ExtensionRunner schema)
+    {body : String}
+    (accepted : AcceptedApiResponse body)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    (appendAccepted runner accepted sourceEventSeqs sourcesNodup sourcesEarlier).nextCall =
+      runner.nextCall +
+        accepted.validated.response.choices.head.message.toolCalls.length := by
+  change runner.nextCall + (view accepted).rawToolCalls.length = _
+  rw [view_rawToolCalls_length]
+
+theorem appendAccepted_latestHeader
+    {schema : Session.ExtensionSchema}
+    (runner : ExtensionRunner schema)
+    {body : String}
+    (accepted : AcceptedApiResponse body)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    (appendAccepted runner accepted sourceEventSeqs sourcesNodup sourcesEarlier).session.latestHeader =
+      runner.session.latestHeader := by
+  rfl
+
+theorem appendAccepted_modelRequest_isSome
+    {schema : Session.ExtensionSchema}
+    (runner : ExtensionRunner schema)
+    {body : String}
+    (accepted : AcceptedApiResponse body)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq)
+    (header_present : runner.session.latestHeader.isSome) :
+    (Session.mkRequest
+      (appendAccepted runner accepted sourceEventSeqs sourcesNodup sourcesEarlier).session).isSome := by
+  let after := appendAccepted runner accepted sourceEventSeqs sourcesNodup sourcesEarlier
+  change (Session.mkRequest after.session).isSome
+  have afterHeader : after.session.latestHeader = runner.session.latestHeader := by
+    exact appendAccepted_latestHeader runner accepted sourceEventSeqs sourcesNodup sourcesEarlier
+  cases h : runner.session.latestHeader with
+  | none =>
+      simp [h] at header_present
+  | some header =>
+      have hafter : after.session.latestHeader = some header := by
+        simpa [afterHeader] using h
+      unfold Session.mkRequest
+      split
+      · rename_i hnone
+        have : after.session.latestHeader ≠ none := by
+          rw [hafter]
+          simp
+        exact False.elim (this hnone)
+      · rfl
+
+def executeCompleteAndAppend
+    {schema : Session.ExtensionSchema}
+    {runner : ExtensionRunner schema}
+    {request : Session.ModelRequest runner.session}
+    {source : RequestSource}
+    {encoder : ToolSchemaEncoder}
+    (transport : Transport)
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (prepared : PreparedRequest request source encoder)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ source ∈ sourceEventSeqs, source < runner.session.nextSeq) :
+    IO (Except CompleteAppendError
+      (Sigma fun body : String => CompleteAppendResult schema runner body sourceEventSeqs
+        sourcesNodup sourcesEarlier)) := do
+  match ← executeComplete transport baseUrl apiKey prepared with
+  | .error error => pure (.error (.transport error))
+  | .ok ⟨body, validated⟩ =>
+      match _acceptedEq : acceptValidated validated with
+      | .error error => pure (.error (.response error))
+      | .ok accepted =>
+          pure (.ok ⟨body, {
+            validated
+            accepted
+            accept_eq := _acceptedEq
+            after := appendAccepted runner accepted sourceEventSeqs sourcesNodup sourcesEarlier
+            append_eq := rfl
+          }⟩)
 
 /-! A deliberately structural encoder for fixtures with no tools.  Real deployments should
 provide a parser-backed encoder and prove the `ToolSchema` input-schema contract separately. -/

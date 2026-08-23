@@ -82,8 +82,11 @@ or Harness equivalence.
 controls stay explicit adapter policy. `executeComplete` can run the complete plan through an
 injected transport and retain the API's dependent response certificate, while `executeStreamingSse`
 runs a streaming plan through the existing local SSE process adapter and retains its wire frames;
-provider behavior, remote transport, parser-backed tool-schema validity, and credentials remain
-external.
+`executeCompleteAndAppend` goes one step further: after the same injected transport and
+fail-closed response admission, it appends the accepted response to the same schema-indexed
+`ExtensionRunner`, retaining the body, local tool-ID allocation, sequence/count invariants, header
+continuity, and a proof that `Session.mkRequest` remains present. Provider behavior, remote
+transport, parser-backed tool-schema validity, and credentials remain external.
 `Cordis.DeepSeekAsyncStreamCancellation` carries the typed pre-round cancellation policy through
 that race. Its fixture cancels one child before dispatch while the other remains a real streamed
 tool/text continuation; the accepted cancellation result preserves its reason, unchanged
