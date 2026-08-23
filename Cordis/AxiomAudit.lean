@@ -167,6 +167,7 @@ import Cordis.GlobalNameLifecycle
 import Cordis.GlobalPaperRelation
 import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalPaperLandingReplay
+import Cordis.GlobalPaperFullLifecycleReplay
 import Cordis.GlobalPaperShiftedLifecycle
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
@@ -2469,6 +2470,21 @@ namespace Cordis.GlobalPaperLandingReplay.Example.LandingPair
 #print axioms rewritten_actors
 #print axioms executable_summary
 end Cordis.GlobalPaperLandingReplay.Example.LandingPair
+namespace Cordis.GlobalPaperFullLifecycleReplay.Example
+#print axioms program
+#print axioms beginActivation
+#print axioms firstActivation
+#print axioms finalActivation
+#print axioms fullTrace
+#print axioms fullAssignment
+#print axioms fullCertificate
+#print axioms replay
+#print axioms replayAssignment
+#print axioms replay_final_related
+#print axioms replay_wellFormed
+#print axioms replay_decisions
+#print axioms executable_summary
+end Cordis.GlobalPaperFullLifecycleReplay.Example
 namespace Cordis.GlobalPaperShiftedLifecycle
 #print axioms shift_wellFormed
 #print axioms shift_related

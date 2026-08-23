@@ -3248,6 +3248,12 @@ and backward orientations. `GlobalPaperTraceNormalization` now composes a finite
 connected list of those supplied adjacent-rewrite certificates and proves endpoint relatedness
 plus rule/actor permutations. It is certificate composition only: no rewrite strategy,
 canonical form, termination, Lemma 72, or confluence is derived.
+`GlobalPaperFullLifecycleReplay` packages the existing heterogeneous fixture as one exact
+six-record dependent path (`L-Begin`, `L-Iter`, `L-Finish`, `O-Retire`, `L-Leave`, `L-Unload`).
+Its first three records carry actual fixed-program activation assignments, while the remaining
+records carry explicit non-activation assignments; an all-keep self-replay retains endpoint/WF,
+rules, actors, decisions, and the complete assignment. This is a concrete full-path certificate,
+not arbitrary provenance inference, peer-state lifecycle bisimulation, Lemma 72, or Theorem 73.
 `GlobalPaperShiftedLifecycle` adds a concrete trace-local replay witness on the lifecycle seam:
 the peer differs only in `nextBirth`, while dependent L-Leave/L-Unload transitions and their
 assigned trace are rebuilt with exact rule/actor, well-formedness, and birth-erased endpoint

@@ -757,6 +757,10 @@ Current machine-checked evidence includes:
 - `Cordis.GlobalPaperRelation`, erasing only the reference allocator clock/birth ranks from current
   rule observation, proving full-domain bidirectional well-formed orchestration replay, and
   constructing directed relation-aware vestigial suffix replay with lifecycle countermodels;
+- `Cordis.GlobalPaperFullLifecycleReplay`, packaging the existing heterogeneous
+  `L-Begin/L-Iter/L-Finish/O-Retire/L-Leave/L-Unload` fixture as one assigned dependent trace and
+  proving an all-keep self-replay with endpoint/WF, rule, actor, decision, and assignment
+  certificates; this is a concrete full-path certificate, not peer-state lifecycle bisimulation;
 - `Cordis.GlobalPaperShiftedLifecycle`, providing a concrete non-reflexive allocator-clock replay
   that rebuilds dependent L-Leave/L-Unload transitions and transports their assigned trace while
   retaining exact rule/actor and endpoint certificates; it is not global lifecycle bisimulation;
@@ -1211,6 +1215,13 @@ unconditional lifecycle simulation.
 allocator clock, rebuilding the dependent leave/unload transitions, and proving the assigned peer
 trace remains well formed and birth-erased related. This is evidence for a concrete replay seam,
 not a global lifecycle simulation theorem.
+
+`Cordis.GlobalPaperFullLifecycleReplay` packages the existing heterogeneous example as one exact
+six-record dependent path: `L-Begin`, `L-Iter`, `L-Finish`, `O-Retire`, `L-Leave`, and `L-Unload`.
+Actual fixed-program activation assignments cover the first three records; explicit
+non-activation assignments cover the remaining records. An all-keep self-replay retains endpoint
+well-formedness, detailed rules, actors, six decisions, and the complete assignment. It does not
+infer arbitrary program provenance, match an unrelated peer lifecycle, or close Lemma 72/Theorem 73.
 
 The corrected progress slice is specified in
 [`GLOBAL_PROGRESS_SPEC.md`](GLOBAL_PROGRESS_SPEC.md) and implemented by `Cordis.GlobalProgress`.

@@ -306,6 +306,14 @@ rewrites the dependent window through `RelatedAdjacentRewrite`, and proves refle
 endpoint relatedness, endpoint well-formedness, and swapped detailed rule/actor ledgers. This is an
 occurrence-specific landing certificate, not global lifecycle simulation or Lemma 71/72/Theorem 73.
 
+`Cordis.GlobalPaperFullLifecycleReplay` packages the existing heterogeneous fixture as one complete
+dependent path `L-Begin → L-Iter → L-Finish → O-Retire → L-Leave → L-Unload`. The first three
+records carry actual fixed-program activation assignments; the remaining records carry explicit
+non-activation assignments. An all-keep `DeletionReplay` replays this exact path against itself and
+retains its endpoint, well-formedness, detailed rule and actor ledgers, six decisions, and complete
+assignment. It is a concrete full-path certificate only: it does not infer arbitrary provenance,
+match an unrelated peer lifecycle, or close Lemma 72/Theorem 73.
+
 `Cordis.GlobalPaperShiftedLifecycle` adds a concrete non-reflexive allocator-clock replay: it
 shifts only `nextBirth`, rebuilds the dependent L-Leave/L-Unload pair, and transports the exact
 assigned trace while preserving endpoint well-formedness, rules, actors, and birth-erased

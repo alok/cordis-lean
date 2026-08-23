@@ -173,6 +173,7 @@ import Cordis.GlobalNameLifecycle
 import Cordis.GlobalPaperRelation
 import Cordis.GlobalPaperTraceSimulation
 import Cordis.GlobalPaperLandingReplay
+import Cordis.GlobalPaperFullLifecycleReplay
 import Cordis.GlobalPaperShiftedLifecycle
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
@@ -9369,8 +9370,19 @@ private def testGlobalPaperLandingReplay : IO Unit := do
   let _related := GlobalPaperLandingReplay.Example.LandingPair.endpoint_related
   let _wellFormed := GlobalPaperLandingReplay.Example.LandingPair.endpoint_wellFormed
   assertEqual "fixed landing source activation pair remains iter then finish"
-    GlobalActivationTransposition.Example.LandingPair.executableRulePair
-    (.iter, .finish)
+      GlobalActivationTransposition.Example.LandingPair.executableRulePair
+      (.iter, .finish)
+
+private def testGlobalPaperFullLifecycleReplay : IO Unit := do
+  let _summary := GlobalPaperFullLifecycleReplay.Example.executable_summary
+  let _related := GlobalPaperFullLifecycleReplay.Example.replay_final_related
+  let _wellFormed := GlobalPaperFullLifecycleReplay.Example.replay_wellFormed
+  let _assignment := GlobalPaperFullLifecycleReplay.Example.replay_assignment_exact
+  assertEqual "full lifecycle replay exposes all six detailed rules"
+    GlobalPaperFullLifecycleReplay.Example.executableGlobalRules
+    [.lBegin, .lIter, .lFinish, .oRetire, .lLeave, .lUnload]
+  assertEqual "full lifecycle replay retains six acting names"
+    GlobalPaperFullLifecycleReplay.Example.executableActors [0, 0, 0, 0, 0, 0]
 
 private def testGlobalPaperShiftedLifecycle : IO Unit := do
   let _nonreflexive := GlobalPaperShiftedLifecycle.shiftedRetired_ne_source
@@ -10004,6 +10016,7 @@ def run : IO Unit := do
   testGlobalPaperRelation
   testGlobalPaperTraceSimulation
   testGlobalPaperLandingReplay
+  testGlobalPaperFullLifecycleReplay
   testGlobalPaperShiftedLifecycle
   testGlobalPaperTraceDeletion
   testGlobalPaperTraceNormalization
