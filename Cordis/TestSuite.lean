@@ -31,6 +31,7 @@ import Cordis.DeepSeekExternalToolProcess
 import Cordis.DeepSeekExternalToolRound
 import Cordis.DeepSeekExternalGenericRound
 import Cordis.DeepSeekExternalGenericConversation
+import Cordis.DeepSeekExternalGenericSession
 import Cordis.DeepSeekAsyncStreamCancellation
 import Cordis.DeepSeekAsyncStreamRetryCancellation
 import Cordis.DeepSeekStream
@@ -2645,6 +2646,41 @@ private def testDeepSeekExternalGenericConversation : IO Unit := do
   | .error (.invalidJson _) => pure ()
   | .error error => fail s!"external generic legacy runner returned the wrong error: {reprStr error}"
   | .ok _ => fail "external generic legacy runner did not preserve its error boundary"
+
+private def testDeepSeekExternalGenericSession : IO Unit := do
+  match ← DeepSeekExternalGenericSession.counterSessionStopRun with
+  | ⟨finalRunner, ⟨finalSession, result⟩⟩ =>
+      assertEqual "session-indexed external stop advances the call id"
+        finalRunner.nextCall 1
+      assertEqual "session-indexed external stop retains the certified model"
+        finalRunner.model 7
+      assertEqual "session-indexed external stop appends the call/result pair"
+        finalSession.events.length 4
+      assertEqual "session-indexed external stop exposes one model message"
+        finalSession.messages.length 1
+      assertEqual "session-indexed external stop retains one trace edge"
+        result.trace.length 1
+      assertEqual "session-indexed external stop completes"
+        result.stop DeepSeekExternalGenericConversation.StopKind.completed
+      let _projection := result.finalProjection
+      pure ()
+  match ← DeepSeekExternalGenericSession.counterSessionErrorRun with
+  | ⟨finalRunner, ⟨finalSession, result⟩⟩ =>
+      assertEqual "session-indexed captured error preserves the accepted call id"
+        finalRunner.nextCall 1
+      assertEqual "session-indexed captured error preserves the accepted model"
+        finalRunner.model 7
+      assertEqual "session-indexed captured error retains the accepted events"
+        finalSession.events.length 4
+      assertEqual "session-indexed captured error retains the accepted trace"
+        result.trace.length 1
+      assertEqual "session-indexed captured error has an explicit stop"
+        result.stop DeepSeekExternalGenericConversation.StopKind.observationError
+      match result.stopError with
+      | some (.invalidJson _) => pure ()
+      | some error =>
+          fail s!"session-indexed captured the wrong observation error: {reprStr error}"
+      | none => fail "session-indexed captured error lost its observation error"
 
 private def testDeepSeekAsyncStreamCancellation : IO Unit := do
   let race ← DeepSeekAsyncStreamCancellation.exampleCancellationRace
@@ -8868,6 +8904,7 @@ def run : IO Unit := do
   testDeepSeekExternalToolRound
   testDeepSeekExternalGenericRound
   testDeepSeekExternalGenericConversation
+  testDeepSeekExternalGenericSession
   testDeepSeekAsyncStreamCancellation
   testDeepSeekAsyncStreamRetryCancellation
   testDeepSeekStream

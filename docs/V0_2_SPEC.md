@@ -64,6 +64,12 @@ decode; the original `run` API continues to return `Except ObservationError`. Th
 heterogeneous process/tool provenance in `Prop` so its executable result remains usable by `IO`;
 sandboxing, authentication, exactly-once effects, cleanup, persistence, provider obedience, and
 deployed Harness equivalence remain external.
+`Cordis.DeepSeekExternalGenericSession` indexes the same finite script by the exact rich `Session`
+state and its protocol-projection proof. Accepted dispatches append one typed tool-call/tool-result
+pair exactly once, while completion, fuel exhaustion, uncertified observations, and observation
+errors retain the current rich prefix. Its counter fixtures cover both a completed endpoint and a
+later malformed-observation stop; this remains a finite local adapter rather than deployed process
+or Harness equivalence.
 `Cordis.DeepSeekAsyncStreamCancellation` carries the typed pre-round cancellation policy through
 that race. Its fixture cancels one child before dispatch while the other remains a real streamed
 tool/text continuation; the accepted cancellation result preserves its reason, unchanged
@@ -793,6 +799,9 @@ Current machine-checked evidence includes:
   a later process fails to spawn or decode, while `run` keeps the error-returning boundary;
   heterogeneous tool/process origins are proof-only edge certificates so the executable result
   remains usable by `IO`;
+- `Cordis.DeepSeekExternalGenericSession`, providing the session-indexed refinement of that script:
+  the exact runner/session/projection index is preserved, accepted dispatches append one typed
+  call/result pair, and completed plus malformed-observation fixtures retain their rich prefixes;
 - `Cordis.DeepSeekAsyncStreamCancellation`, exercising a real cancellation-first streamed child
   alongside a process-backed sibling and checking the typed stop/endpoint evidence;
 - `Cordis.DeepSeekAsyncStreamRetryCancellation`, exercising the same cancellation-first race over

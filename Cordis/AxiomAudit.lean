@@ -127,6 +127,7 @@ import Cordis.DeepSeekExternalToolProcess
 import Cordis.DeepSeekExternalToolRound
 import Cordis.DeepSeekExternalGenericRound
 import Cordis.DeepSeekExternalGenericConversation
+import Cordis.DeepSeekExternalGenericSession
 import Cordis.DeepSeekAsyncStreamCancellation
 import Cordis.DeepSeekAsyncStreamRetryCancellation
 import Cordis.DurableCodec
@@ -486,6 +487,15 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekExternalGenericConversation.counterReadContinueRun
 #print axioms Cordis.DeepSeekExternalGenericConversation.counterReadErrorRun
 #print axioms Cordis.DeepSeekExternalGenericConversation.counterReadErrorLegacyRun
+#print axioms Cordis.DeepSeekExternalGenericSession.attachedSession
+#print axioms Cordis.DeepSeekExternalGenericSession.attachedProjection
+#print axioms Cordis.DeepSeekExternalGenericSession.SessionScript
+#print axioms Cordis.DeepSeekExternalGenericSession.SessionRunResult
+#print axioms Cordis.DeepSeekExternalGenericSession.runAux
+#print axioms Cordis.DeepSeekExternalGenericSession.run
+#print axioms Cordis.DeepSeekExternalGenericSession.counterSessionStopRun
+#print axioms Cordis.DeepSeekExternalGenericSession.counterSessionMalformedCertify
+#print axioms Cordis.DeepSeekExternalGenericSession.counterSessionErrorRun
 #print axioms Cordis.DeepSeekAsyncStreamCancellation.ProcessJobResult.phase_terminal_of_result
 #print axioms Cordis.DeepSeekAsyncStreamCancellation.ProcessJobResult.cancelled_preserves_endpoint
 #print axioms Cordis.DeepSeekAsyncStreamCancellation.RaceResult.winner_mem

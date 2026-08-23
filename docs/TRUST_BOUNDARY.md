@@ -1892,6 +1892,13 @@ to spawn or decode, while `run` preserves the error-returning API. Because heter
 in `Prop` rather than pretending to return a homogeneous wire payload. This proves finite
 local-process orchestration only; process identity, sandboxing, authentication, exactly-once
 effects, cleanup, persistence, provider obedience, and deployed Harness equivalence remain outside.
+`DeepSeekExternalGenericSession` is the rich-session refinement of that finite runner. Its
+dependent script carries the exact generic runner, `Session`, and protocol-projection equality;
+accepted dispatches append one typed call/result pair exactly once, and fuel, uncertified, or
+observation-error stops retain the current session prefix. The counter fixtures cover a completed
+endpoint and a later malformed-observation stop. This is local finite evidence only; process
+identity, sandboxing, authentication, exactly-once effects, cleanup, persistence, provider
+obedience, and deployed Harness equivalence remain outside.
 
 [paper-pdf]: https://raw.githubusercontent.com/cordiverse/paper/948a07b369c62adb3b12e102458be5c18dfb69b9/paper.pdf
 [cordis-fiber]: https://github.com/cordiverse/cordis/blob/8cc9e33fab69e2d0476d126baaf2acb24e6a6ab4/packages/core/src/fiber.ts#L78-L485
