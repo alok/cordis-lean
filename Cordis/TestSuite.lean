@@ -63,6 +63,7 @@ import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
 import Cordis.DeepSeekHarnessLiveProbe
+import Cordis.DeepSeekHarnessLiveStreamProbe
 import Cordis.DeepSeekHarnessLocalHttp
 import Cordis.DeepSeekHarnessLocalSse
 import Cordis.DeepSeekHarnessLocalSseRetry
@@ -3704,6 +3705,27 @@ private def testDeepSeekHarnessLiveProbe : IO Unit := do
         summary.finalModel DeepSeekHarnessLiveProbe.Example.expectedSummary.finalModel
       assertEqual "live probe fixture reports typed completion"
         summary.completed DeepSeekHarnessLiveProbe.Example.expectedSummary.completed
+
+private def testDeepSeekHarnessLiveStreamProbe : IO Unit := do
+  assertEqual "live stream probe rejects a missing credential"
+    (← DeepSeekHarnessLiveStreamProbe.Example.missingCredential) true
+  match ← DeepSeekHarnessLiveStreamProbe.Example.run with
+  | .error _ => fail "live stream probe fixture failed"
+  | .ok ⟨prepared, result⟩ =>
+      assertEqual "live stream probe builds stream mode"
+        prepared.plan.source.stream true
+      assertEqual "live stream probe retains one streamed round"
+        result.rounds.length 1
+      assertEqual "live stream probe preserves the model successor"
+        result.finalModel 0
+      assertEqual "live stream probe appends the streamed tool result"
+        result.runner.session.nextSeq 3
+      assertEqual "live stream probe distinguishes fuel exhaustion from completion"
+        (DeepSeekStreamHarnessBytePrefix.BytePrefixConversationStop.isCompleted result.stop) false
+      match result.stop with
+      | .fuelExhausted => pure ()
+      | .completed _ _ | .prefixStopped _ =>
+          fail "live stream probe returned the wrong terminal stop"
 
 private def testDeepSeekHarnessLocalHttp : IO Unit := do
   assertEqual "local HTTP port parser accepts a decimal port"
@@ -8670,6 +8692,7 @@ def run : IO Unit := do
   testDeepSeekApiSession
   testDeepSeekHarness
   testDeepSeekHarnessLiveProbe
+  testDeepSeekHarnessLiveStreamProbe
   testDeepSeekHarnessLocalHttp
   testDeepSeekHarnessLocalSse
   testDeepSeekHarnessLocalSseRetry

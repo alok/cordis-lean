@@ -340,6 +340,11 @@ Current machine-checked evidence includes:
   logging it, retaining a complete-mode request plan beside a bounded conversation result, and
   exercising the same API with an injected two-response fixture; credential validity, network
   reachability, process trust, provider behavior, and deployed equivalence remain external;
+- `Cordis.DeepSeekHarnessLiveStreamProbe`, carrying the same credential-safe handoff into a
+  typed streaming request and configured curl byte-prefix conversation run; its fixture retains
+  the raw-prefix, streamed-round, model/session endpoint, and explicit fuel-exhaustion witness,
+  while credential validity, remote reachability, provider behavior, blocked-read cancellation,
+  backpressure, retries, persistence, and deployed equivalence remain external;
 - `Cordis.DeepSeekApiBytes`, retaining exact UTF-8 request bytes and successful response bytes,
   decoded text, and typed parse/decode certificates over an injected byte transport; invalid
   UTF-8 and non-2xx bodies remain distinct, while deployed byte compatibility remains external;
@@ -1094,7 +1099,7 @@ relation whose union cycles, so the module requires `SupportOrder` directly. It 
 combined-edge well-founded recursion, proves uniqueness, and derives support-equals-active at
 quiescence under state-local provision totality, failure exclusion, and active-parent closure.
 
-The bounded algebra/context/global layer now has sixty-seven explicit pieces:
+The bounded algebra/context/global layer now has sixty-eight explicit pieces:
 
 1. `Cordis.Coeffect` implements Definitions 22–26 over finite dependent maps.
 2. `Cordis.UnifiedContext` distinguishes witnessed in-place effects from indexed derived
@@ -1508,6 +1513,13 @@ The bounded algebra/context/global layer now has sixty-seven explicit pieces:
     `Example.run` exercises the same high-level path with two injected responses, while network
     reachability, credential validity, provider obedience, process trust, backoff, idempotency,
     and deployed Harness equivalence remain external.
+    63a. `Cordis.DeepSeekHarnessLiveStreamProbe` carries that handoff through the arbitrary-byte
+    prefix continuation. `PreparedRequest` proves `stream: true`; `runWithKey` feeds configured
+    curl stdout chunks through the typed byte-prefix/session runner; and `Example.fixtureSummary`
+    exercises one streamed round ending in explicit fuel exhaustion while retaining the model and
+    session endpoint. Credential validity, remote reachability, provider obedience, process trust,
+    blocked-read cancellation, backpressure, retries, persistence, and deployed equivalence remain
+    external.
 64. `Cordis.DeepSeekHarnessLocalHttp` crosses the local process/HTTP boundary with a one-shot
     standard-library server and the real curl executable. The fixture validates the request route,
     authorization header, model, and `stream: false` mode before returning the two existing typed

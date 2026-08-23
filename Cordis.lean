@@ -79,6 +79,7 @@ import Cordis.DeepSeekSessionRunner
 import Cordis.DeepSeekApiSession
 import Cordis.DeepSeekHarness
 import Cordis.DeepSeekHarnessLiveProbe
+import Cordis.DeepSeekHarnessLiveStreamProbe
 import Cordis.DeepSeekHarnessLocalHttp
 import Cordis.DeepSeekHarnessLocalSse
 import Cordis.DeepSeekHarnessLocalSseRetry

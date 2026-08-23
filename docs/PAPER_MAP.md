@@ -1047,6 +1047,13 @@ dependent streamed conversation runner and a fuel-bounded multi-round endpoint t
 the prefix witness beside finish, tool execution, and session indexing, while timeout/fuel/
 cancellation stops remain explicit nonterminal errors. In-flight provider behavior and deployed
 asynchronous equivalence remain unproved.
+`Cordis.DeepSeekHarnessLiveStreamProbe` is the credential/runtime handoff above that byte-prefix
+seam: it classifies a caller-named environment credential without logging it, proves a typed
+`stream: true` request, and feeds configured curl byte chunks into the dependent conversation
+runner. Its fixture retains one streamed round, raw-prefix evidence, the model/session endpoint,
+and explicit fuel exhaustion. Credential validity, remote reachability, provider obedience,
+process trust, blocked-read cancellation, backpressure, retries, persistence, and deployed
+Harness equivalence remain external.
 
 The indexed follow-up `Cordis.GlobalPaperTraceScopedConfluence` refines the conditional
 confluence bridge over an explicit finite package family. Its selected links carry exact
