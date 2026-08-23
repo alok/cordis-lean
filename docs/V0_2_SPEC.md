@@ -684,11 +684,12 @@ Current machine-checked evidence includes:
 - `Cordis.SessionRefinement`, statefully translating a supported source-shaped Harness session
   prefix into joint `Session.ValidatedAppend` and intrinsic `Protocol.ValidatedEvent` witnesses;
 - `Cordis.SessionRefinementSurfaceCodec`, providing the checked reverse codec for text-only user
-  messages, text/reasoning/tagged-raw-image/complete-tool-call assistant messages, and
-  singleton-text tool results across canonical JSON AST, JSONL text, and UTF-8 bytes, with exact
-  safe-integer, usage, provenance, replacement-range, call-ID, raw-argument, and `isError`
-  witnesses; image schema semantics, opaque metadata, unsupported surface operations, and
-  unsupported event variants remain fail-closed or external;
+  messages, text/reasoning/tagged-raw-image/complete-tool-call assistant messages, singleton-text
+  tool results, and a metadata-aware raw tool-result emitter across canonical JSON AST, JSONL text,
+  and UTF-8 bytes, with exact safe-integer, usage, provenance, replacement-range, call-ID,
+  raw-argument, `isError`, and quarantined `error`/`meta` witnesses; image schema semantics,
+  provider metadata semantics, unsupported surface operations, and unsupported event variants
+  remain fail-closed or external;
 - `Cordis.SessionOpaqueMetadata`, quarantining only provider/tool-owned tool-result `error` and
   `meta` JSON while retaining exact values and the sanitized Session/Protocol projection;
 - `Cordis.SessionArchive`, retaining every syntactically valid current-Harness event envelope
@@ -1712,8 +1713,9 @@ payload types, replay semantics, or a local session projection to opaque records
 `Cordis.SessionOpaqueMetadata` is a narrower bridge for a supported tool-result session whose
 `data.error` and `data.meta` fields are provider/tool-owned. It removes only those two fields
 before invoking the existing dependent session validator, retains each original JSON value in
-order, and proves that the sanitized Session/Protocol projection is unchanged. The certificate
-does not interpret either field or claim provider/tool schema equivalence.
+order, and proves that the sanitized Session/Protocol projection is unchanged. The surface codec
+can emit the retained values as raw JSON, while the certificate still does not interpret either
+field or claim provider/tool schema equivalence.
 
 `Cordis.SessionEventArchive` closes the adjacent wire-vocabulary gap. It recognizes all thirteen
 pinned core tags, requires object-shaped `data`, rejects surface metadata on log-only tags, and

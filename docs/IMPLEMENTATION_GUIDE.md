@@ -1854,10 +1854,11 @@ at `Lean.Json`, decode exact current field/tag shapes, and fail closed outside
 their stated language.
 `Cordis.SessionRefinementSurfaceCodec` is the corresponding checked reverse boundary for the
 text-only user-message, text/reasoning/tagged-raw-image/complete-tool-call assistant-message, and
-singleton-text tool-result subset. It encodes canonical ASTs and composes them with the existing
+singleton-text tool-result subset. It also emits quarantined tool-result `error`/`meta` values as
+raw JSON for the metadata bridge. It encodes canonical ASTs and composes them with the existing
 JSONL text and UTF-8 byte parser; its round-trip theorems retain safe integers, assistant usage,
 source references, replacement ranges, call IDs, raw tool-call arguments, and exact `isError`
-values. Image schema semantics, opaque provider metadata, unsupported surface operations, and
+values. Image schema semantics and provider metadata semantics remain external; unsupported surface operations and
 unsupported event variants remain outside this encoder rather than receiving guessed semantics.
 `Cordis.RuntimeFailureRefinement` separately covers the normalized in-band
 `error` and `aborted` finish branches: it retains the exact ordinary prefix and
@@ -1963,7 +1964,9 @@ equivalence.
 fields that `SessionRefinement` intentionally does not interpret. Its sanitizer removes only
 `data.error` and `data.meta`, the retained-log certificate stores the exact original JSON values
 in source order, and the existing dependent validator proves the sanitized Session/Protocol
-projection. Keep this layer raw: adding provider/tool meanings here would exceed the audited
+projection. The surface codec can emit those values as raw JSON, with a theorem that
+sanitization recovers the existing semantic tool-result decoder. Keep this layer raw: adding
+provider/tool meanings here would exceed the audited
 source boundary.
 `Cordis.DeepSeekApi` now supplies the adjacent provider boundary: typed
 OpenAI-compatible chat requests become exact POST plans, successful responses

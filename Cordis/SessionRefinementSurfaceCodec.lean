@@ -1,4 +1,5 @@
 import Cordis.SessionRefinementTextCodec
+import Cordis.SessionOpaqueMetadata
 
 /-!
 # Canonical surface and tool-result codec
@@ -10,10 +11,10 @@ the local Harness fixtures.  The encoder emits the exact outer metadata required
 preserves typed safe-integer witnesses, and retains `isError` as data rather than translating it to
 a local success flag.
 
-Assistant text/reasoning, tagged raw image, and complete tool-call surface messages are now
-encoded as well as decoded.  Image schema semantics, request metadata, and provider/tool-owned
-opaque fields remain external or fail-closed; source-event references and replacement operations
-are emitted from their typed metadata.  A
+Assistant text/reasoning, tagged raw image, complete tool-call surface messages, and quarantined
+tool-result metadata are now encoded as well as decoded.  Image schema semantics, request
+metadata, and provider/tool-owned metadata semantics remain external or fail-closed; source-event
+references and replacement operations are emitted from their typed metadata.  A
 successful AST round trip is proved, then composed with the
 existing JSONL parser and UTF-8 renderer.  This is a source-shaped local codec, not a claim of
 deployed logger compatibility, provider obedience, or complete future event-union coverage.
@@ -153,6 +154,34 @@ def toolResultEvent (seq time : SafeNat) (result : WireToolResult) : Lean.Json :
     (rawObj [("turn", safeNatJson result.turn), ("step", safeNatJson result.step),
       ("message", toolResultMessageJson result)])
     (surfaceFields (some result.sourceEventSeqs) result.surfaceOp)
+
+def toolResultMetadataFields
+    (metadata : Cordis.SessionOpaqueMetadata.ToolResultMetadata) :
+    List (String × Lean.Json) :=
+  (match metadata.error with
+  | none => []
+  | some value => [("error", value)]) ++
+    (match metadata.metaValue with
+    | none => []
+    | some value => [("meta", value)])
+
+/-- Emit a tool result together with its quarantined source metadata.
+
+The semantic decoder intentionally rejects these two fields.  Callers must use
+`SessionOpaqueMetadata.sanitizeEvent` before decoding; the two round-trip theorems below make
+that boundary explicit rather than assigning provider/tool metadata local semantics. -/
+def toolResultEventWithMetadata (seq time : SafeNat) (result : WireToolResult)
+    (metadata : Cordis.SessionOpaqueMetadata.ToolResultMetadata) : Lean.Json :=
+  eventObj seq time "tool/result"
+    (rawObj ([
+      ("turn", safeNatJson result.turn), ("step", safeNatJson result.step),
+      ("message", toolResultMessageJson result)] ++ toolResultMetadataFields metadata))
+    (surfaceFields (some result.sourceEventSeqs) result.surfaceOp)
+
+def encodeToolResultWithMetadata (seq time : SafeNat) (result : WireToolResult)
+    (metadata : Cordis.SessionOpaqueMetadata.ToolResultMetadata) :
+    Except EncodeError Lean.Json :=
+  .ok (toolResultEventWithMetadata seq time result metadata)
 
 def encodeUserMessage (seq time : SafeNat) (append : WireSurfaceAppend) :
     Except EncodeError Lean.Json :=
@@ -477,6 +506,7 @@ theorem decode_toolResult (seq time : SafeNat) (result : WireToolResult) :
             Cordis.SessionRefinement.rejectPresent,
             Cordis.SessionRefinement.fieldPath,
             Cordis.SessionRefinement.decodeString, safeNat_decode, safeNatList_decode] <;> rfl
+
       | replace start endSeq =>
           simp only [toolResultEvent, eventObj, toolResultMessageJson, rawObj,
             surfaceFields, surfaceOpJson, sourceEventSeqsFields, decodeEvent]
@@ -495,6 +525,31 @@ theorem decode_toolResult (seq time : SafeNat) (result : WireToolResult) :
             Cordis.SessionRefinement.rejectPresent,
             Cordis.SessionRefinement.fieldPath,
             Cordis.SessionRefinement.decodeString, safeNat_decode, safeNatList_decode] <;> rfl
+
+theorem sanitize_toolResultEventWithMetadata (seq time : SafeNat) (result : WireToolResult)
+    (metadata : Cordis.SessionOpaqueMetadata.ToolResultMetadata) :
+    Cordis.SessionOpaqueMetadata.sanitizeEvent
+        (toolResultEventWithMetadata seq time result metadata) =
+      toolResultEvent seq time result := by
+  cases metadata with
+  | mk error metaValue =>
+      cases error <;> cases metaValue <;> rfl
+
+theorem metadataOf_toolResultEventWithMetadata (seq time : SafeNat) (result : WireToolResult)
+    (metadata : Cordis.SessionOpaqueMetadata.ToolResultMetadata) :
+    Cordis.SessionOpaqueMetadata.metadataOf
+        (toolResultEventWithMetadata seq time result metadata) = some metadata := by
+  cases metadata with
+  | mk error metaValue =>
+      cases error <;> cases metaValue <;> rfl
+
+theorem decode_sanitized_toolResultEventWithMetadata (seq time : SafeNat)
+    (result : WireToolResult) (metadata : Cordis.SessionOpaqueMetadata.ToolResultMetadata) :
+    decodeEvent (Cordis.SessionOpaqueMetadata.sanitizeEvent
+      (toolResultEventWithMetadata seq time result metadata)) = .ok {
+        seq, time, payload := .toolResult result } := by
+  rw [sanitize_toolResultEventWithMetadata]
+  exact decode_toolResult seq time result
 
 theorem decode_userMessage (seq time : SafeNat) (message : WireUserMessage)
     (sourceEventSeqs : Option (List SafeNat)) (surfaceOp : WireSurfaceOp) :
@@ -1024,6 +1079,28 @@ def executableToolResult : WireToolResult := {
   sourceEventSeqs := [{ value := 4, safe := by decide }]
   surfaceOp := .replace { value := 3, safe := by decide } { value := 5, safe := by decide }
 }
+
+def executableToolResultMetadata : Cordis.SessionOpaqueMetadata.ToolResultMetadata := {
+  error := some (Lean.Json.mkObj [("name", .str "ToolError"), ("code", .str "E_FIXTURE")])
+  metaValue := some (Lean.Json.mkObj [("opaque", .str "tool-owned")])
+}
+
+def executableToolResultWithMetadataJson : Lean.Json :=
+  toolResultEventWithMetadata { value := 7, safe := by decide } { value := 107, safe := by decide }
+    executableToolResult executableToolResultMetadata
+
+theorem executableToolResultWithMetadata_metadata :
+    Cordis.SessionOpaqueMetadata.metadataOf executableToolResultWithMetadataJson =
+      some executableToolResultMetadata := by
+  exact metadataOf_toolResultEventWithMetadata _ _ _ executableToolResultMetadata
+
+theorem executableToolResultWithMetadata_decoded :
+    decodeEvent (Cordis.SessionOpaqueMetadata.sanitizeEvent
+      executableToolResultWithMetadataJson) = .ok {
+        seq := { value := 7, safe := by decide }
+        time := { value := 107, safe := by decide }
+        payload := .toolResult executableToolResult } := by
+  exact decode_sanitized_toolResultEventWithMetadata _ _ _ executableToolResultMetadata
 
 def executableSurfaceEvents : List WireEvent := [
   { seq := { value := 6, safe := by decide }

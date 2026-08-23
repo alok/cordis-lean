@@ -7548,6 +7548,29 @@ private def testSessionRefinementSurfaceCodec : IO Unit := do
           | .assistantMessage _ _ _ => pure ()
           | _ => fail "assistant surface text changed event tag"
       | .ok events => fail s!"assistant surface text changed event count: {events.length}"
+  match SessionRefinement.SurfaceCodec.encodeToolResultWithMetadata
+      { value := 7, safe := by decide } { value := 107, safe := by decide }
+      SessionRefinement.SurfaceCodec.executableToolResult
+      SessionRefinement.SurfaceCodec.executableToolResultMetadata with
+  | .error error => fail s!"metadata tool-result encoding failed: {reprStr error}"
+  | .ok json =>
+      assertEqual "metadata tool-result encoder emits the executable raw event"
+        (Lean.Json.compress json)
+        (Lean.Json.compress SessionRefinement.SurfaceCodec.executableToolResultWithMetadataJson)
+      match SessionOpaqueMetadata.metadataOf json with
+      | none => fail "metadata tool-result encoder lost opaque metadata"
+      | some metadata =>
+          assertEqual "metadata tool-result encoder retains error metadata"
+            metadata.error.isSome true
+          assertEqual "metadata tool-result encoder retains meta metadata"
+            metadata.metaValue.isSome true
+      match SessionRefinement.decodeEvent (SessionOpaqueMetadata.sanitizeEvent json) with
+      | .error error => fail s!"sanitized metadata tool-result failed to decode: {reprStr error}"
+      | .ok { payload := .toolResult result, .. } =>
+          assertEqual "sanitized metadata tool-result retains isError" result.isError true
+          assertEqual "sanitized metadata tool-result retains content"
+            result.content "weather unavailable"
+      | .ok event => fail s!"sanitized metadata tool-result changed payload: {reprStr event}"
   pure ()
 
 private def testSessionRefinementProcess : IO Unit := do
