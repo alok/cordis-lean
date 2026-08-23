@@ -685,6 +685,9 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessLiveStreamProbe.PreparedRequest.body_eq_source
 #print axioms Cordis.DeepSeekHarnessLocalHttp.LocalProbeResult.complete_mode
 #print axioms Cordis.DeepSeekHarnessLocalHttp.LocalProbeResult.server_exited_successfully
+#print axioms Cordis.DeepSeekHarnessLocalHttp.runCompleteAppendWithKey
+#print axioms Cordis.DeepSeekHarnessLocalHttp.CompleteAppendProbeResult.base_url_exact
+#print axioms Cordis.DeepSeekHarnessLocalHttp.CompleteAppendProbeResult.server_exited_successfully
 #print axioms Cordis.DeepSeekHarnessLocalHttp.Example.expectedSummary_complete
 #print axioms Cordis.DeepSeekHarnessLocalSse.PreparedStreamingRequest.streaming_mode
 #print axioms Cordis.DeepSeekHarnessLocalSse.PreparedStreamingRequest.body_eq_source

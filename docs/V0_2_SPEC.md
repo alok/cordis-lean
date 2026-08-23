@@ -402,8 +402,10 @@ Current machine-checked evidence includes:
   UTF-8 and non-2xx bodies remain distinct, while deployed byte compatibility remains external;
 - `Cordis.DeepSeekHarnessLocalHttp`, starting a one-shot loopback HTTP fixture and sending the
   actual complete request through curl, with request method/route/authorization/model/stream-mode
-  checks and server request-count evidence retained beside the typed conversation result; remote
-  reachability, TLS, provider authenticity, and deployed equivalence remain external;
+  checks and server request-count evidence retained beside the typed conversation result; its
+  `runCompleteAppendWithKey` path additionally retains the accepted-response append certificate
+  in the indexed runner; remote reachability, TLS, provider authenticity, and deployed equivalence
+  remain external;
 - `Cordis.DeepSeekSchemaLocalHttp`, sending a heterogeneous two-tool schema conversation through
   the same real curl/HTTP boundary and retaining the prepared plan, dependent tool round,
   terminal witness, final model/runner endpoint, request counts, and server exit; remote/provider,
@@ -1602,10 +1604,11 @@ The bounded algebra/context/global layer now has sixty-eight explicit pieces:
     external.
 64. `Cordis.DeepSeekHarnessLocalHttp` crosses the local process/HTTP boundary with a one-shot
     standard-library server and the real curl executable. The fixture validates the request route,
-    authorization header, model, and `stream: false` mode before returning the two existing typed
-    counter responses; `LocalProbeResult` retains the port, request/validity counts, server exit,
-    prepared request, and final conversation endpoint. Remote reachability, TLS, provider
-    authenticity, executable trust, retries, and deployed Harness equivalence remain external.
+    authorization header, model, and `stream: false` mode before returning typed responses;
+    `LocalProbeResult` retains the conversation endpoint, while `CompleteAppendProbeResult`
+    retains the accepted-response append certificate and indexed runner endpoint. Remote
+    reachability, TLS, provider authenticity, executable trust, retries, and deployed Harness
+    equivalence remain external.
 65. `Cordis.DeepSeekHarnessLocalSse` crosses the local streaming process/HTTP boundary with a
     one-shot standard-library server and the real curl incremental reader. The fixture validates
     `stream: true`, emits each SSE body line, and `LocalSseResult` retains the typed streaming

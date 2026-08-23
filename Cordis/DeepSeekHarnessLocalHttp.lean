@@ -1,4 +1,5 @@
 import Cordis.DeepSeekHarnessLiveProbe
+import Cordis.DeepSeekSessionRequest
 
 /-!
 # Credential-safe local HTTP round-trip for the typed DeepSeek Harness
@@ -24,13 +25,16 @@ open Cordis
 open Cordis.DeepSeekApi
 open Cordis.DeepSeekCurlTransport
 open Cordis.DeepSeekHarness
+open Cordis.DeepSeekHarnessExtensions
 open Cordis.DeepSeekHarnessLiveProbe
 open Cordis.DeepSeekSessionRunner
+open Cordis.DeepSeekSessionRequest
 
 inductive LocalHttpError where
   | emptyResponses
   | port (line : String)
   | request (error : ProbeError)
+  | append (error : CompleteAppendError)
   | report (line : String)
   | server (code : UInt32) (stderr : String)
   | io (message : String)
@@ -41,18 +45,20 @@ def localBaseUrl (port : Nat) : String :=
 
 def serverScript : String :=
   "import http.server,json,sys\n" ++
-  "responses=sys.argv[1:]\n" ++
+  "expected_model=sys.argv[1]\n" ++
+  "responses=sys.argv[2:]\n" ++
   "class H(http.server.BaseHTTPRequestHandler):\n" ++
   "  count=0\n" ++
   "  valid=0\n" ++
   "  def do_POST(self):\n" ++
   "    n=int(self.headers.get('Content-Length','0'))\n" ++
   "    raw=self.rfile.read(n)\n" ++
+  "    request={}\n" ++
   "    try:\n" ++
   "      request=json.loads(raw.decode())\n" ++
   "      good=self.path=='/chat/completions' and self.command=='POST' and " ++
   "self.headers.get('Authorization')=='Bearer fixture-key' and " ++
-  "request.get('model')=='deterministic-counter' and request.get('stream') is False\n" ++
+  "request.get('model')==expected_model and request.get('stream') is False\n" ++
   "    except Exception:\n" ++
   "      good=False\n" ++
   "    if good:\n" ++
@@ -61,7 +67,7 @@ def serverScript : String :=
   "      H.valid += 1\n" ++
   "      status=200\n" ++
   "    else:\n" ++
-  "      body=b'{\"error\":\"fixture request mismatch\"}'\n" ++
+  "      body=json.dumps({\"error\":\"fixture request mismatch\",\"path\":self.path,\"method\":self.command,\"model\":request.get('model'),\"expected_model\":expected_model,\"stream\":request.get('stream'),\"auth_ok\":self.headers.get('Authorization')=='Bearer fixture-key'}).encode()\n" ++
   "      status=400\n" ++
   "    self.send_response(status)\n" ++
   "    self.send_header('Content-Type','application/json')\n" ++
@@ -145,7 +151,11 @@ private def stopServer {config : IO.Process.StdioConfig}
     pure ()
 
 private def serverArgs (responses : List String) : Array String :=
-  #[("-u" : String), "-c", serverScript] ++ responses.toArray
+  #[("-u" : String), "-c", serverScript, "deterministic-counter"] ++
+    responses.toArray
+
+private def serverArgsForModel (model : String) (responses : List String) : Array String :=
+  #[("-u" : String), "-c", serverScript, model] ++ responses.toArray
 
 private def serverStdio : IO.Process.StdioConfig where
   stdin := .null
@@ -245,6 +255,175 @@ def runWithKey
     pure (.error .emptyResponses)
   else
     runNonempty source fuel responses cfg before runner key
+
+/-! ## One-shot local HTTP complete-response append -/
+
+structure CompleteAppendProbeResult
+    {schema : Session.ExtensionSchema}
+    (runner : ExtensionRunner schema)
+    {request : Session.ModelRequest runner.session}
+    {source : RequestSource}
+    {encoder : ToolSchemaEncoder}
+    (prepared : PreparedRequest request source encoder)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ eventSeq ∈ sourceEventSeqs, eventSeq < runner.session.nextSeq)
+    (body : String) where
+  port : Nat
+  requests : Nat
+  validRequests : Nat
+  baseUrl : String
+  result : CompleteAppendResult schema runner body sourceEventSeqs sourcesNodup sourcesEarlier
+  serverExit : UInt32
+  serverStderr : String
+  base_url_eq : baseUrl = localBaseUrl port
+  server_exit_eq : serverExit = 0
+
+namespace CompleteAppendProbeResult
+
+theorem base_url_exact
+    {schema : Session.ExtensionSchema}
+    {runner : ExtensionRunner schema}
+    {request : Session.ModelRequest runner.session}
+    {source : RequestSource}
+    {encoder : ToolSchemaEncoder}
+    {prepared : PreparedRequest request source encoder}
+    {sourceEventSeqs : List Nat}
+    {sourcesNodup : sourceEventSeqs.Nodup}
+    {sourcesEarlier : ∀ eventSeq ∈ sourceEventSeqs,
+      eventSeq < runner.session.nextSeq}
+    {body : String}
+    (result : CompleteAppendProbeResult runner prepared sourceEventSeqs sourcesNodup
+      sourcesEarlier body) :
+    result.baseUrl = localBaseUrl result.port :=
+  result.base_url_eq
+
+theorem server_exited_successfully
+    {schema : Session.ExtensionSchema}
+    {runner : ExtensionRunner schema}
+    {request : Session.ModelRequest runner.session}
+    {source : RequestSource}
+    {encoder : ToolSchemaEncoder}
+    {prepared : PreparedRequest request source encoder}
+    {sourceEventSeqs : List Nat}
+    {sourcesNodup : sourceEventSeqs.Nodup}
+    {sourcesEarlier : ∀ eventSeq ∈ sourceEventSeqs,
+      eventSeq < runner.session.nextSeq}
+    {body : String}
+    (result : CompleteAppendProbeResult runner prepared sourceEventSeqs sourcesNodup
+      sourcesEarlier body) :
+    result.serverExit = 0 :=
+  result.server_exit_eq
+
+end CompleteAppendProbeResult
+
+private def runAppendChild
+    {schema : Session.ExtensionSchema}
+    {runner : ExtensionRunner schema}
+    {request : Session.ModelRequest runner.session}
+    {source : RequestSource}
+    {encoder : ToolSchemaEncoder}
+    (prepared : PreparedRequest request source encoder)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ eventSeq ∈ sourceEventSeqs,
+      eventSeq < runner.session.nextSeq)
+    (key : ApiKey)
+    (child : IO.Process.Child serverStdio)
+    (stderrTask : Task (Except IO.Error String)) :
+    IO (Except LocalHttpError
+      (Sigma fun body : String => CompleteAppendProbeResult runner prepared sourceEventSeqs
+        sourcesNodup sourcesEarlier body)) := do
+  try
+    let stdout := IO.FS.Stream.ofHandle child.stdout
+    let portLine ← stdout.getLine
+    match parsePort portLine with
+    | none =>
+        stopServer child stderrTask
+        pure (.error (.port portLine))
+    | some port =>
+        match ← executeCompleteAndAppend (runner := runner) (curlTransport {})
+            (localBaseUrl port) key prepared sourceEventSeqs sourcesNodup sourcesEarlier with
+        | .error error =>
+            stopServer child stderrTask
+            pure (.error (.append error))
+        | .ok ⟨body, result⟩ =>
+            let serverExit ← child.wait
+            let serverStderr ← IO.ofExcept stderrTask.get
+            let reportLine ← stdout.getLine
+            match parseReport reportLine with
+            | none =>
+                pure (.error (.report reportLine))
+            | some (requests, validRequests) =>
+                if hExit : serverExit = 0 then
+                  pure (.ok ⟨body, {
+                    port
+                    requests
+                    validRequests
+                    baseUrl := localBaseUrl port
+                    result
+                    serverExit
+                    serverStderr
+                    base_url_eq := rfl
+                    server_exit_eq := hExit
+                  }⟩)
+                else
+                  pure (.error (.server serverExit serverStderr))
+  catch error =>
+    stopServer child stderrTask
+    pure (.error (.io (toString error)))
+
+private def runAppendNonempty
+    {schema : Session.ExtensionSchema}
+    {runner : ExtensionRunner schema}
+    {request : Session.ModelRequest runner.session}
+    {source : RequestSource}
+    {encoder : ToolSchemaEncoder}
+    (prepared : PreparedRequest request source encoder)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ eventSeq ∈ sourceEventSeqs,
+      eventSeq < runner.session.nextSeq)
+    (model : String)
+    (responses : List String)
+    (key : ApiKey) :
+    IO (Except LocalHttpError
+      (Sigma fun body : String => CompleteAppendProbeResult runner prepared sourceEventSeqs
+        sourcesNodup sourcesEarlier body)) := do
+  try
+    let child ← IO.Process.spawn {
+      cmd := "python3"
+      args := serverArgsForModel model responses
+      stdin := serverStdio.stdin
+      stdout := serverStdio.stdout
+      stderr := serverStdio.stderr
+    }
+    let stderrTask ← IO.asTask child.stderr.readToEnd Task.Priority.dedicated
+    runAppendChild prepared sourceEventSeqs sourcesNodup sourcesEarlier key child stderrTask
+  catch error =>
+    pure (.error (.io (toString error)))
+
+def runCompleteAppendWithKey
+    {schema : Session.ExtensionSchema}
+    {runner : ExtensionRunner schema}
+    {request : Session.ModelRequest runner.session}
+    {source : RequestSource}
+    {encoder : ToolSchemaEncoder}
+    (prepared : PreparedRequest request source encoder)
+    (sourceEventSeqs : List Nat)
+    (sourcesNodup : sourceEventSeqs.Nodup)
+    (sourcesEarlier : ∀ eventSeq ∈ sourceEventSeqs,
+      eventSeq < runner.session.nextSeq)
+    (model : String)
+    (responses : List String)
+    (key : ApiKey) :
+    IO (Except LocalHttpError
+      (Sigma fun body : String => CompleteAppendProbeResult runner prepared sourceEventSeqs
+        sourcesNodup sourcesEarlier body)) := do
+  if responses.isEmpty then
+    pure (.error .emptyResponses)
+  else
+    runAppendNonempty prepared sourceEventSeqs sourcesNodup sourcesEarlier model responses key
 
 /-! ## Executable two-round proof witness -/
 

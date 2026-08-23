@@ -2842,6 +2842,27 @@ private def testDeepSeekSessionRequest : IO Unit := do
                           let _request_after_certificate :=
                             DeepSeekSessionRequest.appendAccepted_modelRequest_isSome indexedRunner
                               appended.accepted noSources noSourcesNodup noSourcesEarlier (by rfl)
+                      match ← DeepSeekHarnessLocalHttp.runCompleteAppendWithKey
+                          (runner := indexedRunner) preparedCertified noSources noSourcesNodup
+                          noSourcesEarlier certifiedRequest.header.model
+                          [DeepSeekApi.exampleResponseBody] { value := "fixture-key" } with
+                      | .error error =>
+                          fail s!"indexed DeepSeek local HTTP append failed: {reprStr error}"
+                      | .ok ⟨body, localAppend⟩ =>
+                          assertEqual "indexed DeepSeek local HTTP append retains the body"
+                            body DeepSeekApi.exampleResponseBody
+                          assertEqual "indexed DeepSeek local HTTP append receives one request"
+                            localAppend.requests 1
+                          assertEqual "indexed DeepSeek local HTTP append validates one request"
+                            localAppend.validRequests 1
+                          assertEqual
+                            "indexed DeepSeek local HTTP append reaches the certified endpoint"
+                            localAppend.result.after.session.nextSeq 6
+                          assertEqual
+                            "indexed DeepSeek local HTTP append retains local tool allocation"
+                            localAppend.result.after.nextCall 2
+                          let _local_append_certificate := localAppend.result.append_eq
+                          let _local_accept_certificate := localAppend.result.accept_eq
                       let _ := certified_request_eq
                       let _ := preparedCertified_eq
               let _request_certificate :=
