@@ -1155,3 +1155,10 @@ authentication, exactly-once effects, cleanup, or deployed Harness equivalence.
 log-only tool-call plus cited surface tool-result append and proves the exact sequence, message,
 and protocol projections. Rendering is supplied by the caller; no provider-specific deployment
 claim is made.
+
+`Cordis.DeepSeekHarnessPayloadSimulation` is the payload-aware composition checkpoint above the
+complete current-event replay. It shares one archived input with the semantic result while
+retaining envelope/block tags, assistant usage, tool-result error/meta JSON, unknown blocks, and
+raw/length projections; malformed known payloads remain opaque archive entries. The map is finite
+payload-shape evidence only, not provider-schema semantics, opaque replay, transport, persistence,
+cancellation, or deployed Harness equivalence.

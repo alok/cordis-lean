@@ -600,6 +600,11 @@ compaction-style replacement fixtures expose archive/known/keep/drop, endpoint, 
 and source-time summaries, while malformed replacement rejects. This is a finite source-honest
 subset bridge only; opaque/provider/transport/persistence/cancellation behavior and complete
 deployed-Harness equivalence remain external.
+`DeepSeekHarnessPayloadSimulation` composes successful complete simulations with the typed payload
+archive over the same input. Envelope/block tags, assistant usage, tool-result error/meta JSON,
+unknown blocks, and exact raw/length projections remain beside the semantic replay; malformed
+known payloads stay opaque archive entries. This is finite payload-shape retention, not provider
+schema semantics, opaque replay, transport, persistence, cancellation, or deployed equivalence.
 `DeepSeekHarnessEventIgnorableTransport` carries that same dependent runner through the existing
 process-backed complete-response conversation trace, retaining final runner/model/stop evidence
 and the original normalized-session certificates. It remains injected transport evidence, not a
@@ -1212,7 +1217,7 @@ At the documented HEAD, `Cordis.lean` imports the mapped proof, adapter, example
 Harness modules; `Tests.lean` runs `Cordis.TestSuite.run`; and the separate default
 `CordisStaticTests` target elaborates guarded expected failures in `Cordis/NegativeTests.lean`.
 Those facts establish the current Lean build surface and finite executable/static checks, not
-deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 2426
+deployment or upstream interoperability. `Cordis/AxiomAudit.lean` runs `#print axioms` for 2524
 selected declarations; its report is scoped to that list and does not validate the compiler,
 runtime, or external systems. The pinned CI workflow additionally applies a lexical source policy
 and allow-list parser, both of which remain trusted automation rather than kernel theorems.

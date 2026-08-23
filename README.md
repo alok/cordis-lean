@@ -803,6 +803,12 @@ text, tool-message, and compaction-style replacement fixtures expose exact archi
 session, source-position, and source-time summaries, while a malformed replacement rejects. This
 is a finite source-honest subset bridge; it does not claim opaque semantics, provider behavior,
 transport, persistence, cancellation delivery, or complete deployed-Harness equivalence.
+`Cordis.DeepSeekHarnessPayloadSimulation` composes that successful result with the typed payload
+archive over the same input. It retains known envelope tags, message block tags, assistant usage,
+tool-result error/meta JSON, unknown extension blocks, and exact raw/length projections beside the
+semantic replay. Malformed known payloads remain retained as opaque archive entries. This is
+payload-shape evidence for a finite source-shaped subset, not provider-schema semantics, opaque
+replay, transport, persistence, cancellation, or deployed-Harness equivalence.
 `Cordis.DeepSeekHarnessEventIgnorableRunner` then attaches that validated endpoint to a typed
 `ConversationRunner` and rebuilds a `ChatRequest` with proof-carrying session/request equalities.
 `Cordis.DeepSeekHarnessEventIgnorableTransport` carries the same dependent runner through the

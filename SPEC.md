@@ -1186,6 +1186,13 @@ claim:
    TypeScript state, plugin, cancellation, persistence, and error semantics and
    prove it. No such full equivalence theorem exists in `v0.1.0`.
 
+`Cordis.DeepSeekHarnessPayloadSimulation` is the payload-aware composition checkpoint: a
+successful complete simulation and `SessionPayloadArchive.enrich` share the same archived input,
+so envelope tags, message block tags, assistant usage, tool-result error/meta JSON, unknown blocks,
+raw order, and length are retained beside the semantic replay. Malformed known payloads remain
+opaque archive entries. This is finite payload-shape evidence, not provider-schema semantics,
+opaque replay, transport, persistence, cancellation, or deployed Harness equivalence.
+
 Future adapters must preserve the distinction between checked boundary data,
 Lean-proved kernel facts, and trusted external observations. Extending the
 repository does not automatically extend any theorem beyond its stated model.

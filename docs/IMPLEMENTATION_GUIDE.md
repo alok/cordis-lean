@@ -1945,6 +1945,12 @@ fixtures expose executable archive/known/keep/drop, endpoint, source-position, a
 summaries, while malformed replacement rejects. Keep this as a finite source-honest fixture
 surface: it does not derive opaque/provider/transport/persistence/cancellation semantics or
 complete deployed-Harness equivalence.
+`Cordis.DeepSeekHarnessPayloadSimulation` is the next adjacent composition: build it only after
+the complete result succeeds, then call `SessionPayloadArchive.enrich` on its archive. Keep the
+payload ledger indexed by the same input and expose raw/length equations, envelope/block tags,
+assistant usage, tool-result error/meta JSON, and opaque extension retention. Do not reinterpret
+provider-owned JSON or turn this finite shape certificate into an opaque replay, transport,
+persistence, cancellation, or deployed-Harness equivalence claim.
 `Cordis.DeepSeekHarnessEventArchiveReplay` closes the physical/archive alignment seam without
 claiming more semantics: `ArchiveReplay` stores the indexed `SourceReplay` beside the inductive
 keep/drop `DecisionLedger`, so exact archive rows, retained raw rows, and dropped opaque rows and

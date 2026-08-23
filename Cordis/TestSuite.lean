@@ -116,6 +116,7 @@ import Cordis.DeepSeekHarnessEventIgnorableProjection
 import Cordis.DeepSeekHarnessEventIgnorableNormalization
 import Cordis.DeepSeekHarnessEventSimulation
 import Cordis.DeepSeekHarnessCompleteSimulation
+import Cordis.DeepSeekHarnessPayloadSimulation
 import Cordis.DeepSeekHarnessEventArchiveReplay
 import Cordis.DeepSeekHarnessEventIgnorableRunner
 import Cordis.DeepSeekHarnessEventIgnorableTransport
@@ -6681,6 +6682,40 @@ private def testDeepSeekHarnessCompleteSimulation : IO Unit := do
       let _projection := DeepSeekHarnessCompleteSimulation.sessionProjection_eq simulation
       pure ()
 
+private def testDeepSeekHarnessPayloadSimulation : IO Unit := do
+  match DeepSeekHarnessPayloadSimulation.textSummary with
+  | .error error => fail s!"payload text simulation summary failed: {reprStr error}"
+  | .ok summary =>
+      assertEqual "payload text simulation reaches its executable summary"
+        summary DeepSeekHarnessPayloadSimulation.executableTextSummary
+  match DeepSeekHarnessPayloadSimulation.toolSummary with
+  | .error error => fail s!"payload tool simulation summary failed: {reprStr error}"
+  | .ok summary =>
+      assertEqual "payload tool simulation reaches its executable summary"
+        summary DeepSeekHarnessPayloadSimulation.executableToolSummary
+  match DeepSeekHarnessPayloadSimulation.replacementSummary with
+  | .error error => fail s!"payload replacement simulation summary failed: {reprStr error}"
+  | .ok summary =>
+      assertEqual "payload replacement simulation reaches its executable summary"
+        summary DeepSeekHarnessPayloadSimulation.executableReplacementSummary
+  assertEqual "reasoning/image payload and assistant usage remain retained"
+    DeepSeekHarnessPayloadSimulation.reasoningImageArchiveRetained true
+  assertEqual "tool-result error and meta payloads remain retained"
+    DeepSeekHarnessPayloadSimulation.toolResultErrorMetaRetained true
+  assertEqual "unknown payload blocks remain opaque and retained"
+    DeepSeekHarnessPayloadSimulation.unknownBlockRetained true
+  assertEqual "malformed known payloads remain retained as opaque entries"
+    DeepSeekHarnessPayloadSimulation.malformedPayloadRetained true
+  match DeepSeekHarnessPayloadSimulation.simulate SessionRefinement.messageExampleJson with
+  | .error error => fail s!"payload text simulation failed: {reprStr error}"
+  | .ok simulation =>
+      let _raw := DeepSeekHarnessPayloadSimulation.complete_archive_raw_exact simulation
+      let _payloadRaw := DeepSeekHarnessPayloadSimulation.payload_raw_exact simulation
+      let _length := DeepSeekHarnessPayloadSimulation.payload_length_exact simulation
+      let _trace := DeepSeekHarnessPayloadSimulation.protocolTrace_erase simulation
+      let _projection := DeepSeekHarnessPayloadSimulation.sessionProjection_eq simulation
+      pure ()
+
 private def testDeepSeekHarnessEventArchiveReplay : IO Unit := do
   match DeepSeekHarnessEventArchiveReplay.toolArchiveReplay with
   | .error error => fail s!"archive-aware replay failed: {reprStr error}"
@@ -10019,6 +10054,7 @@ def run : IO Unit := do
   testDeepSeekHarnessEventIgnorableNormalization
   testDeepSeekHarnessEventSimulation
   testDeepSeekHarnessCompleteSimulation
+  testDeepSeekHarnessPayloadSimulation
   testDeepSeekHarnessEventArchiveReplay
   testDeepSeekHarnessEventIgnorableRunner
   testDeepSeekHarnessEventIgnorableTransport

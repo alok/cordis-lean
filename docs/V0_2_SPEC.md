@@ -1948,6 +1948,13 @@ source-position, and source-time summaries, while malformed replacement rejects.
 finite source-honest subset bridge; opaque/provider/transport/persistence/cancellation behavior
 and complete deployed-Harness equivalence remain external.
 
+`Cordis.DeepSeekHarnessPayloadSimulation` composes that complete result with the typed payload
+archive over the same input. It retains envelope and block tags, assistant usage, tool-result
+error/meta JSON, unknown extension blocks, and exact raw/length projections beside the semantic
+replay; malformed known payloads remain opaque archive entries. This is finite payload-shape
+evidence only, not provider-schema semantics, opaque replay, transport, persistence, cancellation,
+or deployed-Harness equivalence.
+
 `Cordis.DeepSeekHarnessEventIgnorableRunner` is the next pure attachment: it sets the
 `ConversationRunner` session definitionally to the normalized final session, records the local step
 and tool-call-count witnesses, and rebuilds a typed request from that endpoint. This is a local
