@@ -1921,6 +1921,14 @@ the resulting `ConversationRunner.session` equal to the validated final session;
 certificates can be rebuilt from that runner and related back to the archive session. The fixture
 demonstrates a supported tool-message archive. Opaque known payloads and extensions are rejected,
 not silently omitted, and filesystem durability remains outside.
+`Cordis.DeepSeekHarnessEventRequest` composes that validated endpoint with the indexed
+`DeepSeekSessionRequest` builder. `prepareJsonLog` first decodes and replays the JSON prefix, then
+requires `Session.mkRequest` to expose a real header before returning `PreparedLogRequest`; the
+certificate retains exact request/session messages, physical `logLength = nextSeq`, source
+model/system/tool agreement, request-build equality, and the replay's protocol-projection
+equation. The header fixture succeeds and the headerless text fixture returns `noRequestHeader`.
+The structural encoder is deliberately not a provider-schema proof, and transport, credentials,
+provider behavior, and complete deployed-Harness equivalence remain external.
 `Cordis.DeepSeekHarnessEventIgnorableProjection` records the adjacent source-authorized exception
 without weakening that fail-closed runner boundary. Its positional ledger drops only opaque rows
 whose envelope explicitly carries `ignorable: true`, retains supported wire certificates and raw

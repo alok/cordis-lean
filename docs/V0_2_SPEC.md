@@ -1975,6 +1975,15 @@ runner session and the validated final session, preserves the archive's raw-even
 supports a proof-carrying request rebuild. The fixture is executable; known opaque and extension
 events are rejection cases rather than silently ignored records.
 
+`Cordis.DeepSeekHarnessEventRequest` composes the validated event endpoint with the indexed
+`DeepSeekSessionRequest` handoff. `prepareJsonLog` requires `Session.mkRequest` to expose a real
+header at the exact replay endpoint, then retains a dependent `PreparedLogRequest` containing the
+source/header agreement, request-build equality, physical `logLength = nextSeq`, and protocol
+projection equation. The current-shaped header fixture succeeds; a headerless message log returns
+`noRequestHeader`. Its structural tool encoder preserves names/descriptions only, so provider
+schema compatibility, credentials, transport, provider behavior, and complete deployed-Harness
+equivalence remain external.
+
 `Cordis.DeepSeekHarnessEventIgnorableProjection` is the intentionally smaller source-authorized
 exception. It retains the full archive and a positional keep/drop ledger, drops only opaque rows
 marked `ignorable: true`, retains supported wire/raw certificates and positions, and rejects a

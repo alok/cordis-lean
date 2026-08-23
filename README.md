@@ -808,6 +808,14 @@ opaque and extension events therefore cause restoration to fail closed rather th
 dropped, while the deterministic tool-message fixture restores a runner and rebuilds its typed
 request.
 
+`Cordis.DeepSeekHarnessEventRequest` closes the next local seam without widening that claim. It
+consumes a `ValidatedJsonLog`, requires `Session.mkRequest` to expose a real header at the exact
+validated endpoint, and returns a `PreparedLogRequest` whose request/build/source certificates are
+indexed by that endpoint. The header fixture is executable; a headerless message log is rejected
+as `noRequestHeader`. The structural tool encoder preserves names/descriptions only, so provider
+schema compatibility, credentials, transport, provider behavior, and complete deployed-Harness
+equivalence remain external.
+
 `Cordis.DeepSeekHarnessEventIgnorableProjection` is the narrower archive-side escape hatch for
 the source's explicit `ignorable: true` marker. It records positional keep/drop decisions, drops
 only opaque ignorable rows, retains supported wire certificates and raw source positions, and

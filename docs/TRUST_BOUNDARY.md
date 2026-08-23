@@ -600,6 +600,14 @@ whose session equals the validated endpoint; the supported tool-message fixture 
 typed request. Known opaque payloads and extensions fail closed, so no event is silently dropped
 to make restoration succeed.
 
+`DeepSeekHarnessEventRequest` is the request-side composition of that same certificate. It first
+requires `Session.mkRequest` at the validated endpoint, then retains a dependent
+`PreparedLogRequest` linking the event log, exact session messages, physical length, source/header
+agreement, request-build result, and protocol replay. The header fixture succeeds and the
+headerless fixture rejects with `noRequestHeader`; this remains a local request certificate, not
+provider-schema compatibility, credential/transport trust, provider behavior, or deployed-Harness
+equivalence.
+
 `DeepSeekHarnessEventIgnorableProjection` is intentionally weaker and more precise. It keeps the
 lossless archive, assigns each physical row a positional keep/drop decision, drops only opaque rows
 with the explicit `ignorable: true` marker, and retains supported wire certificates and source

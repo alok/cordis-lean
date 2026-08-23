@@ -112,6 +112,7 @@ import Cordis.DeepSeekSchemaStreamPrefixConversation
 import Cordis.DeepSeekSchemaStreamErrors
 import Cordis.DeepSeekHarnessPersistence
 import Cordis.DeepSeekHarnessEventArchive
+import Cordis.DeepSeekHarnessEventRequest
 import Cordis.DeepSeekHarnessEventIgnorableProjection
 import Cordis.DeepSeekHarnessEventIgnorableNormalization
 import Cordis.DeepSeekHarnessEventSimulation
@@ -3325,6 +3326,32 @@ private def testDeepSeekSessionRequest : IO Unit := do
               let _ := request_eq
               let _ := plan_eq
               pure ()
+
+private def testDeepSeekHarnessEventRequest : IO Unit := do
+  match DeepSeekHarnessEventRequest.headerPrepared with
+  | .error error => fail s!"validated header request preparation failed: {reprStr error}"
+  | .ok certificate =>
+      assertEqual "validated header request keeps the exact header"
+        certificate.request.header SessionRefinement.headerChunkExpectedHeader
+      assertEqual "validated header request keeps the model"
+        certificate.prepared.chat.model "deepseek-reasoner"
+      assertEqual "validated header request has the explicit system message"
+        certificate.prepared.chat.messages.toList.length 1
+      assertEqual "validated header request has one encoded tool"
+        certificate.prepared.chat.tools.length 1
+      assertEqual "validated header endpoint keeps physical sequence six"
+        certificate.log.final.session.nextSeq 6
+      let _messages_certificate :=
+        DeepSeekHarnessEventRequest.PreparedLogRequest.messages_eq_session certificate
+      let _projection_certificate :=
+        DeepSeekHarnessEventRequest.PreparedLogRequest.protocol_projection_eq_replay certificate
+      let _model_certificate :=
+        DeepSeekHarnessEventRequest.PreparedLogRequest.chat_model_eq_header certificate
+      pure ()
+  match DeepSeekHarnessEventRequest.headerlessPrepared with
+  | .error .noRequestHeader => pure ()
+  | .error error => fail s!"headerless log returned the wrong request error: {reprStr error}"
+  | .ok _ => fail "headerless current-Harness log unexpectedly produced a model request"
 
 private def testDeepSeekAsyncStreamCancellation : IO Unit := do
   let race ← DeepSeekAsyncStreamCancellation.exampleCancellationRace
@@ -10298,6 +10325,7 @@ def run : IO Unit := do
   testDeepSeekSchemaStreamPrefixConversation
   testDeepSeekSchemaStreamErrors
   testDeepSeekHarnessEventArchive
+  testDeepSeekHarnessEventRequest
   testDeepSeekHarnessEventIgnorableProjection
   testDeepSeekHarnessEventIgnorableNormalization
   testDeepSeekHarnessEventSimulation
