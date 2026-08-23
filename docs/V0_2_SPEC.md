@@ -1254,6 +1254,11 @@ assignment; the terminal package retains reverse-oriented birth-erased relatedne
 rule/actor permutations. This is certificate composition only, not an automatic normalization
 strategy, canonical-form theorem, termination, confluence, Lemma 72, or Theorem 73.
 
+`Cordis.GlobalPaperTraceBidirectionalNormalization` unifies forward and backward certificates
+behind one orientation-indexed chain. It copies source/target packages from the selected proof,
+symmetrizes only the backward relation at the wrapper boundary, and composes assignments plus
+rule/actor permutations. This remains a supplied finite chain, not an automatic normalizer.
+
 The corrected progress slice is specified in
 [`GLOBAL_PROGRESS_SPEC.md`](GLOBAL_PROGRESS_SPEC.md) and implemented by `Cordis.GlobalProgress`.
 It exposes configured-oracle rejection and raw freshness exhaustion, defines provider precedence

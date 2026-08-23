@@ -185,6 +185,7 @@ import Cordis.GlobalPaperShiftedFullLifecycle
 import Cordis.GlobalPaperNonReflexiveRewrite
 import Cordis.GlobalPaperTraceBackwardRewrite
 import Cordis.GlobalPaperTraceBackwardNormalization
+import Cordis.GlobalPaperTraceBidirectionalNormalization
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalPaperTraceNormalizer
@@ -9653,6 +9654,22 @@ private def testGlobalPaperTraceBackwardNormalization : IO Unit := do
     Cordis.GlobalPaperTraceBackwardNormalization.Example.executableActorNames
     [2, 1, 1]
 
+private def testGlobalPaperTraceBidirectionalNormalization : IO Unit := do
+  let _forwardRelated :=
+    Cordis.GlobalPaperTraceBidirectionalNormalization.Example.forward_final_related
+  let _backwardRelated :=
+    Cordis.GlobalPaperTraceBidirectionalNormalization.Example.backward_final_related
+  let _forwardRules :=
+    Cordis.GlobalPaperTraceBidirectionalNormalization.Example.forward_rules_perm
+  let _backwardRules :=
+    Cordis.GlobalPaperTraceBidirectionalNormalization.Example.backward_rules_perm
+  assertEqual "bidirectional rewrite layer exposes both orientations"
+    Cordis.GlobalPaperTraceBidirectionalNormalization.Example.executableOrientationNames
+    ["forward", "backward"]
+  assertEqual "bidirectional rewrite layer exposes one link per fixture"
+    Cordis.GlobalPaperTraceBidirectionalNormalization.Example.executableLinkCounts
+    [1, 1]
+
 private def testGlobalPaperTraceNormalization : IO Unit := do
   let _related := GlobalPaperTraceNormalization.Example.empty_chain_related
   let _rules := GlobalPaperTraceNormalization.Example.empty_chain_rules
@@ -10275,6 +10292,7 @@ def run : IO Unit := do
   testGlobalPaperNonReflexiveRewrite
   testGlobalPaperTraceBackwardRewrite
   testGlobalPaperTraceBackwardNormalization
+  testGlobalPaperTraceBidirectionalNormalization
   testGlobalPaperTraceDeletion
   testGlobalPaperTraceNormalization
   testGlobalPaperTraceNormalizer

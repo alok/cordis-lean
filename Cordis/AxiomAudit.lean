@@ -173,6 +173,7 @@ import Cordis.GlobalPaperShiftedFullLifecycle
 import Cordis.GlobalPaperNonReflexiveRewrite
 import Cordis.GlobalPaperTraceBackwardRewrite
 import Cordis.GlobalPaperTraceBackwardNormalization
+import Cordis.GlobalPaperTraceBidirectionalNormalization
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization
 import Cordis.GlobalPaperTraceNormalizer
@@ -2705,6 +2706,29 @@ namespace Example
 #print axioms executableActorNames_eq
 end Example
 end Cordis.GlobalPaperTraceBackwardNormalization
+namespace Cordis.GlobalPaperTraceBidirectionalNormalization
+#print axioms ForwardPackage
+#print axioms BackwardPackage
+#print axioms BidirectionalWitness.source_related_target
+#print axioms BidirectionalWitness.target_rules_perm
+#print axioms BidirectionalWitness.target_actors_perm
+#print axioms CertifiedChain.terminal
+#print axioms chain_final_related
+#print axioms chain_rules_perm
+#print axioms chain_actors_perm
+namespace Example
+#print axioms sourcePackage
+#print axioms forwardWitness
+#print axioms backwardWitness
+#print axioms forwardChain
+#print axioms backwardChain
+#print axioms forward_final_related
+#print axioms backward_final_related
+#print axioms forward_rules_perm
+#print axioms backward_rules_perm
+#print axioms executableLinkCounts_eq
+end Example
+end Cordis.GlobalPaperTraceBidirectionalNormalization
 namespace Cordis.GlobalPaperTraceDeletion
 #print axioms detailedRule_eq_of_orchestration
 #print axioms replay_detailedRules_eq

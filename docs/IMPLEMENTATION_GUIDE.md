@@ -3284,6 +3284,13 @@ transported assignments, then replay a trailing O-Retire from the related endpoi
 `RelatedAdjacentRewrite` proves the final relation/WF and ledger permutations without casting a
 suffix across unequal states. It is a concrete orchestration-suffix witness, not global lifecycle
 simulation or normalization.
+`GlobalPaperTraceBackwardRewrite` mirrors that construction with a backward assigned simulator,
+and `GlobalPaperTraceBackwardNormalization` composes its dependent certificates in a reverse-
+oriented finite chain. `GlobalPaperTraceBidirectionalNormalization` then wraps forward and
+backward witnesses behind one orientation-indexed chain API, symmetrizing only the backward
+relation and deriving target packages, assignments, and permutations from the selected proof.
+These layers remain supplied certificate composition; they do not derive a normalizer, lifecycle
+simulation, Lemma 72, or Theorem 73.
 `GlobalPaperRelation` now supplies that finite relation: it erases only allocator clock/birth from
 current rule control, relates the opposite insertion endpoints, and proves bidirectional
 well-formed orchestration replay with assignment transport. From a well-formed source carrying
