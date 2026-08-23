@@ -129,6 +129,7 @@ import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessEventRequest
 import Cordis.DeepSeekHarnessEventToolSchema
 import Cordis.DeepSeekHarnessEventLocalSse
+import Cordis.DeepSeekHarnessEventSchemaLocalSse
 import Cordis.DeepSeekHarnessExtensionArchive
 import Cordis.DeepSeekHarnessExtensionRequest
 import Cordis.DeepSeekHarnessExtensionPersistence

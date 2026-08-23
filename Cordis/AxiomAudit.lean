@@ -105,6 +105,7 @@ import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessEventRequest
 import Cordis.DeepSeekHarnessEventToolSchema
 import Cordis.DeepSeekHarnessEventLocalSse
+import Cordis.DeepSeekHarnessEventSchemaLocalSse
 import Cordis.DeepSeekHarnessExtensionArchive
 import Cordis.DeepSeekHarnessExtensionRequest
 import Cordis.DeepSeekHarnessExtensionPersistence
@@ -1829,6 +1830,15 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarnessEventLocalSse.EventSseResult.append_endpoint
 #print axioms Cordis.DeepSeekHarnessEventLocalSse.EventSseResult.final_nextSeq
 #print axioms Cordis.DeepSeekHarnessEventLocalSse.Example.final_nextSeq_expected
+#print axioms Cordis.DeepSeekHarnessEventSchemaLocalSse.rawSource_tool_parameters
+#print axioms Cordis.DeepSeekHarnessEventSchemaLocalSse.SchemaLocalSseResult.request_model
+#print axioms Cordis.DeepSeekHarnessEventSchemaLocalSse.SchemaLocalSseResult.request_tool_names
+#print axioms Cordis.DeepSeekHarnessEventSchemaLocalSse.SchemaLocalSseResult.request_tool_descriptions
+#print axioms Cordis.DeepSeekHarnessEventSchemaLocalSse.SchemaLocalSseResult.request_tool_parameters
+#print axioms Cordis.DeepSeekHarnessEventSchemaLocalSse.SchemaLocalSseResult.append_endpoint
+#print axioms Cordis.DeepSeekHarnessEventSchemaLocalSse.SchemaLocalSseResult.final_next_seq
+#print axioms Cordis.DeepSeekHarnessEventSchemaLocalSse.Example.final_next_seq_expected
+#print axioms Cordis.DeepSeekHarnessEventSchemaLocalSse.Example.tool_parameters_are_source_json
 #print axioms Cordis.DeepSeekHarnessEventText.restoreTextRunner
 #print axioms Cordis.DeepSeekHarnessEventText.restoreBytesRunner
 #print axioms Cordis.DeepSeekHarnessEventText.RestoredTextRunner.session_eq

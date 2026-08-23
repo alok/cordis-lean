@@ -2016,6 +2016,14 @@ append endpoint; the executable fixture checks one valid request, three frames, 
 `nextSeq 6 -> 7`. This remains local process/HTTP evidence rather than remote or deployed
 Harness equivalence.
 
+`Cordis.DeepSeekHarnessEventSchemaLocalSse` extends this executable boundary without collapsing
+the source schema into the compressed local projection. It rebuilds each outgoing tool definition
+from the validated source list, so the request plan carries the original raw `parameters` JSON
+AST alongside the source name and description. Its dependent result proves those fields, the
+model and streaming flag, response frames, and append endpoint; the fixture checks one raw tool,
+one valid request, three frames, and `nextSeq 6 -> 7`. Provider validation, credentials,
+persistence, cancellation, and deployed-Harness equivalence remain external.
+
 `Cordis.DeepSeekHarnessEventIgnorableProjection` is the intentionally smaller source-authorized
 exception. It retains the full archive and a positional keep/drop ledger, drops only opaque rows
 marked `ignorable: true`, retains supported wire/raw certificates and positions, and rejects a

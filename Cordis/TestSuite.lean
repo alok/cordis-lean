@@ -115,6 +115,7 @@ import Cordis.DeepSeekHarnessEventArchive
 import Cordis.DeepSeekHarnessEventRequest
 import Cordis.DeepSeekHarnessEventToolSchema
 import Cordis.DeepSeekHarnessEventLocalSse
+import Cordis.DeepSeekHarnessEventSchemaLocalSse
 import Cordis.DeepSeekHarnessEventIgnorableProjection
 import Cordis.DeepSeekHarnessEventIgnorableNormalization
 import Cordis.DeepSeekHarnessEventSimulation
@@ -3406,6 +3407,30 @@ private def testDeepSeekHarnessEventLocalSse : IO Unit := do
       let _projection :=
         DeepSeekHarnessEventLocalSse.EventSseResult.protocol_projection_before
           (certificate := DeepSeekHarnessEventLocalSse.Example.certificate)
+      pure ()
+
+private def testDeepSeekHarnessEventSchemaLocalSse : IO Unit := do
+  match ← DeepSeekHarnessEventSchemaLocalSse.Example.run with
+  | .error error => fail s!"raw-schema event local SSE failed: {reprStr error}"
+  | .ok result =>
+      assertEqual "raw-schema event local SSE has one request"
+        result.localResult.requests 1
+      assertEqual "raw-schema event local SSE validates one request"
+        result.localResult.validRequests 1
+      assertEqual "raw-schema event local SSE sends one raw tool"
+        result.localResult.prepared.plan.source.tools.length 1
+      assertEqual "raw-schema event local SSE delivers three frames"
+        result.localResult.response.wire.frames.length 3
+      assertEqual "raw-schema event local SSE preserves the header model"
+        result.localResult.prepared.plan.source.model "deepseek-reasoner"
+      assertEqual "raw-schema event local SSE advances the exact event endpoint"
+        result.localResult.after.session.nextSeq 7
+      let _parameters :=
+        DeepSeekHarnessEventSchemaLocalSse.SchemaLocalSseResult.request_tool_parameters result
+      let _endpoint :=
+        DeepSeekHarnessEventSchemaLocalSse.SchemaLocalSseResult.append_endpoint result
+      let _sourceParameters :=
+        DeepSeekHarnessEventSchemaLocalSse.Example.tool_parameters_are_source_json result
       pure ()
 
 private def testDeepSeekAsyncStreamCancellation : IO Unit := do
@@ -10442,6 +10467,7 @@ def run : IO Unit := do
   testDeepSeekHarnessEventRequest
   testDeepSeekHarnessEventToolSchema
   testDeepSeekHarnessEventLocalSse
+  testDeepSeekHarnessEventSchemaLocalSse
   testDeepSeekHarnessEventIgnorableProjection
   testDeepSeekHarnessEventIgnorableNormalization
   testDeepSeekHarnessEventSimulation

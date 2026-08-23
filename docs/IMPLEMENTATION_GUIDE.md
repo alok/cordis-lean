@@ -1942,6 +1942,12 @@ obedience, and deployed-Harness equivalence remain external.
 `EventSseResult` retains the loopback request plan, raw frames, finisher, and append endpoint.
 The fixture proves one valid request, three frames, and the exact `nextSeq 6 -> 7` transition;
 the evidence is local Python/curl transport only.
+`Cordis.DeepSeekHarnessEventSchemaLocalSse` continues one step further without treating the
+compressed local schema as the wire schema: it rebuilds raw `ToolDefinition`s from the dependent
+source list and proves that the loopback streaming plan retains the original `parameters` JSON
+AST, names, descriptions, model, stream flag, frames, and append endpoint. Its executable fixture
+checks one raw tool, one valid request, three frames, and `nextSeq 6 -> 7`; provider validation,
+credentials, persistence, cancellation, and deployed-Harness equivalence remain external.
 `Cordis.DeepSeekHarnessEventIgnorableProjection` records the adjacent source-authorized exception
 without weakening that fail-closed runner boundary. Its positional ledger drops only opaque rows
 whose envelope explicitly carries `ignorable: true`, retains supported wire certificates and raw
