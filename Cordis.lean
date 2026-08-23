@@ -187,6 +187,7 @@ import Cordis.GlobalNameAction
 import Cordis.GlobalNameLifecycle
 import Cordis.GlobalPaperRelation
 import Cordis.GlobalPaperTraceSimulation
+import Cordis.GlobalPaperLandingReplay
 import Cordis.GlobalPaperShiftedLifecycle
 import Cordis.GlobalPaperTraceDeletion
 import Cordis.GlobalPaperTraceNormalization

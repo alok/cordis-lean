@@ -232,6 +232,14 @@ birth-erased local endpoint still cannot attach to the retained exact suffix wit
 bisimulation, so registering activation/O-Insert, automatic/canonical normalization, deletion, Lemma 72, and
 confluence remain open.
 
+`GlobalPaperLandingReplay` closes one concrete lifecycle seam inside that exact trace surface.
+Its fixed-program Iter/Finish example reconstructs both `TraceProgramAssignment`s from the actual
+activation witnesses, feeds the dependent window through `RelatedAdjacentRewrite`, and proves the
+birth-erased endpoint relation, endpoint well-formedness, and swapped detailed rule/actor ledgers.
+The endpoint relation is reflexive in this witness because the two activation orders share the exact
+final state. This is a positive occurrence-specific landing certificate, not a global lifecycle
+simulation or a proof of Lemma 71/72/Theorem 73.
+
 The bounded deletion layer now gives trace filtering an intrinsic semantics. `DeletionReplay`
 consumes source constructors in order, either replaying one actual dependent step with an explicit
 assignment transport or dropping that exact occurrence while the shadow state stays fixed. It
@@ -291,6 +299,12 @@ state and current-rule-relation inequality. A clock-sensitive target-changed mod
 L-DivertAbort but no same-lifecycle-rule peer, refuting any unconditional assigned lifecycle
 simulation. General lifecycle replay, relation-aware activation swaps, Lemma 72,
 automatic/canonical normalization, and confluence remain open.
+
+`Cordis.GlobalPaperLandingReplay` adds a concrete fixed-program Iter/Finish landing diamond to the
+assigned trace surface. It reconstructs both program assignments from actual activation witnesses,
+rewrites the dependent window through `RelatedAdjacentRewrite`, and proves reflexive birth-erased
+endpoint relatedness, endpoint well-formedness, and swapped detailed rule/actor ledgers. This is an
+occurrence-specific landing certificate, not global lifecycle simulation or Lemma 71/72/Theorem 73.
 
 `Cordis.GlobalPaperShiftedLifecycle` adds a concrete non-reflexive allocator-clock replay: it
 shifts only `nextBirth`, rebuilds the dependent L-Leave/L-Unload pair, and transports the exact
