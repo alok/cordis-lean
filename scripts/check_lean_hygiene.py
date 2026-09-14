@@ -217,6 +217,8 @@ def normalized_axiom_entries(lines: Sequence[str]) -> list[str]:
     pending: list[str] = []
     for raw_line in lines:
         line = ANSI_ESCAPE.sub("", raw_line).strip()
+        if re.search(r"(?:^|:\s)error(?:\([^)]*\))?:", line):
+            raise AxiomReportError(f"compiler error in axiom report: {line}")
         if pending:
             if not line:
                 raise AxiomReportError("blank line inside wrapped axiom entry")
@@ -325,6 +327,17 @@ def bypass : String :=
         "'Cordis.Long.theorem_name' depends on axioms: [propext, Classical.choice, Quot.sound]",
         "'Cordis.Constructive' does not depend on any axioms",
     ]
+    for diagnostic in [
+        "Cordis/AxiomAudit.lean:2:14: error: unknown constant",
+        "Cordis/AxiomAudit.lean:2:14: error(lean.unknownIdentifier): unknown constant",
+        "error: Lean exited with code 1",
+    ]:
+        try:
+            normalized_axiom_entries(wrapped_axioms + [diagnostic])
+        except AxiomReportError:
+            pass
+        else:
+            raise AssertionError("compiler failure was accepted as an axiom report")
     print("Lean hygiene scanner self-test passed.")
 
 

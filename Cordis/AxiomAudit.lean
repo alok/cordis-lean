@@ -4,6 +4,7 @@ import Cordis.Coeffect
 import Cordis.CoeffectQuotient
 import Cordis.ContextualEquivalence
 import Cordis.DeepSeekApi
+import Cordis.DeepSeekHarnessCompatibility
 import Cordis.DeepSeekApiBytes
 import Cordis.DeepSeekApiErrorEnvelope
 import Cordis.DeepSeekRequestMode
