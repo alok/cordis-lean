@@ -1,0 +1,6 @@
+{
+  "repository": "https://github.com/deepseek-ai/deepseek-harness.git",
+  "revision": "99f6f02fecdb7dff40c3fbc9470f5907c29f74ca",
+  "serializer": "packages/llm/llm-deepseek/src/serialize.ts",
+  "bun_version": "1.3.14"
+}

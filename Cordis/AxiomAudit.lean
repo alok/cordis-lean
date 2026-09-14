@@ -1592,6 +1592,12 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan_source_stream
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan_source_tools
+#print axioms Cordis.DeepSeekHarnessCompatibility.normalizeSource_tools
+#print axioms Cordis.DeepSeekHarnessCompatibility.normalizeSource_stream
+#print axioms Cordis.DeepSeekHarnessCompatibility.CompatibleRequestPlan.source_tools
+#print axioms Cordis.DeepSeekHarnessCompatibility.CompatibleRequestPlan.body_eq
+#print axioms Cordis.DeepSeekHarnessCompatibility.CompatibleRequestPlan.url_eq
+#print axioms Cordis.DeepSeekHarnessCompatibility.CompatibleRequestPlan.headers_eq
 #print axioms Cordis.DeepSeekHarness.buildStreamingRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildStreamingRequestPlan_source_stream
 #print axioms Cordis.DeepSeekHarness.executeFunctionCall

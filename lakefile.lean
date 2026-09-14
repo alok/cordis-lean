@@ -20,3 +20,7 @@ lean_exe cordis_demo where
 @[default_target]
 lean_exe cordis_tests where
   root := `Tests
+
+@[default_target]
+lean_exe cordis_upstream_request where
+  root := `Integration.HarnessRequestDriver

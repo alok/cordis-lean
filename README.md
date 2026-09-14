@@ -4,6 +4,14 @@
 
 <!-- markdownlint-disable MD013 -->
 
+The [pinned Harness integration loop](docs/UPSTREAM_INTEGRATION.md) now compares
+114 complete request JSON values against the actual TypeScript serializer, with
+six checks that deliberate drift is detected and five unsupported-field rejection
+cases. Run `python3 scripts/check_upstream_integration.py` with Bun 1.3.14 and the
+pinned Lean toolchain. CI runs the same command and retains the corpus, both
+outputs, and a revision/hash receipt. `DeepSeekHarnessCompatibility` provides a
+separate proof-carrying adapter for this shared request fragment.
+
 CORDIS Lean `0.1.0` is a delivered, executable finite reference kernel for
 proof-carrying agent harnesses. It validates raw counter-tool calls into
 dependent calls, threads each admitted call through an exact-subject policy
