@@ -1412,6 +1412,7 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekProcessScopedRequestConversation.Example.oneStepFuelSummary
 #print axioms Cordis.DeepSeekProcessScopedRequestBytePrefixConversation.executePrepared
 #print axioms Cordis.DeepSeekProcessScopedRequestBytePrefixConversation.PreparedScopedRound.plan_source_stream
+#print axioms Cordis.DeepSeekProcessScopedRequestBytePrefixConversation.PreparedScopedRound.plan_source_tools
 #print axioms Cordis.DeepSeekProcessScopedRequestBytePrefixConversation.PreparedScopedRound.plan_body_exact
 #print axioms Cordis.DeepSeekProcessScopedRequestBytePrefixConversation.runAux
 #print axioms Cordis.DeepSeekProcessScopedRequestBytePrefixConversation.run
@@ -1590,6 +1591,7 @@ set_option format.width 200
 #print axioms Cordis.DeepSeekHarness.buildTypedCompleteRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan_source_stream
+#print axioms Cordis.DeepSeekHarness.buildTypedStreamingRequestPlan_source_tools
 #print axioms Cordis.DeepSeekHarness.buildStreamingRequestPlan
 #print axioms Cordis.DeepSeekHarness.buildStreamingRequestPlan_source_stream
 #print axioms Cordis.DeepSeekHarness.executeFunctionCall

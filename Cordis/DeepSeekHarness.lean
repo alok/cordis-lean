@@ -173,6 +173,98 @@ theorem buildTypedStreamingRequestPlan_source_stream
     plan.source.stream = true := by
   exact plan.streaming_source_stream
 
+/- Exact source-tool preservation survives successful typed request construction.  This is
+   stronger than merely observing the encoded body: it identifies the complete typed tool list
+   retained by the plan with the source list that the caller supplied. -/
+theorem buildTypedStreamingRequestPlan_source_tools
+    (baseUrl : String)
+    (apiKey : ApiKey)
+    (source : RequestSource)
+    (session : Session.Session Session.noExtensions)
+    {plan : TypedRequestPlan .streaming}
+    (plan_eq : buildTypedStreamingRequestPlan baseUrl apiKey source session = .ok plan) :
+    plan.source.tools = source.tools := by
+  unfold buildTypedStreamingRequestPlan at plan_eq
+  cases requestEq : buildChatRequest source session with
+  | error error =>
+      rw [requestEq] at plan_eq
+      change (Except.error error : Except RequestError (TypedRequestPlan .streaming)) = .ok plan at plan_eq
+      cases plan_eq
+  | ok request =>
+      rw [requestEq] at plan_eq
+      change (Except.ok (buildTypedStreamingRequest baseUrl apiKey request) :
+        Except RequestError (TypedRequestPlan .streaming)) = .ok plan at plan_eq
+      injection plan_eq with planEq
+      have requestTools : request.tools = source.tools := by
+        unfold buildChatRequest at requestEq
+        generalize hconverted :
+          sessionMessagesToChatMessagesWith source.errorToolResults
+            (requestSourceMessages source session) = converted at requestEq
+        cases hsystem : source.system with
+        | none =>
+            rw [hsystem] at requestEq
+            cases converted with
+            | error error =>
+                dsimp at requestEq
+                cases requestEq
+            | ok messages =>
+                dsimp at requestEq
+                change (do
+                  let messageList ← nonemptyMessages messages
+                  Except.ok {
+                    model := source.model, messages := messageList,
+                    thinking := source.thinking,
+                    reasoningEffort := source.reasoningEffort, maxTokens := source.maxTokens,
+                    responseFormat := source.responseFormat, tools := source.tools,
+                    toolChoice := source.toolChoice }) = Except.ok request at requestEq
+                cases hne : nonemptyMessages messages with
+                | error error =>
+                    rw [hne] at requestEq
+                    change Except.error error = Except.ok request at requestEq
+                    cases requestEq
+                | ok messageList =>
+                    rw [hne] at requestEq
+                    change Except.ok {
+                      model := source.model,
+                      messages := messageList,
+                      thinking := source.thinking,
+                      reasoningEffort := source.reasoningEffort,
+                      maxTokens := source.maxTokens,
+                      responseFormat := source.responseFormat,
+                      tools := source.tools,
+                      toolChoice := source.toolChoice } = Except.ok request at requestEq
+                    injection requestEq with requestEq'
+                    exact (congrArg ChatRequest.tools requestEq').symm
+        | some system =>
+            rw [hsystem] at requestEq
+            cases converted with
+            | error error =>
+                dsimp at requestEq
+                cases requestEq
+            | ok converted =>
+                dsimp at requestEq
+                change (do
+                  let messages ← Except.ok {
+                    head := ChatMessage.system system, tail := converted
+                  }
+                  Except.ok {
+                    model := source.model, messages := messages, thinking := source.thinking,
+                    reasoningEffort := source.reasoningEffort, maxTokens := source.maxTokens,
+                    responseFormat := source.responseFormat, tools := source.tools,
+                    toolChoice := source.toolChoice }) = Except.ok request at requestEq
+                change Except.ok {
+                  model := source.model,
+                  messages := { head := ChatMessage.system system, tail := converted },
+                  thinking := source.thinking,
+                  reasoningEffort := source.reasoningEffort, maxTokens := source.maxTokens,
+                  responseFormat := source.responseFormat, tools := source.tools,
+                  toolChoice := source.toolChoice } = Except.ok request at requestEq
+                injection requestEq with requestEq'
+                exact (congrArg ChatRequest.tools requestEq').symm
+      rw [← requestTools]
+      cases planEq
+      rfl
+
 theorem buildStreamingRequestPlan_source_stream
     (baseUrl : String)
     (apiKey : ApiKey)

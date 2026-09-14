@@ -143,6 +143,23 @@ theorem PreparedScopedRound.plan_source_stream
     round.plan.source.stream = true :=
   round.plan.streaming_source_stream
 
+theorem PreparedScopedRound.plan_source_tools
+    {Model Capability : Type}
+    {cfg : Config Model Capability}
+    {registry : ScopedRegistry cfg}
+    {approval : ApprovalPolicy cfg}
+    {baseUrl : String}
+    {apiKey : ApiKey}
+    {source : RequestSource}
+    {session : Session.Session Session.noExtensions}
+    {before after : Model}
+    {body : String}
+    (round : PreparedScopedRound registry approval baseUrl apiKey source session before body
+      after) :
+    round.plan.source.tools = source.tools :=
+  DeepSeekHarness.buildTypedStreamingRequestPlan_source_tools
+    baseUrl apiKey source session round.plan_eq
+
 theorem PreparedScopedRound.plan_body_exact
     {Model Capability : Type}
     {cfg : Config Model Capability}
